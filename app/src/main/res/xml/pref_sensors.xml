@@ -1,0 +1,55 @@
+<PreferenceScreen xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <EditTextPreference
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/title_sensor_update_frequency"
+        android:key="@string/key_setting_sensor_update_frequency"
+        android:inputType="number"
+        android:defaultValue="60" />
+
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="@string/setting_sensor_battery_enable"
+        android:title="@string/battery" />
+
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="@string/setting_sensor_light_enable"
+        android:title="@string/light" />
+
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="@string/setting_sensor_pressure_enable"
+        android:title="@string/pressure" />
+    <PreferenceCategory android:title="Motion Detection">
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:title="@string/title_setting_motion_detection_enable"
+            android:key="@string/key_setting_motion_detection_enable" />
+        <EditTextPreference
+            android:defaultValue="200"
+            android:selectAllOnFocus="true"
+            android:inputType="number"
+            android:title="@string/title_setting_motion_detection_interval"
+            android:key="@string/key_setting_motion_detection_intervall"
+            android:singleLine="true" />
+        <EditTextPreference
+            android:defaultValue="20"
+            android:selectAllOnFocus="true"
+            android:inputType="number"
+            android:title="@string/title_setting_motion_detection_leniency"
+            android:key="@string/key_setting_motion_detection_leniency"
+            android:singleLine="true" />
+        <EditTextPreference
+            android:defaultValue="1000"
+            android:selectAllOnFocus="true"
+            android:inputType="number"
+            android:title="@string/title_setting_motion_detection_min_luma"
+            android:key="@string/key_setting_motion_detection_min_luma"
+            android:singleLine="true" />
+    </PreferenceCategory>
+
+</PreferenceScreen>

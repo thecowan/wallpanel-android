@@ -1,0 +1,16 @@
+<preference-headers xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- These settings headers are only used on tablets. -->
+
+    <header
+        android:fragment="de.rhuber.homedash.SettingsActivity$GeneralPreferenceFragment"
+        android:icon="@drawable/ic_info_black_24dp"
+        android:title="@string/pref_header_general" />
+
+    <header
+        android:fragment="de.rhuber.homedash.SettingsActivity$SensorPreferenceFragment"
+        android:icon="@drawable/ic_graphic_eq_black_24dp"
+        android:title="@string/pref_header_sensors" />
+
+
+</preference-headers>
