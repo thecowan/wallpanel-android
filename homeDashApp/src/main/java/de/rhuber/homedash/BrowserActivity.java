@@ -39,6 +39,7 @@ public class BrowserActivity extends AppCompatActivity  {
     View decorView;
 
     private boolean displayProgress = true;
+    private PowerManager.WakeLock screenWakeLock;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +47,12 @@ public class BrowserActivity extends AppCompatActivity  {
         //this.requestWindowFeature(Window.FEATURE_NO_TITLE);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_browser);
+
+        PowerManager pm = (PowerManager) getSystemService(getApplicationContext().POWER_SERVICE);
+        screenWakeLock = pm.newWakeLock(
+                PowerManager.ACQUIRE_CAUSES_WAKEUP|
+                PowerManager.ON_AFTER_RELEASE|
+                PowerManager.PARTIAL_WAKE_LOCK, "ScreenWakeup");
 
         mWebView = (WebView) findViewById(R.id.activity_browser_webview);
 
@@ -155,27 +162,25 @@ public class BrowserActivity extends AppCompatActivity  {
         }
     };
 
-    private final int wakeupWindowFlags =  WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
-            WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD |
-            WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON |
-            WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON;
-
     public void screenOn(){
-        final Window win = getWindow();
-        win.addFlags(wakeupWindowFlags);
-
-
-        PowerManager pm = (PowerManager) getSystemService(getApplicationContext().POWER_SERVICE);
-        PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK|PowerManager.ACQUIRE_CAUSES_WAKEUP|PowerManager.ON_AFTER_RELEASE, "ScreenWakeup");
-        wl.acquire();
-        wl.release();
+        PowerManager TempPowerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        PowerManager.WakeLock TempWakeLock = TempPowerManager.newWakeLock(
+                        PowerManager.FULL_WAKE_LOCK |
+                        PowerManager.ACQUIRE_CAUSES_WAKEUP |
+                        PowerManager.ON_AFTER_RELEASE, "TempWakeLock");
+        TempWakeLock.acquire();
+        TempWakeLock.release();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+        screenWakeLock.release();
+    }
 
-        final Window win = getWindow();
-        win.clearFlags(wakeupWindowFlags);
+    @Override
+    protected void onResume() {
+        super.onResume();
+        screenWakeLock.acquire();
     }
 }
