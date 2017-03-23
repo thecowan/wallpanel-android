@@ -77,6 +77,8 @@
     <string name="key_setting_enable_mqtt">enable_mqtt</string>
     <string name="key_setting_mqtt_host">setting_mqtt_host</string>
     <string name="key_setting_mqtt_topic">setting_mqtt_topic/</string>
+    <string name="key_setting_mqtt_username">setting_mqtt_username</string>
+    <string name="key_setting_mqtt_password">setting_mqtt_password</string>
 
     <string name="title_activity_browser">Browser</string>
     <string name="setting_sensor_battery_enable" >setting_sensor_battery_enable</string>
@@ -95,6 +97,8 @@
     <string name="setting_direct_browser_title">Start with browser</string>
     <string name="setting_startup_url_default">http://box.lan:8123</string>
     <string name="setting_startup_url_title">Startup URL</string>
+    <string name="setting_display_progress_title">Display Page Load Progress</string>
+    <string name="key_setting_display_progress_enable">setting_display_progress_enable</string>
     <string name="setting_mqtt_host_default">tcp://box.lan:1883</string>
     <string name="key_setting_motion_detection_enable">key_setting_motion_detection_enable</string>
     <string name="title_setting_motion_detection_enable">Motion detection</string>
