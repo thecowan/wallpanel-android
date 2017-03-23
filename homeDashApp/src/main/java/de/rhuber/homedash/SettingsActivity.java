@@ -300,6 +300,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_mqtt_host)));
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_direct_browser_enable)));
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_mqtt_topic)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_mqtt_username)));
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_enable_mqtt)));
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_startup_url)));
         }
