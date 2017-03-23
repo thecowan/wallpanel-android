@@ -91,7 +91,8 @@ public class HomeDashService extends Service {
         //stopMqttConnection();
     }
 
-    public void startMqttConnection(String serverUri, String clientId, final String topic) {
+    public void startMqttConnection(String serverUri, String clientId, final String topic,
+                                    final String username, final String password) {
         if (mqttAndroidClient == null) {
             topicPrefix = topic;
             if (!topicPrefix.endsWith("/")) {
@@ -122,6 +123,10 @@ public class HomeDashService extends Service {
                 }
             });
             MqttConnectOptions mqttConnectOptions = new MqttConnectOptions();
+            if (username.length() > 0) {
+                mqttConnectOptions.setUserName(username);
+                mqttConnectOptions.setPassword(password.toCharArray());
+            }
             mqttConnectOptions.setAutomaticReconnect(true);
             mqttConnectOptions.setCleanSession(false);
             try {

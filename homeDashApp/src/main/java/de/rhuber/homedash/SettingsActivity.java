@@ -87,7 +87,9 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                         final String topic = sharedPreferences.getString(getString(R.string.key_setting_mqtt_topic), "");
                         final String url = sharedPreferences.getString(getString(R.string.key_setting_mqtt_host), "");
                         final String clientId = "homeDash-" + Build.DEVICE;
-                        homeDashService.startMqttConnection(url, clientId, topic);
+                        final String username = sharedPreferences.getString(getString(R.string.key_setting_mqtt_username), "");
+                        final String password = sharedPreferences.getString(getString(R.string.key_setting_mqtt_password), "");
+                        homeDashService.startMqttConnection(url, clientId, topic, username, password);
                     } else {
                         homeDashService.stopMqttConnection();
                     }

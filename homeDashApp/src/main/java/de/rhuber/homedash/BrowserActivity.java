@@ -38,6 +38,8 @@ public class BrowserActivity extends AppCompatActivity  {
     private WebView mWebView;
     View decorView;
 
+    private boolean displayProgress = true;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -50,11 +52,12 @@ public class BrowserActivity extends AppCompatActivity  {
         // Force links and redirects to open in the WebView instead of in a browser
         mWebView.setWebChromeClient(new WebChromeClient(){
 
-
             Snackbar snackbar;
 
             @Override
             public void onProgressChanged(WebView view, int newProgress) {
+                if (!displayProgress) return;
+
                 if(newProgress == 100 && snackbar != null){
                     snackbar.dismiss();
                     return;
@@ -92,6 +95,7 @@ public class BrowserActivity extends AppCompatActivity  {
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         String url = sharedPreferences.getString(getString(R.string.key_setting_startup_url),"");
+        displayProgress = sharedPreferences.getBoolean(getString(R.string.key_setting_display_progress_enable),true);
         mWebView.loadUrl(url);
         Log.i("WebView", webSettings.getUserAgentString());
 
