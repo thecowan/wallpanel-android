@@ -253,7 +253,7 @@ public class HomeDashService extends Service {
                         if(jsonObject.has(MQTT_COMMAND_CLEAR_BROWSER_CACHE)){
                             clearBrowserCache();
                         }
-                        String js =  jsonObject.has(MQTT_COMMAND_JS_EXEC) ? jsonObject.getString("MQTT_COMMAND_JS_EXEC") : null;
+                        String js =  jsonObject.has(MQTT_COMMAND_JS_EXEC) ? jsonObject.getString(MQTT_COMMAND_JS_EXEC) : null;
                         if(js != null){
                             Intent intent = new Intent(BrowserActivity.BROADCAST_ACTION_JS_EXEC);
                             intent.putExtra(BrowserActivity.BROADCAST_ACTION_JS_EXEC, js);
