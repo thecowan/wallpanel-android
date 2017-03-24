@@ -39,7 +39,9 @@ public class BrowserActivity extends AppCompatActivity  {
     View decorView;
 
     private boolean displayProgress = true;
-    private PowerManager.WakeLock screenWakeLock;
+
+    private PowerManager.WakeLock fullWakeLock;
+    private PowerManager.WakeLock partialWakeLock;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,10 +51,11 @@ public class BrowserActivity extends AppCompatActivity  {
         setContentView(R.layout.activity_browser);
 
         PowerManager pm = (PowerManager) getSystemService(getApplicationContext().POWER_SERVICE);
-        screenWakeLock = pm.newWakeLock(
-                PowerManager.ACQUIRE_CAUSES_WAKEUP|
-                PowerManager.ON_AFTER_RELEASE|
-                PowerManager.PARTIAL_WAKE_LOCK, "ScreenWakeup");
+
+        fullWakeLock = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK |
+                PowerManager.ON_AFTER_RELEASE |
+                PowerManager.ACQUIRE_CAUSES_WAKEUP, "fullWakeLock");
+        partialWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "partialWakeLock");
 
         mWebView = (WebView) findViewById(R.id.activity_browser_webview);
 
@@ -163,24 +166,23 @@ public class BrowserActivity extends AppCompatActivity  {
     };
 
     public void screenOn(){
-        PowerManager TempPowerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
-        PowerManager.WakeLock TempWakeLock = TempPowerManager.newWakeLock(
-                        PowerManager.FULL_WAKE_LOCK |
-                        PowerManager.ACQUIRE_CAUSES_WAKEUP |
-                        PowerManager.ON_AFTER_RELEASE, "TempWakeLock");
-        TempWakeLock.acquire();
-        TempWakeLock.release();
+        fullWakeLock.acquire();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        screenWakeLock.release();
+        partialWakeLock.acquire();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        screenWakeLock.acquire();
+        if(fullWakeLock.isHeld()){
+            fullWakeLock.release();
+        }
+        if(partialWakeLock.isHeld()){
+            partialWakeLock.release();
+        }
     }
 }
