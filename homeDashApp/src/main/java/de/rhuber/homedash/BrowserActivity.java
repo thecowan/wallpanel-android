@@ -167,6 +167,7 @@ public class BrowserActivity extends AppCompatActivity  {
 
     public void screenOn(){
         fullWakeLock.acquire();
+        fullWakeLock.release();
     }
 
     @Override
