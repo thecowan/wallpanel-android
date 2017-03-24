@@ -21,12 +21,14 @@ topic `/homedash/command`
 
 * Load URL
  `{"url":"http://someurl.org"}`
+* Load URL and make it the new startup default
+ `{"url":"http://someurl.org","save":"true"}`
 * Run JavaScript in current page
 `{"jsExec":"Alert('Hello World');"}`
 * Screen wake up 
-`{"wakeup":1}`
+`{"wakeup":"true"}`
 * Clear browser cache
-`{"clearBrowserCache":1}`
+`{"clearBrowserCache":"true"}`
 
 ## Home-Assistant configuration
 ```YAML

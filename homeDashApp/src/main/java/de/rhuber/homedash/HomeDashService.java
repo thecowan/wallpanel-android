@@ -8,6 +8,7 @@ import android.app.job.JobScheduler;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.graphics.BitmapFactory;
 import android.os.Binder;
 import android.os.IBinder;
@@ -44,6 +45,7 @@ public class HomeDashService extends Service {
     public static final String MQTT_COMMAND_CLEAR_BROWSER_CACHE = "clearBrowserCache";
     public static final String MQTT_COMMAND_JS_EXEC = "jsExec";
     public static final String MQTT_COMMAND_URL = "url";
+    public static final String MQTT_COMMAND_SAVE = "save";
 
     final Integer sensorJobId = 1;
     private final String TAG = HomeDashService.class.getName();
@@ -246,6 +248,14 @@ public class HomeDashService extends Service {
                             intent.putExtra(BrowserActivity.BROADCAST_ACTION_LOAD_URL, url);
                             LocalBroadcastManager bm = LocalBroadcastManager.getInstance(getApplicationContext());
                             bm.sendBroadcast(intent);
+
+                            boolean save = jsonObject.has(MQTT_COMMAND_SAVE) ? jsonObject.getBoolean(MQTT_COMMAND_SAVE) : false;
+                            if (save) {
+                                Log.i(TAG, "Saving new URL as default");
+                                Editor ed = sharedPreferences.edit();
+                                ed.putString(getString(R.string.key_setting_startup_url), url);
+                                ed.commit();
+                            }
                         }
                         if(jsonObject.has(MQTT_COMMAND_WAKEUP)){
                             switchScreenOn();
