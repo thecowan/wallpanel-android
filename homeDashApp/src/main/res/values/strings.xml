@@ -108,4 +108,6 @@
     <string name="title_setting_motion_detection_leniency">Leniency</string>
     <string name="key_setting_motion_detection_min_luma">key_setting_motion_detection_min_luma</string>
     <string name="title_setting_motion_detection_min_luma">Minimal luma (brightness)</string>
+    <string name="key_setting_start_on_boot">setting_start_on_boot</string>
+    <string name="title_setting_start_on_boot">Start HomeDash on Android Boot</string>
 </resources>

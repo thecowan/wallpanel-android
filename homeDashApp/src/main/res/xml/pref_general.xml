@@ -42,6 +42,9 @@
         android:defaultValue="true"
         android:title="@string/setting_display_progress_title"
         android:key="@string/key_setting_display_progress_enable" />
-
+    <SwitchPreference
+        android:defaultValue="false"
+        android:title="@string/title_setting_start_on_boot"
+        android:key="@string/key_setting_start_on_boot" />
 
 </PreferenceScreen>
