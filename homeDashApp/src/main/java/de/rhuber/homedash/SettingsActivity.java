@@ -152,6 +152,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
     }
 
+    private static boolean startFirstTime = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -159,7 +160,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         Boolean startBrowser = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean(getString(R.string.key_setting_direct_browser_enable),false);
-        if(startBrowser){
+        if(startBrowser && !startFirstTime){
+            startFirstTime = true;
             startActivity(new Intent(getApplicationContext(), BrowserActivity.class));
         }
 
