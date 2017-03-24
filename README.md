@@ -24,9 +24,9 @@ topic `/homedash/command`
 * Run JavaScript in current page
 `{"jsExec":"Alert('Hello World');"}`
 * Screen wake up 
-`{"wakeup"}`
+`{"wakeup":1}`
 * Clear browser cache
-`{"clearBrowserCache"}`
+`{"clearBrowserCache":1}`
 
 ## Home-Assistant configuration
 ```YAML
