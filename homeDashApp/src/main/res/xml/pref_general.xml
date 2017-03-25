@@ -1,50 +1,36 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <SwitchPreference
-        android:title="@string/pref_title_enable_mqtt"
-        android:id="@+id/mqtt_switch"
-        android:key="@string/key_setting_enable_mqtt"
-        android:defaultValue="false" />
-    <EditTextPreference
-        android:defaultValue="@string/setting_mqtt_host_default"
-        android:selectAllOnFocus="true"
-        android:singleLine="true"
-        android:title="MQTT host"
-        android:key="@string/key_setting_mqtt_host" />
-    <EditTextPreference
-        android:selectAllOnFocus="true"
-        android:singleLine="true"
-        android:title="MQTT topic"
-        android:key="@string/key_setting_mqtt_topic"
-        android:defaultValue="/homedash/" />
-    <EditTextPreference
-        android:selectAllOnFocus="true"
-        android:singleLine="true"
-        android:title="MQTT username"
-        android:key="@string/key_setting_mqtt_username" />
-    <EditTextPreference
-        android:selectAllOnFocus="true"
-        android:singleLine="true"
-        android:title="MQTT password"
-        android:key="@string/key_setting_mqtt_password"
-        android:password="true" />
-    <EditTextPreference
-        android:selectAllOnFocus="true"
-        android:singleLine="true"
-        android:title="@string/setting_startup_url_title"
-        android:key="@string/key_setting_startup_url"
-        android:defaultValue="@string/setting_startup_url_default" />
-    <SwitchPreference
-        android:defaultValue="false"
-        android:title="@string/setting_direct_browser_title"
-        android:key="@string/key_setting_direct_browser_enable" />
-    <SwitchPreference
-        android:defaultValue="true"
-        android:title="@string/setting_display_progress_title"
-        android:key="@string/key_setting_display_progress_enable" />
-    <SwitchPreference
-        android:defaultValue="false"
-        android:title="@string/title_setting_start_on_boot"
-        android:key="@string/key_setting_start_on_boot" />
+        <EditTextPreference
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="@string/setting_startup_url_title"
+            android:key="@string/key_setting_startup_url"
+            android:defaultValue="@string/setting_startup_url_default" />
+        <SwitchPreference
+            android:defaultValue="false"
+            android:title="@string/setting_direct_browser_title"
+            android:key="@string/key_setting_direct_browser_enable" />
+        <SwitchPreference
+            android:defaultValue="true"
+            android:title="@string/setting_display_progress_title"
+            android:key="@string/key_setting_display_progress_enable" />
+        <SwitchPreference
+            android:defaultValue="false"
+            android:title="@string/title_setting_start_on_boot"
+            android:key="@string/key_setting_start_on_boot" />
+
+    <PreferenceCategory android:title="@string/pref_header_power_options">
+
+            <SwitchPreference
+                android:defaultValue="false"
+                android:title="@string/title_setting_prevent_sleep"
+                android:key="@string/key_setting_prevent_sleep" />
+            <SwitchPreference
+                android:defaultValue="false"
+                android:title="@string/title_setting_keep_wifi_on"
+                android:key="@string/key_setting_keep_wifi_on" />
+
+    </PreferenceCategory>
 
 </PreferenceScreen>
+

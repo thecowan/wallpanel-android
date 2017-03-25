@@ -274,7 +274,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     protected boolean isValidFragment(String fragmentName) {
         return PreferenceFragment.class.getName().equals(fragmentName)
                 || GeneralPreferenceFragment.class.getName().equals(fragmentName)
-                || SensorPreferenceFragment.class.getName().equals(fragmentName);
+                || SensorPreferenceFragment.class.getName().equals(fragmentName)
+                || MqttPreferenceFragment.class.getName().equals(fragmentName);
     }
 
     @Override
@@ -295,16 +296,13 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             addPreferencesFromResource(R.xml.pref_general);
             setHasOptionsMenu(true);
 
-            // Bind the summaries of EditText/List/Dialog/Ringtone preferences
-            // to their values. When their values change, their summaries are
-            // updated to reflect the new value, per the Android Design
-            // guidelines.
-            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_mqtt_host)));
-            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_direct_browser_enable)));
-            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_mqtt_topic)));
-            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_mqtt_username)));
-            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_enable_mqtt)));
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_startup_url)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_direct_browser_enable)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_display_progress_enable)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_start_on_boot)));
+
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_prevent_sleep)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_keep_wifi_on)));
         }
     }
 
@@ -329,10 +327,50 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             addPreferencesFromResource(R.xml.pref_sensors);
             setHasOptionsMenu(true);
 
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.setting_sensor_pressure_enable)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.setting_sensor_battery_enable)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.setting_sensor_light_enable)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_motion_detection_enable)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_motion_detection_intervall)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_motion_detection_leniency)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_motion_detection_min_luma)));
+        }
+
+        @Override
+        public boolean onOptionsItemSelected(MenuItem item) {
+            int id = item.getItemId();
+            if (id == android.R.id.home) {
+                startActivity(new Intent(getActivity(), SettingsActivity.class));
+                return true;
+            }
+            return super.onOptionsItemSelected(item);
+        }
+    }
+
+    /**
+     * This fragment shows mqtt preferences only. It is used when the
+     * activity is showing a two-pane settings UI.
+     */
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    public static class MqttPreferenceFragment extends PreferenceFragment {
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            addPreferencesFromResource(R.xml.pref_mqtt);
+            setHasOptionsMenu(true);
+
+            // Bind the summaries of EditText/List/Dialog/Ringtone preferences
+            // to their values. When their values change, their summaries are
+            // updated to reflect the new value, per the Android Design
+            // guidelines.
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_mqtt_host)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_mqtt_topic)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_mqtt_username)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_enable_mqtt)));
 
             Preference preference = findPreference(getString(R.string.key_setting_sensor_update_frequency));
             Preference.OnPreferenceChangeListener preferenceChangeListener = new Preference.OnPreferenceChangeListener(){
-                    @Override
+                @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
                     String summary = (String)newValue+" seconds";
                     preference.setSummary(summary);
@@ -342,13 +380,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             preference.setOnPreferenceChangeListener(preferenceChangeListener);
             preferenceChangeListener.onPreferenceChange(preference,
                     PreferenceManager.getDefaultSharedPreferences(preference.getContext()).getString(preference.getKey(), ""));
-            bindPreferenceSummaryToValue(findPreference(getString(R.string.setting_sensor_pressure_enable)));
-            bindPreferenceSummaryToValue(findPreference(getString(R.string.setting_sensor_battery_enable)));
-            bindPreferenceSummaryToValue(findPreference(getString(R.string.setting_sensor_light_enable)));
-            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_motion_detection_enable)));
-            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_motion_detection_intervall)));
-            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_motion_detection_leniency)));
-            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_motion_detection_min_luma)));
         }
 
         @Override
