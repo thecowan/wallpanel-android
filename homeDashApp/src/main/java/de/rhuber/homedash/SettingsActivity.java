@@ -15,11 +15,11 @@ import android.os.IBinder;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.SwitchPreference;
+import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.util.ArrayMap;
-import android.support.v7.app.ActionBar;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.view.Menu;
@@ -34,7 +34,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
     private static final int MY_PERMISSIONS_REQUEST_CAMERA = 1;
 
-    private static Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = new Preference.OnPreferenceChangeListener() {
+    private static final Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = new Preference.OnPreferenceChangeListener() {
         @Override
         public boolean onPreferenceChange(Preference preference, Object value) {
             String stringValue = value.toString();
@@ -66,12 +66,12 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             return true;
         }
     };
-    SharedPreferences sharedPreferences = null;
-    ArrayMap<String,SharedPreferences.OnSharedPreferenceChangeListener> onSharedPreferenceChangeListeners = new ArrayMap<>();
-    HomeDashService homeDashService;
-    boolean mBound = false;
+    private SharedPreferences sharedPreferences = null;
+    private final ArrayMap<String,SharedPreferences.OnSharedPreferenceChangeListener> onSharedPreferenceChangeListeners = new ArrayMap<>();
+    private HomeDashService homeDashService;
+    private boolean mBound = false;
 
-    private ServiceConnection mConnection = new ServiceConnection() {
+    private final ServiceConnection mConnection = new ServiceConnection() {
 
         @Override
         public void onServiceConnected(ComponentName className,
@@ -83,7 +83,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             bindBoolPreferenceToHomeDashService(R.string.key_setting_enable_mqtt, new BoolPreferenceAction() {
                 @Override
                 public void action(Boolean newValue) {
-                    if (newValue == true) {
+                    if (newValue) {
                         final String topic = sharedPreferences.getString(getString(R.string.key_setting_mqtt_topic), "");
                         final String url = sharedPreferences.getString(getString(R.string.key_setting_mqtt_host), "");
                         final String clientId = "homeDash-" + Build.DEVICE;
@@ -99,7 +99,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             bindBoolPreferenceToHomeDashService(R.string.key_setting_motion_detection_enable, new BoolPreferenceAction() {
                 @Override
                 public void action(Boolean newValue) {
-                    if(newValue == true ){
+                    if(newValue){
                         homeDashService.startMotionDetection();
                     } else {
                         homeDashService.stopMotionDetection();
@@ -161,17 +161,11 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
         Boolean startBrowser = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean(getString(R.string.key_setting_direct_browser_enable),false);
         if(startBrowser && !startFirstTime){
-            startFirstTime = true;
             startActivity(new Intent(getApplicationContext(), BrowserActivity.class));
         }
-
+        startFirstTime = true;
     }
 
-
-
-    private interface StringPreferenceAction{
-        void action(String newValue);
-    }
 
     private interface BoolPreferenceAction{
         void action(Boolean newValue);
@@ -190,7 +184,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                             boolPreferenceAction.action(newValue);
                         }
                     }
-                    ;
                 }
             };
             onSharedPreferenceChangeListeners.put(preferenceKey, onSharedPreferenceChangeListener);
@@ -199,7 +192,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         }
     }
 
-    private void bindStringPreferenceToHomeDashService(final int preferenceId, final StringPreferenceAction stringPreferenceAction) {
+    /*private void bindStringPreferenceToHomeDashService(final int preferenceId, final StringPreferenceAction stringPreferenceAction) {
         final String preferenceKey = getString(preferenceId);
         if(!onSharedPreferenceChangeListeners.containsKey(preferenceKey)) {
             SharedPreferences.OnSharedPreferenceChangeListener onSharedPreferenceChangeListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
@@ -212,7 +205,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                             stringPreferenceAction.action(newValue);
                         }
                     }
-                    ;
                 }
             };
             //sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -220,7 +212,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             sharedPreferences.registerOnSharedPreferenceChangeListener(onSharedPreferenceChangeListener);
             onSharedPreferenceChangeListener.onSharedPreferenceChanged(sharedPreferences, getString(preferenceId));
         }
-    }
+    }*/
 
 
     @Override
@@ -327,11 +319,11 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             addPreferencesFromResource(R.xml.pref_sensors);
             setHasOptionsMenu(true);
 
-            bindPreferenceSummaryToValue(findPreference(getString(R.string.setting_sensor_pressure_enable)));
-            bindPreferenceSummaryToValue(findPreference(getString(R.string.setting_sensor_battery_enable)));
-            bindPreferenceSummaryToValue(findPreference(getString(R.string.setting_sensor_light_enable)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_sensor_pressure_enable)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_sensor_battery_enable)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_sensor_light_enable)));
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_motion_detection_enable)));
-            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_motion_detection_intervall)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_motion_detection_interval)));
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_motion_detection_leniency)));
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_motion_detection_min_luma)));
         }
@@ -372,9 +364,9 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             Preference.OnPreferenceChangeListener preferenceChangeListener = new Preference.OnPreferenceChangeListener(){
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
-                    String summary = (String)newValue+" seconds";
+                    String summary = newValue+" seconds";
                     preference.setSummary(summary);
-                    return false;
+                    return true;
                 }
             };
             preference.setOnPreferenceChangeListener(preferenceChangeListener);
@@ -393,7 +385,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         }
     }
 
-    public void requestAppPermissions(){
+    private void requestAppPermissions(){
         if(PackageManager.PERMISSION_DENIED == ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA)){
             ActivityCompat.requestPermissions(this,
                     new String[]{permission.CAMERA},
@@ -403,7 +395,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
+                                           @NonNull String permissions[], @NonNull int[] grantResults) {
         switch (requestCode) {
             case MY_PERMISSIONS_REQUEST_CAMERA: {
                 // If request is cancelled, the result arrays are empty.
@@ -415,7 +407,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                     Snackbar snackbar = Snackbar.make(getListView(), "Camera permission not granted. Motion detection disabled.", Snackbar.LENGTH_LONG);
                     snackbar.show();
                 }
-                return;
             }
 
             // other 'case' lines to check for other

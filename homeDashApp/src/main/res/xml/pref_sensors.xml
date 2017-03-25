@@ -1,20 +1,19 @@
-<PreferenceScreen xmlns:tools="http://schemas.android.com/tools"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <PreferenceCategory android:title="@string/pref_header_sensors_enabled">
         <SwitchPreference
             android:defaultValue="true"
-            android:key="@string/setting_sensor_battery_enable"
+            android:key="@string/key_setting_sensor_battery_enable"
             android:title="@string/battery" />
 
         <SwitchPreference
             android:defaultValue="true"
-            android:key="@string/setting_sensor_light_enable"
+            android:key="@string/key_setting_sensor_light_enable"
             android:title="@string/light" />
 
         <SwitchPreference
             android:defaultValue="true"
-            android:key="@string/setting_sensor_pressure_enable"
+            android:key="@string/key_setting_sensor_pressure_enable"
             android:title="@string/pressure" />
     </PreferenceCategory>
 
@@ -28,7 +27,7 @@
             android:selectAllOnFocus="true"
             android:inputType="number"
             android:title="@string/title_setting_motion_detection_interval"
-            android:key="@string/key_setting_motion_detection_intervall"
+            android:key="@string/key_setting_motion_detection_interval"
             android:singleLine="true" />
         <EditTextPreference
             android:defaultValue="20"

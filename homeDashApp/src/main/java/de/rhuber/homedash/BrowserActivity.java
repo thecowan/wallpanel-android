@@ -1,10 +1,12 @@
 package de.rhuber.homedash;
 
+import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.PowerManager;
 import android.net.wifi.WifiManager;
 import android.net.wifi.WifiManager.WifiLock;
@@ -15,17 +17,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.webkit.CookieManager;
-import android.webkit.CookieSyncManager;
-import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.Toast;
 
 public class BrowserActivity extends AppCompatActivity  {
     public static final String BROADCAST_ACTION_LOAD_URL = "BROADCAST_ACTION_LOAD_URL";
@@ -35,11 +32,8 @@ public class BrowserActivity extends AppCompatActivity  {
     public static final String BROADCAST_ACTION_RELOAD_PAGE = "BROADCAST_ACTION_RELOAD_PAGE";
 
     private final  String TAG = BrowserActivity.class.getName();
-
-
-    final private String DEBUG_TAG = BrowserActivity.class.getName();
     private WebView mWebView;
-    View decorView;
+    private View decorView;
 
     private boolean displayProgress = true;
     private boolean preventSleep = false;
@@ -49,6 +43,7 @@ public class BrowserActivity extends AppCompatActivity  {
     private PowerManager.WakeLock partialWakeLock;
     private WifiLock wifiLock;
 
+    @SuppressLint("SetJavaScriptEnabled")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -62,12 +57,13 @@ public class BrowserActivity extends AppCompatActivity  {
         keepWiFiOn = sharedPreferences.getBoolean(getString(R.string.key_setting_keep_wifi_on),false);
 
         // prepare the lock types we may use
-        PowerManager pm = (PowerManager) getSystemService(getApplicationContext().POWER_SERVICE);
+        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        //noinspection deprecation
         fullWakeLock = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK |
                 PowerManager.ON_AFTER_RELEASE |
                 PowerManager.ACQUIRE_CAUSES_WAKEUP, "fullWakeLock");
         partialWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "partialWakeLock");
-        WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(getApplicationContext().WIFI_SERVICE);
+        WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         wifiLock = wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL, "wifiLock");
 
         // if we are preventing sleep, then we will grab that lock immediately
@@ -88,7 +84,7 @@ public class BrowserActivity extends AppCompatActivity  {
                     snackbar.dismiss();
                     return;
                 }
-                String text = "Loading "+ newProgress+ "% " + view.getUrl().toString();
+                String text = "Loading "+ newProgress+ "% " + view.getUrl();
                 if(snackbar == null){
                     snackbar = Snackbar.make(view, text, Snackbar.LENGTH_INDEFINITE);
                 } else {
@@ -100,7 +96,7 @@ public class BrowserActivity extends AppCompatActivity  {
         });
 
         mWebView.setWebViewClient(new WebViewClient(){
-            //If you will not use this method url links are opeen in new brower not in webview
+            //If you will not use this method url links are open in new browser not in webview
 
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
@@ -112,11 +108,12 @@ public class BrowserActivity extends AppCompatActivity  {
         // Enable Javascript
         WebSettings webSettings = mWebView.getSettings();
         webSettings.setJavaScriptEnabled(true);
-        webSettings.setJavaScriptEnabled(true);
         webSettings.setDomStorageEnabled(true);
         webSettings.setDatabaseEnabled(true);
         webSettings.setAppCacheEnabled(true);
-        webSettings.setMixedContentMode(webSettings.MIXED_CONTENT_ALWAYS_ALLOW);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            webSettings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
+        }
 
         String url = sharedPreferences.getString(getString(R.string.key_setting_startup_url),"");
         mWebView.loadUrl(url);
@@ -160,20 +157,24 @@ public class BrowserActivity extends AppCompatActivity  {
         public void onReceive(Context context, Intent intent) {
             if (intent.getAction().equals(BROADCAST_ACTION_LOAD_URL)) {
                 final String url = intent.getStringExtra(BROADCAST_ACTION_LOAD_URL);
+                Log.i(TAG, "Browsing to " + url);
                 mWebView.loadUrl(url);
             }
             if (intent.getAction().equals(BROADCAST_ACTION_JS_EXEC)) {
                 final String js = intent.getStringExtra(BROADCAST_ACTION_JS_EXEC);
-                Log.d(TAG, "Executing javascript in current browser: " +js);
+                Log.i(TAG, "Executing javascript in current browser: " +js);
                 mWebView.evaluateJavascript(js,null);
             }
 
             if (intent.getAction().equals(BROADCAST_ACTION_CLEAR_BROWSER_CACHE)) {
+                Log.i(TAG, "Clearing browser cache");
                 mWebView.clearCache(true);
-                CookieManager.getInstance().removeAllCookies(null);
-                Log.i(TAG, "Browser cache cleared.");
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    CookieManager.getInstance().removeAllCookies(null);
+                }
             }
             if (intent.getAction().equals(BROADCAST_ACTION_SCREEN_ON)) {
+                Log.i(TAG, "Turning screen on");
                 screenOn();
             }
             if (intent.getAction().equals(BROADCAST_ACTION_RELOAD_PAGE)) {
@@ -183,7 +184,7 @@ public class BrowserActivity extends AppCompatActivity  {
         }
     };
 
-    public void screenOn(){
+    private void screenOn(){
         // redundant if the screen is already being kept on
         if (!fullWakeLock.isHeld()) {
             fullWakeLock.acquire();

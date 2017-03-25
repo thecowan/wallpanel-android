@@ -1,13 +1,15 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0099cc"
-    tools:context="de.rhuber.homedash.Browser">
+    tools:context="de.rhuber.homedash.BrowserActivity"
+    android:scrollbars="none">
 
     <WebView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/activity_browser_webview"></WebView>
+        android:id="@+id/activity_browser_webview"
+        android:scrollbars="none"
+        />
 
-</FrameLayout>
+</merge>

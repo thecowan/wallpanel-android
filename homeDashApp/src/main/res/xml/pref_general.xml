@@ -3,16 +3,16 @@
         <EditTextPreference
             android:selectAllOnFocus="true"
             android:singleLine="true"
-            android:title="@string/setting_startup_url_title"
+            android:title="@string/title_setting_startup_url"
             android:key="@string/key_setting_startup_url"
-            android:defaultValue="@string/setting_startup_url_default" />
+            android:defaultValue="@string/default_setting_startup_url" />
         <SwitchPreference
             android:defaultValue="false"
-            android:title="@string/setting_direct_browser_title"
+            android:title="@string/title_setting_direct_browser_enable"
             android:key="@string/key_setting_direct_browser_enable" />
         <SwitchPreference
             android:defaultValue="true"
-            android:title="@string/setting_display_progress_title"
+            android:title="@string/title_setting_display_progress_enable"
             android:key="@string/key_setting_display_progress_enable" />
         <SwitchPreference
             android:defaultValue="false"

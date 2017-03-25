@@ -8,18 +8,14 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.BatteryManager;
-import android.util.ArrayMap;
 import android.util.Log;
+import android.support.v4.util.ArrayMap;
 
 import java.util.Map;
 
 import static android.content.Context.SENSOR_SERVICE;
 
-/**
- * Created by raimund on 22.02.2017.
- */
-
-public class SensorReader  {
+class SensorReader  {
     private final String TAG = this.getClass().getName();
     private final SensorManager mSensorManager;
     private final Sensor mLight;
@@ -32,13 +28,13 @@ public class SensorReader  {
 
     private SensorDataListener pressureCallback;
 
-    public final String LIGHTSENSOR_UNIT = "lx";
-    public final String PRESSURESENSOR_UNIT = "??";
-    public final String BATTERYSENSOR_UNIT = "%";
-    public final String SENSOR = "sensor";
-    public final String VALUE = "value";
-    public final String UNIT = "unit";
-
+    private final String LIGHTSENSOR_UNIT = "lx";
+    private final String PRESSURESENSOR_UNIT = "??";
+    private final String SENSOR = "sensor";
+    private final String VALUE = "value";
+    private final String UNIT = "unit";
+    @SuppressWarnings("FieldCanBeLocal")
+    private final String BATTERYSENSOR_UNIT = "%";
 
 
     public SensorReader(Context context) {
@@ -90,7 +86,7 @@ public class SensorReader  {
     }
 
     public interface SensorDataListener {
-        public void sensorData(Map<String,String> sensorData);
+        void sensorData(Map<String,String> sensorData);
     }
 
     public void getLightReading(SensorDataListener listener){
@@ -108,16 +104,16 @@ public class SensorReader  {
         IntentFilter intentFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
         Intent batteryStatus = context.registerReceiver(null, intentFilter);
 
-        int batteryStatusIntExtra = batteryStatus.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
+        int batteryStatusIntExtra = batteryStatus != null ? batteryStatus.getIntExtra(BatteryManager.EXTRA_STATUS, -1) : -1;
         boolean isCharging = batteryStatusIntExtra == BatteryManager.BATTERY_STATUS_CHARGING ||
                 batteryStatusIntExtra == BatteryManager.BATTERY_STATUS_FULL;
 
-        int chargePlug = batteryStatus.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1);
+        int chargePlug = batteryStatus != null ? batteryStatus.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1) : -1;
         boolean usbCharge = chargePlug == BatteryManager.BATTERY_PLUGGED_USB;
         boolean acCharge = chargePlug == BatteryManager.BATTERY_PLUGGED_AC;
 
-        int level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
-        int scale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+        int level = batteryStatus != null ? batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) : -1;
+        int scale = batteryStatus != null ? batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1) : -1;
 
         float batteryPct = level / (float)scale;
 
