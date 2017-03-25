@@ -29,6 +29,10 @@ topic `/homedash/command`
 `{"wakeup":"true"}`
 * Clear browser cache
 `{"clearBrowserCache":"true"}`
+* Reload the current page
+`{"reload":"true"}`
+* It's possible to send multiple commands together
+`{"clearBrowserCache":"true","reload":"true","wakeup":"true"}`
 
 ## Home-Assistant configuration
 ```YAML

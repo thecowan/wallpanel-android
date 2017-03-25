@@ -46,6 +46,7 @@ public class HomeDashService extends Service {
     public static final String MQTT_COMMAND_JS_EXEC = "jsExec";
     public static final String MQTT_COMMAND_URL = "url";
     public static final String MQTT_COMMAND_SAVE = "save";
+    public static final String MQTT_COMMAND_RELOAD = "reload";
 
     final Integer sensorJobId = 1;
     private final String TAG = HomeDashService.class.getName();
@@ -260,6 +261,9 @@ public class HomeDashService extends Service {
                         if(jsonObject.has(MQTT_COMMAND_WAKEUP)){
                             switchScreenOn();
                         }
+                        if(jsonObject.has(MQTT_COMMAND_RELOAD)) {
+                            reloadPage();
+                        }
                         if(jsonObject.has(MQTT_COMMAND_CLEAR_BROWSER_CACHE)){
                             clearBrowserCache();
                         }
@@ -395,6 +399,12 @@ public class HomeDashService extends Service {
 
     private void switchScreenOn(){
         Intent intent = new Intent(BrowserActivity.BROADCAST_ACTION_SCREEN_ON);
+        LocalBroadcastManager bm = LocalBroadcastManager.getInstance(getApplicationContext());
+        bm.sendBroadcast(intent);
+    }
+
+    private void reloadPage(){
+        Intent intent = new Intent(BrowserActivity.BROADCAST_ACTION_RELOAD_PAGE);
         LocalBroadcastManager bm = LocalBroadcastManager.getInstance(getApplicationContext());
         bm.sendBroadcast(intent);
     }

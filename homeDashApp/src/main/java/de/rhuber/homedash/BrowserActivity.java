@@ -32,6 +32,7 @@ public class BrowserActivity extends AppCompatActivity  {
     public static final String BROADCAST_ACTION_SCREEN_ON = "BROADCAST_ACTION_SCREEN_ON";
     public static final String BROADCAST_ACTION_JS_EXEC = "BROADCAST_ACTION_JS_EXEC";
     public static final String BROADCAST_ACTION_CLEAR_BROWSER_CACHE = "BROADCAST_ACTION_CLEAR_BROWSER_CACHE";
+    public static final String BROADCAST_ACTION_RELOAD_PAGE = "BROADCAST_ACTION_RELOAD_PAGE";
 
     private final  String TAG = BrowserActivity.class.getName();
 
@@ -135,6 +136,7 @@ public class BrowserActivity extends AppCompatActivity  {
         filter.addAction(BROADCAST_ACTION_SCREEN_ON);
         filter.addAction(BROADCAST_ACTION_JS_EXEC);
         filter.addAction(BROADCAST_ACTION_CLEAR_BROWSER_CACHE);
+        filter.addAction(BROADCAST_ACTION_RELOAD_PAGE);
         LocalBroadcastManager bm = LocalBroadcastManager.getInstance(this);
         bm.registerReceiver(mBroadcastReceiver, filter);
     }
@@ -173,6 +175,10 @@ public class BrowserActivity extends AppCompatActivity  {
             }
             if (intent.getAction().equals(BROADCAST_ACTION_SCREEN_ON)) {
                 screenOn();
+            }
+            if (intent.getAction().equals(BROADCAST_ACTION_RELOAD_PAGE)) {
+                Log.i(TAG, "Browser page reloading.");
+                mWebView.reload();
             }
         }
     };
