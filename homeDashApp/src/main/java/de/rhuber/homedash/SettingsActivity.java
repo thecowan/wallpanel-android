@@ -161,7 +161,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
         Boolean startBrowser = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean(getString(R.string.key_setting_direct_browser_enable),false);
         if(startBrowser && !startFirstTime){
-            startActivity(new Intent(getApplicationContext(), BrowserActivity.class));
+            StartBrowserActivity();
         }
         startFirstTime = true;
     }
@@ -267,7 +267,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         return PreferenceFragment.class.getName().equals(fragmentName)
                 || GeneralPreferenceFragment.class.getName().equals(fragmentName)
                 || SensorPreferenceFragment.class.getName().equals(fragmentName)
-                || MqttPreferenceFragment.class.getName().equals(fragmentName);
+                || MqttPreferenceFragment.class.getName().equals(fragmentName)
+                || AdvancedPreferenceFragment.class.getName().equals(fragmentName);
     }
 
     @Override
@@ -302,7 +303,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if(id == R.id.action_start_browser){
-            startActivity(new Intent(getApplicationContext(), BrowserActivity.class));
+            StartBrowserActivity();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -385,6 +386,36 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         }
     }
 
+    /**
+     * This fragment shows advanced preferences only. It is used when the
+     * activity is showing a two-pane settings UI.
+     */
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    public static class AdvancedPreferenceFragment extends PreferenceFragment {
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            addPreferencesFromResource(R.xml.pref_advanced);
+            setHasOptionsMenu(true);
+
+            // Bind the summaries of EditText/List/Dialog/Ringtone preferences
+            // to their values. When their values change, their summaries are
+            // updated to reflect the new value, per the Android Design
+            // guidelines.
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_browser_type)));
+        }
+
+        @Override
+        public boolean onOptionsItemSelected(MenuItem item) {
+            int id = item.getItemId();
+            if (id == android.R.id.home) {
+                startActivity(new Intent(getActivity(), SettingsActivity.class));
+                return true;
+            }
+            return super.onOptionsItemSelected(item);
+        }
+    }
+
     private void requestAppPermissions(){
         if(PackageManager.PERMISSION_DENIED == ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA)){
             ActivityCompat.requestPermissions(this,
@@ -412,5 +443,26 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             // other 'case' lines to check for other
             // permissions this app might request
         }
+    }
+
+    private void StartBrowserActivity() {
+        String browserType = sharedPreferences.getString(getString(R.string.key_setting_browser_type),getString(R.string.default_setting_browser_type));
+        Class targetClass;
+        switch (browserType) {
+            case "Native":
+                targetClass = BrowserActivityNative.class;
+                break;
+            case "Legacy":
+                targetClass = BrowserActivityLegacy.class;
+                break;
+            case "Auto":
+            default:
+                targetClass = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) ?
+                        BrowserActivityNative.class
+                        :
+                        BrowserActivityLegacy.class;
+                break;
+        }
+        startActivity(new Intent(getApplicationContext(), targetClass));
     }
 }

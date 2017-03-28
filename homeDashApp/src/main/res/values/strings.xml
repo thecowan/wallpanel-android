@@ -1,4 +1,16 @@
 <resources>
+
+    <string-array name="browser_type_names">
+        <item>"Automatic Selection (Recommended)"</item>
+        <item>"Android WebView"</item>
+        <item>"Crosswalk Project"</item>
+    </string-array>
+    <string-array name="browser_type_values">
+        <item>"Auto"</item>
+        <item>"Native"</item>
+        <item>"Legacy"</item>
+    </string-array>
+
     <string name="app_name">HomeDash</string>
 
     <string name="pref_header_general">General</string>
@@ -53,4 +65,8 @@
     <string name="title_setting_mqtt_topic">MQTT Topic Base</string>
     <string name="title_setting_mqtt_username">MQTT Username (Optional)</string>
     <string name="title_setting_mqtt_password">MQTT Password (Optional)</string>
+    <string name="key_setting_browser_type">setting_browser_type</string>
+    <string name="title_setting_browser_type">Specify Browser Engine</string>
+    <string name="pref_header_advanced">Advanced</string>
+    <string name="default_setting_browser_type">Auto</string>
 </resources>

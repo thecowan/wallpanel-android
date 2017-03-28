@@ -1,0 +1,10 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+        <ListPreference
+            android:defaultValue="@string/default_setting_browser_type"
+            android:entries="@array/browser_type_names"
+            android:entryValues="@array/browser_type_values"
+            android:title="@string/title_setting_browser_type"
+            android:key="@string/key_setting_browser_type" />
+
+</PreferenceScreen>
