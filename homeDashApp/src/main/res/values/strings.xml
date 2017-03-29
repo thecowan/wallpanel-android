@@ -1,112 +1,53 @@
 <resources>
+
+    <string-array name="browser_type_names">
+        <item>"Automatic Selection (Recommended)"</item>
+        <item>"Android WebView"</item>
+        <item>"Crosswalk Project"</item>
+    </string-array>
+    <string-array name="browser_type_values">
+        <item>"Auto"</item>
+        <item>"Native"</item>
+        <item>"Legacy"</item>
+    </string-array>
+
     <string name="app_name">HomeDash</string>
 
-    <!-- Strings related to Settings -->
-
-    <!-- Example General settings -->
     <string name="pref_header_general">General</string>
-
-    <string name="pref_title_social_recommendations">Enable social recommendations</string>
-    <string name="pref_description_social_recommendations">Recommendations for people to contact
-        based on your message history
-    </string>
-
-    <string name="pref_title_display_name">Display name</string>
-    <string name="pref_default_display_name">John Smith</string>
-
-    <string name="pref_title_add_friends_to_messages">Add friends to messages</string>
-    <string-array name="pref_example_list_titles">
-        <item>Always</item>
-        <item>When possible</item>
-        <item>Never</item>
-    </string-array>
-    <string-array name="pref_example_list_values">
-        <item>1</item>
-        <item>0</item>
-        <item>-1</item>
-    </string-array>
-
-    <!-- Example settings for Data & Sync -->
-    <string name="pref_header_data_sync">Data &amp; sync</string>
-
-    <string name="pref_title_sync_frequency">Sync frequency</string>
-    <string-array name="pref_sync_frequency_titles">
-        <item>15 minutes</item>
-        <item>30 minutes</item>
-        <item>1 hour</item>
-        <item>3 hours</item>
-        <item>6 hours</item>
-        <item>Never</item>
-    </string-array>
-    <string-array name="pref_sync_frequency_values">
-        <item>15</item>
-        <item>30</item>
-        <item>60</item>
-        <item>180</item>
-        <item>360</item>
-        <item>-1</item>
-    </string-array>
-
-    <string-array name="list_preference_entries">
-        <item>Entry 1</item>
-        <item>Entry 2</item>
-        <item>Entry 3</item>
-    </string-array>
-
-    <string-array name="list_preference_entry_values">
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
-    </string-array>
-
-    <string-array name="multi_select_list_preference_default_value" />
-
-    <string name="pref_title_system_sync_settings">System sync settings</string>
-
-    <!-- Example settings for Notifications -->
     <string name="pref_header_sensors">Sensors</string>
 
-    <string name="pref_title_new_message_notifications">New message notifications</string>
-
-    <string name="pref_title_ringtone">Ringtone</string>
-    <string name="pref_ringtone_silent">Silent</string>
-
-    <string name="pref_title_vibrate">Vibrate</string>
-
-    <string name="pref_title_enable_mqtt">Enable MQTT</string>
-    <string name="key_setting_enable_mqtt">enable_mqtt</string>
+    <string name="title_setting_enable_mqtt">Enable MQTT</string>
+    <string name="key_setting_enable_mqtt">setting_enable_mqtt</string>
     <string name="key_setting_mqtt_host">setting_mqtt_host</string>
-    <string name="key_setting_mqtt_topic">setting_mqtt_topic/</string>
+    <string name="key_setting_mqtt_topic">setting_mqtt_topic</string>
     <string name="key_setting_mqtt_username">setting_mqtt_username</string>
     <string name="key_setting_mqtt_password">setting_mqtt_password</string>
 
     <string name="title_activity_browser">Browser</string>
-    <string name="setting_sensor_battery_enable" >setting_sensor_battery_enable</string>
+    <string name="key_setting_sensor_battery_enable" >setting_sensor_battery_enable</string>
     <string name="battery">Battery</string>
-    <string name="setting_sensor_light_enable" >setting_sensor_light_enable</string>
+    <string name="key_setting_sensor_light_enable" >setting_sensor_light_enable</string>
     <string name="light">Light</string>
-    <string name="setting_sensor_pressure_enable" >setting_sensor_pressure_enable</string>
+    <string name="key_setting_sensor_pressure_enable" >setting_sensor_pressure_enable</string>
     <string name="pressure">Pressure</string>
-    <string name="key_setting_sensor_update_frequency">key_setting_sensor_update_frequency</string>
-    <string name="setting_sensor_update_frequency">60</string>
-    <string name="title_sensor_update_frequency">Update frequency</string>
-    <string name="key_setting_startup_url">http://box.lan:8123</string>
+    <string name="key_setting_sensor_update_frequency">setting_sensor_update_frequency</string>
+    <string name="title_sensor_update_frequency">Topic Update Frequency</string>
+    <string name="key_setting_startup_url">setting_startup_url</string>
     <string name="homedash_service_notification_title">homeDash</string>
     <string name="homedash_service_notification_message">running</string>
     <string name="key_setting_direct_browser_enable">setting_direct_browser_enable</string>
-    <string name="setting_direct_browser_title">Start with browser</string>
-    <string name="setting_startup_url_default">http://box.lan:8123</string>
-    <string name="setting_startup_url_title">Startup URL</string>
-    <string name="setting_display_progress_title">Display Page Load Progress</string>
+    <string name="title_setting_direct_browser_enable">Start with browser</string>
+    <string name="default_setting_startup_url">http://box.lan:8123</string>
+    <string name="title_setting_startup_url">Startup URL</string>
+    <string name="title_setting_display_progress_enable">Display Page Load Progress</string>
     <string name="key_setting_display_progress_enable">setting_display_progress_enable</string>
-    <string name="setting_mqtt_host_default">tcp://box.lan:1883</string>
-    <string name="key_setting_motion_detection_enable">key_setting_motion_detection_enable</string>
+    <string name="default_setting_mqtt_host">tcp://box.lan:1883</string>
+    <string name="key_setting_motion_detection_enable">setting_motion_detection_enable</string>
     <string name="title_setting_motion_detection_enable">Motion detection</string>
-    <string name="key_setting_motion_detection_intervall">key_setting_motion_detection_intervall</string>
     <string name="title_setting_motion_detection_interval">Check interval</string>
-    <string name="key_setting_motion_detection_leniency">key_setting_motion_detection_leniency</string>
+    <string name="key_setting_motion_detection_leniency">setting_motion_detection_leniency</string>
     <string name="title_setting_motion_detection_leniency">Leniency</string>
-    <string name="key_setting_motion_detection_min_luma">key_setting_motion_detection_min_luma</string>
+    <string name="key_setting_motion_detection_min_luma">setting_motion_detection_min_luma</string>
     <string name="title_setting_motion_detection_min_luma">Minimal luma (brightness)</string>
     <string name="key_setting_start_on_boot">setting_start_on_boot</string>
     <string name="title_setting_start_on_boot">Start HomeDash on Android Boot</string>
@@ -118,4 +59,14 @@
     <string name="pref_header_mqtt">MQTT</string>
     <string name="pref_header_power_options">Power Options</string>
     <string name="pref_header_sensors_enabled">Enable Sensors</string>
+    <string name="default_setting_mqtt_topic">homeDash/</string>
+    <string name="key_setting_motion_detection_interval">setting_motion_detection_interval</string>
+    <string name="title_setting_mqtt_host">MQTT Host</string>
+    <string name="title_setting_mqtt_topic">MQTT Topic Base</string>
+    <string name="title_setting_mqtt_username">MQTT Username (Optional)</string>
+    <string name="title_setting_mqtt_password">MQTT Password (Optional)</string>
+    <string name="key_setting_browser_type">setting_browser_type</string>
+    <string name="title_setting_browser_type">Specify Browser Engine</string>
+    <string name="pref_header_advanced">Advanced</string>
+    <string name="default_setting_browser_type">Auto</string>
 </resources>

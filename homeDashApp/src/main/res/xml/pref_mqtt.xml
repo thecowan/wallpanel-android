@@ -1,32 +1,27 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
 
-        <SwitchPreference
-            android:title="@string/pref_title_enable_mqtt"
-            android:id="@+id/mqtt_switch"
-            android:key="@string/key_setting_enable_mqtt"
-            android:defaultValue="false" />
         <EditTextPreference
-            android:defaultValue="@string/setting_mqtt_host_default"
+            android:defaultValue="@string/default_setting_mqtt_host"
             android:selectAllOnFocus="true"
             android:singleLine="true"
-            android:title="MQTT host"
+            android:title="@string/title_setting_mqtt_host"
             android:key="@string/key_setting_mqtt_host" />
         <EditTextPreference
             android:selectAllOnFocus="true"
             android:singleLine="true"
-            android:title="MQTT topic"
+            android:title="@string/title_setting_mqtt_topic"
             android:key="@string/key_setting_mqtt_topic"
-            android:defaultValue="/homedash/" />
+            android:defaultValue="@string/default_setting_mqtt_topic" />
         <EditTextPreference
             android:selectAllOnFocus="true"
             android:singleLine="true"
-            android:title="MQTT username"
+            android:title="@string/title_setting_mqtt_username"
             android:key="@string/key_setting_mqtt_username" />
         <EditTextPreference
             android:selectAllOnFocus="true"
             android:singleLine="true"
-            android:title="MQTT password"
+            android:title="@string/title_setting_mqtt_password"
             android:key="@string/key_setting_mqtt_password"
             android:password="true" />
 
@@ -37,5 +32,11 @@
         android:key="@string/key_setting_sensor_update_frequency"
         android:inputType="number"
         android:defaultValue="60" />
+
+        <SwitchPreference
+            android:title="@string/title_setting_enable_mqtt"
+            android:id="@+id/mqtt_switch"
+            android:key="@string/key_setting_enable_mqtt"
+            android:defaultValue="false" />
 
 </PreferenceScreen>

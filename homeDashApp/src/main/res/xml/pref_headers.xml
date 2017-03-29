@@ -17,5 +17,9 @@
         android:icon="@drawable/ic_graphic_eq_black_24dp"
         android:title="@string/pref_header_sensors" />
 
+    <header
+        android:fragment="de.rhuber.homedash.SettingsActivity$AdvancedPreferenceFragment"
+        android:icon="@drawable/ic_stars_black_24dp"
+        android:title="@string/pref_header_advanced" />
 
 </preference-headers>
