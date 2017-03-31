@@ -16,10 +16,10 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.Window;
 
 abstract class BrowserActivity extends AppCompatActivity  {
     public static final String BROADCAST_ACTION_LOAD_URL = "BROADCAST_ACTION_LOAD_URL";
-    public static final String BROADCAST_ACTION_SCREEN_ON = "BROADCAST_ACTION_SCREEN_ON";
     public static final String BROADCAST_ACTION_JS_EXEC = "BROADCAST_ACTION_JS_EXEC";
     public static final String BROADCAST_ACTION_CLEAR_BROWSER_CACHE = "BROADCAST_ACTION_CLEAR_BROWSER_CACHE";
     public static final String BROADCAST_ACTION_RELOAD_PAGE = "BROADCAST_ACTION_RELOAD_PAGE";
@@ -28,12 +28,6 @@ abstract class BrowserActivity extends AppCompatActivity  {
     private View decorView;
 
     boolean displayProgress = true;
-    private boolean preventSleep = false;
-    private boolean keepWiFiOn = false;
-
-    private PowerManager.WakeLock fullWakeLock;
-    private PowerManager.WakeLock partialWakeLock;
-    private WifiLock wifiLock;
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
@@ -42,21 +36,6 @@ abstract class BrowserActivity extends AppCompatActivity  {
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         displayProgress = sharedPreferences.getBoolean(getString(R.string.key_setting_display_progress_enable),true);
-        preventSleep = sharedPreferences.getBoolean(getString(R.string.key_setting_prevent_sleep), false);
-        keepWiFiOn = sharedPreferences.getBoolean(getString(R.string.key_setting_keep_wifi_on),false);
-
-        // prepare the lock types we may use
-        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-        //noinspection deprecation
-        fullWakeLock = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK |
-                PowerManager.ON_AFTER_RELEASE |
-                PowerManager.ACQUIRE_CAUSES_WAKEUP, "fullWakeLock");
-        partialWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "partialWakeLock");
-        WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-        wifiLock = wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL, "wifiLock");
-
-        // if we are preventing sleep, then we will grab that lock immediately
-        if (preventSleep) fullWakeLock.acquire();
 
         decorView = getWindow().getDecorView();
         // Hide both the navigation bar and the status bar.
@@ -65,11 +44,11 @@ abstract class BrowserActivity extends AppCompatActivity  {
         // hide the navigation bar.
         int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                 | View.SYSTEM_UI_FLAG_FULLSCREEN ;
+
         decorView.setSystemUiVisibility(uiOptions);
 
         IntentFilter filter = new IntentFilter();
         filter.addAction(BROADCAST_ACTION_LOAD_URL);
-        filter.addAction(BROADCAST_ACTION_SCREEN_ON);
         filter.addAction(BROADCAST_ACTION_JS_EXEC);
         filter.addAction(BROADCAST_ACTION_CLEAR_BROWSER_CACHE);
         filter.addAction(BROADCAST_ACTION_RELOAD_PAGE);
@@ -112,52 +91,12 @@ abstract class BrowserActivity extends AppCompatActivity  {
                 Log.i(TAG, "Clearing browser cache");
                 clearCache();
             }
-            if (intent.getAction().equals(BROADCAST_ACTION_SCREEN_ON)) {
-                Log.i(TAG, "Turning screen on");
-                screenOn();
-            }
             if (intent.getAction().equals(BROADCAST_ACTION_RELOAD_PAGE)) {
                 Log.i(TAG, "Browser page reloading.");
                 reload();
             }
         }
     };
-
-    private void screenOn(){
-        // redundant if the screen is already being kept on
-        if (!fullWakeLock.isHeld()) {
-            fullWakeLock.acquire();
-            fullWakeLock.release();
-        }
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-
-        // Browser is no longer in foreground so
-
-        // a. disable keep screen alive
-        if(fullWakeLock.isHeld()) fullWakeLock.release();
-        // b. acquire the partial lock mode
-        partialWakeLock.acquire();
-        // c. keep wifi on
-        if (keepWiFiOn) wifiLock.acquire();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        // Browser is back! so...
-
-        // a. enable keep screen alive
-        if(!fullWakeLock.isHeld() && preventSleep) fullWakeLock.acquire();
-        // b. release the partial lock mode
-        if(partialWakeLock.isHeld()) partialWakeLock.release();
-        // c. release the wifi lock
-        if(wifiLock.isHeld()) wifiLock.release();
-    }
 
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {

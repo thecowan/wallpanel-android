@@ -17,9 +17,7 @@
 
     <!-- motion detection -->
     <uses-feature android:name="android.hardware.camera" />
-    <uses-feature
-        android:name="android.hardware.camera.front"
-        android:required="false" />
+    <uses-feature android:name="android.hardware.camera.front" android:required="false" />
 
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.VIBRATE" />
@@ -32,9 +30,12 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:fullBackupContent="@xml/backup_descriptor"
+        android:name="de.rhuber.homedash.HomeDash"
         tools:ignore="GoogleAppIndexingWarning">
+
         <activity
-            android:name=".SettingsActivity"
+            android:name=".WelcomeActivity"
+            android:theme="@style/AppTheme"
             android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -43,29 +44,38 @@
         </activity>
 
         <activity
+            android:name=".SettingsActivity"
+            android:label="@string/title_activity_settings">
+            <intent-filter>
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
             android:name=".BrowserActivityNative"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_browser"
-            android:theme="@style/AppTheme">
+            android:theme="@style/AppThemeFullScreen">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
         <activity
             android:name=".BrowserActivityLegacy"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_browser"
-            android:theme="@style/AppTheme">
+            android:theme="@style/AppThemeFullScreen">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
 
-        <service android:name="org.eclipse.paho.android.service.MqttService" />
+        <service
+            android:name="org.eclipse.paho.android.service.MqttService" />
         <service
             android:name=".HomeDashService"
             android:enabled="true"
             android:exported="false" />
+
         <receiver
             android:name=".BootUpReceiver"
             android:enabled="true"

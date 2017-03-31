@@ -23,6 +23,7 @@
     <string name="key_setting_mqtt_username">setting_mqtt_username</string>
     <string name="key_setting_mqtt_password">setting_mqtt_password</string>
 
+    <string name="title_activity_settings">HomeDash Settings</string>
     <string name="title_activity_browser">Browser</string>
     <string name="key_setting_sensor_battery_enable" >setting_sensor_battery_enable</string>
     <string name="battery">Battery</string>

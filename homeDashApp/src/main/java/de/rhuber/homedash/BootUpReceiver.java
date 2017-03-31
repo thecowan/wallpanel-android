@@ -15,7 +15,7 @@ public class BootUpReceiver extends BroadcastReceiver {
             final boolean startOnBoot = sharedPreferences.getBoolean(context.getResources().getString(R.string.key_setting_start_on_boot), false);
 
             if (startOnBoot) {
-                Intent i = new Intent(context, SettingsActivity.class);
+                Intent i = new Intent(context, WelcomeActivity.class);
                 i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(i);
             }

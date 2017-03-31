@@ -19,6 +19,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.util.ArrayMap;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
@@ -26,13 +27,20 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.Manifest.permission;
-
+import android.content.IntentFilter;
+import android.content.BroadcastReceiver;
+import android.util.Log;
 
 import java.util.List;
+import java.util.Calendar;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 
 public class SettingsActivity extends AppCompatPreferenceActivity {
 
     private static final int MY_PERMISSIONS_REQUEST_CAMERA = 1;
+    public static final String BROADCAST_MOTION_DETECTOR_MSG = "BROADCAST_MOTION_DETECTOR_MSG";
+    private final String TAG = HomeDashService.class.getName();
 
     private static final Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = new Preference.OnPreferenceChangeListener() {
         @Override
@@ -67,54 +75,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         }
     };
     private SharedPreferences sharedPreferences = null;
-    private final ArrayMap<String,SharedPreferences.OnSharedPreferenceChangeListener> onSharedPreferenceChangeListeners = new ArrayMap<>();
     private HomeDashService homeDashService;
-    private boolean mBound = false;
-
-    private final ServiceConnection mConnection = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName className,
-                                       IBinder service) {
-            HomeDashService.MqttServiceBinder binder = (HomeDashService.MqttServiceBinder) service;
-            homeDashService = binder.getService();
-            mBound = true;
-
-            bindBoolPreferenceToHomeDashService(R.string.key_setting_enable_mqtt, new BoolPreferenceAction() {
-                @Override
-                public void action(Boolean newValue) {
-                    if (newValue) {
-                        final String topic = sharedPreferences.getString(getString(R.string.key_setting_mqtt_topic), "");
-                        final String url = sharedPreferences.getString(getString(R.string.key_setting_mqtt_host), "");
-                        final String clientId = "homeDash-" + Build.DEVICE;
-                        final String username = sharedPreferences.getString(getString(R.string.key_setting_mqtt_username), "");
-                        final String password = sharedPreferences.getString(getString(R.string.key_setting_mqtt_password), "");
-                        homeDashService.startMqttConnection(url, clientId, topic, username, password);
-                    } else {
-                        homeDashService.stopMqttConnection();
-                    }
-                }
-            });
-
-            bindBoolPreferenceToHomeDashService(R.string.key_setting_motion_detection_enable, new BoolPreferenceAction() {
-                @Override
-                public void action(Boolean newValue) {
-                    if(newValue){
-                        homeDashService.startMotionDetection();
-                    } else {
-                        homeDashService.stopMotionDetection();
-                    }
-                }
-            });
-
-
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-            mBound = false;
-        }
-    };
 
     /**
      * Helper method to determine if the device has an extra-large screen. For
@@ -152,95 +113,11 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
     }
 
-    private static boolean startFirstTime = false;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-
-        Boolean startBrowser = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean(getString(R.string.key_setting_direct_browser_enable),false);
-        if(startBrowser && !startFirstTime){
-            StartBrowserActivity();
-        }
-        startFirstTime = true;
     }
-
-
-    private interface BoolPreferenceAction{
-        void action(Boolean newValue);
-    }
-
-
-    private void bindBoolPreferenceToHomeDashService(final int preferenceId, final BoolPreferenceAction boolPreferenceAction) {
-        final String preferenceKey = getString(preferenceId);
-        if(!onSharedPreferenceChangeListeners.containsKey(preferenceKey)) {
-            SharedPreferences.OnSharedPreferenceChangeListener onSharedPreferenceChangeListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
-                @Override
-                public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
-                    if (s.equals(preferenceKey)) {
-                        boolean newValue = sharedPreferences.getBoolean(s, false);
-                        if (mBound) {
-                            boolPreferenceAction.action(newValue);
-                        }
-                    }
-                }
-            };
-            onSharedPreferenceChangeListeners.put(preferenceKey, onSharedPreferenceChangeListener);
-            sharedPreferences.registerOnSharedPreferenceChangeListener(onSharedPreferenceChangeListener);
-            onSharedPreferenceChangeListener.onSharedPreferenceChanged(sharedPreferences, getString(preferenceId));
-        }
-    }
-
-    /*private void bindStringPreferenceToHomeDashService(final int preferenceId, final StringPreferenceAction stringPreferenceAction) {
-        final String preferenceKey = getString(preferenceId);
-        if(!onSharedPreferenceChangeListeners.containsKey(preferenceKey)) {
-            SharedPreferences.OnSharedPreferenceChangeListener onSharedPreferenceChangeListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
-                @Override
-                public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
-                    if (s.equals(preferenceKey)) {
-
-                        String newValue = sharedPreferences.getString(s, "");
-                        if (mBound) {
-                            stringPreferenceAction.action(newValue);
-                        }
-                    }
-                }
-            };
-            //sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-            onSharedPreferenceChangeListeners.put(preferenceKey,onSharedPreferenceChangeListener);
-            sharedPreferences.registerOnSharedPreferenceChangeListener(onSharedPreferenceChangeListener);
-            onSharedPreferenceChangeListener.onSharedPreferenceChanged(sharedPreferences, getString(preferenceId));
-        }
-    }*/
-
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        if (mBound) {
-            unbindService(mConnection);
-            mBound = false;
-        }
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-        Intent intent = new Intent(SettingsActivity.this, HomeDashService.class);
-        startService(intent);
-        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-
-        inflater.inflate(R.menu.actionbar, menu);
-        return true;
-    }
-
 
     /**
      * {@inheritDoc}
@@ -271,10 +148,34 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                 || AdvancedPreferenceFragment.class.getName().equals(fragmentName);
     }
 
+    private static Preference md; //TODO remove later
+    private BroadcastReceiver motionReceiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String message = intent.getStringExtra("message");
+            Log.i(TAG, "Got a message: " + message);
+
+            DateFormat df = new SimpleDateFormat("yyyyMMdd HH:mm:ss");
+            String date = df.format(Calendar.getInstance().getTime());
+            md.setSummary(date + " " + message); //TODO remove later
+        }
+    };
+
     @Override
     protected void onResume() {
         super.onResume();
         requestAppPermissions();
+
+        LocalBroadcastManager.getInstance(this).
+                registerReceiver(motionReceiver,new IntentFilter(BROADCAST_MOTION_DETECTOR_MSG));
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(motionReceiver);
     }
 
     /**
@@ -287,7 +188,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.pref_general);
-            setHasOptionsMenu(true);
 
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_startup_url)));
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_direct_browser_enable)));
@@ -297,15 +197,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_prevent_sleep)));
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_keep_wifi_on)));
         }
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if(id == R.id.action_start_browser){
-            StartBrowserActivity();
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     /**
@@ -327,6 +218,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_motion_detection_interval)));
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_motion_detection_leniency)));
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_motion_detection_min_luma)));
+
+            md = findPreference("motion_debug"); //TODO remove later
         }
 
         @Override
@@ -445,24 +338,4 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         }
     }
 
-    private void StartBrowserActivity() {
-        String browserType = sharedPreferences.getString(getString(R.string.key_setting_browser_type),getString(R.string.default_setting_browser_type));
-        Class targetClass;
-        switch (browserType) {
-            case "Native":
-                targetClass = BrowserActivityNative.class;
-                break;
-            case "Legacy":
-                targetClass = BrowserActivityLegacy.class;
-                break;
-            case "Auto":
-            default:
-                targetClass = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) ?
-                        BrowserActivityNative.class
-                        :
-                        BrowserActivityLegacy.class;
-                break;
-        }
-        startActivity(new Intent(getApplicationContext(), targetClass));
-    }
 }
