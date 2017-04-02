@@ -43,12 +43,6 @@
             android:title="@string/title_setting_motion_detection_min_luma"
             android:key="@string/key_setting_motion_detection_min_luma"
             android:singleLine="true" />
-        <Preference
-            android:key="motion_debug"
-            android:selectable="false"
-            android:persistent="false"
-            android:title=""
-            android:summary=""/>
     </PreferenceCategory>
 
 </PreferenceScreen>

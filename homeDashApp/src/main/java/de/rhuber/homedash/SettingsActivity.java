@@ -39,7 +39,6 @@ import java.text.SimpleDateFormat;
 public class SettingsActivity extends AppCompatPreferenceActivity {
 
     private static final int MY_PERMISSIONS_REQUEST_CAMERA = 1;
-    public static final String BROADCAST_MOTION_DETECTOR_MSG = "BROADCAST_MOTION_DETECTOR_MSG";
     private final String TAG = HomeDashService.class.getName();
 
     private static final Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = new Preference.OnPreferenceChangeListener() {
@@ -148,34 +147,15 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                 || AdvancedPreferenceFragment.class.getName().equals(fragmentName);
     }
 
-    private static Preference md; //TODO remove later
-    private BroadcastReceiver motionReceiver = new BroadcastReceiver() {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String message = intent.getStringExtra("message");
-            Log.i(TAG, "Got a message: " + message);
-
-            DateFormat df = new SimpleDateFormat("yyyyMMdd HH:mm:ss");
-            String date = df.format(Calendar.getInstance().getTime());
-            md.setSummary(date + " " + message); //TODO remove later
-        }
-    };
-
     @Override
     protected void onResume() {
         super.onResume();
         requestAppPermissions();
-
-        LocalBroadcastManager.getInstance(this).
-                registerReceiver(motionReceiver,new IntentFilter(BROADCAST_MOTION_DETECTOR_MSG));
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(motionReceiver);
     }
 
     /**
@@ -218,8 +198,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_motion_detection_interval)));
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_motion_detection_leniency)));
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_motion_detection_min_luma)));
-
-            md = findPreference("motion_debug"); //TODO remove later
         }
 
         @Override

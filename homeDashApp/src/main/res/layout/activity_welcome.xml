@@ -35,4 +35,11 @@
         android:layout_height="wrap_content"
         android:onClick="buttonSettingsClick"
         android:text="Open Settings" />
+
+    <Button
+        android:id="@+id/buttonMotion"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="buttonMotionClick"
+        android:text="Motion Test" />
 </LinearLayout>

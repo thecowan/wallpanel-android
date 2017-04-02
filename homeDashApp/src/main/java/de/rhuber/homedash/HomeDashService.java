@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.wifi.WifiManager;
 import android.os.Binder;
@@ -16,11 +17,12 @@ import android.os.Handler;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
+import android.view.SurfaceView;
 
 import android.util.Log;
 
-import com.jjoe64.motiondetection.MotionDetector;
-import com.jjoe64.motiondetection.MotionDetectorCallback;
+import com.jjoe64.motiondetection.motiondetection.MotionDetector;
+import com.jjoe64.motiondetection.motiondetection.MotionDetectorCallback;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.DisconnectedBufferOptions;
@@ -56,6 +58,7 @@ public class HomeDashService extends Service {
     private String topicPrefix;
     private SharedPreferences sharedPreferences;
     SharedPreferences.OnSharedPreferenceChangeListener prefsChangedListener;
+
     private final String MOTION_SENSOR_MOTION_DETECTED_JSON ="{\"sensor\":\"cameraMotionDetector\",\"unit\":\"Boolean\",\"value\":\"true\"}";
     private MotionDetector motionDetector;
     private MotionDetectorCallback motionDetectorCallback;
@@ -63,6 +66,25 @@ public class HomeDashService extends Service {
     private PowerManager.WakeLock fullWakeLock;
     private PowerManager.WakeLock partialWakeLock;
     private WifiManager.WifiLock wifiLock;
+
+    private static HomeDashService myInstance;
+
+    public static HomeDashService getInstance() {
+        return myInstance;
+    }
+
+    public Bitmap getMotionPicture() {
+        if (motionDetector != null)
+            return motionDetector.getLastBitmap();
+        return null;
+    }
+
+    public HomeDashService() {
+        if (myInstance == null)
+            myInstance = this;
+        else
+            throw new RuntimeException("Only instantiate HomeDashService once!");
+    }
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -102,54 +124,22 @@ public class HomeDashService extends Service {
         prefsChangedListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
             @Override
             public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
-                if (s.equals(getString(R.string.key_setting_enable_mqtt))) {
-                    Log.i(TAG, "MQTT Setting Changed");
-                    boolean newValue = sharedPreferences.getBoolean(s, false);
-                    if (newValue) {
-                        final String topic = sharedPreferences.getString(getString(R.string.key_setting_mqtt_topic), "");
-                        final String url = sharedPreferences.getString(getString(R.string.key_setting_mqtt_host), "");
-                        final String clientId = "homeDash-" + Build.DEVICE;
-                        final String username = sharedPreferences.getString(getString(R.string.key_setting_mqtt_username), "");
-                        final String password = sharedPreferences.getString(getString(R.string.key_setting_mqtt_password), "");
-                        startMqttConnection(url, clientId, topic, username, password);
-                    } else {
-                        stopMqttConnection();
-                    }
-                } else if (s.startsWith("setting_motion_detection")) {
+                if (s.contains("mqtt") || s.equals(getString(R.string.key_setting_sensor_update_frequency))) {
+                    Log.i(TAG, "A MQTT Setting Changed");
+                    configureMqtt();
+                } else if (s.contains("motion")) {
                     Log.i(TAG, "A Motion Detection Setting Changed");
                     configureMotionDetection();
-                } else if (s.equals(getString(R.string.key_setting_prevent_sleep))) {
-                    Log.i(TAG, "Prevent Sleep Setting Changed");
-                    boolean preventSleep = sharedPreferences.getBoolean(s, false);
-                    if (preventSleep)
-                    {
-                        Log.i(TAG, "Acquiring WakeLock to prevent sleep");
-                        if (!fullWakeLock.isHeld()) fullWakeLock.acquire();
-                    }
-                    else
-                    {
-                        Log.i(TAG, "Will not prevent sleep");
-                        if (fullWakeLock.isHeld()) fullWakeLock.release();
-                    }
-                } else if (s.equals(getString(R.string.key_setting_keep_wifi_on))) {
-                    Log.i(TAG, "Keep WiFi On Setting Changed");
-                    boolean keepWiFiOn = sharedPreferences.getBoolean(s, false);
-                    if (keepWiFiOn) {
-                        Log.i(TAG, "Acquiring WakeLock to keep WiFi active");
-                        if (!wifiLock.isHeld()) wifiLock.acquire();
-                    }
-                    else {
-                        Log.i(TAG, "Will not stop WiFi turning off");
-                        if (wifiLock.isHeld()) wifiLock.release();
-                    }
-                }
+                } else if (s.equals(getString(R.string.key_setting_prevent_sleep)) || s.equals(getString(R.string.key_setting_keep_wifi_on))) {
+                    Log.i(TAG, "A Power Option Changed");
+                    configurePowerOptions();
+                 }
             }
         };
         sharedPreferences.registerOnSharedPreferenceChangeListener(prefsChangedListener);
-        prefsChangedListener.onSharedPreferenceChanged(sharedPreferences, getString(R.string.key_setting_prevent_sleep));
-        prefsChangedListener.onSharedPreferenceChanged(sharedPreferences, getString(R.string.key_setting_keep_wifi_on));
-        prefsChangedListener.onSharedPreferenceChanged(sharedPreferences, getString(R.string.key_setting_enable_mqtt));
 
+        configurePowerOptions();
+        configureMqtt();
         configureMotionDetection();
 
         startForeground();
@@ -167,6 +157,46 @@ public class HomeDashService extends Service {
         if (partialWakeLock.isHeld()) partialWakeLock.release();
         if (fullWakeLock.isHeld()) fullWakeLock.release();
         if (wifiLock.isHeld()) wifiLock.release();
+    }
+
+    public void configurePowerOptions() {
+        Log.d(TAG, "configurePowerOptions Called");
+
+        final boolean preventSleep = sharedPreferences.getBoolean(getString(R.string.key_setting_prevent_sleep), false);
+        if (preventSleep)
+        {
+            Log.i(TAG, "Acquiring WakeLock to prevent sleep");
+            if (!fullWakeLock.isHeld()) fullWakeLock.acquire();
+        }
+        else
+        {
+            Log.i(TAG, "Will not prevent sleep");
+            if (fullWakeLock.isHeld()) fullWakeLock.release();
+        }
+
+        final boolean keepWiFiOn = sharedPreferences.getBoolean(getString(R.string.key_setting_keep_wifi_on), false);
+        if (keepWiFiOn) {
+            Log.i(TAG, "Acquiring WakeLock to keep WiFi active");
+            if (!wifiLock.isHeld()) wifiLock.acquire();
+        }
+        else {
+            Log.i(TAG, "Will not stop WiFi turning off");
+            if (wifiLock.isHeld()) wifiLock.release();
+        }
+    }
+
+    public void configureMqtt() {
+        Log.d(TAG, "configureMqtt Called");
+        stopMqttConnection();
+        final boolean enabled = sharedPreferences.getBoolean(getString(R.string.key_setting_enable_mqtt), false);
+        if (enabled) {
+            final String topic = sharedPreferences.getString(getString(R.string.key_setting_mqtt_topic), "");
+            final String url = sharedPreferences.getString(getString(R.string.key_setting_mqtt_host), "");
+            final String clientId = "homeDash-" + Build.DEVICE;
+            final String username = sharedPreferences.getString(getString(R.string.key_setting_mqtt_username), "");
+            final String password = sharedPreferences.getString(getString(R.string.key_setting_mqtt_password), "");
+            startMqttConnection(url, clientId, topic, username, password);
+        }
     }
 
     public void startMqttConnection(String serverUri, String clientId, final String topic,
@@ -276,6 +306,7 @@ public class HomeDashService extends Service {
 
     public void stopMqttConnection(){
         Log.d(TAG, "stopMqttConnection Called");
+        stopSensorJob();
         try {
             if(mqttAndroidClient != null && mqttAndroidClient.isConnected()) {
                 mqttAndroidClient.disconnect();
@@ -284,7 +315,6 @@ public class HomeDashService extends Service {
             e.printStackTrace();
         }
         mqttAndroidClient = null;
-        stopSensorJob();
     }
 
     private void publishMessage(byte[] message, String topicPostfix){
@@ -382,7 +412,7 @@ public class HomeDashService extends Service {
                 sensorHandlerRunnable = new Runnable() {
                     public void run() {
                         Log.i(TAG, "Updating Sensors");
-                        updateSensorData();
+                        updateSensorData(); //todo there seems to be a race condition here
                         sensorHandler.postDelayed(this, updateFrequencyMilliSeconds);
                     }
                 };
@@ -440,9 +470,12 @@ public class HomeDashService extends Service {
         Log.d(TAG, "updateMotionDetection Called");
         final boolean enabled = sharedPreferences.getBoolean(getString(R.string.key_setting_motion_detection_enable),false);
         if (enabled) {
+            Log.d(TAG, "Motion detection is enabled");
             if (motionDetector == null) {
+                Log.d(TAG, "Creating Motion Detector object");
                 motionDetector = new MotionDetector(this, null);
                 if (motionDetectorCallback == null) {
+                    Log.d(TAG, "Creating Motion Detector Callback");
                     motionDetectorCallback = new MotionDetectorCallback() {
                         @Override
                         public void onMotionDetected() {
@@ -450,7 +483,7 @@ public class HomeDashService extends Service {
                             publishMessage(MOTION_SENSOR_MOTION_DETECTED_JSON.getBytes(Charset.forName("UTF-8")), "motion");
                             Log.i(TAG, "Motion detected");
 
-                            Intent intent = new Intent(SettingsActivity.BROADCAST_MOTION_DETECTOR_MSG);
+                            Intent intent = new Intent(MotionActivity.BROADCAST_MOTION_DETECTOR_MSG);
                             intent.putExtra("message","Motion Detected!");
                             LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
                         }
@@ -459,17 +492,23 @@ public class HomeDashService extends Service {
                         public void onTooDark() {
                             Log.i(TAG, "Too dark for motion detection");
 
-                            Intent intent = new Intent(SettingsActivity.BROADCAST_MOTION_DETECTOR_MSG);
+                            Intent intent = new Intent(MotionActivity.BROADCAST_MOTION_DETECTOR_MSG);
                             intent.putExtra("message","Too dark for motion detection");
                             LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
                         }
+
                     };
                 }
+                Log.d(TAG, "Assigning Callback to motionDetector");
                 motionDetector.setMotionDetectorCallback(motionDetectorCallback);
+                Log.d(TAG, "Calling onResume() on motionDetector");
                 motionDetector.onResume();
             }
+            Log.d(TAG, "Setting Check Interval");
             motionDetector.setCheckInterval(Long.valueOf(sharedPreferences.getString(getString(R.string.key_setting_motion_detection_interval), "500")));
+            Log.d(TAG, "Setting Leniency");
             motionDetector.setLeniency(Integer.valueOf(sharedPreferences.getString(getString(R.string.key_setting_motion_detection_leniency), "20")));
+            Log.d(TAG, "Setting MinLuma");
             motionDetector.setMinLuma(Integer.valueOf(sharedPreferences.getString(getString(R.string.key_setting_motion_detection_min_luma), "1000")));
         }
         else {

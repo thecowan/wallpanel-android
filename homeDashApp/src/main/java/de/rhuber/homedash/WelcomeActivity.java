@@ -58,6 +58,11 @@ public class WelcomeActivity extends AppCompatActivity {
         startActivity(new Intent(getApplicationContext(), SettingsActivity.class));
     }
 
+    public void startMotionActivity() {
+        Log.d(TAG, "startMotionActivity Called");
+        startActivity(new Intent(getApplicationContext(), MotionActivity.class));
+    }
+
     public void buttonBrowserClick(View view) {
         Log.d(TAG, "buttonBrowserClick Called");
         startBrowserActivity();
@@ -66,6 +71,11 @@ public class WelcomeActivity extends AppCompatActivity {
     public void buttonSettingsClick(View view) {
         Log.d(TAG, "buttonSettingsClick Called");
         startSettingsActivity();
+    }
+
+    public void buttonMotionClick(View view) {
+        Log.d(TAG, "buttonMotionClick Called");
+        startMotionActivity();
     }
 
 }
