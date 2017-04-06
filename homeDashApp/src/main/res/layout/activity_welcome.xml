@@ -5,30 +5,10 @@
     android:layout_height="match_parent"
     android:weightSum="1">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <Button
-            android:id="@+id/buttonMotion"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:onClick="buttonMotionClick"
-            android:text="@string/button_open_motion_settings" />
-
-        <Button
-            android:id="@+id/buttonSettings"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:onClick="buttonSettingsClick"
-            android:text="@string/button_open_preferences" />
-    </LinearLayout>
-
     <ImageView
         android:id="@+id/imageView"
-        android:layout_width="250dp"
-        android:layout_height="250dp"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
         android:layout_gravity="center"
         android:clickable="true"
         android:onClick="buttonBrowserClick"
@@ -41,7 +21,31 @@
         android:textAlignment="center"
         android:textSize="20sp"
         android:clickable="true"
-        android:onClick="buttonBrowserClick"/>
+        android:onClick="buttonBrowserClick"
+        android:layout_marginBottom="10sp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/buttonMotion"
+            style="@style/Widget.AppCompat.Button.Small"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="buttonMotionClick"
+            android:text="@string/button_open_motion_settings" />
+
+        <Button
+            android:id="@+id/buttonSettings"
+            style="@style/Widget.AppCompat.Button.Small"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="buttonSettingsClick"
+            android:text="@string/button_open_preferences" />
+    </LinearLayout>
 
     <fragment android:id="@+id/fragment_general_prefs"
         android:layout_width="fill_parent"

@@ -1,21 +1,19 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-        <PreferenceCategory android:title="@string/pref_header_general">
-                <EditTextPreference
-                    android:selectAllOnFocus="true"
-                    android:singleLine="true"
-                    android:title="@string/title_setting_startup_url"
-                    android:key="@string/key_setting_startup_url"
-                    android:defaultValue="@string/default_setting_startup_url" />
-                <SwitchPreference
-                    android:defaultValue="false"
-                    android:title="@string/title_setting_direct_browser_enable"
-                    android:key="@string/key_setting_direct_browser_enable" />
-                <SwitchPreference
-                    android:defaultValue="false"
-                    android:title="@string/title_setting_start_on_boot"
-                    android:key="@string/key_setting_start_on_boot" />
-        </PreferenceCategory>
+        <EditTextPreference
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="@string/title_setting_startup_url"
+            android:key="@string/key_setting_startup_url"
+            android:defaultValue="@string/default_setting_startup_url" />
+        <SwitchPreference
+            android:defaultValue="false"
+            android:title="@string/title_setting_direct_browser_enable"
+            android:key="@string/key_setting_direct_browser_enable" />
+        <SwitchPreference
+            android:defaultValue="false"
+            android:title="@string/title_setting_start_on_boot"
+            android:key="@string/key_setting_start_on_boot" />
 
 </PreferenceScreen>
 
