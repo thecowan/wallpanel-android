@@ -3,20 +3,29 @@ package de.rhuber.homedash;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Rect;
+import android.net.wifi.WifiManager;
 import android.os.Binder;
+import android.os.Build;
 import android.os.IBinder;
 import android.os.Handler;
+import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 
 import android.util.Log;
 
-import com.jjoe64.motiondetection.MotionDetector;
-import com.jjoe64.motiondetection.MotionDetectorCallback;
+import com.jjoe64.motiondetection.motiondetection.MotionDetector;
+import com.jjoe64.motiondetection.motiondetection.MotionDetectorCallback;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.DisconnectedBufferOptions;
@@ -51,12 +60,58 @@ public class HomeDashService extends Service {
     private SensorReader sensorReader;
     private String topicPrefix;
     private SharedPreferences sharedPreferences;
+    @SuppressWarnings("FieldCanBeLocal")
+    private SharedPreferences.OnSharedPreferenceChangeListener prefsChangedListener;
+
     private final String MOTION_SENSOR_MOTION_DETECTED_JSON ="{\"sensor\":\"cameraMotionDetector\",\"unit\":\"Boolean\",\"value\":\"true\"}";
     private MotionDetector motionDetector;
     private MotionDetectorCallback motionDetectorCallback;
 
-    public HomeDashService() {
+    private PowerManager.WakeLock fullWakeLock;
+    private PowerManager.WakeLock partialWakeLock;
+    private WifiManager.WifiLock wifiLock;
 
+    private static HomeDashService myInstance;
+
+    public static HomeDashService getInstance() {
+        return myInstance;
+    }
+
+    public Bitmap getMotionPicture() {
+        try {
+            if (motionDetector != null)
+                return motionDetector.getLastBitmap();
+        }
+        catch (Exception ignored) {}
+
+        Bitmap b = Bitmap.createBitmap(320,200,Bitmap.Config.ARGB_8888);
+        Canvas c = new Canvas(b);
+        Paint paint = new Paint();
+        paint.setColor(Color.BLACK);
+        paint.setStyle(Paint.Style.FILL);
+        c.drawPaint(paint);
+
+        paint.setColor(Color.WHITE);
+        paint.setTextSize(20);
+        Rect r = new Rect();
+        String text = getString(R.string.motion_detection_not_enabled);
+        c.getClipBounds(r);
+        int cHeight = r.height();
+        int cWidth = r.width();
+        paint.setTextAlign(Paint.Align.LEFT);
+        paint.getTextBounds(text, 0, text.length(), r);
+        float x = cWidth / 2f - r.width() / 2f - r.left;
+        float y = cHeight / 2f + r.height() / 2f - r.bottom;
+        c.drawText(text, x, y, paint);
+
+        return b;
+    }
+
+    public HomeDashService() {
+        if (myInstance == null)
+            myInstance = this;
+        else
+            throw new RuntimeException("Only instantiate HomeDashService once!");
     }
 
     @Override
@@ -67,6 +122,7 @@ public class HomeDashService extends Service {
     @Override
     public void onTaskRemoved(Intent rootIntent) {
         super.onTaskRemoved(rootIntent);
+        Log.d(TAG, "onTaskRemoved Called");
         stopSensorJob();
         stopMotionDetection();
         stopMqttConnection();
@@ -74,15 +130,109 @@ public class HomeDashService extends Service {
     }
 
     @Override
+    public void onCreate() {
+        super.onCreate();
+        Log.d(TAG, "onCreate Called");
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+
+        // prepare the lock types we may use
+        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        //noinspection deprecation
+        fullWakeLock = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK |
+                PowerManager.ON_AFTER_RELEASE |
+                PowerManager.ACQUIRE_CAUSES_WAKEUP, "fullWakeLock");
+        partialWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "partialWakeLock");
+        WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        wifiLock = wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL, "wifiLock");
+
+        // We always grab partialWakeLock
+        Log.i(TAG, "Acquiring Partial Wake Lock");
+        partialWakeLock.acquire();
+
+        prefsChangedListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+            @Override
+            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
+                if (s.contains("mqtt") || s.equals(getString(R.string.key_setting_sensor_update_frequency))) {
+                    Log.i(TAG, "A MQTT Setting Changed");
+                    configureMqtt();
+                } else if (s.contains("motion")) {
+                    Log.i(TAG, "A Motion Detection Setting Changed");
+                    if (s.equals(getString(R.string.key_setting_motion_detection_camera)))
+                        configureMotionDetection(true);
+                    else
+                        configureMotionDetection(false);
+                } else if (s.equals(getString(R.string.key_setting_prevent_sleep)) || s.equals(getString(R.string.key_setting_keep_wifi_on))) {
+                    Log.i(TAG, "A Power Option Changed");
+                    configurePowerOptions();
+                 }
+            }
+        };
+        sharedPreferences.registerOnSharedPreferenceChangeListener(prefsChangedListener);
+
+        configurePowerOptions();
+        configureMqtt();
+        configureMotionDetection(false);
+
+        startForeground();
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
+        Log.d(TAG, "onDestroy Called");
         stopSensorJob();
         stopMotionDetection();
         //stopMqttConnection();
+
+        Log.i(TAG, "Releasing Screen/WiFi Locks");
+        if (partialWakeLock.isHeld()) partialWakeLock.release();
+        if (fullWakeLock.isHeld()) fullWakeLock.release();
+        if (wifiLock.isHeld()) wifiLock.release();
     }
 
-    public void startMqttConnection(String serverUri, String clientId, final String topic,
-                                    final String username, final String password) {
+    private void configurePowerOptions() {
+        Log.d(TAG, "configurePowerOptions Called");
+
+        final boolean preventSleep = sharedPreferences.getBoolean(getString(R.string.key_setting_prevent_sleep), false);
+        if (preventSleep)
+        {
+            Log.i(TAG, "Acquiring WakeLock to prevent sleep");
+            if (!fullWakeLock.isHeld()) fullWakeLock.acquire();
+        }
+        else
+        {
+            Log.i(TAG, "Will not prevent sleep");
+            if (fullWakeLock.isHeld()) fullWakeLock.release();
+        }
+
+        final boolean keepWiFiOn = sharedPreferences.getBoolean(getString(R.string.key_setting_keep_wifi_on), true);
+        if (keepWiFiOn) {
+            Log.i(TAG, "Acquiring WakeLock to keep WiFi active");
+            if (!wifiLock.isHeld()) wifiLock.acquire();
+        }
+        else {
+            Log.i(TAG, "Will not stop WiFi turning off");
+            if (wifiLock.isHeld()) wifiLock.release();
+        }
+    }
+
+    private void configureMqtt() {
+        Log.d(TAG, "configureMqtt Called");
+        stopMqttConnection();
+        final boolean enabled = sharedPreferences.getBoolean(getString(R.string.key_setting_enable_mqtt), false);
+        if (enabled) {
+            final String topic = sharedPreferences.getString(getString(R.string.key_setting_mqtt_topic), "");
+            final String url = sharedPreferences.getString(getString(R.string.key_setting_mqtt_host), "");
+            final String clientId = "HomeDash-" + Build.DEVICE;
+            final String username = sharedPreferences.getString(getString(R.string.key_setting_mqtt_username), "");
+            final String password = sharedPreferences.getString(getString(R.string.key_setting_mqtt_password), "");
+            startMqttConnection(url, clientId, topic, username, password);
+        }
+    }
+
+    private void startMqttConnection(String serverUri, String clientId, final String topic,
+                                     final String username, final String password) {
+        Log.d(TAG, "startMqttConnection Called");
         if (mqttAndroidClient == null) {
             topicPrefix = topic;
             if (!topicPrefix.endsWith("/")) {
@@ -94,22 +244,22 @@ public class HomeDashService extends Service {
 
                 @Override
                 public void connectionLost(Throwable cause) {
-                    Log.i("mqtt_service", "connectionLost ", cause);
+                    Log.i(TAG, "MQTT connectionLost ", cause);
                 }
 
                 @Override
                 public void messageArrived(String topic, MqttMessage message) throws Exception {
-                    Log.i("mqtt_service", "messageArrived " + message);
+                    Log.i(TAG, "MQTT messageArrived " + message);
                 }
 
                 @Override
                 public void deliveryComplete(IMqttDeliveryToken token) {
-                    Log.i("mqtt_service", "deliveryComplete " + token);
+                    Log.i(TAG, "MQTT deliveryComplete " + token);
                 }
 
                 @Override
                 public void connectComplete(boolean reconnect, String serverURI) {
-                    Log.i("mqtt_service", "connected to " + serverURI);
+                    Log.i(TAG, "MQTT connectComplete " + serverURI);
                 }
             });
             MqttConnectOptions mqttConnectOptions = new MqttConnectOptions();
@@ -134,7 +284,7 @@ public class HomeDashService extends Service {
 
                     @Override
                     public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-                        Log.i("mqtt_service", "Failed to connect to: ", exception);
+                        Log.i(TAG, "MQTT connection failure: ", exception);
                     }
                 });
             } catch (MqttException ex) {
@@ -145,6 +295,7 @@ public class HomeDashService extends Service {
     }
 
     private void updateSensorData(){
+        Log.d(TAG, "updateSensorData Called");
         if(sensorReader==null){
             sensorReader = new SensorReader(getApplicationContext());
         }
@@ -179,11 +330,14 @@ public class HomeDashService extends Service {
     }
 
     private void publishSensorMessage(Map<String, String> map, String topicPostfix){
+        Log.d(TAG, "publishSensorMessage Called");
         String message = new JSONObject(map).toString();
         publishMessage(message.getBytes(),topicPostfix);
     }
 
-    public void stopMqttConnection(){
+    private void stopMqttConnection(){
+        Log.d(TAG, "stopMqttConnection Called");
+        stopSensorJob();
         try {
             if(mqttAndroidClient != null && mqttAndroidClient.isConnected()) {
                 mqttAndroidClient.disconnect();
@@ -192,10 +346,10 @@ public class HomeDashService extends Service {
             e.printStackTrace();
         }
         mqttAndroidClient = null;
-        stopSensorJob();
     }
 
     private void publishMessage(byte[] message, String topicPostfix){
+        Log.d(TAG, "publishMessage Called");
         if (mqttAndroidClient != null && mqttAndroidClient.isConnected()) {
             try {
                 String test = new String(message, Charset.forName("UTF-8"));
@@ -210,6 +364,7 @@ public class HomeDashService extends Service {
 
     @SuppressWarnings("UnusedReturnValue")
     private boolean subscribeToTopic(final String subscriptionTopic) {
+        Log.d(TAG, "subscribeToTopic Called");
         if (mqttAndroidClient.isConnected()) {
             try {
                 mqttAndroidClient.subscribe(subscriptionTopic, 0, null, new IMqttActionListener() {
@@ -233,6 +388,7 @@ public class HomeDashService extends Service {
 
                         String url =  jsonObject.has(MQTT_COMMAND_URL) ? jsonObject.getString(MQTT_COMMAND_URL) : null;
                         if(url != null){
+                            Log.i(TAG, "Browsing to new URL: "+url);
                             Intent intent = new Intent(BrowserActivity.BROADCAST_ACTION_LOAD_URL);
                             intent.putExtra(BrowserActivity.BROADCAST_ACTION_LOAD_URL, url);
                             LocalBroadcastManager bm = LocalBroadcastManager.getInstance(getApplicationContext());
@@ -277,6 +433,7 @@ public class HomeDashService extends Service {
     }
 
     private void startSensorJob(){
+        Log.d(TAG, "startSensorJob Called");
         if (sensorHandler == null) {
             Integer updateFrequencySeconds = Integer.parseInt(sharedPreferences.getString(getString(R.string.key_setting_sensor_update_frequency),"60"));
             if(updateFrequencySeconds!= 0){
@@ -286,7 +443,7 @@ public class HomeDashService extends Service {
                 sensorHandlerRunnable = new Runnable() {
                     public void run() {
                         Log.i(TAG, "Updating Sensors");
-                        updateSensorData();
+                        updateSensorData(); //todo there seems to be a race condition here
                         sensorHandler.postDelayed(this, updateFrequencyMilliSeconds);
                     }
                 };
@@ -297,27 +454,22 @@ public class HomeDashService extends Service {
     }
 
     private void stopSensorJob(){
+        Log.d(TAG, "stopSensorJob Called");
         if(sensorHandler != null) {
             sensorHandler.removeCallbacksAndMessages(sensorHandlerRunnable);
             sensorHandler = null;
         }
     }
 
-    public class MqttServiceBinder extends Binder {
+    private class MqttServiceBinder extends Binder {
         HomeDashService getService() {
+            Log.d(TAG, "mqttServiceBinder.getService Called");
             return HomeDashService.this;
         }
     }
 
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        startForeground();
-    }
-
-
     private void startForeground(){
+        Log.d(TAG, "startForeground Called");
         Intent notificationIntent = new Intent(this, HomeDashService.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
 
@@ -344,35 +496,60 @@ public class HomeDashService extends Service {
         startForeground(ONGOING_NOTIFICATION_ID, notification);
     }
 
+    private void configureMotionDetection(boolean forceStopFirst){
+        Log.d(TAG, "updateMotionDetection Called");
+        if (forceStopFirst) { stopMotionDetection(); }
+        final boolean enabled = sharedPreferences.getBoolean(getString(R.string.key_setting_motion_detection_enable),false);
+        if (enabled) {
+            Log.d(TAG, "Motion detection is enabled");
+            if (motionDetector == null) {
+                final int cameraId = Integer.valueOf(sharedPreferences.getString(getString(R.string.key_setting_motion_detection_camera),"0"));
+                Log.d(TAG, "Creating Motion Detector object with camera #" + cameraId);
+                motionDetector = new MotionDetector(cameraId);
+                if (motionDetectorCallback == null) {
+                    Log.d(TAG, "Creating Motion Detector Callback");
+                    motionDetectorCallback = new MotionDetectorCallback() {
+                        @Override
+                        public void onMotionDetected() {
+                            switchScreenOn();
+                            publishMessage(MOTION_SENSOR_MOTION_DETECTED_JSON.getBytes(Charset.forName("UTF-8")), "motion");
+                            Log.i(TAG, "Motion detected");
 
-    public void startMotionDetection(){
-        if(motionDetector==null){
-            motionDetector = new MotionDetector(this, null);
-            motionDetector.setCheckInterval(Long.valueOf(sharedPreferences.getString(getString(R.string.key_setting_motion_detection_interval),"500")));
-            motionDetector.setLeniency(Integer.valueOf(sharedPreferences.getString(getString(R.string.key_setting_motion_detection_leniency),"20")));
-            motionDetector.setMinLuma(Integer.valueOf(sharedPreferences.getString(getString(R.string.key_setting_motion_detection_min_luma),"1000")));
-            if(motionDetectorCallback==null){
-                motionDetectorCallback = new MotionDetectorCallback() {
-                    @Override
-                    public void onMotionDetected() {
-                        switchScreenOn();
-                        publishMessage(MOTION_SENSOR_MOTION_DETECTED_JSON.getBytes(Charset.forName("UTF-8")),"motion");
-                        Log.i(TAG, "Motion detected");
-                    }
+                            Intent intent = new Intent(MotionActivity.BROADCAST_MOTION_DETECTOR_MSG);
+                            intent.putExtra("message","Motion Detected!");
+                            LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+                        }
 
-                    @Override
-                    public void onTooDark() {
-                        Log.i(TAG, "Too dark for motion detection");
-                    }
-                };
+                        @Override
+                        public void onTooDark() {
+                            Log.i(TAG, "Too dark for motion detection");
+
+                            Intent intent = new Intent(MotionActivity.BROADCAST_MOTION_DETECTOR_MSG);
+                            intent.putExtra("message","Too dark for motion detection");
+                            LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+                        }
+
+                    };
+                }
+                Log.d(TAG, "Assigning Callback to motionDetector");
+                motionDetector.setMotionDetectorCallback(motionDetectorCallback);
+                Log.d(TAG, "Calling onResume() on motionDetector");
+                motionDetector.onResume();
             }
-            motionDetector.setMotionDetectorCallback(motionDetectorCallback);
-            motionDetector.onResume();
+            Log.d(TAG, "Setting Check Interval");
+            motionDetector.setCheckInterval(Long.valueOf(sharedPreferences.getString(getString(R.string.key_setting_motion_detection_interval), "500")));
+            Log.d(TAG, "Setting Leniency");
+            motionDetector.setLeniency(Integer.valueOf(sharedPreferences.getString(getString(R.string.key_setting_motion_detection_leniency), "20")));
+            Log.d(TAG, "Setting MinLuma");
+            motionDetector.setMinLuma(Integer.valueOf(sharedPreferences.getString(getString(R.string.key_setting_motion_detection_min_luma), "1000")));
+        }
+        else {
+            stopMotionDetection();
         }
     }
 
-
-    public void stopMotionDetection() {
+    private void stopMotionDetection() {
+        Log.d(TAG, "stopMotionDetection Called");
         if (motionDetector != null) {
             motionDetector.onPause();
             motionDetector = null;
@@ -380,20 +557,24 @@ public class HomeDashService extends Service {
         }
     }
 
-
     private void switchScreenOn(){
-        Intent intent = new Intent(BrowserActivity.BROADCAST_ACTION_SCREEN_ON);
-        LocalBroadcastManager bm = LocalBroadcastManager.getInstance(getApplicationContext());
-        bm.sendBroadcast(intent);
+        Log.d(TAG, "switchScreenOn Called");
+        // redundant if the screen is already being kept on
+        if (!fullWakeLock.isHeld()) {
+            fullWakeLock.acquire();
+            fullWakeLock.release();
+        }
     }
 
     private void reloadPage(){
+        Log.d(TAG, "reloadPage Called");
         Intent intent = new Intent(BrowserActivity.BROADCAST_ACTION_RELOAD_PAGE);
         LocalBroadcastManager bm = LocalBroadcastManager.getInstance(getApplicationContext());
         bm.sendBroadcast(intent);
     }
 
     private void clearBrowserCache(){
+        Log.d(TAG, "clearBrowserCache Called");
         Intent intent = new Intent(BrowserActivity.BROADCAST_ACTION_CLEAR_BROWSER_CACHE);
         LocalBroadcastManager bm = LocalBroadcastManager.getInstance(getApplicationContext());
         bm.sendBroadcast(intent);

@@ -1,10 +1,80 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-        <ListPreference
-            android:defaultValue="@string/default_setting_browser_type"
-            android:entries="@array/browser_type_names"
-            android:entryValues="@array/browser_type_values"
-            android:title="@string/title_setting_browser_type"
-            android:key="@string/key_setting_browser_type" />
+        <PreferenceCategory android:title="Browser">
+                <ListPreference
+                    android:defaultValue="@string/default_setting_browser_type"
+                    android:entries="@array/browser_type_names"
+                    android:entryValues="@array/browser_type_values"
+                    android:title="@string/title_setting_browser_type"
+                    android:key="@string/key_setting_browser_type" />
+                <SwitchPreference
+                    android:defaultValue="false"
+                    android:title="@string/title_setting_display_progress_enable"
+                    android:key="@string/key_setting_display_progress_enable" />
+        </PreferenceCategory>
+
+        <PreferenceCategory android:title="@string/pref_header_power_options">
+                <SwitchPreference
+                    android:defaultValue="false"
+                    android:title="@string/title_setting_prevent_sleep"
+                    android:key="@string/key_setting_prevent_sleep" />
+                <SwitchPreference
+                    android:defaultValue="true"
+                    android:title="@string/title_setting_keep_wifi_on"
+                    android:key="@string/key_setting_keep_wifi_on" />
+        </PreferenceCategory>
+
+        <PreferenceCategory android:title="@string/pref_header_mqtt">
+                <SwitchPreference
+                    android:title="@string/title_setting_enable_mqtt"
+                    android:id="@+id/mqtt_switch"
+                    android:key="@string/key_setting_enable_mqtt"
+                    android:defaultValue="false" />
+                <EditTextPreference
+                    android:defaultValue="@string/default_setting_mqtt_host"
+                    android:selectAllOnFocus="true"
+                    android:singleLine="true"
+                    android:title="@string/title_setting_mqtt_host"
+                    android:key="@string/key_setting_mqtt_host" />
+                <EditTextPreference
+                    android:selectAllOnFocus="true"
+                    android:singleLine="true"
+                    android:title="@string/title_setting_mqtt_topic"
+                    android:key="@string/key_setting_mqtt_topic"
+                    android:defaultValue="@string/default_setting_mqtt_topic" />
+                <EditTextPreference
+                    android:selectAllOnFocus="true"
+                    android:singleLine="true"
+                    android:title="@string/title_setting_mqtt_username"
+                    android:key="@string/key_setting_mqtt_username" />
+                <EditTextPreference
+                    android:selectAllOnFocus="true"
+                    android:singleLine="true"
+                    android:title="@string/title_setting_mqtt_password"
+                    android:key="@string/key_setting_mqtt_password"
+                    android:password="true" />
+                <EditTextPreference
+                    android:selectAllOnFocus="true"
+                    android:singleLine="true"
+                    android:title="@string/title_sensor_update_frequency"
+                    android:key="@string/key_setting_sensor_update_frequency"
+                    android:inputType="number"
+                    android:defaultValue="60" />
+        </PreferenceCategory>
+
+        <PreferenceCategory android:title="@string/pref_header_sensors_enabled">
+                <SwitchPreference
+                    android:defaultValue="true"
+                    android:key="@string/key_setting_sensor_battery_enable"
+                    android:title="@string/battery" />
+                <SwitchPreference
+                    android:defaultValue="true"
+                    android:key="@string/key_setting_sensor_light_enable"
+                    android:title="@string/light" />
+                <SwitchPreference
+                    android:defaultValue="true"
+                    android:key="@string/key_setting_sensor_pressure_enable"
+                    android:title="@string/pressure" />
+        </PreferenceCategory>
 
 </PreferenceScreen>

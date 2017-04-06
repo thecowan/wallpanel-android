@@ -2,37 +2,22 @@ package de.rhuber.homedash;
 
 
 import android.annotation.TargetApi;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
-import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.SwitchPreference;
-import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.util.ArrayMap;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.Manifest.permission;
 
+import com.jjoe64.motiondetection.motiondetection.MotionDetector;
 
-import java.util.List;
+import java.util.ArrayList;
 
 public class SettingsActivity extends AppCompatPreferenceActivity {
 
-    private static final int MY_PERMISSIONS_REQUEST_CAMERA = 1;
+    @SuppressWarnings("unused")
+    private final String TAG = HomeDashService.class.getName();
 
     private static final Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = new Preference.OnPreferenceChangeListener() {
         @Override
@@ -66,64 +51,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             return true;
         }
     };
-    private SharedPreferences sharedPreferences = null;
-    private final ArrayMap<String,SharedPreferences.OnSharedPreferenceChangeListener> onSharedPreferenceChangeListeners = new ArrayMap<>();
-    private HomeDashService homeDashService;
-    private boolean mBound = false;
-
-    private final ServiceConnection mConnection = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName className,
-                                       IBinder service) {
-            HomeDashService.MqttServiceBinder binder = (HomeDashService.MqttServiceBinder) service;
-            homeDashService = binder.getService();
-            mBound = true;
-
-            bindBoolPreferenceToHomeDashService(R.string.key_setting_enable_mqtt, new BoolPreferenceAction() {
-                @Override
-                public void action(Boolean newValue) {
-                    if (newValue) {
-                        final String topic = sharedPreferences.getString(getString(R.string.key_setting_mqtt_topic), "");
-                        final String url = sharedPreferences.getString(getString(R.string.key_setting_mqtt_host), "");
-                        final String clientId = "homeDash-" + Build.DEVICE;
-                        final String username = sharedPreferences.getString(getString(R.string.key_setting_mqtt_username), "");
-                        final String password = sharedPreferences.getString(getString(R.string.key_setting_mqtt_password), "");
-                        homeDashService.startMqttConnection(url, clientId, topic, username, password);
-                    } else {
-                        homeDashService.stopMqttConnection();
-                    }
-                }
-            });
-
-            bindBoolPreferenceToHomeDashService(R.string.key_setting_motion_detection_enable, new BoolPreferenceAction() {
-                @Override
-                public void action(Boolean newValue) {
-                    if(newValue){
-                        homeDashService.startMotionDetection();
-                    } else {
-                        homeDashService.stopMotionDetection();
-                    }
-                }
-            });
-
-
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-            mBound = false;
-        }
-    };
-
-    /**
-     * Helper method to determine if the device has an extra-large screen. For
-     * example, 10" tablets are extra-large.
-     */
-    private static boolean isXLargeTablet(Context context) {
-        return (context.getResources().getConfiguration().screenLayout
-                & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_XLARGE;
-    }
 
     /**
      * Binds a preference's summary to its value. More specifically, when the
@@ -152,210 +79,79 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
     }
 
-    private static boolean startFirstTime = false;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
-        Boolean startBrowser = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean(getString(R.string.key_setting_direct_browser_enable),false);
-        if(startBrowser && !startFirstTime){
-            StartBrowserActivity();
-        }
-        startFirstTime = true;
+        getFragmentManager().beginTransaction().replace(android.R.id.content, new AdvancedPreferenceFragment()).commit();
     }
 
-
-    private interface BoolPreferenceAction{
-        void action(Boolean newValue);
-    }
-
-
-    private void bindBoolPreferenceToHomeDashService(final int preferenceId, final BoolPreferenceAction boolPreferenceAction) {
-        final String preferenceKey = getString(preferenceId);
-        if(!onSharedPreferenceChangeListeners.containsKey(preferenceKey)) {
-            SharedPreferences.OnSharedPreferenceChangeListener onSharedPreferenceChangeListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
-                @Override
-                public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
-                    if (s.equals(preferenceKey)) {
-                        boolean newValue = sharedPreferences.getBoolean(s, false);
-                        if (mBound) {
-                            boolPreferenceAction.action(newValue);
-                        }
-                    }
-                }
-            };
-            onSharedPreferenceChangeListeners.put(preferenceKey, onSharedPreferenceChangeListener);
-            sharedPreferences.registerOnSharedPreferenceChangeListener(onSharedPreferenceChangeListener);
-            onSharedPreferenceChangeListener.onSharedPreferenceChanged(sharedPreferences, getString(preferenceId));
-        }
-    }
-
-    /*private void bindStringPreferenceToHomeDashService(final int preferenceId, final StringPreferenceAction stringPreferenceAction) {
-        final String preferenceKey = getString(preferenceId);
-        if(!onSharedPreferenceChangeListeners.containsKey(preferenceKey)) {
-            SharedPreferences.OnSharedPreferenceChangeListener onSharedPreferenceChangeListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
-                @Override
-                public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
-                    if (s.equals(preferenceKey)) {
-
-                        String newValue = sharedPreferences.getString(s, "");
-                        if (mBound) {
-                            stringPreferenceAction.action(newValue);
-                        }
-                    }
-                }
-            };
-            //sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-            onSharedPreferenceChangeListeners.put(preferenceKey,onSharedPreferenceChangeListener);
-            sharedPreferences.registerOnSharedPreferenceChangeListener(onSharedPreferenceChangeListener);
-            onSharedPreferenceChangeListener.onSharedPreferenceChanged(sharedPreferences, getString(preferenceId));
-        }
-    }*/
-
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        if (mBound) {
-            unbindService(mConnection);
-            mBound = false;
-        }
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-        Intent intent = new Intent(SettingsActivity.this, HomeDashService.class);
-        startService(intent);
-        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-
-        inflater.inflate(R.menu.actionbar, menu);
-        return true;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean onIsMultiPane() {
-        return isXLargeTablet(this);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public void onBuildHeaders(List<Header> target) {
-        loadHeadersFromResource(R.xml.pref_headers, target);
-    }
-
-    /**
-     * This method stops fragment injection in malicious applications.
-     * Make sure to deny any unknown fragments here.
-     */
     protected boolean isValidFragment(String fragmentName) {
         return PreferenceFragment.class.getName().equals(fragmentName)
                 || GeneralPreferenceFragment.class.getName().equals(fragmentName)
-                || SensorPreferenceFragment.class.getName().equals(fragmentName)
-                || MqttPreferenceFragment.class.getName().equals(fragmentName)
-                || AdvancedPreferenceFragment.class.getName().equals(fragmentName);
+                || AdvancedPreferenceFragment.class.getName().equals(fragmentName)
+                || CameraPreferenceFragment.class.getName().equals(fragmentName);
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        requestAppPermissions();
-    }
-
-    /**
-     * This fragment shows general preferences only. It is used when the
-     * activity is showing a two-pane settings UI.
-     */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public static class GeneralPreferenceFragment extends PreferenceFragment {
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.pref_general);
-            setHasOptionsMenu(true);
 
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_startup_url)));
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_direct_browser_enable)));
-            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_display_progress_enable)));
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_start_on_boot)));
-
-            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_prevent_sleep)));
-            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_keep_wifi_on)));
         }
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if(id == R.id.action_start_browser){
-            StartBrowserActivity();
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    /**
-     * This fragment shows notification preferences only. It is used when the
-     * activity is showing a two-pane settings UI.
-     */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public static class SensorPreferenceFragment extends PreferenceFragment {
+    public static class CameraPreferenceFragment extends PreferenceFragment {
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            addPreferencesFromResource(R.xml.pref_sensors);
+            addPreferencesFromResource(R.xml.pref_camera);
             setHasOptionsMenu(true);
 
-            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_sensor_pressure_enable)));
-            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_sensor_battery_enable)));
-            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_sensor_light_enable)));
+            ListPreference cameras = (ListPreference) findPreference(getString(R.string.key_setting_motion_detection_camera));
+            ArrayList<String> cameraList = MotionDetector.getCameras();
+            cameras.setEntries(cameraList.toArray(new CharSequence[cameraList.size()]));
+            CharSequence[] vals = new CharSequence[cameraList.size()];
+            for (int i=0; i<cameraList.size(); i++) { vals[i] = Integer.toString(i); }
+            cameras.setEntryValues(vals);
+
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_motion_detection_enable)));
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_motion_detection_interval)));
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_motion_detection_leniency)));
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_motion_detection_min_luma)));
-        }
-
-        @Override
-        public boolean onOptionsItemSelected(MenuItem item) {
-            int id = item.getItemId();
-            if (id == android.R.id.home) {
-                startActivity(new Intent(getActivity(), SettingsActivity.class));
-                return true;
-            }
-            return super.onOptionsItemSelected(item);
+            bindPreferenceSummaryToValue(cameras);
         }
     }
 
-    /**
-     * This fragment shows mqtt preferences only. It is used when the
-     * activity is showing a two-pane settings UI.
-     */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public static class MqttPreferenceFragment extends PreferenceFragment {
+    public static class AdvancedPreferenceFragment extends PreferenceFragment {
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            addPreferencesFromResource(R.xml.pref_mqtt);
+            addPreferencesFromResource(R.xml.pref_advanced);
             setHasOptionsMenu(true);
 
             // Bind the summaries of EditText/List/Dialog/Ringtone preferences
             // to their values. When their values change, their summaries are
             // updated to reflect the new value, per the Android Design
             // guidelines.
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_browser_type)));
+
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_display_progress_enable)));
+
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_prevent_sleep)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_keep_wifi_on)));
+
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_sensor_pressure_enable)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_sensor_battery_enable)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_sensor_light_enable)));
+
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_mqtt_host)));
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_mqtt_topic)));
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_mqtt_username)));
@@ -374,95 +170,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             preferenceChangeListener.onPreferenceChange(preference,
                     PreferenceManager.getDefaultSharedPreferences(preference.getContext()).getString(preference.getKey(), ""));
         }
-
-        @Override
-        public boolean onOptionsItemSelected(MenuItem item) {
-            int id = item.getItemId();
-            if (id == android.R.id.home) {
-                startActivity(new Intent(getActivity(), SettingsActivity.class));
-                return true;
-            }
-            return super.onOptionsItemSelected(item);
-        }
     }
 
-    /**
-     * This fragment shows advanced preferences only. It is used when the
-     * activity is showing a two-pane settings UI.
-     */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public static class AdvancedPreferenceFragment extends PreferenceFragment {
-        @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            addPreferencesFromResource(R.xml.pref_advanced);
-            setHasOptionsMenu(true);
-
-            // Bind the summaries of EditText/List/Dialog/Ringtone preferences
-            // to their values. When their values change, their summaries are
-            // updated to reflect the new value, per the Android Design
-            // guidelines.
-            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_browser_type)));
-        }
-
-        @Override
-        public boolean onOptionsItemSelected(MenuItem item) {
-            int id = item.getItemId();
-            if (id == android.R.id.home) {
-                startActivity(new Intent(getActivity(), SettingsActivity.class));
-                return true;
-            }
-            return super.onOptionsItemSelected(item);
-        }
-    }
-
-    private void requestAppPermissions(){
-        if(PackageManager.PERMISSION_DENIED == ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA)){
-            ActivityCompat.requestPermissions(this,
-                    new String[]{permission.CAMERA},
-                    MY_PERMISSIONS_REQUEST_CAMERA);
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String permissions[], @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case MY_PERMISSIONS_REQUEST_CAMERA: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Snackbar snackbar = Snackbar.make(getListView(), "Camera permission granted.", Snackbar.LENGTH_LONG);
-                    snackbar.show();
-                } else {
-                    Snackbar snackbar = Snackbar.make(getListView(), "Camera permission not granted. Motion detection disabled.", Snackbar.LENGTH_LONG);
-                    snackbar.show();
-                }
-            }
-
-            // other 'case' lines to check for other
-            // permissions this app might request
-        }
-    }
-
-    private void StartBrowserActivity() {
-        String browserType = sharedPreferences.getString(getString(R.string.key_setting_browser_type),getString(R.string.default_setting_browser_type));
-        Class targetClass;
-        switch (browserType) {
-            case "Native":
-                targetClass = BrowserActivityNative.class;
-                break;
-            case "Legacy":
-                targetClass = BrowserActivityLegacy.class;
-                break;
-            case "Auto":
-            default:
-                targetClass = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) ?
-                        BrowserActivityNative.class
-                        :
-                        BrowserActivityLegacy.class;
-                break;
-        }
-        startActivity(new Intent(getApplicationContext(), targetClass));
-    }
 }
