@@ -8,16 +8,6 @@
         android:title="@string/pref_header_general" />
 
     <header
-        android:fragment="de.rhuber.homedash.SettingsActivity$MqttPreferenceFragment"
-        android:icon="@drawable/access_point_network"
-        android:title="@string/pref_header_mqtt" />
-
-    <header
-        android:fragment="de.rhuber.homedash.SettingsActivity$SensorPreferenceFragment"
-        android:icon="@drawable/ic_graphic_eq_black_24dp"
-        android:title="@string/pref_header_sensors" />
-
-    <header
         android:fragment="de.rhuber.homedash.SettingsActivity$CameraPreferenceFragment"
         android:icon="@drawable/ic_graphic_eq_black_24dp"
         android:title="Camera" />

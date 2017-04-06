@@ -7,7 +7,7 @@ public interface IMotionDetection {
      * 
      * @return int array of previous image.
      */
-    public int[] getPrevious();
+    int[] getPrevious();
 
     /**
      * Detect motion.
@@ -22,5 +22,5 @@ public interface IMotionDetection {
      * @throws NullPointerException
      *             if data integer array is NULL.
      */
-    public boolean detect(int[] data, int width, int height);
+    boolean detect(int[] data, int width, int height);
 }

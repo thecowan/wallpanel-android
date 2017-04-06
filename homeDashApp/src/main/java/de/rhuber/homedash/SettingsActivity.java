@@ -2,16 +2,12 @@ package de.rhuber.homedash;
 
 
 import android.annotation.TargetApi;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.SwitchPreference;
@@ -19,31 +15,20 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.LocalBroadcastManager;
-import android.support.v4.util.ArrayMap;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.Manifest.permission;
-import android.content.IntentFilter;
-import android.content.BroadcastReceiver;
-import android.util.Log;
 
 import com.jjoe64.motiondetection.motiondetection.MotionDetector;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Calendar;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-
-import static android.R.id.list;
 
 public class SettingsActivity extends AppCompatPreferenceActivity {
 
     private static final int MY_PERMISSIONS_REQUEST_CAMERA = 1;
+    @SuppressWarnings("unused")
     private final String TAG = HomeDashService.class.getName();
 
     private static final Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = new Preference.OnPreferenceChangeListener() {
@@ -149,8 +134,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     protected boolean isValidFragment(String fragmentName) {
         return PreferenceFragment.class.getName().equals(fragmentName)
                 || GeneralPreferenceFragment.class.getName().equals(fragmentName)
-                || SensorPreferenceFragment.class.getName().equals(fragmentName)
-                || MqttPreferenceFragment.class.getName().equals(fragmentName)
                 || AdvancedPreferenceFragment.class.getName().equals(fragmentName)
                 || CameraPreferenceFragment.class.getName().equals(fragmentName);
     }
@@ -159,11 +142,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     protected void onResume() {
         super.onResume();
         requestAppPermissions();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
     }
 
     /**
@@ -180,31 +158,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_startup_url)));
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_direct_browser_enable)));
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_start_on_boot)));
-        }
-    }
-
-    /**
-     * This fragment shows sensor preferences only. It is used when the
-     * activity is showing a two-pane settings UI.
-     */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public static class SensorPreferenceFragment extends PreferenceFragment {
-        @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            addPreferencesFromResource(R.xml.pref_sensors);
-            setHasOptionsMenu(true);
-
-        }
-
-        @Override
-        public boolean onOptionsItemSelected(MenuItem item) {
-            int id = item.getItemId();
-            if (id == android.R.id.home) {
-                startActivity(new Intent(getActivity(), SettingsActivity.class));
-                return true;
-            }
-            return super.onOptionsItemSelected(item);
         }
     }
 
@@ -232,36 +185,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_motion_detection_leniency)));
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_motion_detection_min_luma)));
             bindPreferenceSummaryToValue(cameras);
-        }
-
-        @Override
-        public boolean onOptionsItemSelected(MenuItem item) {
-            int id = item.getItemId();
-            if (id == android.R.id.home) {
-                startActivity(new Intent(getActivity(), SettingsActivity.class));
-                return true;
-            }
-            return super.onOptionsItemSelected(item);
-        }
-    }
-
-    /**
-     * This fragment shows mqtt preferences only. It is used when the
-     * activity is showing a two-pane settings UI.
-     */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public static class MqttPreferenceFragment extends PreferenceFragment {
-        @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            addPreferencesFromResource(R.xml.pref_mqtt);
-            setHasOptionsMenu(true);
-
-            // Bind the summaries of EditText/List/Dialog/Ringtone preferences
-            // to their values. When their values change, their summaries are
-            // updated to reflect the new value, per the Android Design
-            // guidelines.
-
         }
 
         @Override

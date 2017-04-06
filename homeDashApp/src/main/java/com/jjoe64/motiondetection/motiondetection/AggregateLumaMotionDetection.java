@@ -2,8 +2,6 @@ package com.jjoe64.motiondetection.motiondetection;
 
 //import android.util.Log;
 
-import android.util.Log;
-
 public class AggregateLumaMotionDetection implements IMotionDetection {
 
     // private static final String TAG = "AggregateLumaMotionDetection";

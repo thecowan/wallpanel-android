@@ -1,40 +1,21 @@
 package com.jjoe64.motiondetection.motiondetection;
 
-import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
-import android.media.MediaRecorder;
-import android.net.Uri;
 import android.opengl.GLES11Ext;
-import android.os.Environment;
 import android.os.Handler;
 import android.util.Log;
-import android.view.Surface;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
-import android.widget.TextView;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static java.lang.Thread.sleep;
-
 public class MotionDetector {
     class MotionDetectorThread extends Thread {
-        private AtomicBoolean isRunning = new AtomicBoolean(true);
+        private final AtomicBoolean isRunning = new AtomicBoolean(true);
 
         public void stopDetection() {
             isRunning.set(false);
@@ -55,7 +36,7 @@ public class MotionDetector {
                     }
 
 
-                    if(safeToTakePicture == false){
+                    if(!safeToTakePicture){
                         continue;
                     }
 
@@ -115,20 +96,16 @@ public class MotionDetector {
 
     private Camera mCamera;
     private boolean inPreview;
-    private Context mContext;
 
-    SurfaceTexture mSurfaceTexture;
+    private SurfaceTexture mSurfaceTexture;
     private int mCameraId = Camera.CameraInfo.CAMERA_FACING_FRONT;
     private byte[] mBuffer;
     private boolean safeToTakePicture = true;
     private long detectCount;
-    private static MotionDetector mMotionDetector = null;
 
-
-    public MotionDetector(Context context, int cameraId) {
+    public MotionDetector(int cameraId) {
         mCameraId = cameraId;
         detector = new AggregateLumaMotionDetection();
-        mContext = context;
 
         mSurfaceTexture = new SurfaceTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES);
     }
@@ -137,7 +114,7 @@ public class MotionDetector {
         this.motionDetectorCallback = motionDetectorCallback;
     }
 
-    public void consume(byte[] data, int width, int height) {
+    private void consume(byte[] data, int width, int height) {
         nextData.set(data);
         nextWidth.set(width);
         nextHeight.set(height);
@@ -189,7 +166,7 @@ public class MotionDetector {
     }
 
     public static ArrayList<String> getCameras() {
-        ArrayList<String> result = new ArrayList<String>();
+        ArrayList<String> result = new ArrayList<>();
         for (int i=0; i<Camera.getNumberOfCameras(); i++) {
             Camera.CameraInfo info = new Camera.CameraInfo();
             Camera.getCameraInfo(i, info);
@@ -236,25 +213,6 @@ public class MotionDetector {
             consume(data, size.width, size.height);
         }
     };
-
-    private static Camera.Size getBestPreviewSize(int width, int height, Camera.Parameters parameters) {
-        Camera.Size result = null;
-
-        for (Camera.Size size : parameters.getSupportedPreviewSizes()) {
-            if (size.width <= width && size.height <= height) {
-                if (result == null) {
-                    result = size;
-                } else {
-                    int resultArea = result.width * result.height;
-                    int newArea = size.width * size.height;
-
-                    if (newArea > resultArea) result = size;
-                }
-            }
-        }
-
-        return result;
-    }
 
     public void onPause() {
         releaseCamera();

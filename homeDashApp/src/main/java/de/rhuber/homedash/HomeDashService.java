@@ -21,7 +21,6 @@ import android.os.Handler;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
-import android.view.SurfaceView;
 
 import android.util.Log;
 
@@ -61,7 +60,8 @@ public class HomeDashService extends Service {
     private SensorReader sensorReader;
     private String topicPrefix;
     private SharedPreferences sharedPreferences;
-    SharedPreferences.OnSharedPreferenceChangeListener prefsChangedListener;
+    @SuppressWarnings("FieldCanBeLocal")
+    private SharedPreferences.OnSharedPreferenceChangeListener prefsChangedListener;
 
     private final String MOTION_SENSOR_MOTION_DETECTED_JSON ="{\"sensor\":\"cameraMotionDetector\",\"unit\":\"Boolean\",\"value\":\"true\"}";
     private MotionDetector motionDetector;
@@ -82,7 +82,7 @@ public class HomeDashService extends Service {
             if (motionDetector != null)
                 return motionDetector.getLastBitmap();
         }
-        catch (Exception ex) {}
+        catch (Exception ignored) {}
 
         Bitmap b = Bitmap.createBitmap(320,200,Bitmap.Config.ARGB_8888);
         Canvas c = new Canvas(b);
@@ -190,7 +190,7 @@ public class HomeDashService extends Service {
         if (wifiLock.isHeld()) wifiLock.release();
     }
 
-    public void configurePowerOptions() {
+    private void configurePowerOptions() {
         Log.d(TAG, "configurePowerOptions Called");
 
         final boolean preventSleep = sharedPreferences.getBoolean(getString(R.string.key_setting_prevent_sleep), false);
@@ -205,7 +205,7 @@ public class HomeDashService extends Service {
             if (fullWakeLock.isHeld()) fullWakeLock.release();
         }
 
-        final boolean keepWiFiOn = sharedPreferences.getBoolean(getString(R.string.key_setting_keep_wifi_on), false);
+        final boolean keepWiFiOn = sharedPreferences.getBoolean(getString(R.string.key_setting_keep_wifi_on), true);
         if (keepWiFiOn) {
             Log.i(TAG, "Acquiring WakeLock to keep WiFi active");
             if (!wifiLock.isHeld()) wifiLock.acquire();
@@ -216,22 +216,22 @@ public class HomeDashService extends Service {
         }
     }
 
-    public void configureMqtt() {
+    private void configureMqtt() {
         Log.d(TAG, "configureMqtt Called");
         stopMqttConnection();
         final boolean enabled = sharedPreferences.getBoolean(getString(R.string.key_setting_enable_mqtt), false);
         if (enabled) {
             final String topic = sharedPreferences.getString(getString(R.string.key_setting_mqtt_topic), "");
             final String url = sharedPreferences.getString(getString(R.string.key_setting_mqtt_host), "");
-            final String clientId = "homeDash-" + Build.DEVICE;
+            final String clientId = "HomeDash-" + Build.DEVICE;
             final String username = sharedPreferences.getString(getString(R.string.key_setting_mqtt_username), "");
             final String password = sharedPreferences.getString(getString(R.string.key_setting_mqtt_password), "");
             startMqttConnection(url, clientId, topic, username, password);
         }
     }
 
-    public void startMqttConnection(String serverUri, String clientId, final String topic,
-                                    final String username, final String password) {
+    private void startMqttConnection(String serverUri, String clientId, final String topic,
+                                     final String username, final String password) {
         Log.d(TAG, "startMqttConnection Called");
         if (mqttAndroidClient == null) {
             topicPrefix = topic;
@@ -335,7 +335,7 @@ public class HomeDashService extends Service {
         publishMessage(message.getBytes(),topicPostfix);
     }
 
-    public void stopMqttConnection(){
+    private void stopMqttConnection(){
         Log.d(TAG, "stopMqttConnection Called");
         stopSensorJob();
         try {
@@ -461,7 +461,7 @@ public class HomeDashService extends Service {
         }
     }
 
-    public class MqttServiceBinder extends Binder {
+    private class MqttServiceBinder extends Binder {
         HomeDashService getService() {
             Log.d(TAG, "mqttServiceBinder.getService Called");
             return HomeDashService.this;
@@ -496,7 +496,7 @@ public class HomeDashService extends Service {
         startForeground(ONGOING_NOTIFICATION_ID, notification);
     }
 
-    public void configureMotionDetection(boolean forceStopFirst){
+    private void configureMotionDetection(boolean forceStopFirst){
         Log.d(TAG, "updateMotionDetection Called");
         if (forceStopFirst) { stopMotionDetection(); }
         final boolean enabled = sharedPreferences.getBoolean(getString(R.string.key_setting_motion_detection_enable),false);
@@ -505,7 +505,7 @@ public class HomeDashService extends Service {
             if (motionDetector == null) {
                 final int cameraId = Integer.valueOf(sharedPreferences.getString(getString(R.string.key_setting_motion_detection_camera),"0"));
                 Log.d(TAG, "Creating Motion Detector object with camera #" + cameraId);
-                motionDetector = new MotionDetector(this, cameraId);
+                motionDetector = new MotionDetector(cameraId);
                 if (motionDetectorCallback == null) {
                     Log.d(TAG, "Creating Motion Detector Callback");
                     motionDetectorCallback = new MotionDetectorCallback() {
@@ -548,7 +548,7 @@ public class HomeDashService extends Service {
         }
     }
 
-    public void stopMotionDetection() {
+    private void stopMotionDetection() {
         Log.d(TAG, "stopMotionDetection Called");
         if (motionDetector != null) {
             motionDetector.onPause();

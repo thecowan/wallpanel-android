@@ -8,11 +8,10 @@ import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.util.Log;
-import android.widget.CheckBox;
 
 public class WelcomeActivity extends AppCompatActivity {
 
-    final String TAG = BrowserActivity.class.getName();
+    private final String TAG = BrowserActivity.class.getName();
     private SharedPreferences sharedPreferences;
 
     @Override
@@ -30,7 +29,7 @@ public class WelcomeActivity extends AppCompatActivity {
         }
     }
 
-    public void startBrowserActivity() {
+    private void startBrowserActivity() {
         Log.d(TAG, "startBrowserActivity Called");
         String browserType = sharedPreferences.getString(getString(R.string.key_setting_browser_type),getString(R.string.default_setting_browser_type));
         Class targetClass;
@@ -55,26 +54,29 @@ public class WelcomeActivity extends AppCompatActivity {
         startActivity(new Intent(getApplicationContext(), targetClass));
     }
 
-    public void startSettingsActivity() {
+    private void startSettingsActivity() {
         Log.d(TAG, "startSettingsActivity Called");
         startActivity(new Intent(getApplicationContext(), SettingsActivity.class));
     }
 
-    public void startMotionActivity() {
+    private void startMotionActivity() {
         Log.d(TAG, "startMotionActivity Called");
         startActivity(new Intent(getApplicationContext(), MotionActivity.class));
     }
 
+    @SuppressWarnings("UnusedParameters")
     public void buttonBrowserClick(View view) {
         Log.d(TAG, "buttonBrowserClick Called");
         startBrowserActivity();
     }
 
+    @SuppressWarnings("UnusedParameters")
     public void buttonSettingsClick(View view) {
         Log.d(TAG, "buttonSettingsClick Called");
         startSettingsActivity();
     }
 
+    @SuppressWarnings("UnusedParameters")
     public void buttonMotionClick(View view) {
         Log.d(TAG, "buttonMotionClick Called");
         startMotionActivity();

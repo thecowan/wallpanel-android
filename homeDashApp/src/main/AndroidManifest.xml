@@ -3,7 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="de.rhuber.homedash">
 
-    <uses-sdk android:minSdkVersion="19" android:targetSdkVersion="25"/>
+    <uses-sdk android:minSdkVersion="19" android:targetSdkVersion="25"
+        tools:ignore="GradleOverrides" />
 
     <!-- Permissions the Application Requires -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />

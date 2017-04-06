@@ -5,6 +5,7 @@ import android.app.Application;
 
 public class HomeDash extends Application {
 
+    @SuppressWarnings("FieldCanBeLocal")
     private Intent homeDashService;
 
     @Override

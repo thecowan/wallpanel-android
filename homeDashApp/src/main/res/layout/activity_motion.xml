@@ -9,7 +9,8 @@
         android:id="@+id/imageView_preview"
         android:layout_width="match_parent"
         android:layout_height="@android:dimen/thumbnail_height"
-        android:layout_marginTop="50px" />
+        android:contentDescription="Camera Preview"
+        android:layout_marginTop="50dp" />
 
     <TextView
         android:id="@+id/textView_status"

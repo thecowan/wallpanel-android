@@ -36,9 +36,9 @@ dependencies {
     compile 'org.eclipse.paho:org.eclipse.paho.android.service:1.1.1', {
         exclude module: 'support-v4'
     }
-    compile 'com.android.support:appcompat-v7:25.3.0'
-    compile 'com.android.support:support-v4:25.3.0'
-    compile 'com.android.support:design:25.3.0'
+    compile 'com.android.support:appcompat-v7:25.3.1'
+    compile 'com.android.support:support-v4:25.3.1'
+    compile 'com.android.support:design:25.3.1'
     compile 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.1.1-SNAPSHOT'
     testCompile 'junit:junit:4.12'
     //compile project(':motiondetection')

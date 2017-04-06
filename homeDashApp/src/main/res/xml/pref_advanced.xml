@@ -8,7 +8,7 @@
                     android:title="@string/title_setting_browser_type"
                     android:key="@string/key_setting_browser_type" />
                 <SwitchPreference
-                    android:defaultValue="true"
+                    android:defaultValue="false"
                     android:title="@string/title_setting_display_progress_enable"
                     android:key="@string/key_setting_display_progress_enable" />
         </PreferenceCategory>
@@ -19,12 +19,17 @@
                     android:title="@string/title_setting_prevent_sleep"
                     android:key="@string/key_setting_prevent_sleep" />
                 <SwitchPreference
-                    android:defaultValue="false"
+                    android:defaultValue="true"
                     android:title="@string/title_setting_keep_wifi_on"
                     android:key="@string/key_setting_keep_wifi_on" />
         </PreferenceCategory>
 
         <PreferenceCategory android:title="@string/pref_header_mqtt">
+                <SwitchPreference
+                    android:title="@string/title_setting_enable_mqtt"
+                    android:id="@+id/mqtt_switch"
+                    android:key="@string/key_setting_enable_mqtt"
+                    android:defaultValue="false" />
                 <EditTextPreference
                     android:defaultValue="@string/default_setting_mqtt_host"
                     android:selectAllOnFocus="true"
@@ -55,11 +60,6 @@
                     android:key="@string/key_setting_sensor_update_frequency"
                     android:inputType="number"
                     android:defaultValue="60" />
-                <SwitchPreference
-                    android:title="@string/title_setting_enable_mqtt"
-                    android:id="@+id/mqtt_switch"
-                    android:key="@string/key_setting_enable_mqtt"
-                    android:defaultValue="false" />
         </PreferenceCategory>
 
         <PreferenceCategory android:title="@string/pref_header_sensors_enabled">
