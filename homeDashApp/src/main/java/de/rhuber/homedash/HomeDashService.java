@@ -9,6 +9,10 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Rect;
 import android.net.wifi.WifiManager;
 import android.os.Binder;
 import android.os.Build;
@@ -74,9 +78,33 @@ public class HomeDashService extends Service {
     }
 
     public Bitmap getMotionPicture() {
-        if (motionDetector != null)
-            return motionDetector.getLastBitmap();
-        return null;
+        try {
+            if (motionDetector != null)
+                return motionDetector.getLastBitmap();
+        }
+        catch (Exception ex) {}
+
+        Bitmap b = Bitmap.createBitmap(320,200,Bitmap.Config.ARGB_8888);
+        Canvas c = new Canvas(b);
+        Paint paint = new Paint();
+        paint.setColor(Color.BLACK);
+        paint.setStyle(Paint.Style.FILL);
+        c.drawPaint(paint);
+
+        paint.setColor(Color.WHITE);
+        paint.setTextSize(20);
+        Rect r = new Rect();
+        String text = getString(R.string.motion_detection_not_enabled);
+        c.getClipBounds(r);
+        int cHeight = r.height();
+        int cWidth = r.width();
+        paint.setTextAlign(Paint.Align.LEFT);
+        paint.getTextBounds(text, 0, text.length(), r);
+        float x = cWidth / 2f - r.width() / 2f - r.left;
+        float y = cHeight / 2f + r.height() / 2f - r.bottom;
+        c.drawText(text, x, y, paint);
+
+        return b;
     }
 
     public HomeDashService() {
@@ -129,7 +157,10 @@ public class HomeDashService extends Service {
                     configureMqtt();
                 } else if (s.contains("motion")) {
                     Log.i(TAG, "A Motion Detection Setting Changed");
-                    configureMotionDetection();
+                    if (s.equals(getString(R.string.key_setting_motion_detection_camera)))
+                        configureMotionDetection(true);
+                    else
+                        configureMotionDetection(false);
                 } else if (s.equals(getString(R.string.key_setting_prevent_sleep)) || s.equals(getString(R.string.key_setting_keep_wifi_on))) {
                     Log.i(TAG, "A Power Option Changed");
                     configurePowerOptions();
@@ -140,7 +171,7 @@ public class HomeDashService extends Service {
 
         configurePowerOptions();
         configureMqtt();
-        configureMotionDetection();
+        configureMotionDetection(false);
 
         startForeground();
     }
@@ -465,15 +496,16 @@ public class HomeDashService extends Service {
         startForeground(ONGOING_NOTIFICATION_ID, notification);
     }
 
-
-    public void configureMotionDetection(){
+    public void configureMotionDetection(boolean forceStopFirst){
         Log.d(TAG, "updateMotionDetection Called");
+        if (forceStopFirst) { stopMotionDetection(); }
         final boolean enabled = sharedPreferences.getBoolean(getString(R.string.key_setting_motion_detection_enable),false);
         if (enabled) {
             Log.d(TAG, "Motion detection is enabled");
             if (motionDetector == null) {
-                Log.d(TAG, "Creating Motion Detector object");
-                motionDetector = new MotionDetector(this, null);
+                final int cameraId = Integer.valueOf(sharedPreferences.getString(getString(R.string.key_setting_motion_detection_camera),"0"));
+                Log.d(TAG, "Creating Motion Detector object with camera #" + cameraId);
+                motionDetector = new MotionDetector(this, cameraId);
                 if (motionDetectorCallback == null) {
                     Log.d(TAG, "Creating Motion Detector Callback");
                     motionDetectorCallback = new MotionDetectorCallback() {

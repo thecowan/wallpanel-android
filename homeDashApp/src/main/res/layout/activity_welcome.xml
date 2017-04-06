@@ -6,40 +6,32 @@
     android:layout_height="match_parent"
     android:weightSum="1">
 
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Super Fancy Welcome Screen Here"
-        android:textAlignment="center"
-        android:textAppearance="@style/TextAppearance.AppCompat.Display1"
-        tools:text="Welcome to HomeDash!" />
-
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:srcCompat="@drawable/homedash_logo"
-        android:layout_weight="0.47" />
-
-    <Button
-        android:id="@+id/buttonBrowser"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:minHeight="250px"
+        android:clickable="true"
         android:onClick="buttonBrowserClick"
-        android:text="Launch Dashboard" />
+        app:srcCompat="@drawable/homedash_logo" />
 
-    <Button
-        android:id="@+id/buttonSettings"
-        android:layout_width="match_parent"
+    <fragment android:id="@+id/fragment_general_prefs"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:onClick="buttonSettingsClick"
-        android:text="Open Settings" />
+        android:name="de.rhuber.homedash.SettingsActivity$GeneralPreferenceFragment" />
 
     <Button
         android:id="@+id/buttonMotion"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:onClick="buttonMotionClick"
-        android:text="Motion Test" />
+        android:text="@string/button_open_motion_settings" />
+
+    <Button
+        android:id="@+id/buttonSettings"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="buttonSettingsClick"
+        android:text="@string/button_open_preferences" />
+
 </LinearLayout>

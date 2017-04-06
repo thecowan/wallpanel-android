@@ -31,10 +31,15 @@ import android.content.IntentFilter;
 import android.content.BroadcastReceiver;
 import android.util.Log;
 
+import com.jjoe64.motiondetection.motiondetection.MotionDetector;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Calendar;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+
+import static android.R.id.list;
 
 public class SettingsActivity extends AppCompatPreferenceActivity {
 
@@ -73,8 +78,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             return true;
         }
     };
-    private SharedPreferences sharedPreferences = null;
-    private HomeDashService homeDashService;
 
     /**
      * Helper method to determine if the device has an extra-large screen. For
@@ -114,8 +117,12 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Intent intent = getIntent();
+        if (intent.getStringArrayExtra(EXTRA_SHOW_FRAGMENT) == null) {
+            getIntent().putExtra(EXTRA_SHOW_FRAGMENT, AdvancedPreferenceFragment.class.getName());
+        }
+
         super.onCreate(savedInstanceState);
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
     }
 
     /**
@@ -144,7 +151,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                 || GeneralPreferenceFragment.class.getName().equals(fragmentName)
                 || SensorPreferenceFragment.class.getName().equals(fragmentName)
                 || MqttPreferenceFragment.class.getName().equals(fragmentName)
-                || AdvancedPreferenceFragment.class.getName().equals(fragmentName);
+                || AdvancedPreferenceFragment.class.getName().equals(fragmentName)
+                || CameraPreferenceFragment.class.getName().equals(fragmentName);
     }
 
     @Override
@@ -171,16 +179,12 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_startup_url)));
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_direct_browser_enable)));
-            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_display_progress_enable)));
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_start_on_boot)));
-
-            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_prevent_sleep)));
-            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_keep_wifi_on)));
         }
     }
 
     /**
-     * This fragment shows notification preferences only. It is used when the
+     * This fragment shows sensor preferences only. It is used when the
      * activity is showing a two-pane settings UI.
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
@@ -191,13 +195,43 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             addPreferencesFromResource(R.xml.pref_sensors);
             setHasOptionsMenu(true);
 
-            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_sensor_pressure_enable)));
-            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_sensor_battery_enable)));
-            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_sensor_light_enable)));
+        }
+
+        @Override
+        public boolean onOptionsItemSelected(MenuItem item) {
+            int id = item.getItemId();
+            if (id == android.R.id.home) {
+                startActivity(new Intent(getActivity(), SettingsActivity.class));
+                return true;
+            }
+            return super.onOptionsItemSelected(item);
+        }
+    }
+
+    /**
+     * This fragment shows camera preferences only. It is used when the
+     * activity is showing a two-pane settings UI.
+     */
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    public static class CameraPreferenceFragment extends PreferenceFragment {
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            addPreferencesFromResource(R.xml.pref_camera);
+            setHasOptionsMenu(true);
+
+            ListPreference cameras = (ListPreference) findPreference(getString(R.string.key_setting_motion_detection_camera));
+            ArrayList<String> cameraList = MotionDetector.getCameras();
+            cameras.setEntries(cameraList.toArray(new CharSequence[cameraList.size()]));
+            CharSequence[] vals = new CharSequence[cameraList.size()];
+            for (int i=0; i<cameraList.size(); i++) { vals[i] = Integer.toString(i); }
+            cameras.setEntryValues(vals);
+
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_motion_detection_enable)));
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_motion_detection_interval)));
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_motion_detection_leniency)));
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_motion_detection_min_luma)));
+            bindPreferenceSummaryToValue(cameras);
         }
 
         @Override
@@ -227,23 +261,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             // to their values. When their values change, their summaries are
             // updated to reflect the new value, per the Android Design
             // guidelines.
-            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_mqtt_host)));
-            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_mqtt_topic)));
-            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_mqtt_username)));
-            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_enable_mqtt)));
 
-            Preference preference = findPreference(getString(R.string.key_setting_sensor_update_frequency));
-            Preference.OnPreferenceChangeListener preferenceChangeListener = new Preference.OnPreferenceChangeListener(){
-                @Override
-                public boolean onPreferenceChange(Preference preference, Object newValue) {
-                    String summary = newValue+" seconds";
-                    preference.setSummary(summary);
-                    return true;
-                }
-            };
-            preference.setOnPreferenceChangeListener(preferenceChangeListener);
-            preferenceChangeListener.onPreferenceChange(preference,
-                    PreferenceManager.getDefaultSharedPreferences(preference.getContext()).getString(preference.getKey(), ""));
         }
 
         @Override
@@ -274,6 +292,33 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             // updated to reflect the new value, per the Android Design
             // guidelines.
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_browser_type)));
+
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_display_progress_enable)));
+
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_prevent_sleep)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_keep_wifi_on)));
+
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_sensor_pressure_enable)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_sensor_battery_enable)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_sensor_light_enable)));
+
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_mqtt_host)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_mqtt_topic)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_mqtt_username)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_enable_mqtt)));
+
+            Preference preference = findPreference(getString(R.string.key_setting_sensor_update_frequency));
+            Preference.OnPreferenceChangeListener preferenceChangeListener = new Preference.OnPreferenceChangeListener(){
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    String summary = newValue+" seconds";
+                    preference.setSummary(summary);
+                    return true;
+                }
+            };
+            preference.setOnPreferenceChangeListener(preferenceChangeListener);
+            preferenceChangeListener.onPreferenceChange(preference,
+                    PreferenceManager.getDefaultSharedPreferences(preference.getContext()).getString(preference.getKey(), ""));
         }
 
         @Override

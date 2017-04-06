@@ -1,36 +1,21 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-        <EditTextPreference
-            android:selectAllOnFocus="true"
-            android:singleLine="true"
-            android:title="@string/title_setting_startup_url"
-            android:key="@string/key_setting_startup_url"
-            android:defaultValue="@string/default_setting_startup_url" />
-        <SwitchPreference
-            android:defaultValue="false"
-            android:title="@string/title_setting_direct_browser_enable"
-            android:key="@string/key_setting_direct_browser_enable" />
-        <SwitchPreference
-            android:defaultValue="true"
-            android:title="@string/title_setting_display_progress_enable"
-            android:key="@string/key_setting_display_progress_enable" />
-        <SwitchPreference
-            android:defaultValue="false"
-            android:title="@string/title_setting_start_on_boot"
-            android:key="@string/key_setting_start_on_boot" />
-
-    <PreferenceCategory android:title="@string/pref_header_power_options">
-
-            <SwitchPreference
-                android:defaultValue="false"
-                android:title="@string/title_setting_prevent_sleep"
-                android:key="@string/key_setting_prevent_sleep" />
-            <SwitchPreference
-                android:defaultValue="false"
-                android:title="@string/title_setting_keep_wifi_on"
-                android:key="@string/key_setting_keep_wifi_on" />
-
-    </PreferenceCategory>
+        <PreferenceCategory android:title="@string/pref_header_general">
+                <EditTextPreference
+                    android:selectAllOnFocus="true"
+                    android:singleLine="true"
+                    android:title="@string/title_setting_startup_url"
+                    android:key="@string/key_setting_startup_url"
+                    android:defaultValue="@string/default_setting_startup_url" />
+                <SwitchPreference
+                    android:defaultValue="false"
+                    android:title="@string/title_setting_direct_browser_enable"
+                    android:key="@string/key_setting_direct_browser_enable" />
+                <SwitchPreference
+                    android:defaultValue="false"
+                    android:title="@string/title_setting_start_on_boot"
+                    android:key="@string/key_setting_start_on_boot" />
+        </PreferenceCategory>
 
 </PreferenceScreen>
 

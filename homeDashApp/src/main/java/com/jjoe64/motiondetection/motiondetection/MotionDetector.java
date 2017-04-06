@@ -23,7 +23,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -113,30 +115,22 @@ public class MotionDetector {
 
     private Camera mCamera;
     private boolean inPreview;
-    private SurfaceHolder previewHolder;
     private Context mContext;
-    private SurfaceView mSurface;
 
     SurfaceTexture mSurfaceTexture;
-    private int cameraId = Camera.CameraInfo.CAMERA_FACING_FRONT;
-    private String dirString = null;
+    private int mCameraId = Camera.CameraInfo.CAMERA_FACING_FRONT;
     private byte[] mBuffer;
     private boolean safeToTakePicture = true;
     private long detectCount;
-    private int contentType = 0;
     private static MotionDetector mMotionDetector = null;
 
 
-    public MotionDetector(Context context, SurfaceView previewSurface) {
+    public MotionDetector(Context context, int cameraId) {
+        mCameraId = cameraId;
         detector = new AggregateLumaMotionDetection();
         mContext = context;
 
-        if(previewSurface == null){
-            mSurfaceTexture = new SurfaceTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES);
-            mSurface = null;
-        }else{
-            mSurface = previewSurface;
-        }
+        mSurfaceTexture = new SurfaceTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES);
     }
 
     public void setMotionDetectorCallback(MotionDetectorCallback motionDetectorCallback) {
@@ -161,98 +155,69 @@ public class MotionDetector {
         detector.setLeniency(l);
     }
 
-    public void setCamera(int c){
-        if( c == 0){
-            cameraId = Camera.CameraInfo.CAMERA_FACING_FRONT;
-        }
-        else if(c == 1){
-            cameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
-        }
-    }
-
-    public void setContentType(int type){
-        contentType = type;
-    }
-
-    public void setDirString(String dir){
-        dirString = dir;
-    }
-
-    public static MotionDetector getInstance()
-    {
-        if(mMotionDetector == null){
-            //mMotionDetector = new MotionDetector(getApplicationContext(), null);
-        }
-
-        return mMotionDetector;
-    }
-
     public void onResume() {
-        if(mCamera == null){
-            if (checkCameraHardware()) {
-                mCamera = getCameraInstance();
+        if(mCamera == null) {
+            mCamera = getCameraInstance();//TODO we need to fail better if camera doesn't work
 
+            if (mCamera != null) {
                 worker = new MotionDetectorThread();
                 worker.start();
 
-                if(mSurface == null){
-                    try {
-                        mCamera.setPreviewTexture(mSurfaceTexture);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-
-                    Camera.Parameters parameters = mCamera.getParameters();
-                    parameters.setPreviewSize(1280, 720);
-                    //parameters.setPreviewFpsRange(5, 15);
-                    int size2 = 1920 * 1080 * 3;
-                    //size2  = size2 * ImageFormat.getBitsPerPixel(parameters.getPreviewFormat()) / 8;
-                    mBuffer = new byte[size2]; // class variable
-                    mCamera.addCallbackBuffer(mBuffer);
-                    mCamera.setPreviewCallbackWithBuffer(previewCallback);
-
-                    mCamera.setParameters(parameters);
-                    mCamera.startPreview();
-                    inPreview = true;
-
-                }else{
-                    // configure preview
-                    previewHolder = mSurface.getHolder();
-                    previewHolder.addCallback(surfaceCallback);
-                    previewHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+                try {
+                    mCamera.setPreviewTexture(mSurfaceTexture);
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
 
+                Camera.Parameters parameters = mCamera.getParameters();
+                parameters.setPreviewSize(1280, 720);
+                //parameters.setPreviewFpsRange(5, 15);
+                int size2 = 1920 * 1080 * 3;
+                //size2  = size2 * ImageFormat.getBitsPerPixel(parameters.getPreviewFormat()) / 8;
+                mBuffer = new byte[size2]; // class variable
+                mCamera.addCallbackBuffer(mBuffer);
+                mCamera.setPreviewCallbackWithBuffer(previewCallback);
 
+                mCamera.setParameters(parameters);
+                mCamera.startPreview();
+                inPreview = true;
+            } else {
+                Log.e("MotionDetector", "There is no camera so nothing is going to happen :(");
             }
         }
-
         detectCount = 0;
     }
 
-    public boolean checkCameraHardware() {
-        if (mContext.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)){
-            // this device has a camera
-            return true;
-        } else {
-            Log.e("MotionDetector", "There is no camera hardware we can use!");
-            return false;
+    public static ArrayList<String> getCameras() {
+        ArrayList<String> result = new ArrayList<String>();
+        for (int i=0; i<Camera.getNumberOfCameras(); i++) {
+            Camera.CameraInfo info = new Camera.CameraInfo();
+            Camera.getCameraInfo(i, info);
+            result.add(java.text.MessageFormat.format(
+                    "id:{0} facing:{1} orientation:{2}",
+                    i, info.facing, info.orientation));
+
         }
+        return result;
     }
 
     private Camera getCameraInstance(){
         Camera c = null;
-
-        try {
-            if (Camera.getNumberOfCameras() >= 2) {
-                //if you want to open front facing camera use this line
-                c = Camera.open(cameraId);
-            } else {
-                c = Camera.open();
+        int numCameras = Camera.getNumberOfCameras();
+        if (numCameras > 0){
+            try {
+                if (mCameraId >= numCameras)
+                    c = Camera.open(0);
+                else
+                    c = Camera.open(mCameraId);
             }
-        }
-        catch (Exception e){
-            // Camera is not available (in use or does not exist)
-            //txtStatus.setText("Kamera nicht zur Benutzung freigegeben");
+            catch (Exception e){
+                // Camera is not available (in use or does not exist)
+                Log.e("MotionDetector", e.getMessage());
+            }
+
+        } else {
+            Log.e("MotionDetector", "There is no camera hardware reported!");
         }
         return c; // returns null if camera is unavailable
     }
@@ -269,58 +234,6 @@ public class MotionDetector {
             if (size == null) return;
             Log.d("MotionDetectorSSSSSSSSS", "Using width=" + size.width + " height=" + size.height);
             consume(data, size.width, size.height);
-        }
-    };
-
-
-    private SurfaceHolder.Callback surfaceCallback = new SurfaceHolder.Callback() {
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public void surfaceCreated(SurfaceHolder holder) {
-            try {
-                mCamera.setPreviewDisplay(previewHolder);
-                //mCamera.setPreviewCallback(previewCallback);
-            } catch (Throwable t) {
-                Log.e("MotionDetector", "Exception in setPreviewDisplay()", t);
-            }
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-            Camera.Parameters parameters = mCamera.getParameters();
-            Camera.Size size = getBestPreviewSize(width, height, parameters);
-            if (size != null) {
-                parameters.setPreviewSize(size.width, size.height);
-                Log.d("MotionDetector", "Using width=" + size.width + " height=" + size.height);
-            }
-
-            parameters.setPreviewSize(1280, 720);
-            //parameters.setPictureSize(1280, 720);
-            //parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_FIXED);
-
-            int size2 = 1920 * 1080 * 3;
-            //size2  = size2 * ImageFormat.getBitsPerPixel(parameters.getPreviewFormat()) / 8;
-            mBuffer = new byte[size2]; // class variable
-            mCamera.addCallbackBuffer(mBuffer);
-            mCamera.setPreviewCallbackWithBuffer(previewCallback);
-
-            mCamera.setParameters(parameters);
-            mCamera.startPreview();
-            inPreview = true;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public void surfaceDestroyed(SurfaceHolder holder) {
-            // Ignore
         }
     };
 
@@ -345,7 +258,6 @@ public class MotionDetector {
 
     public void onPause() {
         releaseCamera();
-        if (previewHolder != null) previewHolder.removeCallback(surfaceCallback);
         if (worker != null) worker.stopDetection();
     }
 

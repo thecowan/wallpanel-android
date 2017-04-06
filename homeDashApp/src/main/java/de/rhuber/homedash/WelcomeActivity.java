@@ -8,6 +8,7 @@ import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.util.Log;
+import android.widget.CheckBox;
 
 public class WelcomeActivity extends AppCompatActivity {
 
@@ -21,7 +22,8 @@ public class WelcomeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_welcome);
 
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        final boolean startBrowser = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean(getString(R.string.key_setting_direct_browser_enable),false);
+        final boolean startBrowser = sharedPreferences.getBoolean(getString(R.string.key_setting_direct_browser_enable),false);
+
         if (startBrowser) {
             Log.i(TAG, "Starting Browser on Startup");
             startBrowserActivity();

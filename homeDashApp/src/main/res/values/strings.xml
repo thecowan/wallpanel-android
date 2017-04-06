@@ -50,16 +50,18 @@
     <string name="title_setting_motion_detection_leniency">Leniency</string>
     <string name="key_setting_motion_detection_min_luma">setting_motion_detection_min_luma</string>
     <string name="title_setting_motion_detection_min_luma">Minimal luma (brightness)</string>
+    <string name="key_setting_motion_detection_camera">setting_motion_detection_camera</string>
+    <string name="title_setting_motion_detection_camera">Camera</string>
     <string name="key_setting_start_on_boot">setting_start_on_boot</string>
     <string name="title_setting_start_on_boot">Start HomeDash on Android Boot</string>
     <string name="key_setting_keep_wifi_on">setting_keep_wifi_on</string>
     <string name="title_setting_keep_wifi_on">Keep WiFi On When Sleeping</string>
     <string name="key_setting_prevent_sleep">setting_prevent_sleep</string>
     <string name="title_setting_prevent_sleep">Prevent Screen From Sleeping</string>
-    <string name="pref_header_motion_detection">Motion Detection</string>
+    <string name="pref_header_motion_detection">Motion Detection Setup</string>
     <string name="pref_header_mqtt">MQTT</string>
-    <string name="pref_header_power_options">Power Options</string>
-    <string name="pref_header_sensors_enabled">Enable Sensors</string>
+    <string name="pref_header_power_options">Power</string>
+    <string name="pref_header_sensors_enabled">Sensors</string>
     <string name="default_setting_mqtt_topic">homeDash/</string>
     <string name="key_setting_motion_detection_interval">setting_motion_detection_interval</string>
     <string name="title_setting_mqtt_host">MQTT Host</string>
@@ -70,4 +72,7 @@
     <string name="title_setting_browser_type">Specify Browser Engine</string>
     <string name="pref_header_advanced">Advanced</string>
     <string name="default_setting_browser_type">Auto</string>
+    <string name="motion_detection_not_enabled">Motion Detection Not Enabled</string>
+    <string name="button_open_preferences">Other Settings</string>
+    <string name="button_open_motion_settings">Motion Detection Settings</string>
 </resources>
