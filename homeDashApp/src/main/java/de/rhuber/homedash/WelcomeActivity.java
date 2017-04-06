@@ -13,6 +13,7 @@ public class WelcomeActivity extends AppCompatActivity {
 
     private final String TAG = BrowserActivity.class.getName();
     private SharedPreferences sharedPreferences;
+    private static boolean startup = true;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -23,10 +24,12 @@ public class WelcomeActivity extends AppCompatActivity {
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         final boolean startBrowser = sharedPreferences.getBoolean(getString(R.string.key_setting_direct_browser_enable),false);
 
-        if (startBrowser) {
+        if (startBrowser && startup) {
             Log.i(TAG, "Starting Browser on Startup");
             startBrowserActivity();
         }
+
+        startup = false;
     }
 
     private void startBrowserActivity() {

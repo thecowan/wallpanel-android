@@ -67,7 +67,6 @@
     <string name="title_setting_mqtt_password">MQTT Password</string>
     <string name="key_setting_browser_type">setting_browser_type</string>
     <string name="title_setting_browser_type">Specify Browser Engine</string>
-    <string name="pref_header_advanced">Advanced</string>
     <string name="default_setting_browser_type">Auto</string>
     <string name="motion_detection_not_enabled">Motion Detection Not Enabled</string>
     <string name="button_open_preferences">Other HomeDash Settings</string>
