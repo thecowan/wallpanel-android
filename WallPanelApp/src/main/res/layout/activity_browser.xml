@@ -8,8 +8,17 @@
     <WebView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/activity_browser_webview"
+        android:id="@+id/activity_browser_webview_native"
         android:scrollbars="none"
+        android:visibility="gone"
+        />
+
+    <org.xwalk.core.XWalkView
+        android:id="@+id/activity_browser_webview_legacy"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbars="none"
+        android:visibility="gone"
         />
 
 </merge>

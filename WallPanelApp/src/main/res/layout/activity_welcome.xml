@@ -13,7 +13,9 @@
         android:clickable="true"
         android:onClick="buttonBrowserClick"
         android:contentDescription="Launch Dashboard"
-        app:srcCompat="@drawable/homedash_logo" />
+        app:srcCompat="@mipmap/wallpanel_logo"
+        android:background="#EEEEEE"/>
+    
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

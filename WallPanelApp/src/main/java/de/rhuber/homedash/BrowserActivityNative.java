@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.os.Build;
 import android.support.design.widget.Snackbar;
 import android.util.Log;
+import android.view.View;
 import android.webkit.CookieManager;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
@@ -19,8 +20,9 @@ public class BrowserActivityNative extends BrowserActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        setContentView(R.layout.activity_browser_native);
-        mWebView = (WebView) findViewById(R.id.activity_browser_webview);
+        setContentView(R.layout.activity_browser);
+        mWebView = (WebView) findViewById(R.id.activity_browser_webview_native);
+        mWebView.setVisibility(View.VISIBLE);
 
         // Force links and redirects to open in the WebView instead of in a browser
         mWebView.setWebChromeClient(new WebChromeClient(){

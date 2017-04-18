@@ -3,6 +3,7 @@ import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.util.Log;
+import android.view.View;
 
 import org.xwalk.core.XWalkResourceClient;
 import org.xwalk.core.XWalkView;
@@ -17,8 +18,9 @@ public class BrowserActivityLegacy extends BrowserActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        setContentView(R.layout.activity_browser_legacy);
-        xWebView=(XWalkView)findViewById(R.id.activity_browser_webview);
+        setContentView(R.layout.activity_browser);
+        xWebView=(XWalkView)findViewById(R.id.activity_browser_webview_legacy);
+        xWebView.setVisibility(View.VISIBLE);
 
         xWebView.setResourceClient(new XWalkResourceClient(xWebView) {
 
