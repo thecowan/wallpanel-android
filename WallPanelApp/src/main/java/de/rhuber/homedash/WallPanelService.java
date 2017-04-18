@@ -43,7 +43,7 @@ import java.nio.charset.Charset;
 import java.util.Map;
 
 
-public class HomeDashService extends Service {
+public class WallPanelService extends Service {
     private static final int ONGOING_NOTIFICATION_ID = 1;
     private static final String MQTT_COMMAND_WAKEUP = "wakeup";
     private static final String MQTT_COMMAND_CLEAR_BROWSER_CACHE = "clearBrowserCache";
@@ -52,7 +52,7 @@ public class HomeDashService extends Service {
     private static final String MQTT_COMMAND_SAVE = "save";
     private static final String MQTT_COMMAND_RELOAD = "reload";
 
-    private final String TAG = HomeDashService.class.getName();
+    private final String TAG = WallPanelService.class.getName();
     private final IBinder mBinder = new MqttServiceBinder();
     private MqttAndroidClient mqttAndroidClient;
     private Handler sensorHandler;
@@ -71,9 +71,9 @@ public class HomeDashService extends Service {
     private PowerManager.WakeLock partialWakeLock;
     private WifiManager.WifiLock wifiLock;
 
-    private static HomeDashService myInstance;
+    private static WallPanelService myInstance;
 
-    public static HomeDashService getInstance() {
+    public static WallPanelService getInstance() {
         return myInstance;
     }
 
@@ -107,11 +107,11 @@ public class HomeDashService extends Service {
         return b;
     }
 
-    public HomeDashService() {
+    public WallPanelService() {
         if (myInstance == null)
             myInstance = this;
         else
-            throw new RuntimeException("Only instantiate HomeDashService once!");
+            throw new RuntimeException("Only instantiate WallPanelService once!");
     }
 
     @Override
@@ -223,7 +223,7 @@ public class HomeDashService extends Service {
         if (enabled) {
             final String topic = sharedPreferences.getString(getString(R.string.key_setting_mqtt_topic), "");
             final String url = sharedPreferences.getString(getString(R.string.key_setting_mqtt_host), "");
-            final String clientId = "HomeDash-" + Build.DEVICE;
+            final String clientId = "WallPanel-" + Build.DEVICE;
             final String username = sharedPreferences.getString(getString(R.string.key_setting_mqtt_username), "");
             final String password = sharedPreferences.getString(getString(R.string.key_setting_mqtt_password), "");
             startMqttConnection(url, clientId, topic, username, password);
@@ -462,22 +462,22 @@ public class HomeDashService extends Service {
     }
 
     private class MqttServiceBinder extends Binder {
-        HomeDashService getService() {
+        WallPanelService getService() {
             Log.d(TAG, "mqttServiceBinder.getService Called");
-            return HomeDashService.this;
+            return WallPanelService.this;
         }
     }
 
     private void startForeground(){
         Log.d(TAG, "startForeground Called");
-        Intent notificationIntent = new Intent(this, HomeDashService.class);
+        Intent notificationIntent = new Intent(this, WallPanelService.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
 
         Notification notification;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT_WATCH) {
             notification = new Notification.Builder(this)
-                    .setContentTitle(getText(R.string.homedash_service_notification_title))
-                    .setContentText(getText(R.string.homedash_service_notification_message))
+                    .setContentTitle(getText(R.string.wallpanel_service_notification_title))
+                    .setContentText(getText(R.string.wallpanel_service_notification_message))
                     .setSmallIcon(R.drawable.ic_home_white_24dp)
                     .setLargeIcon(BitmapFactory.decodeResource(getApplication().getResources(),R.mipmap.ic_launcher))
                     .setContentIntent(pendingIntent)
@@ -485,8 +485,8 @@ public class HomeDashService extends Service {
                     .build();
         } else {
             notification = new Notification.Builder(this)
-                    .setContentTitle(getText(R.string.homedash_service_notification_title))
-                    .setContentText(getText(R.string.homedash_service_notification_message))
+                    .setContentTitle(getText(R.string.wallpanel_service_notification_title))
+                    .setContentText(getText(R.string.wallpanel_service_notification_message))
                     .setSmallIcon(R.drawable.ic_home_white_24dp)
                     .setLargeIcon(BitmapFactory.decodeResource(getApplication().getResources(),R.mipmap.ic_launcher))
                     .setContentIntent(pendingIntent)

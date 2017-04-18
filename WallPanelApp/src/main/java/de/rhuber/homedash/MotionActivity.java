@@ -74,7 +74,7 @@ public class MotionActivity extends AppCompatActivity {
         @Override
         public void run () {
             final ImageView preview = (ImageView) findViewById(R.id.imageView_preview);
-            preview.setImageBitmap(HomeDashService.getInstance().getMotionPicture());
+            preview.setImageBitmap(WallPanelService.getInstance().getMotionPicture());
             updateHandler.postDelayed(this, 100);
 
             if (removeTextCountdown > 0) {

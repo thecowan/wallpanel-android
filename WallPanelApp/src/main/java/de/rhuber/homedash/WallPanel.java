@@ -3,15 +3,15 @@ package de.rhuber.homedash;
 import android.content.Intent;
 import android.app.Application;
 
-public class HomeDash extends Application {
+public class WallPanel extends Application {
 
     @SuppressWarnings("FieldCanBeLocal")
-    private Intent homeDashService;
+    private Intent wallPanelService;
 
     @Override
     public void onCreate() {
         super.onCreate();
-        homeDashService = new Intent(this, HomeDashService.class);
-        startService(homeDashService);
+        wallPanelService = new Intent(this, WallPanelService.class);
+        startService(wallPanelService);
     }
 }

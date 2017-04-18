@@ -1,18 +1,18 @@
-# HomeDash
-HomeDash is an Android browser for displaying web based dashboards with MQTT integration and 
+# WallPanel
+WallPanel (Formerly HomeDash) is an Android browser for displaying web based dashboards with MQTT integration and 
 a motion sensor that can wake the screen.
 
 ## HowTo
 Open the app. On the Welcome screen you can tap the graphic at the top to launch your 
 dashboard. Configuration options are available on the main screen, as well as on the 
-Motion Detector Settings and Other Homedash Settings subscreens.
+Motion Detector Settings and Other WallPanel Settings subscreens.
 
 To return to the Welcome screen pull down or up from the screen border and press Back
 
 To close the background services swipe out the app from the Android task manager.
 
 ## Sensors
-HomeDash can publish the following sensors from the device to MQTT:
+WallPanel can publish the following sensors from the device to MQTT:
 * Motion
 * Pressure
 * Light
@@ -20,7 +20,7 @@ HomeDash can publish the following sensors from the device to MQTT:
 
 ## MQTT Remote Control
 You can remotely control the dashboard by publishing to
-topic `homedash/command` (the base topic can be changed, especially if you have more than one dashboard)
+topic `wallpanel/command` (the base topic can be changed, especially if you have more than one dashboard)
 
 * Load a URL:
  `{"url":"http://someurl.org"}`
@@ -41,20 +41,20 @@ It's also possible to send multiple comamnds together:
 ## HomeAssistant configuration
 ```YAML
 - platform: mqtt
-    state_topic: "homedash/sensor/battery"
-    name: "homedash battery"
+    state_topic: "wallpanel/sensor/battery"
+    name: "wallpanel battery"
     unit_of_measurement: "%"
     value_template: '{{ value_json.value }}'
 
   - platform: mqtt
-    state_topic: "homedash/sensor/brightness"
-    name: "homedash brightness"
+    state_topic: "wallpanel/sensor/brightness"
+    name: "wallpanel brightness"
     unit_of_measurement: "lx"
     value_template: '{{ value_json.value }}'
 
   - platform: mqtt
-    state_topic: "homedash/sensor/pressure"
-    name: "homedash pressure"
+    state_topic: "wallpanel/sensor/pressure"
+    name: "wallpanel pressure"
     unit_of_measurement: "mb"
     value_template: '{{ value_json.value }}'
 
@@ -66,7 +66,7 @@ provide a service to set a sensor state we use an REST API call.
 ```YAML
 binary_sensor:
   - platform: mqtt
-    state_topic: "homedash/sensor/motion"
+    state_topic: "wallpanel/sensor/motion"
     name: "Motion"
     payload_on: '{"sensor":"cameraMotionDetector","unit":"Boolean","value":"true"}'
     device_class: motion

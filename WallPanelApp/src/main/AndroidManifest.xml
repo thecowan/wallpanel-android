@@ -25,12 +25,12 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/wallpanel_logo"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:fullBackupContent="@xml/backup_descriptor"
-        android:name="de.rhuber.homedash.HomeDash"
+        android:name="de.rhuber.homedash.WallPanel"
         tools:ignore="GoogleAppIndexingWarning">
 
         <activity
@@ -78,7 +78,7 @@
         <service
             android:name="org.eclipse.paho.android.service.MqttService" />
         <service
-            android:name=".HomeDashService"
+            android:name=".WallPanelService"
             android:enabled="true"
             android:exported="false" />
 

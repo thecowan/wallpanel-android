@@ -8,7 +8,7 @@ android {
         minSdkVersion 19
         targetSdkVersion 25
         versionCode 1
-        versionName '0.4'
+        versionName '0.5'
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -39,7 +39,7 @@ dependencies {
     compile 'com.android.support:appcompat-v7:25.3.1'
     compile 'com.android.support:support-v4:25.3.1'
     compile 'com.android.support:design:25.3.1'
-    compile 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.1.1-SNAPSHOT'
+    compile 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.1.1'
     testCompile 'junit:junit:4.12'
     //compile project(':motiondetection')
     //compile 'com.github.ray0711:android-motion-detection:41f41e4f1d'

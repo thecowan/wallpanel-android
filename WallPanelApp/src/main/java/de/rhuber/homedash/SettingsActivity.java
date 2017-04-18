@@ -17,7 +17,7 @@ import java.util.ArrayList;
 public class SettingsActivity extends AppCompatPreferenceActivity {
 
     @SuppressWarnings("unused")
-    private final String TAG = HomeDashService.class.getName();
+    private final String TAG = WallPanelService.class.getName();
 
     private static final Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = new Preference.OnPreferenceChangeListener() {
         @Override
