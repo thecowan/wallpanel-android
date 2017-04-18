@@ -82,14 +82,11 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        getFragmentManager().beginTransaction().replace(android.R.id.content, new AdvancedPreferenceFragment()).commit();
     }
 
     protected boolean isValidFragment(String fragmentName) {
         return PreferenceFragment.class.getName().equals(fragmentName)
                 || GeneralPreferenceFragment.class.getName().equals(fragmentName)
-                || AdvancedPreferenceFragment.class.getName().equals(fragmentName)
                 || CameraPreferenceFragment.class.getName().equals(fragmentName);
     }
 
@@ -101,46 +98,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             addPreferencesFromResource(R.xml.pref_general);
 
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_startup_url)));
-            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_direct_browser_enable)));
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_start_on_boot)));
-        }
-    }
 
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public static class CameraPreferenceFragment extends PreferenceFragment {
-        @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            addPreferencesFromResource(R.xml.pref_camera);
-            setHasOptionsMenu(true);
-
-            ListPreference cameras = (ListPreference) findPreference(getString(R.string.key_setting_motion_detection_camera));
-            ArrayList<String> cameraList = MotionDetector.getCameras();
-            cameras.setEntries(cameraList.toArray(new CharSequence[cameraList.size()]));
-            CharSequence[] vals = new CharSequence[cameraList.size()];
-            for (int i=0; i<cameraList.size(); i++) { vals[i] = Integer.toString(i); }
-            cameras.setEntryValues(vals);
-
-            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_motion_detection_enable)));
-            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_motion_detection_interval)));
-            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_motion_detection_leniency)));
-            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_motion_detection_min_luma)));
-            bindPreferenceSummaryToValue(cameras);
-        }
-    }
-
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public static class AdvancedPreferenceFragment extends PreferenceFragment {
-        @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            addPreferencesFromResource(R.xml.pref_advanced);
-            setHasOptionsMenu(true);
-
-            // Bind the summaries of EditText/List/Dialog/Ringtone preferences
-            // to their values. When their values change, their summaries are
-            // updated to reflect the new value, per the Android Design
-            // guidelines.
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_browser_type)));
 
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_display_progress_enable)));
@@ -169,6 +128,29 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             preference.setOnPreferenceChangeListener(preferenceChangeListener);
             preferenceChangeListener.onPreferenceChange(preference,
                     PreferenceManager.getDefaultSharedPreferences(preference.getContext()).getString(preference.getKey(), ""));
+        }
+    }
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    public static class CameraPreferenceFragment extends PreferenceFragment {
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            addPreferencesFromResource(R.xml.pref_camera);
+            setHasOptionsMenu(true);
+
+            ListPreference cameras = (ListPreference) findPreference(getString(R.string.key_setting_motion_detection_camera));
+            ArrayList<String> cameraList = MotionDetector.getCameras();
+            cameras.setEntries(cameraList.toArray(new CharSequence[cameraList.size()]));
+            CharSequence[] vals = new CharSequence[cameraList.size()];
+            for (int i=0; i<cameraList.size(); i++) { vals[i] = Integer.toString(i); }
+            cameras.setEntryValues(vals);
+
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_motion_detection_enable)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_motion_detection_interval)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_motion_detection_leniency)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_motion_detection_min_luma)));
+            bindPreferenceSummaryToValue(cameras);
         }
     }
 

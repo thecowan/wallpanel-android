@@ -34,8 +34,6 @@
     <string name="key_setting_startup_url">setting_startup_url</string>
     <string name="wallpanel_service_notification_title">WallPanel</string>
     <string name="wallpanel_service_notification_message">running</string>
-    <string name="key_setting_direct_browser_enable">setting_direct_browser_enable</string>
-    <string name="title_setting_direct_browser_enable">Auto-Launch Dashboard</string>
     <string name="default_setting_startup_url">http://box.lan:8123</string>
     <string name="title_setting_startup_url">Dashboard Launch URL</string>
     <string name="title_setting_display_progress_enable">Display Page Load Progress</string>

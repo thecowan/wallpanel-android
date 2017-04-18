@@ -6,6 +6,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.util.Log;
 
@@ -22,14 +24,20 @@ public class WelcomeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_welcome);
 
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        final boolean startBrowser = sharedPreferences.getBoolean(getString(R.string.key_setting_direct_browser_enable),false);
 
-        if (startBrowser && startup) {
+        if (startup) {
             Log.i(TAG, "Starting Browser on Startup");
             startBrowserActivity();
         }
 
         startup = false;
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_welcome, menu);
+        return true;
     }
 
     private void startBrowserActivity() {
@@ -57,26 +65,15 @@ public class WelcomeActivity extends AppCompatActivity {
         startActivity(new Intent(getApplicationContext(), targetClass));
     }
 
-    private void startSettingsActivity() {
-        Log.d(TAG, "startSettingsActivity Called");
-        startActivity(new Intent(getApplicationContext(), SettingsActivity.class));
-    }
-
     private void startMotionActivity() {
         Log.d(TAG, "startMotionActivity Called");
         startActivity(new Intent(getApplicationContext(), MotionActivity.class));
     }
 
     @SuppressWarnings("UnusedParameters")
-    public void buttonBrowserClick(View view) {
-        Log.d(TAG, "buttonBrowserClick Called");
+    public void onLaunchDashboard(MenuItem mi) {
+        Log.d(TAG, "onLaunchDashboard Called");
         startBrowserActivity();
-    }
-
-    @SuppressWarnings("UnusedParameters")
-    public void buttonSettingsClick(View view) {
-        Log.d(TAG, "buttonSettingsClick Called");
-        startSettingsActivity();
     }
 
     @SuppressWarnings("UnusedParameters")
