@@ -479,7 +479,7 @@ public class WallPanelService extends Service {
                     .setContentTitle(getText(R.string.wallpanel_service_notification_title))
                     .setContentText(getText(R.string.wallpanel_service_notification_message))
                     .setSmallIcon(R.drawable.ic_home_white_24dp)
-                    .setLargeIcon(BitmapFactory.decodeResource(getApplication().getResources(),R.mipmap.wallpanel_logo))
+                    .setLargeIcon(BitmapFactory.decodeResource(getApplication().getResources(),R.mipmap.wallpanel_icon))
                     .setContentIntent(pendingIntent)
                     .setLocalOnly(true)
                     .build();
@@ -488,7 +488,7 @@ public class WallPanelService extends Service {
                     .setContentTitle(getText(R.string.wallpanel_service_notification_title))
                     .setContentText(getText(R.string.wallpanel_service_notification_message))
                     .setSmallIcon(R.drawable.ic_home_white_24dp)
-                    .setLargeIcon(BitmapFactory.decodeResource(getApplication().getResources(),R.mipmap.wallpanel_logo))
+                    .setLargeIcon(BitmapFactory.decodeResource(getApplication().getResources(),R.mipmap.wallpanel_icon))
                     .setContentIntent(pendingIntent)
                     .build();
         }
