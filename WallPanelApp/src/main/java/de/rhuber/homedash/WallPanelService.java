@@ -5,8 +5,6 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -19,7 +17,6 @@ import android.os.Build;
 import android.os.IBinder;
 import android.os.Handler;
 import android.os.PowerManager;
-import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 
 import android.util.Log;
@@ -59,9 +56,7 @@ public class WallPanelService extends Service {
     private Runnable sensorHandlerRunnable;
     private SensorReader sensorReader;
     private String topicPrefix;
-    private SharedPreferences sharedPreferences;
     @SuppressWarnings("FieldCanBeLocal")
-    private SharedPreferences.OnSharedPreferenceChangeListener prefsChangedListener;
 
     private final String MOTION_SENSOR_MOTION_DETECTED_JSON ="{\"sensor\":\"cameraMotionDetector\",\"unit\":\"Boolean\",\"value\":\"true\"}";
     private MotionDetector motionDetector;
@@ -72,6 +67,8 @@ public class WallPanelService extends Service {
     private WifiManager.WifiLock wifiLock;
 
     private static WallPanelService myInstance;
+
+    private Config config;
 
     public static WallPanelService getInstance() {
         return myInstance;
@@ -133,7 +130,8 @@ public class WallPanelService extends Service {
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "onCreate Called");
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+
+        config = new Config(getApplicationContext());
 
         // prepare the lock types we may use
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
@@ -148,26 +146,6 @@ public class WallPanelService extends Service {
         // We always grab partialWakeLock
         Log.i(TAG, "Acquiring Partial Wake Lock");
         partialWakeLock.acquire();
-
-        prefsChangedListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
-            @Override
-            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
-                if (s.contains("mqtt") || s.equals(getString(R.string.key_setting_sensor_update_frequency))) {
-                    Log.i(TAG, "A MQTT Setting Changed");
-                    configureMqtt();
-                } else if (s.contains("motion")) {
-                    Log.i(TAG, "A Motion Detection Setting Changed");
-                    if (s.equals(getString(R.string.key_setting_motion_detection_camera)))
-                        configureMotionDetection(true);
-                    else
-                        configureMotionDetection(false);
-                } else if (s.equals(getString(R.string.key_setting_prevent_sleep)) || s.equals(getString(R.string.key_setting_keep_wifi_on))) {
-                    Log.i(TAG, "A Power Option Changed");
-                    configurePowerOptions();
-                 }
-            }
-        };
-        sharedPreferences.registerOnSharedPreferenceChangeListener(prefsChangedListener);
 
         configurePowerOptions();
         configureMqtt();
@@ -190,11 +168,10 @@ public class WallPanelService extends Service {
         if (wifiLock.isHeld()) wifiLock.release();
     }
 
-    private void configurePowerOptions() {
+    public void configurePowerOptions() {
         Log.d(TAG, "configurePowerOptions Called");
 
-        final boolean preventSleep = sharedPreferences.getBoolean(getString(R.string.key_setting_prevent_sleep), false);
-        if (preventSleep)
+        if (config.getPreventSleep())
         {
             Log.i(TAG, "Acquiring WakeLock to prevent sleep");
             if (!fullWakeLock.isHeld()) fullWakeLock.acquire();
@@ -205,8 +182,7 @@ public class WallPanelService extends Service {
             if (fullWakeLock.isHeld()) fullWakeLock.release();
         }
 
-        final boolean keepWiFiOn = sharedPreferences.getBoolean(getString(R.string.key_setting_keep_wifi_on), true);
-        if (keepWiFiOn) {
+        if (config.getKeepWiFiOn()) {
             Log.i(TAG, "Acquiring WakeLock to keep WiFi active");
             if (!wifiLock.isHeld()) wifiLock.acquire();
         }
@@ -216,17 +192,17 @@ public class WallPanelService extends Service {
         }
     }
 
-    private void configureMqtt() {
+    public void configureMqtt() {
         Log.d(TAG, "configureMqtt Called");
         stopMqttConnection();
-        final boolean enabled = sharedPreferences.getBoolean(getString(R.string.key_setting_enable_mqtt), false);
-        if (enabled) {
-            final String topic = sharedPreferences.getString(getString(R.string.key_setting_mqtt_topic), "");
-            final String url = sharedPreferences.getString(getString(R.string.key_setting_mqtt_host), "");
-            final String clientId = "WallPanel-" + Build.DEVICE;
-            final String username = sharedPreferences.getString(getString(R.string.key_setting_mqtt_username), "");
-            final String password = sharedPreferences.getString(getString(R.string.key_setting_mqtt_password), "");
-            startMqttConnection(url, clientId, topic, username, password);
+        if (config.getMqttEnabled()) {
+            startMqttConnection(
+                    config.getMqttUrl(),
+                    config.getMqttClientId(),
+                    config.getMqttTopic(),
+                    config.getMqttUsername(),
+                    config.getMqttPassword()
+            );
         }
     }
 
@@ -300,32 +276,26 @@ public class WallPanelService extends Service {
             sensorReader = new SensorReader(getApplicationContext());
         }
 
-        if(sharedPreferences.getBoolean(getString(R.string.key_setting_sensor_light_enable),false)){
-            sensorReader.getLightReading(new SensorReader.SensorDataListener() {
-                @Override
-                public void sensorData(Map<String, String> sensorData) {
-                    publishSensorMessage(sensorData, "brightness");
-                }
-            });
-        }
+        sensorReader.getLightReading(new SensorReader.SensorDataListener() {
+            @Override
+            public void sensorData(Map<String, String> sensorData) {
+                publishSensorMessage(sensorData, "brightness");
+            }
+        });
 
-        if(sharedPreferences.getBoolean(getString(R.string.key_setting_sensor_battery_enable),false)) {
-            sensorReader.getBatteryReading(new SensorReader.SensorDataListener() {
-                @Override
-                public void sensorData(Map<String, String> sensorData) {
-                    publishSensorMessage(sensorData, "battery");
-                }
-            });
-        }
+        sensorReader.getBatteryReading(new SensorReader.SensorDataListener() {
+            @Override
+            public void sensorData(Map<String, String> sensorData) {
+                publishSensorMessage(sensorData, "battery");
+            }
+        });
 
-        if(sharedPreferences.getBoolean(getString(R.string.key_setting_sensor_pressure_enable),false)) {
-            sensorReader.getPressureReading(new SensorReader.SensorDataListener() {
-                @Override
-                public void sensorData(Map<String, String> sensorData) {
-                    publishSensorMessage(sensorData, "pressure");
-                }
-            });
-        }
+        sensorReader.getPressureReading(new SensorReader.SensorDataListener() {
+            @Override
+            public void sensorData(Map<String, String> sensorData) {
+                publishSensorMessage(sensorData, "pressure");
+            }
+        });
 
     }
 
@@ -397,9 +367,7 @@ public class WallPanelService extends Service {
                             boolean save = jsonObject.has(MQTT_COMMAND_SAVE) && jsonObject.getBoolean(MQTT_COMMAND_SAVE);
                             if (save) {
                                 Log.i(TAG, "Saving new URL as default");
-                                Editor ed = sharedPreferences.edit();
-                                ed.putString(getString(R.string.key_setting_startup_url), url);
-                                ed.apply();
+                                config.setLaunchUrl(url);
                             }
                         }
                         if(jsonObject.has(MQTT_COMMAND_WAKEUP)){
@@ -435,7 +403,7 @@ public class WallPanelService extends Service {
     private void startSensorJob(){
         Log.d(TAG, "startSensorJob Called");
         if (sensorHandler == null) {
-            Integer updateFrequencySeconds = Integer.parseInt(sharedPreferences.getString(getString(R.string.key_setting_sensor_update_frequency),"60"));
+            Integer updateFrequencySeconds = config.getMqttSensorUpdateFrequency();
             if(updateFrequencySeconds!= 0){
                 sensorHandler = new Handler();
                 final Integer updateFrequencyMilliSeconds = 1000 * updateFrequencySeconds;
@@ -474,7 +442,7 @@ public class WallPanelService extends Service {
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
 
         Notification notification;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT_WATCH) {
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH) {
             notification = new Notification.Builder(this)
                     .setContentTitle(getText(R.string.wallpanel_service_notification_title))
                     .setContentText(getText(R.string.wallpanel_service_notification_message))
@@ -496,14 +464,13 @@ public class WallPanelService extends Service {
         startForeground(ONGOING_NOTIFICATION_ID, notification);
     }
 
-    private void configureMotionDetection(boolean forceStopFirst){
+    public void configureMotionDetection(boolean forceStopFirst){
         Log.d(TAG, "updateMotionDetection Called");
         if (forceStopFirst) { stopMotionDetection(); }
-        final boolean enabled = sharedPreferences.getBoolean(getString(R.string.key_setting_motion_detection_enable),false);
-        if (enabled) {
+        if (config.getCameraMotionDetectionEnabled()) {
             Log.d(TAG, "Motion detection is enabled");
             if (motionDetector == null) {
-                final int cameraId = Integer.valueOf(sharedPreferences.getString(getString(R.string.key_setting_motion_detection_camera),"0"));
+                final int cameraId = config.getCameraId();
                 Log.d(TAG, "Creating Motion Detector object with camera #" + cameraId);
                 motionDetector = new MotionDetector(cameraId);
                 if (motionDetectorCallback == null) {
@@ -537,11 +504,11 @@ public class WallPanelService extends Service {
                 motionDetector.onResume();
             }
             Log.d(TAG, "Setting Check Interval");
-            motionDetector.setCheckInterval(Long.valueOf(sharedPreferences.getString(getString(R.string.key_setting_motion_detection_interval), "500")));
+            motionDetector.setCheckInterval(config.getCameraMotionCheckInterval());
             Log.d(TAG, "Setting Leniency");
-            motionDetector.setLeniency(Integer.valueOf(sharedPreferences.getString(getString(R.string.key_setting_motion_detection_leniency), "20")));
+            motionDetector.setLeniency(config.getCameraMotionLeniency());
             Log.d(TAG, "Setting MinLuma");
-            motionDetector.setMinLuma(Integer.valueOf(sharedPreferences.getString(getString(R.string.key_setting_motion_detection_min_luma), "1000")));
+            motionDetector.setMinLuma(config.getCameraMinLuma());
         }
         else {
             stopMotionDetection();

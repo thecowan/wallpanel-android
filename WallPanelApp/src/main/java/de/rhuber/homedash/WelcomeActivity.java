@@ -1,10 +1,8 @@
 package de.rhuber.homedash;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -14,7 +12,6 @@ import android.util.Log;
 public class WelcomeActivity extends AppCompatActivity {
 
     private final String TAG = BrowserActivity.class.getName();
-    private SharedPreferences sharedPreferences;
     private static boolean startup = true;
 
     @Override
@@ -22,8 +19,6 @@ public class WelcomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_welcome);
-
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         if (startup) {
             Log.i(TAG, "Starting Browser on Startup");
@@ -42,7 +37,8 @@ public class WelcomeActivity extends AppCompatActivity {
 
     private void startBrowserActivity() {
         Log.d(TAG, "startBrowserActivity Called");
-        String browserType = sharedPreferences.getString(getString(R.string.key_setting_browser_type),getString(R.string.default_setting_browser_type));
+        Log.i(TAG, String.valueOf(WallPanelService.getInstance()));
+        String browserType = (new Config(this.getApplicationContext())).getBrowserType();
         Class targetClass;
         switch (browserType) {
             case "Native":

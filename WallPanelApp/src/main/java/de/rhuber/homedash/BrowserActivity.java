@@ -5,8 +5,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -21,6 +19,7 @@ abstract class BrowserActivity extends AppCompatActivity  {
     public static final String BROADCAST_ACTION_RELOAD_PAGE = "BROADCAST_ACTION_RELOAD_PAGE";
 
     final String TAG = BrowserActivity.class.getName();
+
     private View decorView;
 
     boolean displayProgress = true;
@@ -30,8 +29,9 @@ abstract class BrowserActivity extends AppCompatActivity  {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        displayProgress = sharedPreferences.getBoolean(getString(R.string.key_setting_display_progress_enable),false);
+        Config config = new Config(this.getApplicationContext());
+
+        displayProgress = config.getShowProgress();
 
         decorView = getWindow().getDecorView();
         // Hide both the navigation bar and the status bar.
@@ -51,7 +51,7 @@ abstract class BrowserActivity extends AppCompatActivity  {
         LocalBroadcastManager bm = LocalBroadcastManager.getInstance(this);
         bm.registerReceiver(mBroadcastReceiver, filter);
 
-        String url = sharedPreferences.getString(getString(R.string.key_setting_startup_url),"");
+        String url = config.getLaunchUrl();
         loadUrl(url);
     }
 
