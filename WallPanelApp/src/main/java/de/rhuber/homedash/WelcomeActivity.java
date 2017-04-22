@@ -19,6 +19,8 @@ public class WelcomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_welcome);
+        getFragmentManager().beginTransaction().add(android.R.id.content,
+                new SettingsActivity.GeneralPreferenceFragment()).commit();
 
         if (startup) {
             Log.i(TAG, "Starting Browser on Startup");
@@ -38,7 +40,7 @@ public class WelcomeActivity extends AppCompatActivity {
     private void startBrowserActivity() {
         Log.d(TAG, "startBrowserActivity Called");
         Log.i(TAG, String.valueOf(WallPanelService.getInstance()));
-        String browserType = (new Config(this.getApplicationContext())).getBrowserType();
+        String browserType = (new Config(this.getApplicationContext())).getAndroidBrowserType();
         Class targetClass;
         switch (browserType) {
             case "Native":
@@ -61,21 +63,10 @@ public class WelcomeActivity extends AppCompatActivity {
         startActivity(new Intent(getApplicationContext(), targetClass));
     }
 
-    private void startMotionActivity() {
-        Log.d(TAG, "startMotionActivity Called");
-        startActivity(new Intent(getApplicationContext(), MotionActivity.class));
-    }
-
     @SuppressWarnings("UnusedParameters")
     public void onLaunchDashboard(MenuItem mi) {
         Log.d(TAG, "onLaunchDashboard Called");
         startBrowserActivity();
-    }
-
-    @SuppressWarnings("UnusedParameters")
-    public void buttonMotionClick(View view) {
-        Log.d(TAG, "buttonMotionClick Called");
-        startMotionActivity();
     }
 
 }

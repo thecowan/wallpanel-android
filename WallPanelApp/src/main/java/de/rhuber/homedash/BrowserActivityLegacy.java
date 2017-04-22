@@ -33,8 +33,10 @@ public class BrowserActivityLegacy extends BrowserActivity {
             public void onProgressChanged(XWalkView view, int progressInPercent) {
                 if (!displayProgress) return;
 
-                if (progressInPercent == 100)
+                if (progressInPercent == 100) {
                     snackbar.dismiss();
+                    pageLoadComplete(view.getUrl());
+                }
                 else
                 {
                     String text = "Loading " + progressInPercent + "% " + view.getUrl();

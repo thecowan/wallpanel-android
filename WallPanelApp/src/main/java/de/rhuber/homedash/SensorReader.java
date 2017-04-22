@@ -8,8 +8,12 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.BatteryManager;
+import android.os.Handler;
 import android.util.Log;
 import android.support.v4.util.ArrayMap;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.Map;
 
@@ -17,90 +21,108 @@ import static android.content.Context.SENSOR_SERVICE;
 
 class SensorReader  {
     private final String TAG = this.getClass().getName();
+    private final String VALUE = "value";
+    private final String UNIT = "unit";
+    private final String LIGHTSENSOR_UNIT = "lx";
+    private final String PRESSURESENSOR_UNIT = "??";
+    private final String BATTERYSENSOR_UNIT = "%";
+
     private final SensorManager mSensorManager;
     private final Sensor mLight;
-    private final SensorEventListener lightListener;
-    private final SensorEventListener pressureListener;
     private final Sensor mPressure;
 
     private final Context context;
-    private SensorDataListener lightCallback;
 
-    private SensorDataListener pressureCallback;
-
-    private final String LIGHTSENSOR_UNIT = "lx";
-    private final String PRESSURESENSOR_UNIT = "??";
-    private final String SENSOR = "sensor";
-    private final String VALUE = "value";
-    private final String UNIT = "unit";
-    @SuppressWarnings("FieldCanBeLocal")
-    private final String BATTERYSENSOR_UNIT = "%";
-
+    private Handler sensorHandler = new Handler();
+    private Integer updateFrequencyMilliSeconds = 0;
+    private int motionDetectedCountdown = 0;
 
     public SensorReader(Context context) {
+        Log.d(TAG, "Creating SensorReader");
         this.context = context;
         mSensorManager = (SensorManager) context.getSystemService(SENSOR_SERVICE);
         mLight = mSensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
         mPressure = mSensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE);
-
-        lightListener = new SensorEventListener(){
-            @Override
-            public void onSensorChanged(SensorEvent event) {
-                //if(event.sensor == mLight){
-                    if(lightCallback!= null){
-                        ArrayMap<String, String> map = new ArrayMap<>(3);
-                        map.put(SENSOR, (event.sensor.getName()));
-                        map.put(VALUE, Float.toString(event.values[0]));
-                        map.put(UNIT, LIGHTSENSOR_UNIT);
-                        lightCallback.sensorData(map);
-                    }
-                    Log.i(TAG, Float.toString(event.values[0]));
-                //}
-                mSensorManager.unregisterListener(this);
-            }
-
-            @Override
-            public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
-            }
-        };
-
-        pressureListener = new SensorEventListener(){
-            @Override
-            public void onSensorChanged(SensorEvent event) {
-                if(pressureCallback!= null){
-                    ArrayMap<String, String> map = new ArrayMap<>(3);
-                    map.put(SENSOR, (event.sensor.getName()));
-                    map.put(VALUE, Float.toString(event.values[0]) );
-                    map.put(UNIT, PRESSURESENSOR_UNIT);
-                    pressureCallback.sensorData(map);
-                }
-                Log.i(TAG, Float.toString(event.values[0]));
-                mSensorManager.unregisterListener(this);
-            }
-
-            @Override
-            public void onAccuracyChanged(Sensor sensor, int accuracy) {
-            }
-        };
     }
 
-    public interface SensorDataListener {
-        void sensorData(Map<String,String> sensorData);
+    public void startReadings(int freqSeconds) {
+        Log.d(TAG, "startReadings Called");
+        if (freqSeconds >= 0) {
+            updateFrequencyMilliSeconds = 1000 * freqSeconds;
+            sensorHandler.postDelayed(sensorHandlerRunnable, updateFrequencyMilliSeconds);
+        }
     }
 
-    public void getLightReading(SensorDataListener listener){
-        lightCallback = listener;
+    private Runnable sensorHandlerRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (updateFrequencyMilliSeconds > 0) {
+                Log.i(TAG, "Updating Sensors");
+                getLightReading();
+                getBatteryReading();
+                getPressureReading();
+                updateMotionDetected();
+                sensorHandler.postDelayed(this, updateFrequencyMilliSeconds);
+            }
+        }
+    };
+
+    public void stopReadings() {
+        Log.d(TAG, "stopSensorJob Called");
+        sensorHandler.removeCallbacksAndMessages(sensorHandlerRunnable);
+        updateFrequencyMilliSeconds = 0;
+    }
+
+    private void publishSensorData(String sensorName, JSONObject sensorData) {
+        Log.d(TAG, "publishSensorData Called");
+        WallPanelService.getInstance().publishMessage(
+                sensorData,
+                "sensor/" + sensorName);
+    };
+
+    public void getLightReading(){
         mSensorManager.registerListener(lightListener,mLight,1000);
     }
 
-    public  void getPressureReading(SensorDataListener listener){
-        pressureCallback = listener;
+    private final SensorEventListener lightListener = new SensorEventListener(){
+        @Override
+        public void onSensorChanged(SensorEvent event) {
+            JSONObject data = new JSONObject();
+            try {
+                data.put(VALUE, event.values[0]);
+                data.put(UNIT, LIGHTSENSOR_UNIT);
+            } catch (JSONException ex) { ex.printStackTrace(); }
+
+            publishSensorData("brightness", data);
+            mSensorManager.unregisterListener(this);
+        }
+
+        @Override
+        public void onAccuracyChanged(Sensor sensor, int accuracy) {}
+    };
+
+    public void getPressureReading(){
         mSensorManager.registerListener(pressureListener,mPressure,1000);
     }
 
-    public  void getBatteryReading(SensorDataListener listener){
+    private final SensorEventListener pressureListener = new SensorEventListener(){
+        @Override
+        public void onSensorChanged(SensorEvent event) {
+            JSONObject data = new JSONObject();
+            try {
+                data.put(VALUE, event.values[0]);
+                data.put(UNIT, PRESSURESENSOR_UNIT);
+            } catch (JSONException ex) { ex.printStackTrace(); }
 
+            publishSensorData("pressure", data);
+            mSensorManager.unregisterListener(this);
+        }
+
+        @Override
+        public void onAccuracyChanged(Sensor sensor, int accuracy) {}
+    };
+
+    public void getBatteryReading(){
         IntentFilter intentFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
         Intent batteryStatus = context.registerReceiver(null, intentFilter);
 
@@ -115,20 +137,35 @@ class SensorReader  {
         int level = batteryStatus != null ? batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) : -1;
         int scale = batteryStatus != null ? batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1) : -1;
 
-        float batteryPct = level / (float)scale;
+        JSONObject data = new JSONObject();
+        try {
+            data.put(VALUE, level);
+            data.put(UNIT, BATTERYSENSOR_UNIT);
+            data.put("charging", isCharging);
+            data.put("acPlugged", acCharge);
+            data.put("usbPlugged", usbCharge);
+        } catch (JSONException ex) { ex.printStackTrace(); }
 
-        Log.i(TAG, "AC connected: "+acCharge);
-        Log.i(TAG, "USB connected: "+usbCharge);
-        Log.i(TAG, "Battery charging: "+ isCharging);
-        Log.i(TAG, "Battery Level: "+ batteryPct);
+        publishSensorData("battery", data);
+    }
 
-        ArrayMap<String, String> map = new ArrayMap<>(3);
-        map.put(SENSOR, "Battery");
-        map.put(VALUE, Integer.toString(level));
-        map.put(UNIT, BATTERYSENSOR_UNIT);
-        map.put("charging", Boolean.toString(isCharging));
-        map.put("acPlugged", Boolean.toString(acCharge));
-        map.put("usbPlugged", Boolean.toString(usbCharge));
-        listener.sensorData(map);
+    public void doMotionDetected() {
+        Log.d(TAG, "doMotionDetected called");
+        JSONObject data = new JSONObject();
+        try { data.put(VALUE, true); } catch (JSONException ex) { ex.printStackTrace(); }
+        publishSensorData("motion", data);
+        motionDetectedCountdown = 2;
+    }
+
+    public void updateMotionDetected() {
+        if (motionDetectedCountdown > 0) {
+            motionDetectedCountdown--;
+            if (motionDetectedCountdown == 0) {
+                Log.i(TAG, "Clearing motion detected status");
+                JSONObject data = new JSONObject();
+                try { data.put(VALUE, false); } catch (JSONException ex) { ex.printStackTrace(); }
+                publishSensorData("motion", data);
+            }
+        }
     }
 }

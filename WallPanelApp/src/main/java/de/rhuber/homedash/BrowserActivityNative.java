@@ -35,6 +35,7 @@ public class BrowserActivityNative extends BrowserActivity {
 
                 if(newProgress == 100 && snackbar != null){
                     snackbar.dismiss();
+                    pageLoadComplete(view.getUrl());
                     return;
                 }
                 String text = "Loading "+ newProgress+ "% " + view.getUrl();

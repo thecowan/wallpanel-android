@@ -2,6 +2,7 @@ package de.rhuber.homedash;
 
 
 import android.annotation.TargetApi;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.ListPreference;
@@ -9,15 +10,13 @@ import android.preference.Preference;
 import android.preference.SwitchPreference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 import com.jjoe64.motiondetection.motiondetection.MotionDetector;
 
 import java.util.ArrayList;
 
 public class SettingsActivity extends AppCompatPreferenceActivity {
-
-    @SuppressWarnings("unused")
-    private final String TAG = WallPanelService.class.getName();
 
     private static final Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = new Preference.OnPreferenceChangeListener() {
         @Override
@@ -92,31 +91,42 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public static class GeneralPreferenceFragment extends PreferenceFragment {
+
+        private final String TAG = this.getClass().getName();
+
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.pref_general);
 
-            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_startup_url)));
-            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_start_on_boot)));
+            Preference pref = findPreference("motion_settings");
+            pref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    startMotionActivity();
+                    return false;
+                }
+            });
 
-            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_browser_type)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_app_deviceid)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_app_preventsleep)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_app_launchurl)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_app_showactivity)));
 
-            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_display_progress_enable)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_android_startonboot)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_android_browsertype)));
 
-            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_prevent_sleep)));
-            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_keep_wifi_on)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_http_enabled)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_http_port)));
 
-            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_sensor_pressure_enable)));
-            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_sensor_battery_enable)));
-            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_sensor_light_enable)));
-
-            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_mqtt_host)));
-            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_mqtt_topic)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_mqtt_enabled)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_mqtt_servername)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_mqtt_serverport)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_mqtt_basetopic)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_mqtt_clientid)));
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_mqtt_username)));
-            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_enable_mqtt)));
-
-            Preference preference = findPreference(getString(R.string.key_setting_sensor_update_frequency));
+            // password
+            Preference preference = findPreference(getString(R.string.key_setting_mqtt_sensorfrequency));
             Preference.OnPreferenceChangeListener preferenceChangeListener = new Preference.OnPreferenceChangeListener(){
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
@@ -129,6 +139,11 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             preferenceChangeListener.onPreferenceChange(preference,
                     PreferenceManager.getDefaultSharedPreferences(preference.getContext()).getString(preference.getKey(), ""));
         }
+
+        private void startMotionActivity() {
+            Log.d(TAG, "startMotionActivity Called");
+            startActivity(new Intent(WallPanel.getContext(), MotionActivity.class));
+        }
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
@@ -139,17 +154,18 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             addPreferencesFromResource(R.xml.pref_camera);
             setHasOptionsMenu(true);
 
-            ListPreference cameras = (ListPreference) findPreference(getString(R.string.key_setting_motion_detection_camera));
+            ListPreference cameras = (ListPreference) findPreference(getString(R.string.key_setting_camera_cameraid));
             ArrayList<String> cameraList = MotionDetector.getCameras();
             cameras.setEntries(cameraList.toArray(new CharSequence[cameraList.size()]));
             CharSequence[] vals = new CharSequence[cameraList.size()];
             for (int i=0; i<cameraList.size(); i++) { vals[i] = Integer.toString(i); }
             cameras.setEntryValues(vals);
 
-            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_motion_detection_enable)));
-            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_motion_detection_interval)));
-            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_motion_detection_leniency)));
-            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_motion_detection_min_luma)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_camera_motionenabled)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_camera_motionwake)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_camera_motioncheckinterval)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_camera_motionleniency)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_camera_motionminluma)));
             bindPreferenceSummaryToValue(cameras);
         }
     }

@@ -1,33 +1,37 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <SwitchPreference
-        android:defaultValue="false"
-        android:title="@string/title_setting_motion_detection_enable"
-        android:key="@string/key_setting_motion_detection_enable" />
+        android:defaultValue="@string/default_setting_camera_motionenabled"
+        android:title="@string/title_setting_camera_motionenabled"
+        android:key="@string/key_setting_camera_motionenabled" />
+    <SwitchPreference
+        android:defaultValue="@string/default_setting_camera_motionwake"
+        android:title="@string/title_setting_camera_motionwake"
+        android:key="@string/key_setting_camera_motionwake" />
     <ListPreference
-        android:title="@string/title_setting_motion_detection_camera"
-        android:key="@string/key_setting_motion_detection_camera"
-        android:defaultValue="0"/>
+        android:title="@string/title_setting_camera_cameraid"
+        android:key="@string/key_setting_camera_cameraid"
+        android:defaultValue="@string/default_setting_camera_cameraid"/>
     <EditTextPreference
-        android:defaultValue="200"
+        android:defaultValue="@string/default_setting_camera_motioncheckinterval"
         android:selectAllOnFocus="true"
         android:inputType="number"
-        android:title="@string/title_setting_motion_detection_interval"
-        android:key="@string/key_setting_motion_detection_interval"
+        android:title="@string/title_setting_camera_motioncheckinterval"
+        android:key="@string/key_setting_camera_motioncheckinterval"
         android:singleLine="true" />
     <EditTextPreference
-        android:defaultValue="20"
+        android:defaultValue="@string/default_setting_camera_motionleniency"
         android:selectAllOnFocus="true"
         android:inputType="number"
-        android:title="@string/title_setting_motion_detection_leniency"
-        android:key="@string/key_setting_motion_detection_leniency"
+        android:title="@string/title_setting_camera_motionleniency"
+        android:key="@string/key_setting_camera_motionleniency"
         android:singleLine="true" />
     <EditTextPreference
-        android:defaultValue="1000"
+        android:defaultValue="@string/default_setting_camera_motionminluma"
         android:selectAllOnFocus="true"
         android:inputType="number"
-        android:title="@string/title_setting_motion_detection_min_luma"
-        android:key="@string/key_setting_motion_detection_min_luma"
+        android:title="@string/title_setting_camera_motionminluma"
+        android:key="@string/key_setting_camera_motionminluma"
         android:singleLine="true" />
 
 </PreferenceScreen>

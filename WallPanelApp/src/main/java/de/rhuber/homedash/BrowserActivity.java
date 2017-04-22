@@ -31,7 +31,7 @@ abstract class BrowserActivity extends AppCompatActivity  {
 
         Config config = new Config(this.getApplicationContext());
 
-        displayProgress = config.getShowProgress();
+        displayProgress = config.getAppShowActivity();
 
         decorView = getWindow().getDecorView();
         // Hide both the navigation bar and the status bar.
@@ -51,7 +51,7 @@ abstract class BrowserActivity extends AppCompatActivity  {
         LocalBroadcastManager bm = LocalBroadcastManager.getInstance(this);
         bm.registerReceiver(mBroadcastReceiver, filter);
 
-        String url = config.getLaunchUrl();
+        String url = config.getAppLaunchUrl();
         loadUrl(url);
     }
 
@@ -82,7 +82,6 @@ abstract class BrowserActivity extends AppCompatActivity  {
                 Log.i(TAG, "Executing javascript in current browser: " +js);
                 evaluateJavascript(js);
             }
-
             if (intent.getAction().equals(BROADCAST_ACTION_CLEAR_BROWSER_CACHE)) {
                 Log.i(TAG, "Clearing browser cache");
                 clearCache();
@@ -102,6 +101,14 @@ abstract class BrowserActivity extends AppCompatActivity  {
             return true;
         }
         return super.dispatchKeyEvent(event);
+    }
+
+    protected void pageLoadComplete(final String url) {
+        Log.d(TAG, "pageLoadComplete Called");
+        Intent intent = new Intent(WallPanelService.BROADCAST_EVENT_URL_CHANGE);
+        intent.putExtra(WallPanelService.BROADCAST_EVENT_URL_CHANGE, url);
+        LocalBroadcastManager bm = LocalBroadcastManager.getInstance(getApplicationContext());
+        bm.sendBroadcast(intent);
     }
 
     protected abstract void loadUrl(final String url);
