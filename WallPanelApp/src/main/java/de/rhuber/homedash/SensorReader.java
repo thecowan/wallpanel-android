@@ -10,12 +10,9 @@ import android.hardware.SensorManager;
 import android.os.BatteryManager;
 import android.os.Handler;
 import android.util.Log;
-import android.support.v4.util.ArrayMap;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.util.Map;
 
 import static android.content.Context.SENSOR_SERVICE;
 
@@ -23,9 +20,6 @@ class SensorReader  {
     private final String TAG = this.getClass().getName();
     private final String VALUE = "value";
     private final String UNIT = "unit";
-    private final String LIGHTSENSOR_UNIT = "lx";
-    private final String PRESSURESENSOR_UNIT = "??";
-    private final String BATTERYSENSOR_UNIT = "%";
 
     private final SensorManager mSensorManager;
     private final Sensor mLight;
@@ -33,7 +27,7 @@ class SensorReader  {
 
     private final Context context;
 
-    private Handler sensorHandler = new Handler();
+    private final Handler sensorHandler = new Handler();
     private Integer updateFrequencyMilliSeconds = 0;
     private int motionDetectedCountdown = 0;
 
@@ -53,7 +47,7 @@ class SensorReader  {
         }
     }
 
-    private Runnable sensorHandlerRunnable = new Runnable() {
+    private final Runnable sensorHandlerRunnable = new Runnable() {
         @Override
         public void run() {
             if (updateFrequencyMilliSeconds > 0) {
@@ -78,9 +72,9 @@ class SensorReader  {
         WallPanelService.getInstance().publishMessage(
                 sensorData,
                 "sensor/" + sensorName);
-    };
+    }
 
-    public void getLightReading(){
+    private void getLightReading(){
         mSensorManager.registerListener(lightListener,mLight,1000);
     }
 
@@ -90,6 +84,7 @@ class SensorReader  {
             JSONObject data = new JSONObject();
             try {
                 data.put(VALUE, event.values[0]);
+                String LIGHTSENSOR_UNIT = "lx";
                 data.put(UNIT, LIGHTSENSOR_UNIT);
             } catch (JSONException ex) { ex.printStackTrace(); }
 
@@ -101,7 +96,7 @@ class SensorReader  {
         public void onAccuracyChanged(Sensor sensor, int accuracy) {}
     };
 
-    public void getPressureReading(){
+    private void getPressureReading(){
         mSensorManager.registerListener(pressureListener,mPressure,1000);
     }
 
@@ -111,6 +106,7 @@ class SensorReader  {
             JSONObject data = new JSONObject();
             try {
                 data.put(VALUE, event.values[0]);
+                String PRESSURESENSOR_UNIT = "??";
                 data.put(UNIT, PRESSURESENSOR_UNIT);
             } catch (JSONException ex) { ex.printStackTrace(); }
 
@@ -122,7 +118,7 @@ class SensorReader  {
         public void onAccuracyChanged(Sensor sensor, int accuracy) {}
     };
 
-    public void getBatteryReading(){
+    private void getBatteryReading(){
         IntentFilter intentFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
         Intent batteryStatus = context.registerReceiver(null, intentFilter);
 
@@ -140,6 +136,7 @@ class SensorReader  {
         JSONObject data = new JSONObject();
         try {
             data.put(VALUE, level);
+            String BATTERYSENSOR_UNIT = "%";
             data.put(UNIT, BATTERYSENSOR_UNIT);
             data.put("charging", isCharging);
             data.put("acPlugged", acCharge);
@@ -151,13 +148,19 @@ class SensorReader  {
 
     public void doMotionDetected() {
         Log.d(TAG, "doMotionDetected called");
-        JSONObject data = new JSONObject();
-        try { data.put(VALUE, true); } catch (JSONException ex) { ex.printStackTrace(); }
-        publishSensorData("motion", data);
+        if (motionDetectedCountdown <= 0) {
+            JSONObject data = new JSONObject();
+            try {
+                data.put(VALUE, true);
+            } catch (JSONException ex) {
+                ex.printStackTrace();
+            }
+            publishSensorData("motion", data);
+        }
         motionDetectedCountdown = 2;
     }
 
-    public void updateMotionDetected() {
+    private void updateMotionDetected() {
         if (motionDetectedCountdown > 0) {
             motionDetectedCountdown--;
             if (motionDetectedCountdown == 0) {

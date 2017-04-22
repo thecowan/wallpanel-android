@@ -103,7 +103,7 @@ abstract class BrowserActivity extends AppCompatActivity  {
         return super.dispatchKeyEvent(event);
     }
 
-    protected void pageLoadComplete(final String url) {
+    void pageLoadComplete(final String url) {
         Log.d(TAG, "pageLoadComplete Called");
         Intent intent = new Intent(WallPanelService.BROADCAST_EVENT_URL_CHANGE);
         intent.putExtra(WallPanelService.BROADCAST_EVENT_URL_CHANGE, url);

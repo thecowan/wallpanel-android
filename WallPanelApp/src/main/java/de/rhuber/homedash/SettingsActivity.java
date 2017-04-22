@@ -2,6 +2,7 @@ package de.rhuber.homedash;
 
 
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -78,11 +79,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
     protected boolean isValidFragment(String fragmentName) {
         return PreferenceFragment.class.getName().equals(fragmentName)
                 || GeneralPreferenceFragment.class.getName().equals(fragmentName)
@@ -103,7 +99,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             pref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
-                    startMotionActivity();
+                    startMotionActivity(preference.getContext());
                     return false;
                 }
             });
@@ -140,9 +136,9 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                     PreferenceManager.getDefaultSharedPreferences(preference.getContext()).getString(preference.getKey(), ""));
         }
 
-        private void startMotionActivity() {
+        private void startMotionActivity(Context c) {
             Log.d(TAG, "startMotionActivity Called");
-            startActivity(new Intent(WallPanel.getContext(), MotionActivity.class));
+            startActivity(new Intent(c, MotionActivity.class));
         }
     }
 

@@ -1,8 +1,8 @@
 package de.rhuber.homedash;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -10,8 +10,8 @@ class Config {
 
     private final String TAG = this.getClass().getName();
 
-    private Context myContext;
-    private SharedPreferences sharedPreferences;
+    private final Context myContext;
+    private final SharedPreferences sharedPreferences;
     private SharedPreferences.OnSharedPreferenceChangeListener prefsChangedListener;
 
     public Config(Context appContext)
@@ -145,6 +145,7 @@ class Config {
                 R.string.default_setting_mqtt_enabled);
     }
 
+    @SuppressLint("DefaultLocale")
     public String getMqttUrl() {
         return String.format("tcp://%s:%d", getMqttServerName(), getMqttServerPort());
     }

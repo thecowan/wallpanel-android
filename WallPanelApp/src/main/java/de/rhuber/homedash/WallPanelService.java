@@ -17,7 +17,6 @@ import android.net.wifi.WifiManager;
 import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
-import android.os.Handler;
 import android.os.PowerManager;
 import android.support.v4.content.LocalBroadcastManager;
 
@@ -48,7 +47,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.nio.charset.Charset;
-import java.util.Map;
 
 
 public class WallPanelService extends Service {
@@ -187,9 +185,11 @@ public class WallPanelService extends Service {
         public void onReceive(Context context, Intent intent) {
             if (intent.getAction().equals(BROADCAST_EVENT_URL_CHANGE)) {
                 final String url = intent.getStringExtra(BROADCAST_EVENT_URL_CHANGE);
-                Log.i(TAG, "Url changed to " + url);
-                currentUrl = url;
-                stateChanged();
+                if (!url.equals(currentUrl)) {
+                    Log.i(TAG, "Url changed to " + url);
+                    currentUrl = url;
+                    stateChanged();
+                }
             } else if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF) ||
                     intent.getAction().equals(Intent.ACTION_SCREEN_ON) ||
                     intent.getAction().equals(Intent.ACTION_USER_PRESENT)) {
@@ -320,7 +320,7 @@ public class WallPanelService extends Service {
         publishMessage(data.toString().getBytes(), topicPostfix);
     }
 
-    public void publishMessage(byte[] message, String topicPostfix){
+    private void publishMessage(byte[] message, String topicPostfix){
         Log.d(TAG, "publishMessage Called");
         if (mqttAndroidClient != null && mqttAndroidClient.isConnected()) {
             try {
@@ -570,8 +570,7 @@ public class WallPanelService extends Service {
 
     private boolean isScreenOn() {
         PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
-        boolean result = Build.VERSION.SDK_INT>= Build.VERSION_CODES.KITKAT_WATCH&&powerManager.isInteractive()|| Build.VERSION.SDK_INT< Build.VERSION_CODES.KITKAT_WATCH&&powerManager.isScreenOn();
-        return result;
+        return Build.VERSION.SDK_INT>= Build.VERSION_CODES.KITKAT_WATCH&&powerManager.isInteractive()|| Build.VERSION.SDK_INT< Build.VERSION_CODES.KITKAT_WATCH&&powerManager.isScreenOn();
     }
 
     private JSONObject getState() {
