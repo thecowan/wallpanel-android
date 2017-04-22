@@ -196,4 +196,11 @@ class Config {
         return getStringPref(R.string.key_setting_android_browsertype,
                 R.string.default_setting_android_browsertype);
     }
+
+    // TEST
+    public float getTestZoomLevel() {
+        return Float.valueOf(getStringPref(R.string.key_setting_test_zoomlevel,
+                R.string.default_setting_test_zoomlevel));
+    }
+    
 }

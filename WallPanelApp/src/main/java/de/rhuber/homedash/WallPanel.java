@@ -1,6 +1,5 @@
 package de.rhuber.homedash;
 
-import android.content.Context;
 import android.content.Intent;
 import android.app.Application;
 

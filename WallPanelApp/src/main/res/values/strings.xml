@@ -11,6 +11,19 @@
         <item>"Legacy"</item>
     </string-array>
 
+    <string-array name="zoom_level_names">
+        <item>"50%"</item>
+        <item>"100%"</item>
+        <item>"150%"</item>
+        <item>"200%"</item>
+    </string-array>
+    <string-array name="zoom_level_values">
+        <item>0.5</item>
+        <item>1.0</item>
+        <item>1.5</item>
+        <item>2.0</item>
+    </string-array>
+
     <string name="app_name">WallPanel</string>
 
     <string name="wallpanel_service_notification_title">WallPanel</string>
@@ -93,4 +106,7 @@
     <string name="title_setting_android_browsertype">Specify Browser Engine</string>
     <string name="default_setting_android_browsertype">Auto</string>
 
+    <string name="key_setting_test_zoomlevel">setting_test_zoomlevel</string>
+    <string name="title_setting_test_zoomlevel">Browser Zoom Level</string>
+    <string name="default_setting_test_zoomlevel">1.0</string>
 </resources>

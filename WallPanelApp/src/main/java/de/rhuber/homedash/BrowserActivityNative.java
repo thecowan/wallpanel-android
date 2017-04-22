@@ -64,6 +64,7 @@ public class BrowserActivityNative extends BrowserActivity {
         webSettings.setDomStorageEnabled(true);
         webSettings.setDatabaseEnabled(true);
         webSettings.setAppCacheEnabled(true);
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             webSettings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
         }
@@ -75,6 +76,7 @@ public class BrowserActivityNative extends BrowserActivity {
 
     @Override
     protected void loadUrl(final String url) {
+        if (zoomLevel != 1.0) { mWebView.setInitialScale((int)(zoomLevel * 100)); }
         mWebView.loadUrl(url);
     }
 

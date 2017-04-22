@@ -98,16 +98,25 @@
         </PreferenceCategory>
 
         <PreferenceCategory android:title="Android Specific">
-                <SwitchPreference
-                    android:defaultValue="@string/default_setting_android_startonboot"
-                    android:title="@string/title_setting_android_startonboot"
-                    android:key="@string/key_setting_android_startonboot" />
-                <ListPreference
-                    android:defaultValue="@string/default_setting_android_browsertype"
-                    android:entries="@array/browser_type_names"
-                    android:entryValues="@array/browser_type_values"
-                    android:title="@string/title_setting_android_browsertype"
-                    android:key="@string/key_setting_android_browsertype" />
+            <SwitchPreference
+                android:defaultValue="@string/default_setting_android_startonboot"
+                android:title="@string/title_setting_android_startonboot"
+                android:key="@string/key_setting_android_startonboot" />
+            <ListPreference
+                android:defaultValue="@string/default_setting_android_browsertype"
+                android:entries="@array/browser_type_names"
+                android:entryValues="@array/browser_type_values"
+                android:title="@string/title_setting_android_browsertype"
+                android:key="@string/key_setting_android_browsertype" />
+        </PreferenceCategory>
+
+        <PreferenceCategory android:title="Experimental">
+            <ListPreference
+                android:defaultValue="@string/default_setting_test_zoomlevel"
+                android:entries="@array/zoom_level_names"
+                android:entryValues="@array/zoom_level_values"
+                android:title="@string/title_setting_test_zoomlevel"
+                android:key="@string/key_setting_test_zoomlevel" />
         </PreferenceCategory>
 
 </PreferenceScreen>

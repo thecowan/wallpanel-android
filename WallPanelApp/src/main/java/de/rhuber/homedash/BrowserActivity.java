@@ -23,6 +23,7 @@ abstract class BrowserActivity extends AppCompatActivity  {
     private View decorView;
 
     boolean displayProgress = true;
+    float zoomLevel = 1.0f;
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
@@ -32,6 +33,7 @@ abstract class BrowserActivity extends AppCompatActivity  {
         Config config = new Config(this.getApplicationContext());
 
         displayProgress = config.getAppShowActivity();
+        zoomLevel = config.getTestZoomLevel();
 
         decorView = getWindow().getDecorView();
         // Hide both the navigation bar and the status bar.

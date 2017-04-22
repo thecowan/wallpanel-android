@@ -59,6 +59,7 @@ public class BrowserActivityLegacy extends BrowserActivity {
 
     @Override
     protected void loadUrl(final String url) {
+        if (zoomLevel != 1.0) { xWebView.setInitialScale((int)(zoomLevel * 100)); }
         xWebView.loadUrl(url);
     }
 
