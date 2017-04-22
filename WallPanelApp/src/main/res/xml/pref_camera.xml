@@ -1,0 +1,37 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <SwitchPreference
+        android:defaultValue="@string/default_setting_camera_motionenabled"
+        android:title="@string/title_setting_camera_motionenabled"
+        android:key="@string/key_setting_camera_motionenabled" />
+    <SwitchPreference
+        android:defaultValue="@string/default_setting_camera_motionwake"
+        android:title="@string/title_setting_camera_motionwake"
+        android:key="@string/key_setting_camera_motionwake" />
+    <ListPreference
+        android:title="@string/title_setting_camera_cameraid"
+        android:key="@string/key_setting_camera_cameraid"
+        android:defaultValue="@string/default_setting_camera_cameraid"/>
+    <EditTextPreference
+        android:defaultValue="@string/default_setting_camera_motioncheckinterval"
+        android:selectAllOnFocus="true"
+        android:inputType="number"
+        android:title="@string/title_setting_camera_motioncheckinterval"
+        android:key="@string/key_setting_camera_motioncheckinterval"
+        android:singleLine="true" />
+    <EditTextPreference
+        android:defaultValue="@string/default_setting_camera_motionleniency"
+        android:selectAllOnFocus="true"
+        android:inputType="number"
+        android:title="@string/title_setting_camera_motionleniency"
+        android:key="@string/key_setting_camera_motionleniency"
+        android:singleLine="true" />
+    <EditTextPreference
+        android:defaultValue="@string/default_setting_camera_motionminluma"
+        android:selectAllOnFocus="true"
+        android:inputType="number"
+        android:title="@string/title_setting_camera_motionminluma"
+        android:key="@string/key_setting_camera_motionminluma"
+        android:singleLine="true" />
+
+</PreferenceScreen>

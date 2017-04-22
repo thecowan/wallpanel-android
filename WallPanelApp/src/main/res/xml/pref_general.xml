@@ -1,0 +1,123 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+        <PreferenceCategory android:title="Application">
+            <EditTextPreference
+                android:selectAllOnFocus="true"
+                android:singleLine="true"
+                android:title="@string/title_setting_app_deviceid"
+                android:key="@string/key_setting_app_deviceid"
+                android:defaultValue="@string/default_setting_app_deviceid" />
+            <EditTextPreference
+                android:selectAllOnFocus="true"
+                android:singleLine="true"
+                android:title="@string/title_setting_app_launchurl"
+                android:key="@string/key_setting_app_launchurl"
+                android:defaultValue="@string/default_setting_app_launchurl" />
+            <SwitchPreference
+                android:defaultValue="@string/default_setting_app_showactivity"
+                android:title="@string/title_setting_app_showactivity"
+                android:key="@string/key_setting_app_showactivity" />
+            <SwitchPreference
+                android:defaultValue="@string/default_setting_app_preventsleep"
+                android:title="@string/title_setting_app_preventsleep"
+                android:key="@string/key_setting_app_preventsleep" />
+        </PreferenceCategory>
+
+        <PreferenceCategory android:title="Camera">
+            <Preference
+                android:key="motion_settings"
+                android:title="Open Motion Detection Settings"
+                android:icon="@android:drawable/ic_menu_camera"/>
+        </PreferenceCategory>
+
+        <PreferenceCategory android:title="HTTP">
+            <SwitchPreference
+                android:defaultValue="@string/default_setting_http_enabled"
+                android:title="@string/title_setting_http_enabled"
+                android:key="@string/key_setting_http_enabled" />
+            <EditTextPreference
+                android:defaultValue="@string/default_setting_http_port"
+                android:selectAllOnFocus="true"
+                android:inputType="number"
+                android:title="@string/title_setting_http_port"
+                android:key="@string/key_setting_http_port"
+                android:singleLine="true" />
+        </PreferenceCategory>
+
+        <PreferenceCategory android:title="MQTT">
+            <SwitchPreference
+                android:title="@string/title_setting_mqtt_enabled"
+                android:id="@+id/mqtt_switch"
+                android:key="@string/key_setting_mqtt_enabled"
+                android:defaultValue="@string/default_setting_mqtt_enabled" />
+            <EditTextPreference
+                android:defaultValue="@string/default_setting_mqtt_servername"
+                android:selectAllOnFocus="true"
+                android:singleLine="true"
+                android:title="@string/title_setting_mqtt_servername"
+                android:key="@string/key_setting_mqtt_servername" />
+            <EditTextPreference
+                android:defaultValue="@string/default_setting_mqtt_serverport"
+                android:selectAllOnFocus="true"
+                android:inputType="number"
+                android:title="@string/title_setting_mqtt_serverport"
+                android:key="@string/key_setting_mqtt_serverport"
+                android:singleLine="true" />
+            <EditTextPreference
+                android:selectAllOnFocus="true"
+                android:singleLine="true"
+                android:title="@string/title_setting_mqtt_basetopic"
+                android:key="@string/key_setting_mqtt_basetopic"
+                android:defaultValue="@string/default_setting_mqtt_basetopic" />
+            <EditTextPreference
+                android:selectAllOnFocus="true"
+                android:singleLine="true"
+                android:title="@string/title_setting_mqtt_clientid"
+                android:key="@string/key_setting_mqtt_clientid"
+                android:defaultValue="@string/default_setting_mqtt_clientid" />
+            <EditTextPreference
+                android:defaultValue="@string/default_setting_mqtt_username"
+                android:selectAllOnFocus="true"
+                android:singleLine="true"
+                android:title="@string/title_setting_mqtt_username"
+                android:key="@string/key_setting_mqtt_username" />
+            <EditTextPreference
+                android:defaultValue="@string/default_setting_mqtt_password"
+                android:selectAllOnFocus="true"
+                android:singleLine="true"
+                android:title="@string/title_setting_mqtt_password"
+                android:key="@string/key_setting_mqtt_password"
+                android:password="true" />
+            <EditTextPreference
+                android:selectAllOnFocus="true"
+                android:singleLine="true"
+                android:title="@string/title_setting_mqtt_sensorfrequency"
+                android:key="@string/key_setting_mqtt_sensorfrequency"
+                android:inputType="number"
+                android:defaultValue="@string/default_setting_mqtt_sensorfrequency" />
+        </PreferenceCategory>
+
+        <PreferenceCategory android:title="Android Specific">
+            <SwitchPreference
+                android:defaultValue="@string/default_setting_android_startonboot"
+                android:title="@string/title_setting_android_startonboot"
+                android:key="@string/key_setting_android_startonboot" />
+            <ListPreference
+                android:defaultValue="@string/default_setting_android_browsertype"
+                android:entries="@array/browser_type_names"
+                android:entryValues="@array/browser_type_values"
+                android:title="@string/title_setting_android_browsertype"
+                android:key="@string/key_setting_android_browsertype" />
+        </PreferenceCategory>
+
+        <PreferenceCategory android:title="Experimental">
+            <ListPreference
+                android:defaultValue="@string/default_setting_test_zoomlevel"
+                android:entries="@array/zoom_level_names"
+                android:entryValues="@array/zoom_level_values"
+                android:title="@string/title_setting_test_zoomlevel"
+                android:key="@string/key_setting_test_zoomlevel" />
+        </PreferenceCategory>
+
+</PreferenceScreen>
+

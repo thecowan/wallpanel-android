@@ -1,0 +1,112 @@
+<resources>
+
+    <string-array name="browser_type_names">
+        <item>"Automatic Selection (Recommended)"</item>
+        <item>"Android WebView"</item>
+        <item>"Crosswalk Project"</item>
+    </string-array>
+    <string-array name="browser_type_values">
+        <item>"Auto"</item>
+        <item>"Native"</item>
+        <item>"Legacy"</item>
+    </string-array>
+
+    <string-array name="zoom_level_names">
+        <item>"50%"</item>
+        <item>"100%"</item>
+        <item>"150%"</item>
+        <item>"200%"</item>
+    </string-array>
+    <string-array name="zoom_level_values">
+        <item>0.5</item>
+        <item>1.0</item>
+        <item>1.5</item>
+        <item>2.0</item>
+    </string-array>
+
+    <string name="app_name">WallPanel</string>
+
+    <string name="wallpanel_service_notification_title">WallPanel</string>
+    <string name="wallpanel_service_notification_message">running</string>
+
+    <string name="title_activity_settings">WallPanel Settings</string>
+    <string name="title_activity_browser">Browser</string>
+
+    <string name="motion_detection_not_enabled">Motion Detection Not Enabled</string>
+
+
+    <string name="key_setting_app_deviceid">setting_app_deviceid</string>
+    <string name="title_setting_app_deviceid">Device ID</string>
+    <string name="default_setting_app_deviceid">mywallpanel</string>
+    <string name="key_setting_app_preventsleep">setting_app_preventsleep</string>
+    <string name="title_setting_app_preventsleep">Prevent Screen From Sleeping</string>
+    <string name="default_setting_app_preventsleep">false</string>
+    <string name="key_setting_app_launchurl">setting_app_launchurl</string>
+    <string name="default_setting_app_launchurl">https://wallpanel-project.github.io/app-launchurl</string>
+    <string name="title_setting_app_launchurl">Dashboard Launch URL</string>
+    <string name="key_setting_app_showactivity">setting_app_showactivity</string>
+    <string name="title_setting_app_showactivity">Show Browser Activity</string>
+    <string name="default_setting_app_showactivity">true</string>
+
+    <string name="key_setting_camera_cameraid">setting_camera_cameraid</string>
+    <string name="title_setting_camera_cameraid">Monitored Camera</string>
+    <string name="default_setting_camera_cameraid">0</string>
+    <string name="key_setting_camera_motionenabled">setting_camera_motionenabled</string>
+    <string name="title_setting_camera_motionenabled">Enable Motion Detection</string>
+    <string name="default_setting_camera_motionenabled">false</string>
+    <string name="key_setting_camera_motioncheckinterval">setting_camera_motioncheckinterval</string>
+    <string name="title_setting_camera_motioncheckinterval">Check Interval</string>
+    <string name="default_setting_camera_motioncheckinterval">500</string>
+    <string name="key_setting_camera_motionleniency">setting_camera_motionleniency</string>
+    <string name="title_setting_camera_motionleniency">Leniency</string>
+    <string name="default_setting_camera_motionleniency">20</string>
+    <string name="key_setting_camera_motionminluma">setting_camera_motionminluma</string>
+    <string name="title_setting_camera_motionminluma">Minimum Luma (Brightness)</string>
+    <string name="default_setting_camera_motionminluma">1000</string>
+    <string name="key_setting_camera_motionwake">setting_camera_motionwake</string>
+    <string name="title_setting_camera_motionwake">Wake Screen on Motion</string>
+    <string name="default_setting_camera_motionwake">true</string>
+
+    <string name="key_setting_http_enabled">setting_http_enabled</string>
+    <string name="title_setting_http_enabled">Enable REST API</string>
+    <string name="default_setting_http_enabled">false</string>
+    <string name="key_setting_http_port">setting_http_port</string>
+    <string name="title_setting_http_port">HTTP Listening Port</string>
+    <string name="default_setting_http_port">2971</string>
+
+    <string name="title_setting_mqtt_enabled">Enable MQTT</string>
+    <string name="key_setting_mqtt_enabled">setting_mqtt_enabled</string>
+    <string name="default_setting_mqtt_enabled">false</string>
+    <string name="title_setting_mqtt_servername">Server Name</string>
+    <string name="key_setting_mqtt_servername">setting_mqtt_servername</string>
+    <string name="default_setting_mqtt_servername">mqtt</string>
+    <string name="title_setting_mqtt_serverport">Server Port</string>
+    <string name="key_setting_mqtt_serverport">setting_mqtt_serverport</string>
+    <string name="default_setting_mqtt_serverport">1883</string>
+    <string name="key_setting_mqtt_basetopic">setting_mqtt_basetopic</string>
+    <string name="title_setting_mqtt_basetopic">Base Topic</string>
+    <string name="default_setting_mqtt_basetopic">wallpanel/mywallpanel/</string>
+    <string name="key_setting_mqtt_clientid">setting_mqtt_clientid</string>
+    <string name="title_setting_mqtt_clientid">Client ID</string>
+    <string name="default_setting_mqtt_clientid">mywallpanel</string>
+    <string name="title_setting_mqtt_username">MQTT Username (Optional)</string>
+    <string name="key_setting_mqtt_username">setting_mqtt_username</string>
+    <string name="default_setting_mqtt_username"></string>
+    <string name="title_setting_mqtt_password">MQTT Password</string>
+    <string name="key_setting_mqtt_password">setting_mqtt_password</string>
+    <string name="default_setting_mqtt_password"></string>
+    <string name="key_setting_mqtt_sensorfrequency">setting_mqtt_sensorfrequency</string>
+    <string name="title_setting_mqtt_sensorfrequency">Sensor Reading Frequency (0 to disable)</string>
+    <string name="default_setting_mqtt_sensorfrequency">0</string>
+
+    <string name="key_setting_android_startonboot">setting_android_startonboot</string>
+    <string name="title_setting_android_startonboot">Open WallPanel on Android Boot</string>
+    <string name="default_setting_android_startonboot">false</string>
+    <string name="key_setting_android_browsertype">setting_android_browsertype</string>
+    <string name="title_setting_android_browsertype">Specify Browser Engine</string>
+    <string name="default_setting_android_browsertype">Auto</string>
+
+    <string name="key_setting_test_zoomlevel">setting_test_zoomlevel</string>
+    <string name="title_setting_test_zoomlevel">Browser Zoom Level</string>
+    <string name="default_setting_test_zoomlevel">1.0</string>
+</resources>
