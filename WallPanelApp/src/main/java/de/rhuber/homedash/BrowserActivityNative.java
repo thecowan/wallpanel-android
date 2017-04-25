@@ -82,7 +82,9 @@ public class BrowserActivityNative extends BrowserActivity {
 
     @Override
     protected void evaluateJavascript(final String js) {
-        mWebView.evaluateJavascript(js, null);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            mWebView.evaluateJavascript(js, null);
+        }
     }
 
     @Override

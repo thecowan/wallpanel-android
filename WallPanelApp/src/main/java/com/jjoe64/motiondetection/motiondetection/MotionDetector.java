@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.opengl.GLES11Ext;
+import android.os.Build;
 import android.os.Handler;
 import android.util.Log;
 
@@ -107,7 +108,9 @@ public class MotionDetector {
         mCameraId = cameraId;
         detector = new AggregateLumaMotionDetection();
 
-        mSurfaceTexture = new SurfaceTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
+            mSurfaceTexture = new SurfaceTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES);
+        }
     }
 
     public void setMotionDetectorCallback(MotionDetectorCallback motionDetectorCallback) {

@@ -157,8 +157,8 @@ public class WallPanelService extends Service {
         Intent notificationIntent = new Intent(this, WallPanelService.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
 
-        Notification notification;
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH) {
+        Notification notification = null;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH) {
             notification = new Notification.Builder(this)
                     .setContentTitle(getText(R.string.wallpanel_service_notification_title))
                     .setContentText(getText(R.string.wallpanel_service_notification_message))
@@ -168,16 +168,19 @@ public class WallPanelService extends Service {
                     .setLocalOnly(true)
                     .build();
         } else {
-            notification = new Notification.Builder(this)
-                    .setContentTitle(getText(R.string.wallpanel_service_notification_title))
-                    .setContentText(getText(R.string.wallpanel_service_notification_message))
-                    .setSmallIcon(R.drawable.ic_home_white_24dp)
-                    .setLargeIcon(BitmapFactory.decodeResource(getApplication().getResources(),R.mipmap.wallpanel_icon))
-                    .setContentIntent(pendingIntent)
-                    .build();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                notification = new Notification.Builder(this)
+                        .setContentTitle(getText(R.string.wallpanel_service_notification_title))
+                        .setContentText(getText(R.string.wallpanel_service_notification_message))
+                        .setSmallIcon(R.drawable.ic_home_white_24dp)
+                        .setLargeIcon(BitmapFactory.decodeResource(getApplication().getResources(),R.mipmap.wallpanel_icon))
+                        .setContentIntent(pendingIntent)
+                        .build();
+            }
         }
 
-        startForeground(ONGOING_NOTIFICATION_ID, notification);
+        if (notification != null)
+            startForeground(ONGOING_NOTIFICATION_ID, notification);
     }
 
     private final BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {

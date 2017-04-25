@@ -5,10 +5,10 @@ android {
     buildToolsVersion '25.0.2'
     defaultConfig {
         applicationId "de.rhuber.homedash"
-        minSdkVersion 19
+        minSdkVersion 16
         targetSdkVersion 25
         versionCode 1
-        versionName '0.5'
+        versionName '0.6'
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
