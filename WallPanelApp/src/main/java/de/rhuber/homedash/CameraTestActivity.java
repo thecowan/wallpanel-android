@@ -22,10 +22,10 @@ import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class MotionActivity extends AppCompatActivity {
+public class CameraTestActivity extends AppCompatActivity {
     private static final int MY_PERMISSIONS_REQUEST_CAMERA = 1;
     private final String TAG = BrowserActivity.class.getName();
-    public static final String BROADCAST_MOTION_DETECTOR_MSG = "BROADCAST_MOTION_DETECTOR_MSG";
+    public static final String BROADCAST_CAMERA_TEST_MSG = "BROADCAST_CAMERA_TEST_MSG";
     private Handler updateHandler;
 
     WallPanelService wallPanelService;
@@ -37,7 +37,7 @@ public class MotionActivity extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_motion);
+        setContentView(R.layout.activity_cameratest);
         requestCameraPermissions();
     }
 
@@ -49,6 +49,7 @@ public class MotionActivity extends AppCompatActivity {
         }
     }
 
+    // TODO move to settings
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            @NonNull String permissions[], @NonNull int[] grantResults) {
@@ -63,7 +64,7 @@ public class MotionActivity extends AppCompatActivity {
                     snackbar.show();
                 } else {
                     Snackbar snackbar = Snackbar.make(getWindow().getDecorView().getRootView(),
-                            "Camera permission not granted. Motion detection won't work.",
+                            "Camera permission not granted.",
                             Snackbar.LENGTH_LONG);
                     snackbar.show();
                 }
@@ -142,7 +143,7 @@ public class MotionActivity extends AppCompatActivity {
         startUpdatePicture();
 
         LocalBroadcastManager.getInstance(this).
-        registerReceiver(motionReceiver,new IntentFilter(BROADCAST_MOTION_DETECTOR_MSG));
+        registerReceiver(testReceiver,new IntentFilter(BROADCAST_CAMERA_TEST_MSG));
     }
 
     @Override
@@ -151,7 +152,7 @@ public class MotionActivity extends AppCompatActivity {
 
         stopUpdatePicture();
 
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(motionReceiver);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(testReceiver);
     }
 
     private void setStatusText(String text) {
@@ -160,7 +161,7 @@ public class MotionActivity extends AppCompatActivity {
     }
 
     private int removeTextCountdown;
-    private final BroadcastReceiver motionReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver testReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
         String message = intent.getStringExtra("message");

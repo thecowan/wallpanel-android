@@ -25,8 +25,8 @@
 
         <PreferenceCategory android:title="Camera">
             <Preference
-                android:key="motion_settings"
-                android:title="Open Motion Detection Settings"
+                android:key="camera_test"
+                android:title="Open Camera Test"
                 android:icon="@android:drawable/ic_menu_camera"/>
         </PreferenceCategory>
 

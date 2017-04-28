@@ -93,11 +93,11 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.pref_general);
 
-            Preference pref = findPreference("motion_settings");
+            Preference pref = findPreference("camera_test");
             pref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
-                    startMotionActivity(preference.getContext());
+                    startCameraTestActivity(preference.getContext());
                     return false;
                 }
             });
@@ -134,9 +134,9 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                     PreferenceManager.getDefaultSharedPreferences(preference.getContext()).getString(preference.getKey(), ""));
         }
 
-        private void startMotionActivity(Context c) {
-            Log.d(TAG, "startMotionActivity Called");
-            startActivity(new Intent(c, MotionActivity.class));
+        private void startCameraTestActivity(Context c) {
+            Log.d(TAG, "startCameraTestActivity Called");
+            startActivity(new Intent(c, CameraTestActivity.class));
         }
     }
 

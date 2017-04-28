@@ -50,7 +50,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".MotionActivity"
+            android:name=".CameraTestActivity"
             android:label="Motion Detection Settings">
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />

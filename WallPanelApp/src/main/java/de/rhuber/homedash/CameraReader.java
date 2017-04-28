@@ -229,6 +229,7 @@ public class CameraReader {
             if (currentFrame.length > 0) {
                 checkMotionDetection(currentFrame);
                 //checkFaceDetection(getBitmap());
+                //TODO add QR codes :)
             }
             detectorCheckHandler.postDelayed(this, mCheckInterval);
         }

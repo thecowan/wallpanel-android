@@ -411,7 +411,7 @@ public class WallPanelService extends Service {
             if (config.getCameraMotionWake()) { switchScreenOn(); }
             sensorReader.doMotionDetected();
 
-            Intent intent = new Intent(MotionActivity.BROADCAST_MOTION_DETECTOR_MSG);
+            Intent intent = new Intent(CameraTestActivity.BROADCAST_CAMERA_TEST_MSG);
             intent.putExtra("message","Motion Detected!");
             LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
         }
@@ -420,7 +420,7 @@ public class WallPanelService extends Service {
         public void onTooDark() {
             Log.i(TAG, "Too dark for motion detection");
 
-            Intent intent = new Intent(MotionActivity.BROADCAST_MOTION_DETECTOR_MSG);
+            Intent intent = new Intent(CameraTestActivity.BROADCAST_CAMERA_TEST_MSG);
             intent.putExtra("message","Too dark for motion detection");
             LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
         }
@@ -431,7 +431,7 @@ public class WallPanelService extends Service {
             if (config.getCameraFaceWake()) { switchScreenOn(); }
             sensorReader.doFaceDetected();
 
-            Intent intent = new Intent(MotionActivity.BROADCAST_MOTION_DETECTOR_MSG);
+            Intent intent = new Intent(CameraTestActivity.BROADCAST_CAMERA_TEST_MSG);
             intent.putExtra("message","Face Detected!");
             LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
         }

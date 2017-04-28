@@ -44,6 +44,7 @@ class SensorReader  {
         mPressure = mSensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE);
     }
 
+    // TODO add more sensors
     public void startReadings(int freqSeconds) {
         Log.d(TAG, "startReadings Called");
         if (freqSeconds >= 0) {
