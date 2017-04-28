@@ -80,7 +80,8 @@
         <service
             android:name=".WallPanelService"
             android:enabled="true"
-            android:exported="false" />
+            android:exported="false"
+            android:stopWithTask="true"/>
 
         <receiver
             android:name=".BootUpReceiver"

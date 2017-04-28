@@ -7,25 +7,20 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Bitmap;
+import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Rect;
 import android.net.wifi.WifiManager;
 import android.os.Binder;
 import android.os.Build;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.support.v4.content.LocalBroadcastManager;
 
 import android.util.Log;
 
-import com.jjoe64.motiondetection.motiondetection.MotionDetector;
-import com.jjoe64.motiondetection.motiondetection.MotionDetectorCallback;
-
 import com.koushikdutta.async.AsyncServer;
+import com.koushikdutta.async.ByteBufferList;
 import com.koushikdutta.async.http.body.JSONObjectBody;
 import com.koushikdutta.async.http.body.StringBody;
 import com.koushikdutta.async.http.server.AsyncHttpServer;
@@ -47,55 +42,38 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 
 
 public class WallPanelService extends Service {
     private static final int ONGOING_NOTIFICATION_ID = 1;
     public static final String BROADCAST_EVENT_URL_CHANGE = "BROADCAST_EVENT_URL_CHANGE";
-
     private final String TAG = WallPanelService.class.getName();
-    private final IBinder mBinder = new MqttServiceBinder();
 
     private SensorReader sensorReader;
-    private String topicPrefix;
-
-    private MotionDetector motionDetector;
-    private MotionDetectorCallback motionDetectorCallback;
+    public final CameraReader cameraReader = new CameraReader(this);
+    private Config config;
 
     private PowerManager.WakeLock fullWakeLock;
     private PowerManager.WakeLock partialWakeLock;
     private WifiManager.WifiLock wifiLock;
 
     private MqttAndroidClient mqttAndroidClient;
-    private AsyncHttpServer httpServer;
+    private String topicPrefix;
 
-    private Config config;
+    private AsyncHttpServer httpServer;
     private String currentUrl;
 
-    private static WallPanelService myInstance;
-    public static WallPanelService getInstance() {
-        return myInstance;
-    }
-
-    public WallPanelService() {
-        if (myInstance == null)
-            myInstance = this;
-        else
-            throw new RuntimeException("Only instantiate WallPanelService once!");
+    private final IBinder mBinder = new WallPanelServiceBinder();
+    public class WallPanelServiceBinder extends Binder {
+        WallPanelService getService() {
+            return WallPanelService.this;
+        }
     }
 
     @Override
     public IBinder onBind(Intent intent) {
         return mBinder;
-    }
-
-    @Override
-    public void onTaskRemoved(Intent rootIntent) {
-        super.onTaskRemoved(rootIntent);
-        Log.d(TAG, "onTaskRemoved Called");
-        stopMotionDetection();
-        stopMqttConnection();
-        stopSelf();
     }
 
     @Override
@@ -106,7 +84,7 @@ public class WallPanelService extends Service {
         config = new Config(getApplicationContext());
         currentUrl = config.getAppLaunchUrl();
 
-        sensorReader = new SensorReader(getApplicationContext());
+        sensorReader = new SensorReader(this, getApplicationContext());
 
         // prepare the lock types we may use
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
@@ -127,11 +105,11 @@ public class WallPanelService extends Service {
         bm.registerReceiver(mBroadcastReceiver, filter);
 
         configurePowerOptions();
-        configureRest();
+        configureHttp();
         configureMqtt();
-        configureMotionDetection(false);
+        configureCamera();
 
-        config.startListeningForConfigChanges();
+        config.startListeningForConfigChanges(prefsChangedListener);
 
         startForeground();
     }
@@ -143,13 +121,10 @@ public class WallPanelService extends Service {
 
         config.stopListeningForConfigChanges();
 
-        stopMotionDetection();
-        stopMqttConnection();
-
-        Log.i(TAG, "Releasing Screen/WiFi Locks");
-        if (partialWakeLock.isHeld()) partialWakeLock.release();
-        if (fullWakeLock.isHeld()) fullWakeLock.release();
-        if (wifiLock.isHeld()) wifiLock.release();
+        stopCamera();
+        stopMqtt();
+        stopHttp();
+        stopPowerOptions();
     }
 
     private void startForeground(){
@@ -202,6 +177,25 @@ public class WallPanelService extends Service {
         }
     };
 
+    SharedPreferences.OnSharedPreferenceChangeListener prefsChangedListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+        @Override
+        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
+            if (s.contains("_mqtt_")) {
+                Log.i(TAG, "A MQTT Setting Changed");
+                configureMqtt();
+            } else if (s.contains("_camera_")) {
+                Log.i(TAG, "A Camera Setting Changed");
+                configureCamera();
+            } else if (s.equals(getApplicationContext().getString(R.string.key_setting_app_preventsleep))) {
+                Log.i(TAG, "A Power Option Changed");
+                configurePowerOptions();
+            } else if (s.contains("_http_")) {
+                Log.i(TAG, "A HTTP Option Changed");
+                configureHttp();
+            }
+        }
+    };
+
     //******** Power Related Functions
 
     public void configurePowerOptions() {
@@ -224,12 +218,19 @@ public class WallPanelService extends Service {
         }
     }
 
+    private void stopPowerOptions() {
+        Log.i(TAG, "Releasing Screen/WiFi Locks");
+        if (partialWakeLock.isHeld()) partialWakeLock.release();
+        if (fullWakeLock.isHeld()) fullWakeLock.release();
+        if (wifiLock.isHeld()) wifiLock.release();
+    }
+
 
     //******** MQTT Related Functions
 
     public void configureMqtt() {
         Log.d(TAG, "configureMqtt Called");
-        stopMqttConnection();
+        stopMqtt();
         if (config.getMqttEnabled()) {
             startMqttConnection(
                     config.getMqttUrl(),
@@ -306,8 +307,8 @@ public class WallPanelService extends Service {
         }
     }
 
-    private void stopMqttConnection(){
-        Log.d(TAG, "stopMqttConnection Called");
+    private void stopMqtt(){
+        Log.d(TAG, "stopMqtt Called");
         sensorReader.stopReadings();
         try {
             if(mqttAndroidClient != null && mqttAndroidClient.isConnected()) {
@@ -380,151 +381,180 @@ public class WallPanelService extends Service {
 
     //******** Camera Related Functions
 
-    public void configureMotionDetection(boolean forceStopFirst){
-        Log.d(TAG, "configureMotionDetection Called");
-        if (forceStopFirst) { stopMotionDetection(); }
-        if (config.getCameraMotionEnabled()) {
-            Log.d(TAG, "Motion detection is enabled");
-            if (motionDetector == null) {
-                final int cameraId = config.getCameraCameraId();
-                Log.d(TAG, "Creating Motion Detector object with camera #" + cameraId);
-                motionDetector = new MotionDetector(cameraId);
-                if (motionDetectorCallback == null) {
-                    Log.d(TAG, "Creating Motion Detector Callback");
-                    motionDetectorCallback = new MotionDetectorCallback() {
-                        @Override
-                        public void onMotionDetected() {
-                            if (config.getCameraMotionWake()) { switchScreenOn(); }
-                            sensorReader.doMotionDetected();
-                            Log.i(TAG, "Motion detected");
-
-                            Intent intent = new Intent(MotionActivity.BROADCAST_MOTION_DETECTOR_MSG);
-                            intent.putExtra("message","Motion Detected!");
-                            LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
-                        }
-
-                        @Override
-                        public void onTooDark() {
-                            Log.i(TAG, "Too dark for motion detection");
-
-                            Intent intent = new Intent(MotionActivity.BROADCAST_MOTION_DETECTOR_MSG);
-                            intent.putExtra("message","Too dark for motion detection");
-                            LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
-                        }
-
-                    };
-                }
-                Log.d(TAG, "Assigning Callback to motionDetector");
-                motionDetector.setMotionDetectorCallback(motionDetectorCallback);
-                Log.d(TAG, "Calling onResume() on motionDetector");
-                motionDetector.onResume();
+    public void configureCamera(){
+        Log.d(TAG, "configureCamera Called");
+        stopCamera();
+        if (config.getCameraEnabled()) {
+            cameraReader.start(config.getCameraCameraId(), config.getCameraMotionCheckInterval(),
+                    this.cameraDetectorCallback);
+            if (config.getCameraMotionEnabled()) {
+                Log.d(TAG, "Camera Motion detection is enabled");
+                cameraReader.startMotionDetection(config.getCameraMotionMinLuma(),
+                        config.getCameraMotionLeniency());
             }
-            Log.d(TAG, "Setting Check Interval");
-            motionDetector.setCheckInterval(config.getCameraMotionCheckInterval());
-            Log.d(TAG, "Setting Leniency");
-            motionDetector.setLeniency(config.getCameraMotionLeniency());
-            Log.d(TAG, "Setting MinLuma");
-            motionDetector.setMinLuma(config.getCameraMotionMinLuma());
-        }
-        else {
-            stopMotionDetection();
+            if (config.getCameraFaceEnabled()) {
+                Log.d(TAG, "Camera Face detection is enabled");
+                cameraReader.startFaceDetection();
+            }
         }
     }
 
-    private void stopMotionDetection() {
-        Log.d(TAG, "stopMotionDetection Called");
-        if (motionDetector != null) {
-            motionDetector.onPause();
-            motionDetector = null;
-            motionDetectorCallback = null;
-        }
+    private void stopCamera() {
+        Log.d(TAG, "stopCamera Called");
+        cameraReader.stop();
     }
 
-    public Bitmap getMotionPicture() {
-        try {
-            if (motionDetector != null)
-                return motionDetector.getLastBitmap();
+    public final CameraDetectorCallback cameraDetectorCallback = new CameraDetectorCallback() {
+        @Override
+        public void onMotionDetected() {
+            Log.i(TAG, "Motion detected");
+            if (config.getCameraMotionWake()) { switchScreenOn(); }
+            sensorReader.doMotionDetected();
+
+            Intent intent = new Intent(MotionActivity.BROADCAST_MOTION_DETECTOR_MSG);
+            intent.putExtra("message","Motion Detected!");
+            LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
         }
-        catch (Exception ignored) {}
 
-        Bitmap b = Bitmap.createBitmap(320,200,Bitmap.Config.ARGB_8888);
-        Canvas c = new Canvas(b);
-        Paint paint = new Paint();
-        paint.setColor(Color.BLACK);
-        paint.setStyle(Paint.Style.FILL);
-        c.drawPaint(paint);
+        @Override
+        public void onTooDark() {
+            Log.i(TAG, "Too dark for motion detection");
 
-        paint.setColor(Color.WHITE);
-        paint.setTextSize(20);
-        Rect r = new Rect();
-        String text = getString(R.string.motion_detection_not_enabled);
-        c.getClipBounds(r);
-        int cHeight = r.height();
-        int cWidth = r.width();
-        paint.setTextAlign(Paint.Align.LEFT);
-        paint.getTextBounds(text, 0, text.length(), r);
-        float x = cWidth / 2f - r.width() / 2f - r.left;
-        float y = cHeight / 2f + r.height() / 2f - r.bottom;
-        c.drawText(text, x, y, paint);
+            Intent intent = new Intent(MotionActivity.BROADCAST_MOTION_DETECTOR_MSG);
+            intent.putExtra("message","Too dark for motion detection");
+            LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+        }
 
-        return b;
-    }
+        @Override
+        public void onFaceDetected() {
+            Log.i(TAG, "Face detected");
+            if (config.getCameraFaceWake()) { switchScreenOn(); }
+            sensorReader.doFaceDetected();
 
-    //******** REST Related Functions
+            Intent intent = new Intent(MotionActivity.BROADCAST_MOTION_DETECTOR_MSG);
+            intent.putExtra("message","Face Detected!");
+            LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+        }
+    };
 
-    public void configureRest() {
-        Log.d(TAG, "configureRest Called");
-        stopRest();
+    //******** HTTP Related Functions
+
+    public void configureHttp() {
+        Log.d(TAG, "configureHttp Called");
+        stopHttp();
         if (config.getHttpEnabled()) {
-            startRest();
+            startHttp();
         }
     }
 
-    private void startRest() {
-        Log.d(TAG, "startRest Called");
+    private void startHttp() {
+        Log.d(TAG, "startHttp Called");
         if (httpServer == null) {
             httpServer = new AsyncHttpServer();
 
-            httpServer.addAction("POST", "/api/command", new HttpServerRequestCallback() {
-                @Override
-                public void onRequest(AsyncHttpServerRequest request, AsyncHttpServerResponse response) {
-                    boolean result = false;
-                    if (request.getBody() instanceof JSONObjectBody) {
-                        Log.i(TAG, "POST Json Arrived (command)");
-                        result = processCommand(((JSONObjectBody) request.getBody()).get());
-                    } else if (request.getBody() instanceof StringBody) {
-                        Log.i(TAG, "POST String Arrived (command)");
-                        result = processCommand(((StringBody)request.getBody()).get());
-                    }
+            if (config.getHttpRestEnabled()) {
+                httpServer.addAction("POST", "/api/command", new HttpServerRequestCallback() {
+                    @Override
+                    public void onRequest(AsyncHttpServerRequest request, AsyncHttpServerResponse response) {
+                        boolean result = false;
+                        if (request.getBody() instanceof JSONObjectBody) {
+                            Log.i(TAG, "POST Json Arrived (command)");
+                            result = processCommand(((JSONObjectBody) request.getBody()).get());
+                        } else if (request.getBody() instanceof StringBody) {
+                            Log.i(TAG, "POST String Arrived (command)");
+                            result = processCommand(((StringBody) request.getBody()).get());
+                        }
 
-                    JSONObject j = new JSONObject();
-                    try {
-                        j.put("result", result);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
+                        JSONObject j = new JSONObject();
+                        try {
+                            j.put("result", result);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        response.send(j);
                     }
-                    response.send(j);
-                }
-            });
+                });
 
-            httpServer.addAction("GET", "/api/state", new HttpServerRequestCallback() {
-               @Override
-               public void onRequest(AsyncHttpServerRequest request, AsyncHttpServerResponse response) {
-                   Log.i(TAG, "GET Arrived (state)");
-                   response.send(getState());
-               }
-            });
+                httpServer.addAction("GET", "/api/state", new HttpServerRequestCallback() {
+                    @Override
+                    public void onRequest(AsyncHttpServerRequest request, AsyncHttpServerResponse response) {
+                        Log.i(TAG, "GET Arrived (/api/state)");
+                        response.send(getState());
+                    }
+                });
+            }
+
+            if (config.getHttpMJPEGEnabled()) {
+                startmJpeg();
+                httpServer.addAction("GET", "/camera/stream", new HttpServerRequestCallback() {
+                    @Override
+                    public void onRequest(AsyncHttpServerRequest request, AsyncHttpServerResponse response) {
+                        Log.i(TAG, "GET Arrived (/camera/stream)");
+                        startmJpeg(response);
+                    }
+                });
+            }
 
             httpServer.listen(AsyncServer.getDefault(), config.getHttpPort());
         }
     }
 
-    private void stopRest() {
-        Log.d(TAG, "stopRest Called");
+    private void stopHttp() {
+        Log.d(TAG, "stopHttp Called");
         if (httpServer != null) {
+            stopmJpeg();
             httpServer.stop();
             httpServer = null;
         }
+    }
+
+    //******** MJPEG Services
+
+    private ArrayList<AsyncHttpServerResponse> mJpegSockets = new ArrayList<>();
+    private Handler mJpegHandler = null;
+
+    private void startmJpeg() {
+        mJpegHandler = new Handler();
+        mJpegHandler.post(sendmJpegDataAll);
+    }
+
+    private void stopmJpeg() {
+        mJpegHandler.removeCallbacks(sendmJpegDataAll);
+        mJpegSockets.clear();
+    }
+
+    private final Runnable sendmJpegDataAll = new Runnable() {
+        @Override
+        public void run () {
+            if (mJpegSockets.size() > 0) {
+                final byte[] buffer = cameraReader.getJpeg();
+                for (int i = 0; i < mJpegSockets.size(); i++) {
+                    final AsyncHttpServerResponse s = mJpegSockets.get(i);
+                    if (s.isOpen()) {
+                        s.write(new ByteBufferList("--boop\r\nContent-Type: image/jpeg\r\n ".getBytes()));
+                        s.write(new ByteBufferList(("Content-Length: " + buffer.length + "\r\n\r\n").getBytes()));
+                        s.write(new ByteBufferList(buffer));
+                        s.write(new ByteBufferList("\r\n".getBytes()));
+                    } else {
+                        mJpegSockets.remove(i);
+                        i--;
+                        Log.i(TAG, "MJPEG Session Count is " + mJpegSockets.size());
+                    }
+                }
+            }
+            mJpegHandler.postDelayed(this, 100);
+        }
+    };
+
+    private void startmJpeg(AsyncHttpServerResponse response) {
+        Log.d(TAG, "startmJpeg Called");
+        response.getHeaders().add("Cache-Control", "no-cache");
+        response.getHeaders().add("Connection", "keep-alive");
+        response.getHeaders().add("Pragma", "no-cache");
+        response.setContentType("multipart/x-mixed-replace;boundary=--boop");
+        response.writeHead();
+        mJpegSockets.add(response);
+        Log.i(TAG, "MJPEG Session Count is " + mJpegSockets.size());
     }
 
     //******** API Functions

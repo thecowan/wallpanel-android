@@ -21,6 +21,8 @@ class SensorReader  {
     private final String VALUE = "value";
     private final String UNIT = "unit";
 
+    private WallPanelService wallPanelService;
+
     private final SensorManager mSensorManager;
     private final Sensor mLight;
     private final Sensor mPressure;
@@ -29,10 +31,13 @@ class SensorReader  {
 
     private final Handler sensorHandler = new Handler();
     private Integer updateFrequencyMilliSeconds = 0;
-    private int motionDetectedCountdown = 0;
 
-    public SensorReader(Context context) {
+    private int motionDetectedCountdown = 0;
+    private int faceDetectedCountdown = 0;
+
+    public SensorReader(WallPanelService wallPanelService, Context context) {
         Log.d(TAG, "Creating SensorReader");
+        this.wallPanelService = wallPanelService;
         this.context = context;
         mSensorManager = (SensorManager) context.getSystemService(SENSOR_SERVICE);
         mLight = mSensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
@@ -56,6 +61,7 @@ class SensorReader  {
                 getBatteryReading();
                 getPressureReading();
                 updateMotionDetected();
+                updateFaceDetected();
                 sensorHandler.postDelayed(this, updateFrequencyMilliSeconds);
             }
         }
@@ -69,7 +75,7 @@ class SensorReader  {
 
     private void publishSensorData(String sensorName, JSONObject sensorData) {
         Log.d(TAG, "publishSensorData Called");
-        WallPanelService.getInstance().publishMessage(
+        wallPanelService.publishMessage(
                 sensorData,
                 "sensor/" + sensorName);
     }
@@ -168,6 +174,32 @@ class SensorReader  {
                 JSONObject data = new JSONObject();
                 try { data.put(VALUE, false); } catch (JSONException ex) { ex.printStackTrace(); }
                 publishSensorData("motion", data);
+            }
+        }
+    }
+
+    public void doFaceDetected() {
+        Log.d(TAG, "doFaceDetected called");
+        if (faceDetectedCountdown <= 0) {
+            JSONObject data = new JSONObject();
+            try {
+                data.put(VALUE, true);
+            } catch (JSONException ex) {
+                ex.printStackTrace();
+            }
+            publishSensorData("face", data);
+        }
+        faceDetectedCountdown = 2;
+    }
+
+    private void updateFaceDetected() {
+        if (faceDetectedCountdown > 0) {
+            faceDetectedCountdown--;
+            if (faceDetectedCountdown == 0) {
+                Log.i(TAG, "Clearing face detected status");
+                JSONObject data = new JSONObject();
+                try { data.put(VALUE, false); } catch (JSONException ex) { ex.printStackTrace(); }
+                publishSensorData("face", data);
             }
         }
     }

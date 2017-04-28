@@ -9,7 +9,7 @@
         android:layout_height="200dp"
         android:layout_gravity="center"
         android:contentDescription="Camera Preview"
-        android:layout_marginTop="50dp" />
+        android:layout_marginTop="10dp" />
 
     <TextView
         android:id="@+id/textView_status"

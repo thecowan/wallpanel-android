@@ -20,28 +20,8 @@ class Config {
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(appContext);
     }
 
-    public void startListeningForConfigChanges() {
-        prefsChangedListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
-            @Override
-            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
-                if (s.contains("_mqtt_")) {
-                    Log.i(TAG, "A MQTT Setting Changed");
-                    WallPanelService.getInstance().configureMqtt();
-                } else if (s.contains("_camera_")) {
-                    Log.i(TAG, "A Camera Setting Changed");
-                    if (s.equals(myContext.getString(R.string.key_setting_camera_motionenabled)))
-                        WallPanelService.getInstance().configureMotionDetection(true);
-                    else
-                        WallPanelService.getInstance().configureMotionDetection(false);
-                } else if (s.equals(myContext.getString(R.string.key_setting_app_preventsleep))) {
-                    Log.i(TAG, "A Power Option Changed");
-                    WallPanelService.getInstance().configurePowerOptions();
-                } else if (s.contains("_http_")) {
-                    Log.i(TAG, "A HTTP Option Changed");
-                    WallPanelService.getInstance().configureRest();
-                }
-            }
-        };
+    public void startListeningForConfigChanges(SharedPreferences.OnSharedPreferenceChangeListener prefsChangedListener) {
+        this.prefsChangedListener = prefsChangedListener;
         sharedPreferences.registerOnSharedPreferenceChangeListener(prefsChangedListener);
     }
 
@@ -92,6 +72,10 @@ class Config {
 
     // CAMERA
 
+    public boolean getCameraEnabled() { //TODO
+        return true;
+    }
+
     public int getCameraCameraId() {
         return Integer.valueOf(getStringPref(R.string.key_setting_camera_cameraid,
                 R.string.default_setting_camera_cameraid));
@@ -122,20 +106,32 @@ class Config {
                 R.string.default_setting_camera_motionwake);
     }
 
-    public boolean getCameraWebcamEnabled() { //TODO
-        return false;
+    public boolean getCameraFaceEnabled() { //TODO
+        return true;
+    }
+
+    public boolean getCameraFaceWake() { //TODO
+        return true;
     }
 
     // HTTP
 
-    public boolean getHttpEnabled() {
-        return getBoolPref(R.string.key_setting_http_enabled,
-                R.string.default_setting_http_enabled);
+    public boolean getHttpEnabled() { //TODO
+        return getHttpRestEnabled() || getHttpMJPEGEnabled();
     }
 
     public int getHttpPort() {
         return Integer.valueOf(getStringPref(R.string.key_setting_http_port,
                 R.string.default_setting_http_port));
+    }
+
+    public boolean getHttpRestEnabled() { //TODO
+        return getBoolPref(R.string.key_setting_http_enabled,
+                R.string.default_setting_http_enabled);
+    }
+
+    public boolean getHttpMJPEGEnabled() { //TODO
+        return true;
     }
 
     // MQTT

@@ -2,12 +2,16 @@ package de.rhuber.homedash;
 
 import android.Manifest;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -23,6 +27,11 @@ public class MotionActivity extends AppCompatActivity {
     private final String TAG = BrowserActivity.class.getName();
     public static final String BROADCAST_MOTION_DETECTOR_MSG = "BROADCAST_MOTION_DETECTOR_MSG";
     private Handler updateHandler;
+
+    WallPanelService wallPanelService;
+    boolean wallPanelServiceBound = false;
+
+    private int interval = 1000/15;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -67,22 +76,25 @@ public class MotionActivity extends AppCompatActivity {
 
     private void startUpdatePicture() {
         updateHandler = new Handler();
-        updateHandler.postDelayed(updatePicture, 100);
+        updateHandler.postDelayed(updatePicture, interval);
     }
 
     private final Runnable updatePicture = new Runnable() {
         @Override
         public void run () {
-            final ImageView preview = (ImageView) findViewById(R.id.imageView_preview);
-            preview.setImageBitmap(WallPanelService.getInstance().getMotionPicture());
-            updateHandler.postDelayed(this, 100);
+            if (wallPanelServiceBound) {
+                final ImageView preview = (ImageView) findViewById(R.id.imageView_preview);
+                byte[] jpeg = wallPanelService.cameraReader.getJpeg();
+                preview.setImageBitmap(BitmapFactory.decodeByteArray(jpeg, 0, jpeg.length));
 
-            if (removeTextCountdown > 0) {
-                removeTextCountdown--;
-                if (removeTextCountdown == 0) {
-                    setStatusText("");
+                if (removeTextCountdown > 0) {
+                    removeTextCountdown--;
+                    if (removeTextCountdown == 0) {
+                        setStatusText("");
+                    }
                 }
             }
+            updateHandler.postDelayed(this, interval);
         }
     };
 
@@ -92,6 +104,36 @@ public class MotionActivity extends AppCompatActivity {
             updateHandler = null;
         }
     }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        Intent intent = new Intent(this, WallPanelService.class);
+        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (wallPanelServiceBound) {
+            unbindService(mConnection);
+            wallPanelServiceBound = false;
+        }
+    }
+
+    private ServiceConnection mConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            WallPanelService.WallPanelServiceBinder binder = (WallPanelService.WallPanelServiceBinder)service;
+            wallPanelService = binder.getService();
+            wallPanelServiceBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            wallPanelServiceBound = false;
+        }
+    };
 
     @Override
     public void onResume() {

@@ -13,8 +13,6 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-import com.jjoe64.motiondetection.motiondetection.MotionDetector;
-
 import java.util.ArrayList;
 
 public class SettingsActivity extends AppCompatPreferenceActivity {
@@ -151,7 +149,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             setHasOptionsMenu(true);
 
             ListPreference cameras = (ListPreference) findPreference(getString(R.string.key_setting_camera_cameraid));
-            ArrayList<String> cameraList = MotionDetector.getCameras();
+            ArrayList<String> cameraList = CameraReader.getCameras();
             cameras.setEntries(cameraList.toArray(new CharSequence[cameraList.size()]));
             CharSequence[] vals = new CharSequence[cameraList.size()];
             for (int i=0; i<cameraList.size(); i++) { vals[i] = Integer.toString(i); }

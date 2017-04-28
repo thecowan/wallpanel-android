@@ -38,7 +38,6 @@ public class WelcomeActivity extends AppCompatActivity {
 
     private void startBrowserActivity() {
         Log.d(TAG, "startBrowserActivity Called");
-        Log.i(TAG, String.valueOf(WallPanelService.getInstance()));
         String browserType = (new Config(this.getApplicationContext())).getAndroidBrowserType();
         Class targetClass;
         switch (browserType) {
