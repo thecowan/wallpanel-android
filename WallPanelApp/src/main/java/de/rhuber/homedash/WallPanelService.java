@@ -41,6 +41,7 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 
@@ -523,6 +524,8 @@ public class WallPanelService extends Service {
         mJpegSockets.clear();
     }
 
+    //TODO add variable for max mjpeg streams
+    //TODO test mjpeg with other browsers :)
     private final Runnable sendmJpegDataAll = new Runnable() {
         @Override
         public void run () {
@@ -530,11 +533,14 @@ public class WallPanelService extends Service {
                 final byte[] buffer = cameraReader.getJpeg();
                 for (int i = 0; i < mJpegSockets.size(); i++) {
                     final AsyncHttpServerResponse s = mJpegSockets.get(i);
+                    final ByteBufferList bb = new ByteBufferList();
                     if (s.isOpen()) {
-                        s.write(new ByteBufferList("--boop\r\nContent-Type: image/jpeg\r\n ".getBytes()));
-                        s.write(new ByteBufferList(("Content-Length: " + buffer.length + "\r\n\r\n").getBytes()));
-                        s.write(new ByteBufferList(buffer));
-                        s.write(new ByteBufferList("\r\n".getBytes()));
+                        bb.recycle();
+                        bb.add(ByteBuffer.wrap("--boop\r\nContent-Type: image/jpeg\r\n ".getBytes()));
+                        bb.add(ByteBuffer.wrap(("Content-Length: " + buffer.length + "\r\n\r\n").getBytes()));
+                        bb.add(ByteBuffer.wrap(buffer));
+                        bb.add(ByteBuffer.wrap("\r\n".getBytes()));
+                        s.write(bb);
                     } else {
                         mJpegSockets.remove(i);
                         i--;

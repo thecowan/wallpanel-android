@@ -21,6 +21,7 @@ import com.jjoe64.motiondetection.motiondetection.ImageProcessing;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Random;
 
 public class CameraReader {
     private final String TAG = WallPanelService.class.getName();
@@ -161,7 +162,7 @@ public class CameraReader {
         return c;
     }
 
-    public static ArrayList<String> getCameras() {
+    public static ArrayList<String> getCameras() { // todo better camera descriptions
         ArrayList<String> result = new ArrayList<>();
         for (int i=0; i<Camera.getNumberOfCameras(); i++) {
             Camera.CameraInfo info = new Camera.CameraInfo();
@@ -210,7 +211,7 @@ public class CameraReader {
         paint.setColor(Color.WHITE);
         paint.setTextSize(20);
         Rect r = new Rect();
-        String text = "Camera Not Enabled";
+        String text = "Camera Not Enabled ";
         c.getClipBounds(r);
         int cHeight = r.height();
         int cWidth = r.width();
