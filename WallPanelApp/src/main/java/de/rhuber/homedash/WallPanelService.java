@@ -524,8 +524,6 @@ public class WallPanelService extends Service {
         mJpegSockets.clear();
     }
 
-    //TODO add variable for max mjpeg streams
-    //TODO test mjpeg with other browsers :)
     private final Runnable sendmJpegDataAll = new Runnable() {
         @Override
         public void run () {
@@ -536,7 +534,7 @@ public class WallPanelService extends Service {
                     final ByteBufferList bb = new ByteBufferList();
                     if (s.isOpen()) {
                         bb.recycle();
-                        bb.add(ByteBuffer.wrap("--boop\r\nContent-Type: image/jpeg\r\n ".getBytes()));
+                        bb.add(ByteBuffer.wrap("--jpgboundary\r\nContent-Type: image/jpeg\r\n".getBytes()));
                         bb.add(ByteBuffer.wrap(("Content-Length: " + buffer.length + "\r\n\r\n").getBytes()));
                         bb.add(ByteBuffer.wrap(buffer));
                         bb.add(ByteBuffer.wrap("\r\n".getBytes()));
@@ -554,12 +552,20 @@ public class WallPanelService extends Service {
 
     private void startmJpeg(AsyncHttpServerResponse response) {
         Log.d(TAG, "startmJpeg Called");
-        response.getHeaders().add("Cache-Control", "no-cache");
-        response.getHeaders().add("Connection", "keep-alive");
-        response.getHeaders().add("Pragma", "no-cache");
-        response.setContentType("multipart/x-mixed-replace;boundary=--boop");
-        response.writeHead();
-        mJpegSockets.add(response);
+        if (mJpegSockets.size() < config.getHttpMJPEGMaxStreams()) {
+            Log.i(TAG, "Starting new MJPEG stream");
+            response.getHeaders().add("Cache-Control", "no-cache");
+            response.getHeaders().add("Connection", "close");
+            response.getHeaders().add("Pragma", "no-cache");
+            response.setContentType("multipart/x-mixed-replace; boundary=--jpgboundary");
+            response.code(200);
+            response.writeHead();
+            mJpegSockets.add(response);
+        } else {
+            Log.i(TAG, "MJPEG stream limit was reached, not starting");
+            response.send("Max streams exceeded");
+            response.end();
+        }
         Log.i(TAG, "MJPEG Session Count is " + mJpegSockets.size());
     }
 

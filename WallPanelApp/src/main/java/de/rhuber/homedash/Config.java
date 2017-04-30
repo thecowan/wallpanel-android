@@ -132,6 +132,10 @@ class Config {
 
     public boolean getHttpMJPEGEnabled() { //TODO
         return true;
+    } // TODO
+
+    public int getHttpMJPEGMaxStreams() { //TODO
+        return 1;
     }
 
     // MQTT
