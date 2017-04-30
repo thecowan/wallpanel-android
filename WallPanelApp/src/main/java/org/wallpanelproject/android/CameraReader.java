@@ -14,10 +14,18 @@ import android.opengl.GLES11Ext;
 import android.os.Handler;
 import android.util.Log;
 
+import com.google.zxing.BinaryBitmap;
+import com.google.zxing.MultiFormatReader;
+import com.google.zxing.NotFoundException;
+import com.google.zxing.PlanarYUVLuminanceSource;
+import com.google.zxing.RGBLuminanceSource;
+import com.google.zxing.Result;
+import com.google.zxing.common.HybridBinarizer;
 import com.jjoe64.motiondetection.motiondetection.AggregateLumaMotionDetection;
 import com.jjoe64.motiondetection.motiondetection.ImageProcessing;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -42,7 +50,7 @@ public class CameraReader {
     private int minLuma = 1000;
 
     private Handler detectorCheckHandler;
-    private boolean checkFaces = false;
+    private boolean checkQR = false;
     private long mCheckInterval = 1000;
 
     CameraReader(WallPanelService wallPanelService) {
@@ -107,9 +115,13 @@ public class CameraReader {
 
     public void startFaceDetection() {
         Log.d(TAG, "startFaceDetection Called");
-        checkFaces = true;
         mCamera.startFaceDetection();
         mCamera.setFaceDetectionListener(faceDetectionListener);
+    }
+
+    public void startQRCodeDetection() {
+        Log.d(TAG, "startQRCodeDetection Called");
+        checkQR = true;
     }
 
     public void stop() {
@@ -124,7 +136,7 @@ public class CameraReader {
             motionDetector = null;
         }
 
-        checkFaces = false;
+        checkQR = false;
 
         if (mCamera != null) {
             mCamera.setFaceDetectionListener(null);
@@ -184,7 +196,7 @@ public class CameraReader {
         return outstr.toByteArray();
     }
 
-    public Bitmap getBitmap() {
+    private Bitmap getBitmap(byte[] data) {
         if (mCamera != null) {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             YuvImage yuvImage = new YuvImage(currentFrame, mPreviewFormat, mPreviewWidth, mPreviewHeight, null);
@@ -196,6 +208,10 @@ public class CameraReader {
         } else {
             return getCameraNotEnabledBitmap();
         }
+    }
+
+    public Bitmap getBitmap() {
+        return getBitmap(currentFrame);
     }
 
     private Bitmap getCameraNotEnabledBitmap() {
@@ -227,8 +243,7 @@ public class CameraReader {
         public void run () {
             if (currentFrame.length > 0) {
                 checkMotionDetection(currentFrame);
-                //checkFaceDetection(getBitmap());
-                //TODO add QR codes :)
+                checkQRCode(currentFrame);
             }
             detectorCheckHandler.postDelayed(this, mCheckInterval);
         }
@@ -265,16 +280,23 @@ public class CameraReader {
         }
     };
 
-    /*private void checkFaceDetection(Bitmap img) {
-        if (checkFaces) {
-            FaceDetector face_detector = new FaceDetector(img.getWidth(), img.getHeight(), 1);
-            FaceDetector.Face[] faces = new FaceDetector.Face[1];
-            int face_count = face_detector.findFaces(img, faces);
-            if (face_count > 0) {
-                if (cameraDetectorCallback != null) {
-                    cameraDetectorCallback.onFaceDetected();
+    private String lastQRValue = "";
+    private void checkQRCode(byte[] currentFrame) {
+        if (checkQR) {
+            PlanarYUVLuminanceSource source = new PlanarYUVLuminanceSource(currentFrame,
+                    mPreviewWidth, mPreviewHeight, 0, 0, mPreviewWidth, mPreviewHeight, false);
+            BinaryBitmap bBitmap = new BinaryBitmap(new HybridBinarizer(source));
+            MultiFormatReader reader = new MultiFormatReader();
+            try {
+                Result result = reader.decode(bBitmap);
+                String data = result.getText();
+                Log.i(TAG, "QR Code result: " + data);
+                if (data != lastQRValue) {
+                    lastQRValue = data;
+                    // TODO send data to app
                 }
+            } catch (NotFoundException ex) {
             }
         }
-    }*/
+    }
 }

@@ -399,6 +399,10 @@ public class WallPanelService extends Service {
                 Log.d(TAG, "Camera Face detection is enabled");
                 cameraReader.startFaceDetection();
             }
+            if (config.getCameraQRCodeEnabled()) {
+                Log.d(TAG, "Camera QR Code detection is enabled");
+                cameraReader.startQRCodeDetection();
+            }
         }
     }
 

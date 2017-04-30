@@ -87,7 +87,7 @@ class Config {
                 R.string.default_setting_camera_motionenabled);
     }
 
-    public long getCameraMotionCheckInterval() {
+    public long getCameraMotionCheckInterval() { //TODO -- this is more than motion now
         return Long.valueOf(getStringPref(R.string.key_setting_camera_motioncheckinterval,
                 R.string.default_setting_camera_motioncheckinterval));
     }
@@ -109,11 +109,13 @@ class Config {
 
     public boolean getCameraFaceEnabled() { //TODO
         return true;
-    }
+    } // TODO
 
     public boolean getCameraFaceWake() { //TODO
         return true;
-    }
+    } // TODO
+
+    public boolean getCameraQRCodeEnabled() { return true; } // TODO
 
     // HTTP
 

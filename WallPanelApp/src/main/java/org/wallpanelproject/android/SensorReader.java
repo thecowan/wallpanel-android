@@ -198,7 +198,7 @@ class SensorReader  {
                 Log.i(TAG, "Clearing face detected status");
                 JSONObject data = new JSONObject();
                 try { data.put(VALUE, false); } catch (JSONException ex) { ex.printStackTrace(); }
-                publishSensorData("face", data);
+                publishSensorData("face", data); //todo add face to api docs
             }
         }
     }

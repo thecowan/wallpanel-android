@@ -9,7 +9,6 @@ android {
         targetSdkVersion 25
         versionCode 1
         versionName '0.6'
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
         release {
@@ -25,6 +24,7 @@ android {
 repositories {
     maven { url "https://repo.eclipse.org/content/repositories/paho-snapshots/" }
     maven { url "https://download.01.org/crosswalk/releases/crosswalk/android/maven2" }
+    mavenCentral()
 }
 
 
@@ -45,6 +45,7 @@ dependencies {
     //compile 'com.github.ray0711:android-motion-detection:41f41e4f1d'
     compile 'org.xwalk:xwalk_core_library:23.53.589.4'
     compile 'com.koushikdutta.async:androidasync:2.1.9'
+    compile 'com.google.zxing:core:3.3.0'
 }
 
 configurations.all {
