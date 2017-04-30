@@ -14,18 +14,21 @@ import android.util.Log;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static android.content.Context.SENSOR_SERVICE;
 
 class SensorReader  {
     private final String TAG = this.getClass().getName();
     private final String VALUE = "value";
     private final String UNIT = "unit";
+    private final String ID = "id";
 
     private WallPanelService wallPanelService;
 
     private final SensorManager mSensorManager;
-    private final Sensor mLight;
-    private final Sensor mPressure;
+    private final List<Sensor> mSensorList = new ArrayList<Sensor>();
 
     private final Context context;
 
@@ -40,11 +43,12 @@ class SensorReader  {
         this.wallPanelService = wallPanelService;
         this.context = context;
         mSensorManager = (SensorManager) context.getSystemService(SENSOR_SERVICE);
-        mLight = mSensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
-        mPressure = mSensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE);
+        for (Sensor s : mSensorManager.getSensorList(Sensor.TYPE_ALL)) {
+            if (getSensorName(s.getType()) != null)
+                mSensorList.add(s);
+        }
     }
 
-    // TODO add more sensors
     public void startReadings(int freqSeconds) {
         Log.d(TAG, "startReadings Called");
         if (freqSeconds >= 0) {
@@ -58,9 +62,8 @@ class SensorReader  {
         public void run() {
             if (updateFrequencyMilliSeconds > 0) {
                 Log.i(TAG, "Updating Sensors");
-                getLightReading();
+                getSensorReadings();
                 getBatteryReading();
-                getPressureReading();
                 updateMotionDetected();
                 updateFaceDetected();
                 sensorHandler.postDelayed(this, updateFrequencyMilliSeconds);
@@ -81,49 +84,44 @@ class SensorReader  {
                 "sensor/" + sensorName);
     }
 
-    private void getLightReading(){
-        mSensorManager.registerListener(lightListener,mLight,1000);
+    private String getSensorName(int sensorType) {
+        switch (sensorType) {
+            case Sensor.TYPE_AMBIENT_TEMPERATURE:
+                return "temperature";
+            case Sensor.TYPE_LIGHT: // TODO change in API to light
+                return "light";
+            case Sensor.TYPE_MAGNETIC_FIELD:
+                return "magneticField";
+            case Sensor.TYPE_PRESSURE:
+                return "pressure";
+            case Sensor.TYPE_RELATIVE_HUMIDITY:
+                return "humidity";
+        }
+        return null;
     }
 
-    private final SensorEventListener lightListener = new SensorEventListener(){
-        @Override
-        public void onSensorChanged(SensorEvent event) {
-            JSONObject data = new JSONObject();
-            try {
-                data.put(VALUE, event.values[0]);
-                String LIGHTSENSOR_UNIT = "lx";
-                data.put(UNIT, LIGHTSENSOR_UNIT);
-            } catch (JSONException ex) { ex.printStackTrace(); }
+    private void getSensorReadings() {
+        Log.d(TAG, "getSensorReadings called");
+        for (Sensor sensor : mSensorList) {
+            mSensorManager.registerListener(new SensorEventListener(){
+                @Override
+                public void onSensorChanged(SensorEvent event) {
+                    JSONObject data = new JSONObject();
+                    try {
+                        data.put(VALUE, event.values[0]);
+                        data.put(UNIT, "??");
+                        data.put(ID, event.sensor.getName());
+                    } catch (JSONException ex) { ex.printStackTrace(); }
 
-            publishSensorData("brightness", data);
-            mSensorManager.unregisterListener(this);
+                    publishSensorData(getSensorName(event.sensor.getType()), data);
+                    mSensorManager.unregisterListener(this);
+                }
+
+                @Override
+                public void onAccuracyChanged(Sensor sensor, int accuracy) {}
+            }, sensor, 1000);
         }
-
-        @Override
-        public void onAccuracyChanged(Sensor sensor, int accuracy) {}
-    };
-
-    private void getPressureReading(){
-        mSensorManager.registerListener(pressureListener,mPressure,1000);
     }
-
-    private final SensorEventListener pressureListener = new SensorEventListener(){
-        @Override
-        public void onSensorChanged(SensorEvent event) {
-            JSONObject data = new JSONObject();
-            try {
-                data.put(VALUE, event.values[0]);
-                String PRESSURESENSOR_UNIT = "??";
-                data.put(UNIT, PRESSURESENSOR_UNIT);
-            } catch (JSONException ex) { ex.printStackTrace(); }
-
-            publishSensorData("pressure", data);
-            mSensorManager.unregisterListener(this);
-        }
-
-        @Override
-        public void onAccuracyChanged(Sensor sensor, int accuracy) {}
-    };
 
     private void getBatteryReading(){
         IntentFilter intentFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
