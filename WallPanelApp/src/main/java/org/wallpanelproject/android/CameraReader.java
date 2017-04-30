@@ -1,4 +1,4 @@
-package de.rhuber.homedash;
+package org.wallpanelproject.android;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -10,7 +10,6 @@ import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.graphics.YuvImage;
 import android.hardware.Camera;
-import android.media.FaceDetector;
 import android.opengl.GLES11Ext;
 import android.os.Handler;
 import android.util.Log;
@@ -21,7 +20,6 @@ import com.jjoe64.motiondetection.motiondetection.ImageProcessing;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Random;
 
 public class CameraReader {
     private final String TAG = WallPanelService.class.getName();

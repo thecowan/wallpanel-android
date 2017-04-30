@@ -1,4 +1,4 @@
-package de.rhuber.homedash;
+package org.wallpanelproject.android;
 
 public interface CameraDetectorCallback {
     void onMotionDetected();

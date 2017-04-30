@@ -1,4 +1,4 @@
-package de.rhuber.homedash;
+package org.wallpanelproject.android;
 
 import android.Manifest;
 import android.content.BroadcastReceiver;
@@ -21,6 +21,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import org.wallpanelproject.android.R;
 
 public class CameraTestActivity extends AppCompatActivity {
     private static final int MY_PERMISSIONS_REQUEST_CAMERA = 1;

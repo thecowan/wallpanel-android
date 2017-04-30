@@ -1,4 +1,4 @@
-package de.rhuber.homedash;
+package org.wallpanelproject.android;
 
 
 import android.annotation.TargetApi;
@@ -14,6 +14,8 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 import java.util.ArrayList;
+
+import org.wallpanelproject.android.R;
 
 public class SettingsActivity extends AppCompatPreferenceActivity {
 

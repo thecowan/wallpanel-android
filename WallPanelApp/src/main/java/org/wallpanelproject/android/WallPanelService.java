@@ -1,4 +1,4 @@
-package de.rhuber.homedash;
+package org.wallpanelproject.android;
 
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -44,6 +44,8 @@ import org.json.JSONObject;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+
+import org.wallpanelproject.android.R;
 
 
 public class WallPanelService extends Service {

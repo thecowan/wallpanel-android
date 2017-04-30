@@ -1,4 +1,4 @@
-package de.rhuber.homedash;
+package org.wallpanelproject.android;
 
 import android.annotation.SuppressLint;
 import android.os.Build;
@@ -12,6 +12,8 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.os.Bundle;
 import android.webkit.WebViewClient;
+
+import org.wallpanelproject.android.R;
 
 public class BrowserActivityNative extends BrowserActivity {
     private WebView mWebView;

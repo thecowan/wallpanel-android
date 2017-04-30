@@ -1,10 +1,11 @@
-package de.rhuber.homedash;
+package org.wallpanelproject.android;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-import android.util.Log;
+
+import org.wallpanelproject.android.R;
 
 class Config {
 

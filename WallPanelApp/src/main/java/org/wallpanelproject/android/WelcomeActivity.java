@@ -1,4 +1,4 @@
-package de.rhuber.homedash;
+package org.wallpanelproject.android;
 
 import android.content.Intent;
 import android.os.Build;
@@ -7,6 +7,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.util.Log;
+
+import org.wallpanelproject.android.R;
 
 public class WelcomeActivity extends AppCompatActivity {
 

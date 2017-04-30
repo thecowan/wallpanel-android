@@ -1,4 +1,4 @@
-package de.rhuber.homedash;
+package org.wallpanelproject.android;
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
@@ -9,6 +9,8 @@ import org.xwalk.core.XWalkResourceClient;
 import org.xwalk.core.XWalkView;
 import org.xwalk.core.XWalkSettings;
 import org.xwalk.core.XWalkCookieManager;
+
+import org.wallpanelproject.android.R;
 
 public class BrowserActivityLegacy extends BrowserActivity {
 

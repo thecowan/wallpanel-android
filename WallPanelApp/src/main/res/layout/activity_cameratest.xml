@@ -20,6 +20,6 @@
     <fragment android:id="@+id/fragment_camera_prefs"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:name="de.rhuber.homedash.SettingsActivity$CameraPreferenceFragment" />
+        android:name="org.wallpanelproject.android.SettingsActivity$CameraPreferenceFragment" />
 
 </LinearLayout>

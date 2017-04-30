@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="de.rhuber.homedash">
+    package="org.wallpanelproject.android">
 
     <uses-sdk android:minSdkVersion="16" android:targetSdkVersion="25"
         tools:ignore="GradleOverrides" />
@@ -30,7 +30,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:fullBackupContent="@xml/backup_descriptor"
-        android:name="de.rhuber.homedash.WallPanel"
+        android:name=".WallPanel"
         tools:ignore="GoogleAppIndexingWarning">
 
         <activity
@@ -51,7 +51,7 @@
         </activity>
         <activity
             android:name=".CameraTestActivity"
-            android:label="Motion Detection Settings">
+            android:label="Camera Test">
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>

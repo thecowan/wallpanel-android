@@ -1,4 +1,4 @@
-package de.rhuber.homedash;
+package org.wallpanelproject.android;
 
 import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
