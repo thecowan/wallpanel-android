@@ -109,7 +109,7 @@ class SensorReader  {
                     JSONObject data = new JSONObject();
                     try {
                         data.put(VALUE, event.values[0]);
-                        data.put(UNIT, "??");
+                        data.put(UNIT, "??"); // todo not useful units :)
                         data.put(ID, event.sensor.getName());
                     } catch (JSONException ex) { ex.printStackTrace(); }
 

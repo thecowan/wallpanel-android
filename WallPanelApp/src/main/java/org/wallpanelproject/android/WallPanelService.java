@@ -1,5 +1,7 @@
 package org.wallpanelproject.android;
 
+import android.app.Activity;
+import android.app.KeyguardManager;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -60,6 +62,7 @@ public class WallPanelService extends Service {
     private PowerManager.WakeLock fullWakeLock;
     private PowerManager.WakeLock partialWakeLock;
     private WifiManager.WifiLock wifiLock;
+    private KeyguardManager.KeyguardLock keyguardLock;
 
     private MqttAndroidClient mqttAndroidClient;
     private String topicPrefix;
@@ -98,6 +101,9 @@ public class WallPanelService extends Service {
         partialWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "partialWakeLock");
         WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         wifiLock = wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL, "wifiLock");
+
+        KeyguardManager km = (KeyguardManager) getSystemService(Activity.KEYGUARD_SERVICE);
+        keyguardLock = km.newKeyguardLock(KEYGUARD_SERVICE);
 
         IntentFilter filter = new IntentFilter();
         filter.addAction(BROADCAST_EVENT_URL_CHANGE);
@@ -219,6 +225,9 @@ public class WallPanelService extends Service {
             Log.i(TAG, "Will not prevent screen sleep");
             if (fullWakeLock.isHeld()) fullWakeLock.release();
         }
+
+        Log.i(TAG, "Disabling keyguard");
+        keyguardLock.disableKeyguard();
     }
 
     private void stopPowerOptions() {
@@ -226,6 +235,7 @@ public class WallPanelService extends Service {
         if (partialWakeLock.isHeld()) partialWakeLock.release();
         if (fullWakeLock.isHeld()) fullWakeLock.release();
         if (wifiLock.isHeld()) wifiLock.release();
+        keyguardLock.reenableKeyguard();
     }
 
 
