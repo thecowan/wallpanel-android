@@ -10,6 +10,7 @@ import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.graphics.YuvImage;
 import android.hardware.Camera;
+import android.hardware.camera2.CameraCharacteristics;
 import android.opengl.GLES11Ext;
 import android.os.Handler;
 import android.util.Log;
@@ -172,14 +173,32 @@ public class CameraReader {
         return c;
     }
 
-    public static ArrayList<String> getCameras() { // todo better camera descriptions
+    public static ArrayList<String> getCameras() {
         ArrayList<String> result = new ArrayList<>();
         for (int i=0; i<Camera.getNumberOfCameras(); i++) {
-            Camera.CameraInfo info = new Camera.CameraInfo();
-            Camera.getCameraInfo(i, info);
-            result.add(java.text.MessageFormat.format(
-                    "id:{0} facing:{1} orientation:{2}",
-                    i, info.facing, info.orientation));
+            String description = "";
+            try {
+                final Camera c = Camera.open(i);
+                Camera.Parameters p = c.getParameters();
+                final Camera.Size previewSize = p.getPreviewSize();
+                int width = previewSize.width;
+                int height = previewSize.height;
+                Camera.CameraInfo info = new Camera.CameraInfo();
+                Camera.getCameraInfo(i, info);
+                description = java.text.MessageFormat.format(
+                        "{0}: {1} Camera {3}x{4} {2}º",
+                        i,
+                        (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) ? "Front" : "Back",
+                        info.orientation,
+                        width,
+                        height);
+            }
+            catch (Exception e) {
+                Log.e("CameraReader", "Had a problem reading camera " + i);
+                e.printStackTrace();
+                description = java.text.MessageFormat.format("{0}: Error", i);
+            }
+            result.add(description);
         }
         return result;
     }
