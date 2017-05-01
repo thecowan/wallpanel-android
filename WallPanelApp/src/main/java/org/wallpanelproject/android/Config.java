@@ -7,10 +7,8 @@ import android.preference.PreferenceManager;
 
 import org.wallpanelproject.android.R;
 
+//TODO: update API doc for new configs
 class Config {
-
-    private final String TAG = this.getClass().getName();
-
     private final Context myContext;
     private final SharedPreferences sharedPreferences;
     private SharedPreferences.OnSharedPreferenceChangeListener prefsChangedListener;
@@ -73,8 +71,9 @@ class Config {
 
     // CAMERA
 
-    public boolean getCameraEnabled() { //TODO
-        return true;
+    public boolean getCameraEnabled() {
+        return getBoolPref(R.string.key_setting_camera_enabled,
+                R.string.default_setting_camera_enabled);
     }
 
     public int getCameraCameraId() {
@@ -87,9 +86,9 @@ class Config {
                 R.string.default_setting_camera_motionenabled);
     }
 
-    public long getCameraMotionCheckInterval() { //TODO -- this is more than motion now
-        return Long.valueOf(getStringPref(R.string.key_setting_camera_motioncheckinterval,
-                R.string.default_setting_camera_motioncheckinterval));
+    public long getCameraProcessingInterval() {
+        return Long.valueOf(getStringPref(R.string.key_setting_camera_processinginterval,
+                R.string.default_setting_camera_processinginterval));
     }
 
     public int getCameraMotionLeniency() {
@@ -107,19 +106,24 @@ class Config {
                 R.string.default_setting_camera_motionwake);
     }
 
-    public boolean getCameraFaceEnabled() { //TODO
-        return true;
-    } // TODO
+    public boolean getCameraFaceEnabled() {
+        return getBoolPref(R.string.key_setting_camera_faceenabled,
+                R.string.default_setting_camera_faceenabled);
+    }
 
-    public boolean getCameraFaceWake() { //TODO
-        return true;
-    } // TODO
+    public boolean getCameraFaceWake() {
+        return getBoolPref(R.string.key_setting_camera_facewake,
+                R.string.default_setting_camera_facewake);
+    }
 
-    public boolean getCameraQRCodeEnabled() { return true; } // TODO
+    public boolean getCameraQRCodeEnabled() {
+        return getBoolPref(R.string.key_setting_camera_qrcodeenabled,
+                R.string.default_setting_camera_qrcodeenabled);
+    }
 
     // HTTP
 
-    public boolean getHttpEnabled() { //TODO
+    public boolean getHttpEnabled() {
         return getHttpRestEnabled() || getHttpMJPEGEnabled();
     }
 
@@ -128,17 +132,19 @@ class Config {
                 R.string.default_setting_http_port));
     }
 
-    public boolean getHttpRestEnabled() { //TODO
-        return getBoolPref(R.string.key_setting_http_enabled,
-                R.string.default_setting_http_enabled);
+    public boolean getHttpRestEnabled() {
+        return getBoolPref(R.string.key_setting_http_restenabled,
+                R.string.default_setting_http_restenabled);
     }
 
-    public boolean getHttpMJPEGEnabled() { //TODO
-        return true;
-    } // TODO
+    public boolean getHttpMJPEGEnabled() {
+        return getBoolPref(R.string.key_setting_http_mjpegenabled,
+                R.string.default_setting_http_mjpegenabled);
+    }
 
-    public int getHttpMJPEGMaxStreams() { //TODO
-        return 1;
+    public int getHttpMJPEGMaxStreams() {
+        return Integer.valueOf(getStringPref(R.string.key_setting_http_mjpegmaxstreams,
+                R.string.default_setting_http_mjpegmaxstreams));
     }
 
     // MQTT

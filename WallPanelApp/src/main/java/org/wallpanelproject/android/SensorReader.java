@@ -25,10 +25,10 @@ class SensorReader  {
     private final String UNIT = "unit";
     private final String ID = "id";
 
-    private WallPanelService wallPanelService;
+    private final WallPanelService wallPanelService;
 
     private final SensorManager mSensorManager;
-    private final List<Sensor> mSensorList = new ArrayList<Sensor>();
+    private final List<Sensor> mSensorList = new ArrayList<>();
 
     private final Context context;
 
@@ -136,7 +136,7 @@ class SensorReader  {
         boolean acCharge = chargePlug == BatteryManager.BATTERY_PLUGGED_AC;
 
         int level = batteryStatus != null ? batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) : -1;
-        int scale = batteryStatus != null ? batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1) : -1;
+        //int scale = batteryStatus != null ? batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1) : -1;
 
         JSONObject data = new JSONObject();
         try {
@@ -201,5 +201,16 @@ class SensorReader  {
                 publishSensorData("face", data); //todo add face to api docs
             }
         }
+    }
+
+    public void doQRCode(String data) {
+        Log.d(TAG, "doQRCode called");
+        JSONObject jdata = new JSONObject();
+        try {
+            jdata.put(VALUE, data);
+        } catch (JSONException ex) {
+            ex.printStackTrace();
+        }
+        publishSensorData("qrcode", jdata);
     }
 }

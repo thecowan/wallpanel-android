@@ -56,7 +56,7 @@ public class WallPanelService extends Service {
     private final String TAG = WallPanelService.class.getName();
 
     private SensorReader sensorReader;
-    public final CameraReader cameraReader = new CameraReader(this);
+    public final CameraReader cameraReader = new CameraReader();
     private Config config;
 
     private PowerManager.WakeLock fullWakeLock;
@@ -186,7 +186,7 @@ public class WallPanelService extends Service {
         }
     };
 
-    SharedPreferences.OnSharedPreferenceChangeListener prefsChangedListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+    private final SharedPreferences.OnSharedPreferenceChangeListener prefsChangedListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
         @Override
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
             if (s.contains("_mqtt_")) {
@@ -207,7 +207,7 @@ public class WallPanelService extends Service {
 
     //******** Power Related Functions
 
-    public void configurePowerOptions() {
+    private void configurePowerOptions() {
         Log.d(TAG, "configurePowerOptions Called");
 
         // We always grab partialWakeLock & WifiLock
@@ -241,7 +241,7 @@ public class WallPanelService extends Service {
 
     //******** MQTT Related Functions
 
-    public void configureMqtt() {
+    private void configureMqtt() {
         Log.d(TAG, "configureMqtt Called");
         stopMqtt();
         if (config.getMqttEnabled()) {
@@ -385,6 +385,7 @@ public class WallPanelService extends Service {
         return false;
     }
 
+    @SuppressWarnings("unused")
     private class MqttServiceBinder extends Binder {
         WallPanelService getService() {
             Log.d(TAG, "mqttServiceBinder.getService Called");
@@ -394,11 +395,11 @@ public class WallPanelService extends Service {
 
     //******** Camera Related Functions
 
-    public void configureCamera(){
+    private void configureCamera(){
         Log.d(TAG, "configureCamera Called");
         stopCamera();
         if (config.getCameraEnabled()) {
-            cameraReader.start(config.getCameraCameraId(), config.getCameraMotionCheckInterval(),
+            cameraReader.start(config.getCameraCameraId(), config.getCameraProcessingInterval(),
                     this.cameraDetectorCallback);
             if (config.getCameraMotionEnabled()) {
                 Log.d(TAG, "Camera Motion detection is enabled");
@@ -421,7 +422,7 @@ public class WallPanelService extends Service {
         cameraReader.stop();
     }
 
-    public final CameraDetectorCallback cameraDetectorCallback = new CameraDetectorCallback() {
+    private final CameraDetectorCallback cameraDetectorCallback = new CameraDetectorCallback() {
         @Override
         public void onMotionDetected() {
             Log.i(TAG, "Motion detected");
@@ -452,11 +453,21 @@ public class WallPanelService extends Service {
             intent.putExtra("message","Face Detected!");
             LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
         }
+
+        @Override
+        public void onQRCode(String data) {
+            Log.i(TAG, "QR Code Received");
+            sensorReader.doQRCode(data);
+
+            Intent intent = new Intent(CameraTestActivity.BROADCAST_CAMERA_TEST_MSG);
+            intent.putExtra("message","QR Code: " + data);
+            LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+        }
     };
 
     //******** HTTP Related Functions
 
-    public void configureHttp() {
+    private void configureHttp() {
         Log.d(TAG, "configureHttp Called");
         stopHttp();
         if (config.getHttpEnabled()) {
@@ -527,7 +538,7 @@ public class WallPanelService extends Service {
 
     //******** MJPEG Services
 
-    private ArrayList<AsyncHttpServerResponse> mJpegSockets = new ArrayList<>();
+    private final ArrayList<AsyncHttpServerResponse> mJpegSockets = new ArrayList<>();
     private Handler mJpegHandler = null;
 
     private void startmJpeg() {

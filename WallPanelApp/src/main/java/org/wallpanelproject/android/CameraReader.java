@@ -10,7 +10,6 @@ import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.graphics.YuvImage;
 import android.hardware.Camera;
-import android.hardware.camera2.CameraCharacteristics;
 import android.opengl.GLES11Ext;
 import android.os.Handler;
 import android.util.Log;
@@ -19,30 +18,25 @@ import com.google.zxing.BinaryBitmap;
 import com.google.zxing.MultiFormatReader;
 import com.google.zxing.NotFoundException;
 import com.google.zxing.PlanarYUVLuminanceSource;
-import com.google.zxing.RGBLuminanceSource;
 import com.google.zxing.Result;
 import com.google.zxing.common.HybridBinarizer;
 import com.jjoe64.motiondetection.motiondetection.AggregateLumaMotionDetection;
 import com.jjoe64.motiondetection.motiondetection.ImageProcessing;
 
 import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 
 public class CameraReader {
     private final String TAG = WallPanelService.class.getName();
 
-    private WallPanelService wallPanel;
-    private SurfaceTexture mSurfaceTexture;
-    private int cameraId = 0;
+    private final SurfaceTexture mSurfaceTexture;
     private Camera mCamera;
 
     private int mPreviewFormat = 0;
     private int mPreviewWidth = 0;
     private int mPreviewHeight = 0;
     private Rect mPreviewRect = null;
-    private final int mJpegQuality = 80;
 
     private byte[] currentFrame = new byte[0];
 
@@ -54,8 +48,7 @@ public class CameraReader {
     private boolean checkQR = false;
     private long mCheckInterval = 1000;
 
-    CameraReader(WallPanelService wallPanelService) {
-        wallPanel = wallPanelService;
+    CameraReader() {
         mSurfaceTexture = new SurfaceTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES);
     }
 
@@ -69,7 +62,6 @@ public class CameraReader {
         mCheckInterval = checkInterval;
         this.cameraDetectorCallback = cameraDetectorCallback;
         if (mCamera == null) {
-            this.cameraId = cameraId;
             mCamera = getCameraInstance(cameraId);
             if (mCamera == null) {
                 Log.e(TAG, "There is no camera so nothing is going to happen :(");
@@ -148,7 +140,7 @@ public class CameraReader {
         }
     }
 
-    private Camera.PreviewCallback previewCallback = new Camera.PreviewCallback() {
+    private final Camera.PreviewCallback previewCallback = new Camera.PreviewCallback() {
         @Override
         public void onPreviewFrame(byte[] data, Camera cam) {
             byte[] lastFrame = currentFrame;
@@ -176,7 +168,7 @@ public class CameraReader {
     public static ArrayList<String> getCameras() {
         ArrayList<String> result = new ArrayList<>();
         for (int i=0; i<Camera.getNumberOfCameras(); i++) {
-            String description = "";
+            String description;
             try {
                 final Camera c = Camera.open(i);
                 Camera.Parameters p = c.getParameters();
@@ -208,6 +200,7 @@ public class CameraReader {
         if (mCamera != null) {
             final YuvImage image = new YuvImage(currentFrame,
                     mPreviewFormat, mPreviewWidth, mPreviewHeight, null);
+            int mJpegQuality = 80;
             image.compressToJpeg(mPreviewRect, mJpegQuality, outstr);
         } else {
             getCameraNotEnabledBitmap().compress(Bitmap.CompressFormat.JPEG, 100, outstr);
@@ -218,7 +211,7 @@ public class CameraReader {
     private Bitmap getBitmap(byte[] data) {
         if (mCamera != null) {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
-            YuvImage yuvImage = new YuvImage(currentFrame, mPreviewFormat, mPreviewWidth, mPreviewHeight, null);
+            YuvImage yuvImage = new YuvImage(data, mPreviewFormat, mPreviewWidth, mPreviewHeight, null);
             yuvImage.compressToJpeg(new Rect(0, 0, mPreviewWidth, mPreviewHeight), 50, out);
             byte[] imageBytes = out.toByteArray();
             BitmapFactory.Options bitmap_options = new BitmapFactory.Options();
@@ -290,7 +283,7 @@ public class CameraReader {
         }
     }
 
-    private Camera.FaceDetectionListener faceDetectionListener = new Camera.FaceDetectionListener() {
+    private final Camera.FaceDetectionListener faceDetectionListener = new Camera.FaceDetectionListener() {
         @Override
         public void onFaceDetection(Camera.Face[] faces, Camera camera) {
             if (cameraDetectorCallback != null) {
@@ -312,9 +305,12 @@ public class CameraReader {
                 Log.i(TAG, "QR Code result: " + data);
                 if (data != lastQRValue) {
                     lastQRValue = data;
-                    // TODO send data to app
+                    if (cameraDetectorCallback != null) {
+                        cameraDetectorCallback.onQRCode(data);
+                    }
                 }
             } catch (NotFoundException ex) {
+                // no QR code!
             }
         }
     }

@@ -24,6 +24,55 @@
         </PreferenceCategory>
 
         <PreferenceCategory android:title="Camera">
+            <SwitchPreference
+                android:defaultValue="@string/default_setting_camera_enabled"
+                android:title="@string/title_setting_camera_enabled"
+                android:key="@string/key_setting_camera_enabled" />
+            <ListPreference
+                android:title="@string/title_setting_camera_cameraid"
+                android:key="@string/key_setting_camera_cameraid"
+                android:defaultValue="@string/default_setting_camera_cameraid"/>
+            <EditTextPreference
+                android:defaultValue="@string/default_setting_camera_processinginterval"
+                android:selectAllOnFocus="true"
+                android:inputType="number"
+                android:title="@string/title_setting_camera_processinginterval"
+                android:key="@string/key_setting_camera_processinginterval"
+                android:singleLine="true" />
+            <SwitchPreference
+                android:defaultValue="@string/default_setting_camera_motionenabled"
+                android:title="@string/title_setting_camera_motionenabled"
+                android:key="@string/key_setting_camera_motionenabled" />
+            <SwitchPreference
+                android:defaultValue="@string/default_setting_camera_motionwake"
+                android:title="@string/title_setting_camera_motionwake"
+                android:key="@string/key_setting_camera_motionwake" />
+            <EditTextPreference
+                android:defaultValue="@string/default_setting_camera_motionleniency"
+                android:selectAllOnFocus="true"
+                android:inputType="number"
+                android:title="@string/title_setting_camera_motionleniency"
+                android:key="@string/key_setting_camera_motionleniency"
+                android:singleLine="true" />
+            <EditTextPreference
+                android:defaultValue="@string/default_setting_camera_motionminluma"
+                android:selectAllOnFocus="true"
+                android:inputType="number"
+                android:title="@string/title_setting_camera_motionminluma"
+                android:key="@string/key_setting_camera_motionminluma"
+                android:singleLine="true" />
+            <SwitchPreference
+                android:defaultValue="@string/default_setting_camera_faceenabled"
+                android:title="@string/title_setting_camera_faceenabled"
+                android:key="@string/key_setting_camera_faceenabled" />
+            <SwitchPreference
+                android:defaultValue="@string/default_setting_camera_facewake"
+                android:title="@string/title_setting_camera_facewake"
+                android:key="@string/key_setting_camera_facewake" />
+            <SwitchPreference
+                android:defaultValue="@string/default_setting_camera_qrcodeenabled"
+                android:title="@string/title_setting_camera_qrcodeenabled"
+                android:key="@string/key_setting_camera_qrcodeenabled" />
             <Preference
                 android:key="camera_test"
                 android:title="Open Camera Test"
@@ -32,9 +81,20 @@
 
         <PreferenceCategory android:title="HTTP">
             <SwitchPreference
-                android:defaultValue="@string/default_setting_http_enabled"
-                android:title="@string/title_setting_http_enabled"
-                android:key="@string/key_setting_http_enabled" />
+                android:defaultValue="@string/default_setting_http_restenabled"
+                android:title="@string/title_setting_http_restenabled"
+                android:key="@string/key_setting_http_restenabled" />
+            <SwitchPreference
+                android:defaultValue="@string/default_setting_http_mjpegenabled"
+                android:title="@string/title_setting_http_mjpegenabled"
+                android:key="@string/key_setting_http_mjpegenabled" />
+            <EditTextPreference
+                android:defaultValue="@string/default_setting_http_mjpegmaxstreams"
+                android:selectAllOnFocus="true"
+                android:inputType="number"
+                android:title="@string/title_setting_http_mjpegmaxstreams"
+                android:key="@string/key_setting_http_mjpegmaxstreams"
+                android:singleLine="true" />
             <EditTextPreference
                 android:defaultValue="@string/default_setting_http_port"
                 android:selectAllOnFocus="true"

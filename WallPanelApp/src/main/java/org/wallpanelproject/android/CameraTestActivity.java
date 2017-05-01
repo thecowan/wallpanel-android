@@ -1,21 +1,15 @@
 package org.wallpanelproject.android;
 
-import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -25,56 +19,20 @@ import android.widget.TextView;
 import org.wallpanelproject.android.R;
 
 public class CameraTestActivity extends AppCompatActivity {
-    private static final int MY_PERMISSIONS_REQUEST_CAMERA = 1;
     private final String TAG = BrowserActivity.class.getName();
     public static final String BROADCAST_CAMERA_TEST_MSG = "BROADCAST_CAMERA_TEST_MSG";
     private Handler updateHandler;
 
-    WallPanelService wallPanelService;
-    boolean wallPanelServiceBound = false;
+    private WallPanelService wallPanelService;
+    private boolean wallPanelServiceBound = false;
 
-    private int interval = 1000/15;
+    private final int interval = 1000/15;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_cameratest);
-        requestCameraPermissions();
-    }
-
-    private void requestCameraPermissions(){
-        if(PackageManager.PERMISSION_DENIED == ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA)){
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.CAMERA},
-                    MY_PERMISSIONS_REQUEST_CAMERA);
-        }
-    }
-
-    // TODO move to settings
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String permissions[], @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case MY_PERMISSIONS_REQUEST_CAMERA: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Snackbar snackbar = Snackbar.make(getWindow().getDecorView().getRootView(),
-                            "Camera permission granted.",
-                            Snackbar.LENGTH_LONG);
-                    snackbar.show();
-                } else {
-                    Snackbar snackbar = Snackbar.make(getWindow().getDecorView().getRootView(),
-                            "Camera permission not granted.",
-                            Snackbar.LENGTH_LONG);
-                    snackbar.show();
-                }
-            }
-
-            // other 'case' lines to check for other
-            // permissions this app might request
-        }
     }
 
     private void startUpdatePicture() {
@@ -124,7 +82,7 @@ public class CameraTestActivity extends AppCompatActivity {
         }
     }
 
-    private ServiceConnection mConnection = new ServiceConnection() {
+    private final ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
             WallPanelService.WallPanelServiceBinder binder = (WallPanelService.WallPanelServiceBinder)service;
