@@ -32,6 +32,7 @@ public class CameraReader {
 
     private final SurfaceTexture mSurfaceTexture;
     private Camera mCamera;
+    private static ArrayList<String> cameraList;
 
     private int mPreviewFormat = 0;
     private int mPreviewWidth = 0;
@@ -50,6 +51,7 @@ public class CameraReader {
 
     CameraReader() {
         mSurfaceTexture = new SurfaceTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES);
+        getCameras();
     }
 
     protected void finalize() {
@@ -166,33 +168,35 @@ public class CameraReader {
     }
 
     public static ArrayList<String> getCameras() {
-        ArrayList<String> result = new ArrayList<>();
-        for (int i=0; i<Camera.getNumberOfCameras(); i++) {
-            String description;
-            try {
-                final Camera c = Camera.open(i);
-                Camera.Parameters p = c.getParameters();
-                final Camera.Size previewSize = p.getPreviewSize();
-                int width = previewSize.width;
-                int height = previewSize.height;
-                Camera.CameraInfo info = new Camera.CameraInfo();
-                Camera.getCameraInfo(i, info);
-                description = java.text.MessageFormat.format(
-                        "{0}: {1} Camera {3}x{4} {2}º",
-                        i,
-                        (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) ? "Front" : "Back",
-                        info.orientation,
-                        width,
-                        height);
+        if (cameraList == null) {
+            cameraList = new ArrayList<>();
+            for (int i = 0; i < Camera.getNumberOfCameras(); i++) {
+                String description;
+                try {
+                    final Camera c = Camera.open(i);
+                    Camera.Parameters p = c.getParameters();
+                    final Camera.Size previewSize = p.getPreviewSize();
+                    int width = previewSize.width;
+                    int height = previewSize.height;
+                    Camera.CameraInfo info = new Camera.CameraInfo();
+                    Camera.getCameraInfo(i, info);
+                    description = java.text.MessageFormat.format(
+                            "{0}: {1} Camera {3}x{4} {2}º",
+                            i,
+                            (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) ? "Front" : "Back",
+                            info.orientation,
+                            width,
+                            height);
+                    c.release();
+                } catch (Exception e) {
+                    Log.e("CameraReader", "Had a problem reading camera " + i);
+                    e.printStackTrace();
+                    description = java.text.MessageFormat.format("{0}: Error", i);
+                }
+                cameraList.add(description);
             }
-            catch (Exception e) {
-                Log.e("CameraReader", "Had a problem reading camera " + i);
-                e.printStackTrace();
-                description = java.text.MessageFormat.format("{0}: Error", i);
-            }
-            result.add(description);
         }
-        return result;
+        return cameraList;
     }
 
     public byte[] getJpeg() {
@@ -292,7 +296,6 @@ public class CameraReader {
         }
     };
 
-    private String lastQRValue = "";
     private void checkQRCode(byte[] currentFrame) {
         if (checkQR) {
             PlanarYUVLuminanceSource source = new PlanarYUVLuminanceSource(currentFrame,
@@ -303,11 +306,8 @@ public class CameraReader {
                 Result result = reader.decode(bBitmap);
                 String data = result.getText();
                 Log.i(TAG, "QR Code result: " + data);
-                if (data != lastQRValue) {
-                    lastQRValue = data;
-                    if (cameraDetectorCallback != null) {
-                        cameraDetectorCallback.onQRCode(data);
-                    }
+                if (cameraDetectorCallback != null) {
+                    cameraDetectorCallback.onQRCode(data);
                 }
             } catch (NotFoundException ex) {
                 // no QR code!
