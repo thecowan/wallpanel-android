@@ -510,6 +510,8 @@ public class WallPanelService extends Service {
                         response.send(getState());
                     }
                 });
+
+                Log.i(TAG, "Enabled REST Endpoints");
             }
 
             if (config.getHttpMJPEGEnabled()) {
@@ -521,9 +523,22 @@ public class WallPanelService extends Service {
                         startmJpeg(response);
                     }
                 });
+
+                Log.i(TAG, "Enabled MJPEG Endpoint");
             }
 
+            httpServer.addAction("*", "*", new HttpServerRequestCallback() {
+                @Override
+                public void onRequest(AsyncHttpServerRequest request, AsyncHttpServerResponse response) {
+                    Log.i(TAG, "Unhandled Request Arrived");
+                    response.code(404);
+                    response.send("");
+                }
+            });
+
+
             httpServer.listen(AsyncServer.getDefault(), config.getHttpPort());
+            Log.i(TAG, "Started HTTP server on " + config.getHttpPort());
         }
     }
 
@@ -539,14 +554,15 @@ public class WallPanelService extends Service {
     //******** MJPEG Services
 
     private final ArrayList<AsyncHttpServerResponse> mJpegSockets = new ArrayList<>();
-    private Handler mJpegHandler = null;
+    private Handler mJpegHandler = new Handler();
 
     private void startmJpeg() {
-        mJpegHandler = new Handler();
+        Log.d(TAG, "startmJpeg Called");
         mJpegHandler.post(sendmJpegDataAll);
     }
 
     private void stopmJpeg() {
+        Log.d(TAG, "stopmJpeg Called");
         mJpegHandler.removeCallbacks(sendmJpegDataAll);
         mJpegSockets.clear();
     }
