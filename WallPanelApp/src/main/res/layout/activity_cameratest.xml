@@ -5,8 +5,8 @@
 
     <ImageView
         android:id="@+id/imageView_preview"
-        android:layout_width="320dp"
-        android:layout_height="200dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:contentDescription="Camera Preview"
         android:layout_marginTop="10dp" />
@@ -14,7 +14,7 @@
     <TextView
         android:id="@+id/textView_status"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/dropdown_item_height"
+        android:layout_height="wrap_content"
         android:textAlignment="center"/>
 
 </LinearLayout>
