@@ -1,3 +1,4 @@
+<!--suppress CheckTagEmptyBody, CheckTagEmptyBody -->
 <resources>
 
     <string-array name="browser_type_names">
@@ -32,9 +33,6 @@
     <string name="title_activity_settings">WallPanel Settings</string>
     <string name="title_activity_browser">Browser</string>
 
-    <string name="motion_detection_not_enabled">Motion Detection Not Enabled</string>
-
-
     <string name="key_setting_app_deviceid">setting_app_deviceid</string>
     <string name="title_setting_app_deviceid">Device ID</string>
     <string name="default_setting_app_deviceid">mywallpanel</string>
@@ -48,33 +46,51 @@
     <string name="title_setting_app_showactivity">Show Browser Activity</string>
     <string name="default_setting_app_showactivity">true</string>
 
+    <string name="key_setting_camera_enabled">setting_camera_enabled</string>
+    <string name="title_setting_camera_enabled">Camera Enabled</string>
+    <string name="default_setting_camera_enabled">false</string>
     <string name="key_setting_camera_cameraid">setting_camera_cameraid</string>
-    <string name="title_setting_camera_cameraid">Monitored Camera</string>
+    <string name="title_setting_camera_cameraid">Selected Camera</string>
     <string name="default_setting_camera_cameraid">0</string>
     <string name="key_setting_camera_motionenabled">setting_camera_motionenabled</string>
-    <string name="title_setting_camera_motionenabled">Enable Motion Detection</string>
+    <string name="title_setting_camera_motionenabled">Motion Detection Enabled</string>
     <string name="default_setting_camera_motionenabled">false</string>
-    <string name="key_setting_camera_motioncheckinterval">setting_camera_motioncheckinterval</string>
-    <string name="title_setting_camera_motioncheckinterval">Check Interval</string>
-    <string name="default_setting_camera_motioncheckinterval">500</string>
+    <string name="key_setting_camera_processinginterval">setting_camera_processinginterval</string>
+    <string name="title_setting_camera_processinginterval">Image Processing Interval (ms)</string>
+    <string name="default_setting_camera_processinginterval">500</string>
     <string name="key_setting_camera_motionleniency">setting_camera_motionleniency</string>
-    <string name="title_setting_camera_motionleniency">Leniency</string>
+    <string name="title_setting_camera_motionleniency">Motion Minimum Leniency</string>
     <string name="default_setting_camera_motionleniency">20</string>
     <string name="key_setting_camera_motionminluma">setting_camera_motionminluma</string>
-    <string name="title_setting_camera_motionminluma">Minimum Luma (Brightness)</string>
+    <string name="title_setting_camera_motionminluma">Motion Minimum Luma (Brightness)</string>
     <string name="default_setting_camera_motionminluma">1000</string>
     <string name="key_setting_camera_motionwake">setting_camera_motionwake</string>
-    <string name="title_setting_camera_motionwake">Wake Screen on Motion</string>
+    <string name="title_setting_camera_motionwake">Motion Wakes Screen</string>
     <string name="default_setting_camera_motionwake">true</string>
+    <string name="key_setting_camera_faceenabled">setting_camera_faceenabled</string>
+    <string name="title_setting_camera_faceenabled">Face Detection Enabled</string>
+    <string name="default_setting_camera_faceenabled">false</string>
+    <string name="key_setting_camera_facewake">setting_camera_facewake</string>
+    <string name="title_setting_camera_facewake">Face Wakes Screen</string>
+    <string name="default_setting_camera_facewake">false</string>
+    <string name="key_setting_camera_qrcodeenabled">setting_camera_qrcodeenabled</string>
+    <string name="title_setting_camera_qrcodeenabled">QR Code Reader Enabled</string>
+    <string name="default_setting_camera_qrcodeenabled">false</string>
 
-    <string name="key_setting_http_enabled">setting_http_enabled</string>
-    <string name="title_setting_http_enabled">Enable REST API</string>
-    <string name="default_setting_http_enabled">false</string>
+    <string name="key_setting_http_restenabled">setting_http_enabled</string>
+    <string name="title_setting_http_restenabled">REST API Enabled</string>
+    <string name="default_setting_http_restenabled">false</string>
     <string name="key_setting_http_port">setting_http_port</string>
     <string name="title_setting_http_port">HTTP Listening Port</string>
     <string name="default_setting_http_port">2971</string>
+    <string name="key_setting_http_mjpegenabled">setting_http_mjpegenabled</string>
+    <string name="title_setting_http_mjpegenabled">MJPEG Camera Streaming Enabled</string>
+    <string name="default_setting_http_mjpegenabled">false</string>
+    <string name="key_setting_http_mjpegmaxstreams">setting_http_mjpegmaxstreams</string>
+    <string name="title_setting_http_mjpegmaxstreams">MJPEG Camera Max Streams</string>
+    <string name="default_setting_http_mjpegmaxstreams">1</string>
 
-    <string name="title_setting_mqtt_enabled">Enable MQTT</string>
+    <string name="title_setting_mqtt_enabled">MQTT Client Enabled</string>
     <string name="key_setting_mqtt_enabled">setting_mqtt_enabled</string>
     <string name="default_setting_mqtt_enabled">false</string>
     <string name="title_setting_mqtt_servername">Server Name</string>
@@ -89,14 +105,14 @@
     <string name="key_setting_mqtt_clientid">setting_mqtt_clientid</string>
     <string name="title_setting_mqtt_clientid">Client ID</string>
     <string name="default_setting_mqtt_clientid">mywallpanel</string>
-    <string name="title_setting_mqtt_username">MQTT Username (Optional)</string>
+    <string name="title_setting_mqtt_username">Username (Optional)</string>
     <string name="key_setting_mqtt_username">setting_mqtt_username</string>
     <string name="default_setting_mqtt_username"></string>
-    <string name="title_setting_mqtt_password">MQTT Password</string>
+    <string name="title_setting_mqtt_password">Password</string>
     <string name="key_setting_mqtt_password">setting_mqtt_password</string>
     <string name="default_setting_mqtt_password"></string>
     <string name="key_setting_mqtt_sensorfrequency">setting_mqtt_sensorfrequency</string>
-    <string name="title_setting_mqtt_sensorfrequency">Sensor Reading Frequency (0 to disable)</string>
+    <string name="title_setting_mqtt_sensorfrequency">Sensor Publish Frequency (0 to disable)</string>
     <string name="default_setting_mqtt_sensorfrequency">0</string>
 
     <string name="key_setting_android_startonboot">setting_android_startonboot</string>

@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="de.rhuber.homedash">
+    package="org.wallpanelproject.android">
 
-    <uses-sdk android:minSdkVersion="19" android:targetSdkVersion="25"
+    <uses-sdk android:minSdkVersion="16" android:targetSdkVersion="25"
         tools:ignore="GradleOverrides" />
 
     <!-- Permissions the Application Requires -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.DISABLE_KEYGUARD"/>
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
@@ -30,7 +31,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:fullBackupContent="@xml/backup_descriptor"
-        android:name="de.rhuber.homedash.WallPanel"
+        android:name=".WallPanel"
         tools:ignore="GoogleAppIndexingWarning">
 
         <activity
@@ -50,8 +51,8 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".MotionActivity"
-            android:label="Motion Detection Settings">
+            android:name=".CameraTestActivity"
+            android:label="Camera Test">
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
@@ -80,7 +81,8 @@
         <service
             android:name=".WallPanelService"
             android:enabled="true"
-            android:exported="false" />
+            android:exported="false"
+            android:stopWithTask="true"/>
 
         <receiver
             android:name=".BootUpReceiver"

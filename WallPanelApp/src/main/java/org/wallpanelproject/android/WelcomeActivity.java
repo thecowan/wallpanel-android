@@ -1,4 +1,4 @@
-package de.rhuber.homedash;
+package org.wallpanelproject.android;
 
 import android.content.Intent;
 import android.os.Build;
@@ -7,6 +7,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.util.Log;
+
+import org.wallpanelproject.android.R;
 
 public class WelcomeActivity extends AppCompatActivity {
 
@@ -38,7 +40,6 @@ public class WelcomeActivity extends AppCompatActivity {
 
     private void startBrowserActivity() {
         Log.d(TAG, "startBrowserActivity Called");
-        Log.i(TAG, String.valueOf(WallPanelService.getInstance()));
         String browserType = (new Config(this.getApplicationContext())).getAndroidBrowserType();
         Class targetClass;
         switch (browserType) {

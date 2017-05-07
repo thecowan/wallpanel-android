@@ -1,4 +1,4 @@
-package de.rhuber.homedash;
+package org.wallpanelproject.android;
 
 import android.content.Context;
 import android.content.Intent;
@@ -14,29 +14,39 @@ import android.util.Log;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static android.content.Context.SENSOR_SERVICE;
 
 class SensorReader  {
     private final String TAG = this.getClass().getName();
     private final String VALUE = "value";
     private final String UNIT = "unit";
+    private final String ID = "id";
+
+    private final WallPanelService wallPanelService;
 
     private final SensorManager mSensorManager;
-    private final Sensor mLight;
-    private final Sensor mPressure;
+    private final List<Sensor> mSensorList = new ArrayList<>();
 
     private final Context context;
 
     private final Handler sensorHandler = new Handler();
     private Integer updateFrequencyMilliSeconds = 0;
-    private int motionDetectedCountdown = 0;
 
-    public SensorReader(Context context) {
+    private int motionDetectedCountdown = 0;
+    private int faceDetectedCountdown = 0;
+
+    public SensorReader(WallPanelService wallPanelService, Context context) {
         Log.d(TAG, "Creating SensorReader");
+        this.wallPanelService = wallPanelService;
         this.context = context;
         mSensorManager = (SensorManager) context.getSystemService(SENSOR_SERVICE);
-        mLight = mSensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
-        mPressure = mSensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE);
+        for (Sensor s : mSensorManager.getSensorList(Sensor.TYPE_ALL)) {
+            if (getSensorName(s.getType()) != null)
+                mSensorList.add(s);
+        }
     }
 
     public void startReadings(int freqSeconds) {
@@ -52,10 +62,10 @@ class SensorReader  {
         public void run() {
             if (updateFrequencyMilliSeconds > 0) {
                 Log.i(TAG, "Updating Sensors");
-                getLightReading();
+                getSensorReadings();
                 getBatteryReading();
-                getPressureReading();
                 updateMotionDetected();
+                updateFaceDetected();
                 sensorHandler.postDelayed(this, updateFrequencyMilliSeconds);
             }
         }
@@ -69,54 +79,49 @@ class SensorReader  {
 
     private void publishSensorData(String sensorName, JSONObject sensorData) {
         Log.d(TAG, "publishSensorData Called");
-        WallPanelService.getInstance().publishMessage(
+        wallPanelService.publishMessage(
                 sensorData,
                 "sensor/" + sensorName);
     }
 
-    private void getLightReading(){
-        mSensorManager.registerListener(lightListener,mLight,1000);
+    private String getSensorName(int sensorType) {
+        switch (sensorType) {
+            case Sensor.TYPE_AMBIENT_TEMPERATURE:
+                return "temperature";
+            case Sensor.TYPE_LIGHT: // TODO change in API to light
+                return "light";
+            case Sensor.TYPE_MAGNETIC_FIELD:
+                return "magneticField";
+            case Sensor.TYPE_PRESSURE:
+                return "pressure";
+            case Sensor.TYPE_RELATIVE_HUMIDITY:
+                return "humidity";
+        }
+        return null;
     }
 
-    private final SensorEventListener lightListener = new SensorEventListener(){
-        @Override
-        public void onSensorChanged(SensorEvent event) {
-            JSONObject data = new JSONObject();
-            try {
-                data.put(VALUE, event.values[0]);
-                String LIGHTSENSOR_UNIT = "lx";
-                data.put(UNIT, LIGHTSENSOR_UNIT);
-            } catch (JSONException ex) { ex.printStackTrace(); }
+    private void getSensorReadings() {
+        Log.d(TAG, "getSensorReadings called");
+        for (Sensor sensor : mSensorList) {
+            mSensorManager.registerListener(new SensorEventListener(){
+                @Override
+                public void onSensorChanged(SensorEvent event) {
+                    JSONObject data = new JSONObject();
+                    try {
+                        data.put(VALUE, event.values[0]);
+                        data.put(UNIT, "??"); // todo not useful units :)
+                        data.put(ID, event.sensor.getName());
+                    } catch (JSONException ex) { ex.printStackTrace(); }
 
-            publishSensorData("brightness", data);
-            mSensorManager.unregisterListener(this);
+                    publishSensorData(getSensorName(event.sensor.getType()), data);
+                    mSensorManager.unregisterListener(this);
+                }
+
+                @Override
+                public void onAccuracyChanged(Sensor sensor, int accuracy) {}
+            }, sensor, 1000);
         }
-
-        @Override
-        public void onAccuracyChanged(Sensor sensor, int accuracy) {}
-    };
-
-    private void getPressureReading(){
-        mSensorManager.registerListener(pressureListener,mPressure,1000);
     }
-
-    private final SensorEventListener pressureListener = new SensorEventListener(){
-        @Override
-        public void onSensorChanged(SensorEvent event) {
-            JSONObject data = new JSONObject();
-            try {
-                data.put(VALUE, event.values[0]);
-                String PRESSURESENSOR_UNIT = "??";
-                data.put(UNIT, PRESSURESENSOR_UNIT);
-            } catch (JSONException ex) { ex.printStackTrace(); }
-
-            publishSensorData("pressure", data);
-            mSensorManager.unregisterListener(this);
-        }
-
-        @Override
-        public void onAccuracyChanged(Sensor sensor, int accuracy) {}
-    };
 
     private void getBatteryReading(){
         IntentFilter intentFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
@@ -131,7 +136,7 @@ class SensorReader  {
         boolean acCharge = chargePlug == BatteryManager.BATTERY_PLUGGED_AC;
 
         int level = batteryStatus != null ? batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) : -1;
-        int scale = batteryStatus != null ? batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1) : -1;
+        //int scale = batteryStatus != null ? batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1) : -1;
 
         JSONObject data = new JSONObject();
         try {
@@ -170,5 +175,42 @@ class SensorReader  {
                 publishSensorData("motion", data);
             }
         }
+    }
+
+    public void doFaceDetected() {
+        Log.d(TAG, "doFaceDetected called");
+        if (faceDetectedCountdown <= 0) {
+            JSONObject data = new JSONObject();
+            try {
+                data.put(VALUE, true);
+            } catch (JSONException ex) {
+                ex.printStackTrace();
+            }
+            publishSensorData("face", data);
+        }
+        faceDetectedCountdown = 2;
+    }
+
+    private void updateFaceDetected() {
+        if (faceDetectedCountdown > 0) {
+            faceDetectedCountdown--;
+            if (faceDetectedCountdown == 0) {
+                Log.i(TAG, "Clearing face detected status");
+                JSONObject data = new JSONObject();
+                try { data.put(VALUE, false); } catch (JSONException ex) { ex.printStackTrace(); }
+                publishSensorData("face", data); //todo add face to api docs
+            }
+        }
+    }
+
+    public void doQRCode(String data) {
+        Log.d(TAG, "doQRCode called");
+        JSONObject jdata = new JSONObject();
+        try {
+            jdata.put(VALUE, data);
+        } catch (JSONException ex) {
+            ex.printStackTrace();
+        }
+        publishSensorData("qrcode", jdata);
     }
 }

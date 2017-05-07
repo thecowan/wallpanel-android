@@ -1,9 +1,11 @@
-package de.rhuber.homedash;
+package org.wallpanelproject.android;
 
 
+import android.Manifest;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.ListPreference;
@@ -11,13 +13,19 @@ import android.preference.Preference;
 import android.preference.SwitchPreference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
-
-import com.jjoe64.motiondetection.motiondetection.MotionDetector;
 
 import java.util.ArrayList;
 
+import org.wallpanelproject.android.R;
+
 public class SettingsActivity extends AppCompatPreferenceActivity {
+
+    private static final int MY_PERMISSIONS_REQUEST_CAMERA = 1;
 
     private static final Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = new Preference.OnPreferenceChangeListener() {
         @Override
@@ -81,8 +89,13 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
     protected boolean isValidFragment(String fragmentName) {
         return PreferenceFragment.class.getName().equals(fragmentName)
-                || GeneralPreferenceFragment.class.getName().equals(fragmentName)
-                || CameraPreferenceFragment.class.getName().equals(fragmentName);
+                || GeneralPreferenceFragment.class.getName().equals(fragmentName);
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstance) {
+        super.onCreate(savedInstance);
+        requestCameraPermissions();
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
@@ -95,15 +108,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.pref_general);
 
-            Preference pref = findPreference("motion_settings");
-            pref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                @Override
-                public boolean onPreferenceClick(Preference preference) {
-                    startMotionActivity(preference.getContext());
-                    return false;
-                }
-            });
-
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_app_deviceid)));
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_app_preventsleep)));
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_app_launchurl)));
@@ -112,8 +116,10 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_android_startonboot)));
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_android_browsertype)));
 
-            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_http_enabled)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_http_restenabled)));
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_http_port)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_http_mjpegenabled)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_http_mjpegmaxstreams)));
 
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_mqtt_enabled)));
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_mqtt_servername)));
@@ -134,35 +140,71 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             preference.setOnPreferenceChangeListener(preferenceChangeListener);
             preferenceChangeListener.onPreferenceChange(preference,
                     PreferenceManager.getDefaultSharedPreferences(preference.getContext()).getString(preference.getKey(), ""));
-        }
 
-        private void startMotionActivity(Context c) {
-            Log.d(TAG, "startMotionActivity Called");
-            startActivity(new Intent(c, MotionActivity.class));
-        }
-    }
-
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public static class CameraPreferenceFragment extends PreferenceFragment {
-        @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            addPreferencesFromResource(R.xml.pref_camera);
-            setHasOptionsMenu(true);
+            Preference pref = findPreference("camera_test");
+            pref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    startCameraTestActivity(preference.getContext());
+                    return false;
+                }
+            });
 
             ListPreference cameras = (ListPreference) findPreference(getString(R.string.key_setting_camera_cameraid));
-            ArrayList<String> cameraList = MotionDetector.getCameras();
+            ArrayList<String> cameraList = CameraReader.getCameras();
             cameras.setEntries(cameraList.toArray(new CharSequence[cameraList.size()]));
             CharSequence[] vals = new CharSequence[cameraList.size()];
             for (int i=0; i<cameraList.size(); i++) { vals[i] = Integer.toString(i); }
             cameras.setEntryValues(vals);
 
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_camera_enabled)));
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_camera_motionenabled)));
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_camera_motionwake)));
-            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_camera_motioncheckinterval)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_camera_processinginterval)));
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_camera_motionleniency)));
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_camera_motionminluma)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_camera_faceenabled)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_camera_facewake)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_camera_qrcodeenabled)));
             bindPreferenceSummaryToValue(cameras);
+        }
+
+        private void startCameraTestActivity(Context c) {
+            Log.d(TAG, "startCameraTestActivity Called");
+            startActivity(new Intent(c, CameraTestActivity.class));
+        }
+    }
+
+    private void requestCameraPermissions(){
+        if(PackageManager.PERMISSION_DENIED == ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA)){
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.CAMERA},
+                    MY_PERMISSIONS_REQUEST_CAMERA);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String permissions[], @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_CAMERA: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Snackbar snackbar = Snackbar.make(getWindow().getDecorView().getRootView(),
+                            "Camera permission granted.",
+                            Snackbar.LENGTH_LONG);
+                    snackbar.show();
+                } else {
+                    Snackbar snackbar = Snackbar.make(getWindow().getDecorView().getRootView(),
+                            "Camera permission not granted.",
+                            Snackbar.LENGTH_LONG);
+                    snackbar.show();
+                }
+            }
+
+            // other 'case' lines to check for other
+            // permissions this app might request
         }
     }
 
