@@ -226,8 +226,13 @@ public class WallPanelService extends Service {
             if (fullWakeLock.isHeld()) fullWakeLock.release();
         }
 
-        Log.i(TAG, "Disabling keyguard");
-        keyguardLock.disableKeyguard();
+        try {
+            keyguardLock.disableKeyguard();
+        }
+        catch (Exception ex) {
+            Log.i(TAG, "Disabling keyguard didn't work");
+            ex.printStackTrace();
+        }
     }
 
     private void stopPowerOptions() {
@@ -235,7 +240,14 @@ public class WallPanelService extends Service {
         if (partialWakeLock.isHeld()) partialWakeLock.release();
         if (fullWakeLock.isHeld()) fullWakeLock.release();
         if (wifiLock.isHeld()) wifiLock.release();
-        keyguardLock.reenableKeyguard();
+
+        try {
+            keyguardLock.reenableKeyguard();
+        }
+        catch (Exception ex) {
+            Log.i(TAG, "Reenabling keyguard didn't work");
+            ex.printStackTrace();
+        }
     }
 
 
