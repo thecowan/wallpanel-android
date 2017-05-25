@@ -95,6 +95,8 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </receiver>
+
+        <meta-data android:name="com.google.android.gms.vision.DEPENDENCIES" android:value="face"/>
     </application>
 
 </manifest>

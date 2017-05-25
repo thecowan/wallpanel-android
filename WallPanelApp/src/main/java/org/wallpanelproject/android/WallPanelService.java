@@ -56,7 +56,7 @@ public class WallPanelService extends Service {
     private final String TAG = WallPanelService.class.getName();
 
     private SensorReader sensorReader;
-    public final CameraReader cameraReader = new CameraReader();
+    public CameraReader cameraReader;
     private Config config;
 
     private PowerManager.WakeLock fullWakeLock;
@@ -87,6 +87,7 @@ public class WallPanelService extends Service {
         super.onCreate();
         Log.d(TAG, "onCreate Called");
 
+        cameraReader = new CameraReader(getApplicationContext());
         config = new Config(getApplicationContext());
         currentUrl = config.getAppLaunchUrl();
 
@@ -699,7 +700,7 @@ public class WallPanelService extends Service {
         bm.sendBroadcast(intent);
     }
 
-    private void switchScreenOn(){
+    private void switchScreenOn(){ //todo: wake out of 'Daydream' mode?
         Log.d(TAG, "switchScreenOn Called");
 
         if (!isScreenOn()) {

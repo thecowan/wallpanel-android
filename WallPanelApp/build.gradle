@@ -47,6 +47,7 @@ dependencies {
     compile 'com.koushikdutta.async:androidasync:2.1.9'
     compile 'com.google.zxing:core:3.3.0'
     compile 'ch.acra:acra:4.9.2'
+    compile 'com.google.android.gms:play-services-vision:8.1.0'
 }
 
 configurations.all {
