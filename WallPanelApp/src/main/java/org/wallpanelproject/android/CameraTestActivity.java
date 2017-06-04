@@ -45,8 +45,7 @@ public class CameraTestActivity extends AppCompatActivity {
         public void run () {
             if (wallPanelServiceBound) {
                 final ImageView preview = (ImageView) findViewById(R.id.imageView_preview);
-                byte[] jpeg = wallPanelService.cameraReader.getJpeg();
-                preview.setImageBitmap(BitmapFactory.decodeByteArray(jpeg, 0, jpeg.length));
+                preview.setImageBitmap(wallPanelService.cameraReader.getBitmap());
 
                 if (removeTextCountdown > 0) {
                     removeTextCountdown--;
