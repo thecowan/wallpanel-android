@@ -23,7 +23,6 @@ import java.util.ArrayList;
 
 import org.wallpanelproject.android.R;
 
-//todo issue with doubled up settings
 public class SettingsActivity extends AppCompatPreferenceActivity {
 
     private static final int MY_PERMISSIONS_REQUEST_CAMERA = 1;

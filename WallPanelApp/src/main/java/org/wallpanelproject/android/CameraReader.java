@@ -38,14 +38,12 @@ public class CameraReader {
     private Camera mCamera;
     private static ArrayList<String> cameraList;
 
-    private int mPreviewFormat = 0;
-
     private byte[] currentFrame = new byte[0];
     private int currentWidth = 0;
     private int currentHeight = 0;
     private int currentOrientation = 0;
 
-    private RenderScript rs;
+    private final RenderScript rs;
     private AggregateLumaMotionDetection motionDetector;
     private FaceDetector faceDetector;
     private BarcodeDetector barcodeDetector;
@@ -57,7 +55,7 @@ public class CameraReader {
     private boolean checkFace = false;
     private long mCheckInterval = 1000;
 
-    private Context mContext;
+    private final Context mContext;
 
     CameraReader(Context context) {
         mContext = context;
@@ -87,7 +85,7 @@ public class CameraReader {
                     e.printStackTrace();
                 }
                 final Camera.Parameters params = mCamera.getParameters();
-                mPreviewFormat = mCamera.getParameters().getPreviewFormat();
+                int mPreviewFormat = mCamera.getParameters().getPreviewFormat();
                 final Camera.Size previewSize = params.getPreviewSize();
                 currentWidth = previewSize.width;
                 currentHeight = previewSize.height;

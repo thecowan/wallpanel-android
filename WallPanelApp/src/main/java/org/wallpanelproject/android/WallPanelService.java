@@ -567,7 +567,7 @@ public class WallPanelService extends Service {
     //******** MJPEG Services
 
     private final ArrayList<AsyncHttpServerResponse> mJpegSockets = new ArrayList<>();
-    private Handler mJpegHandler = new Handler();
+    private final Handler mJpegHandler = new Handler();
 
     private void startmJpeg() {
         Log.d(TAG, "startmJpeg Called");

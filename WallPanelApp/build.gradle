@@ -39,7 +39,7 @@ dependencies {
     compile 'org.eclipse.paho:org.eclipse.paho.android.service:1.1.1', {
         exclude module: 'support-v4'
     }
-    compile 'com.android.support:appcompat-v7:25.3.1'
+    compile 'com.android.support:appcompat-v7:25.3.2'
     compile 'com.android.support:support-v4:25.3.1'
     compile 'com.android.support:design:25.3.1'
     compile 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.1.1'
@@ -49,7 +49,7 @@ dependencies {
     compile 'org.xwalk:xwalk_core_library:23.53.589.4'
     compile 'com.koushikdutta.async:androidasync:2.1.9'
     compile 'ch.acra:acra:4.9.2'
-    compile 'com.google.android.gms:play-services-vision:8.1.0'
+    compile 'com.google.android.gms:play-services-vision:10.2.1'
     compile 'io.github.silvaren:easyrs:0.5.3'
 }
 
