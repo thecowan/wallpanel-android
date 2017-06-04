@@ -19,9 +19,11 @@ public class WelcomeActivity extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_welcome);
-        getFragmentManager().beginTransaction().add(android.R.id.content,
-                new SettingsActivity.GeneralPreferenceFragment()).commit();
+        if (savedInstanceState == null) {
+            //setContentView(R.layout.activity_welcome);
+            getFragmentManager().beginTransaction().add(android.R.id.content,
+                    new SettingsActivity.GeneralPreferenceFragment()).commit();
+        }
 
         if (startup) {
             Log.i(TAG, "Starting Browser on Startup");

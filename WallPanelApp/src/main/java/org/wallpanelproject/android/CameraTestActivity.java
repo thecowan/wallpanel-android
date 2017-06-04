@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -45,8 +44,7 @@ public class CameraTestActivity extends AppCompatActivity {
         public void run () {
             if (wallPanelServiceBound) {
                 final ImageView preview = (ImageView) findViewById(R.id.imageView_preview);
-                byte[] jpeg = wallPanelService.cameraReader.getJpeg();
-                preview.setImageBitmap(BitmapFactory.decodeByteArray(jpeg, 0, jpeg.length));
+                preview.setImageBitmap(wallPanelService.cameraReader.getBitmap());
 
                 if (removeTextCountdown > 0) {
                     removeTextCountdown--;

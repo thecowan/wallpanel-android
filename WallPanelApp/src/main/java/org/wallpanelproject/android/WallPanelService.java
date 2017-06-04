@@ -56,7 +56,7 @@ public class WallPanelService extends Service {
     private final String TAG = WallPanelService.class.getName();
 
     private SensorReader sensorReader;
-    public final CameraReader cameraReader = new CameraReader();
+    public CameraReader cameraReader;
     private Config config;
 
     private PowerManager.WakeLock fullWakeLock;
@@ -87,6 +87,7 @@ public class WallPanelService extends Service {
         super.onCreate();
         Log.d(TAG, "onCreate Called");
 
+        cameraReader = new CameraReader(getApplicationContext());
         config = new Config(getApplicationContext());
         currentUrl = config.getAppLaunchUrl();
 
@@ -226,8 +227,13 @@ public class WallPanelService extends Service {
             if (fullWakeLock.isHeld()) fullWakeLock.release();
         }
 
-        Log.i(TAG, "Disabling keyguard");
-        keyguardLock.disableKeyguard();
+        try {
+            keyguardLock.disableKeyguard();
+        }
+        catch (Exception ex) {
+            Log.i(TAG, "Disabling keyguard didn't work");
+            ex.printStackTrace();
+        }
     }
 
     private void stopPowerOptions() {
@@ -235,7 +241,14 @@ public class WallPanelService extends Service {
         if (partialWakeLock.isHeld()) partialWakeLock.release();
         if (fullWakeLock.isHeld()) fullWakeLock.release();
         if (wifiLock.isHeld()) wifiLock.release();
-        keyguardLock.reenableKeyguard();
+
+        try {
+            keyguardLock.reenableKeyguard();
+        }
+        catch (Exception ex) {
+            Log.i(TAG, "Reenabling keyguard didn't work");
+            ex.printStackTrace();
+        }
     }
 
 
@@ -554,7 +567,7 @@ public class WallPanelService extends Service {
     //******** MJPEG Services
 
     private final ArrayList<AsyncHttpServerResponse> mJpegSockets = new ArrayList<>();
-    private Handler mJpegHandler = new Handler();
+    private final Handler mJpegHandler = new Handler();
 
     private void startmJpeg() {
         Log.d(TAG, "startmJpeg Called");
@@ -687,7 +700,7 @@ public class WallPanelService extends Service {
         bm.sendBroadcast(intent);
     }
 
-    private void switchScreenOn(){
+    private void switchScreenOn(){ //todo: wake out of 'Daydream' mode?
         Log.d(TAG, "switchScreenOn Called");
 
         if (!isScreenOn()) {

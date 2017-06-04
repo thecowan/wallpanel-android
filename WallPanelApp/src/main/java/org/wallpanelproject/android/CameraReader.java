@@ -1,31 +1,35 @@
 package org.wallpanelproject.android;
 
+import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.ImageFormat;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
-import android.graphics.YuvImage;
 import android.hardware.Camera;
 import android.opengl.GLES11Ext;
 import android.os.Handler;
+import android.support.v8.renderscript.RenderScript;
 import android.util.Log;
+import android.util.SparseArray;
+import android.view.Surface;
+import android.view.WindowManager;
 
-import com.google.zxing.BinaryBitmap;
-import com.google.zxing.MultiFormatReader;
-import com.google.zxing.NotFoundException;
-import com.google.zxing.PlanarYUVLuminanceSource;
-import com.google.zxing.Result;
-import com.google.zxing.common.HybridBinarizer;
+import com.google.android.gms.vision.Frame;
+import com.google.android.gms.vision.barcode.Barcode;
+import com.google.android.gms.vision.barcode.BarcodeDetector;
+import com.google.android.gms.vision.face.FaceDetector;
 import com.jjoe64.motiondetection.motiondetection.AggregateLumaMotionDetection;
 import com.jjoe64.motiondetection.motiondetection.ImageProcessing;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+
+import io.github.silvaren.easyrs.tools.Nv21Image;
 
 public class CameraReader {
     private final String TAG = WallPanelService.class.getName();
@@ -34,23 +38,29 @@ public class CameraReader {
     private Camera mCamera;
     private static ArrayList<String> cameraList;
 
-    private int mPreviewFormat = 0;
-    private int mPreviewWidth = 0;
-    private int mPreviewHeight = 0;
-    private Rect mPreviewRect = null;
-
     private byte[] currentFrame = new byte[0];
+    private int currentWidth = 0;
+    private int currentHeight = 0;
+    private int currentOrientation = 0;
 
+    private final RenderScript rs;
     private AggregateLumaMotionDetection motionDetector;
+    private FaceDetector faceDetector;
+    private BarcodeDetector barcodeDetector;
     private CameraDetectorCallback cameraDetectorCallback;
     private int minLuma = 1000;
 
     private Handler detectorCheckHandler;
     private boolean checkQR = false;
+    private boolean checkFace = false;
     private long mCheckInterval = 1000;
 
-    CameraReader() {
+    private final Context mContext;
+
+    CameraReader(Context context) {
+        mContext = context;
         mSurfaceTexture = new SurfaceTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES);
+        rs = RenderScript.create(context);
         getCameras();
     }
 
@@ -75,15 +85,17 @@ public class CameraReader {
                     e.printStackTrace();
                 }
                 final Camera.Parameters params = mCamera.getParameters();
-                mPreviewFormat = mCamera.getParameters().getPreviewFormat();
+                int mPreviewFormat = mCamera.getParameters().getPreviewFormat();
                 final Camera.Size previewSize = params.getPreviewSize();
-                mPreviewWidth = previewSize.width;
-                mPreviewHeight = previewSize.height;
-                mPreviewRect = new Rect(0,0,mPreviewWidth,mPreviewHeight);
+                currentWidth = previewSize.width;
+                currentHeight = previewSize.height;
+                Camera.CameraInfo info = new Camera.CameraInfo();
+                Camera.getCameraInfo(cameraId, info);
+                currentOrientation = info.orientation;
                 final int BITS_PER_BYTE = 8;
                 final int bytesPerPixel = ImageFormat.getBitsPerPixel(mPreviewFormat) / BITS_PER_BYTE;
 
-                final int mPreviewBufferSize = mPreviewWidth * mPreviewHeight * bytesPerPixel * 3 / 2 + 1;
+                final int mPreviewBufferSize = currentWidth * currentHeight * bytesPerPixel * 3 / 2 + 1;
                 byte[] mBuffer = new byte[mPreviewBufferSize];
                 currentFrame = new byte[mPreviewBufferSize];
                 mCamera.addCallbackBuffer(mBuffer);
@@ -110,12 +122,21 @@ public class CameraReader {
 
     public void startFaceDetection() {
         Log.d(TAG, "startFaceDetection Called");
-        mCamera.startFaceDetection();
-        mCamera.setFaceDetectionListener(faceDetectionListener);
+        if (faceDetector == null) {
+            faceDetector = new FaceDetector.Builder(mContext)
+                    .setProminentFaceOnly(true)
+                    .build();
+        }
+        checkFace = true;
     }
 
     public void startQRCodeDetection() {
         Log.d(TAG, "startQRCodeDetection Called");
+        if (barcodeDetector == null) {
+            barcodeDetector = new BarcodeDetector.Builder(mContext)
+                            .setBarcodeFormats(Barcode.QR_CODE)
+                            .build();
+        }
         checkQR = true;
     }
 
@@ -127,14 +148,23 @@ public class CameraReader {
             detectorCheckHandler = null;
         }
 
+        checkFace = false;
+        if (faceDetector != null) {
+            faceDetector.release();
+            faceDetector = null;
+        }
+
+        checkQR = false;
+        if (barcodeDetector != null) {
+            barcodeDetector.release();
+            barcodeDetector = null;
+        }
+
         if (motionDetector != null) {
             motionDetector = null;
         }
 
-        checkQR = false;
-
         if (mCamera != null) {
-            mCamera.setFaceDetectionListener(null);
             mCamera.setPreviewCallback(null);
             mCamera.stopPreview();
             mCamera.release();
@@ -146,6 +176,9 @@ public class CameraReader {
         @Override
         public void onPreviewFrame(byte[] data, Camera cam) {
             byte[] lastFrame = currentFrame;
+            Camera.Size s = cam.getParameters().getPreviewSize();
+            currentWidth = s.width;
+            currentHeight = s.height;
             currentFrame = data;
             cam.addCallbackBuffer(lastFrame);
         }
@@ -160,6 +193,7 @@ public class CameraReader {
                 c = Camera.open(0);
             else
                 c = Camera.open(cameraId);
+            c.setDisplayOrientation(180);
         }
         catch (Exception e) {
             Log.e(TAG, e.getMessage());
@@ -201,26 +235,25 @@ public class CameraReader {
 
     public byte[] getJpeg() {
         ByteArrayOutputStream outstr = new ByteArrayOutputStream();
-        if (mCamera != null) {
-            final YuvImage image = new YuvImage(currentFrame,
-                    mPreviewFormat, mPreviewWidth, mPreviewHeight, null);
-            int mJpegQuality = 80;
-            image.compressToJpeg(mPreviewRect, mJpegQuality, outstr);
-        } else {
-            getCameraNotEnabledBitmap().compress(Bitmap.CompressFormat.JPEG, 100, outstr);
-        }
+        getBitmap().compress(Bitmap.CompressFormat.JPEG, 80, outstr);
         return outstr.toByteArray();
     }
 
     private Bitmap getBitmap(byte[] data) {
         if (mCamera != null) {
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            YuvImage yuvImage = new YuvImage(data, mPreviewFormat, mPreviewWidth, mPreviewHeight, null);
-            yuvImage.compressToJpeg(new Rect(0, 0, mPreviewWidth, mPreviewHeight), 50, out);
-            byte[] imageBytes = out.toByteArray();
-            BitmapFactory.Options bitmap_options = new BitmapFactory.Options();
-            bitmap_options.inPreferredConfig = Bitmap.Config.RGB_565;
-            return BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length, bitmap_options);
+            Bitmap result = Nv21Image.nv21ToBitmap(rs, data, currentWidth, currentHeight);
+
+            WindowManager windowService = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
+            final int currentRotation = windowService.getDefaultDisplay().getRotation();
+            int rotate = currentOrientation;
+            if (currentRotation == Surface.ROTATION_90) rotate += 90;
+            else if (currentRotation == Surface.ROTATION_180) rotate += 180;
+            else if (currentRotation == Surface.ROTATION_270) rotate += 270;
+            rotate = rotate % 360;
+
+            Matrix matrix = new Matrix();
+            matrix.postRotate(rotate);
+            return Bitmap.createBitmap(result, 0, 0, currentWidth, currentHeight, matrix, true);
         } else {
             return getCameraNotEnabledBitmap();
         }
@@ -231,7 +264,7 @@ public class CameraReader {
     }
 
     private Bitmap getCameraNotEnabledBitmap() {
-        Bitmap b = Bitmap.createBitmap(320,200,Bitmap.Config.ARGB_8888);
+        Bitmap b = Bitmap.createBitmap(currentWidth, currentHeight, Bitmap.Config.ARGB_8888);
         Canvas c = new Canvas(b);
         Paint paint = new Paint();
         paint.setColor(Color.BLACK);
@@ -259,7 +292,7 @@ public class CameraReader {
         public void run () {
             if (currentFrame.length > 0) {
                 checkMotionDetection(currentFrame);
-                checkQRCode(currentFrame);
+                checkVisionLib(currentFrame);
             }
             detectorCheckHandler.postDelayed(this, mCheckInterval);
         }
@@ -267,7 +300,7 @@ public class CameraReader {
 
     private void checkMotionDetection(byte[] currentFrame) {
         if (motionDetector != null) {
-            int[] img = ImageProcessing.decodeYUV420SPtoLuma(currentFrame, mPreviewWidth, mPreviewHeight);
+            int[] img = ImageProcessing.decodeYUV420SPtoLuma(currentFrame, currentWidth, currentHeight);
 
             // check if it is too dark
             int lumaSum = 0;
@@ -278,7 +311,7 @@ public class CameraReader {
                 if (cameraDetectorCallback != null) {
                     cameraDetectorCallback.onTooDark();
                 }
-            } else if (motionDetector.detect(img, mPreviewWidth, mPreviewHeight)) {
+            } else if (motionDetector.detect(img, currentWidth, currentHeight)) {
                 // we have motion!
                 if (cameraDetectorCallback != null) {
                     cameraDetectorCallback.onMotionDetected();
@@ -287,31 +320,35 @@ public class CameraReader {
         }
     }
 
-    private final Camera.FaceDetectionListener faceDetectionListener = new Camera.FaceDetectionListener() {
-        @Override
-        public void onFaceDetection(Camera.Face[] faces, Camera camera) {
-            if (cameraDetectorCallback != null) {
-                cameraDetectorCallback.onFaceDetected();
-            }
-        }
-    };
+    private void checkVisionLib(byte[] currentFrame) {
+        if (checkFace || checkQR) {
+            Frame frame = new Frame.Builder()
+                    .setBitmap(getBitmap(currentFrame))
+                    .build();
 
-    private void checkQRCode(byte[] currentFrame) {
-        if (checkQR) {
-            PlanarYUVLuminanceSource source = new PlanarYUVLuminanceSource(currentFrame,
-                    mPreviewWidth, mPreviewHeight, 0, 0, mPreviewWidth, mPreviewHeight, false);
-            BinaryBitmap bBitmap = new BinaryBitmap(new HybridBinarizer(source));
-            MultiFormatReader reader = new MultiFormatReader();
-            try {
-                Result result = reader.decode(bBitmap);
-                String data = result.getText();
-                Log.i(TAG, "QR Code result: " + data);
-                if (cameraDetectorCallback != null) {
-                    cameraDetectorCallback.onQRCode(data);
+            if (checkFace) {
+                if (faceDetector.isOperational()) { //todo: rebuild the face detector when the screen rotates
+                  if (faceDetector.detect(frame).size() > 0) {
+                      if (cameraDetectorCallback != null) {
+                          cameraDetectorCallback.onFaceDetected();
+                      }
+                  }
                 }
-            } catch (NotFoundException ex) {
-                // no QR code!
+            }
+
+            if (checkQR) {
+                if (barcodeDetector.isOperational()) {
+                    SparseArray<Barcode> barcodes = barcodeDetector.detect(frame);
+                    if (barcodes.size() > 0) {
+                        String data = barcodes.valueAt(0).displayValue;
+                        Log.i(TAG, "QR Code result: " + data);
+                        if (cameraDetectorCallback != null) {
+                            cameraDetectorCallback.onQRCode(data);
+                        }
+                    }
+                }
             }
         }
     }
+
 }

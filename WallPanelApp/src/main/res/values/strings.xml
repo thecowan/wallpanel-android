@@ -125,4 +125,12 @@
     <string name="key_setting_test_zoomlevel">setting_test_zoomlevel</string>
     <string name="title_setting_test_zoomlevel">Browser Zoom Level</string>
     <string name="default_setting_test_zoomlevel">1.0</string>
+
+    <string name="crash_toast_text">Uh oh, there was a crash! We are collecting information about the crash.</string>
+    <string name="crash_dialog_title">WallPanel has crashed</string>
+    <string name="crash_dialog_text">An unexpected error occurred forcing the
+    application to stop. Please help us fix this by sending us error data,
+    all you have to do is click OK.</string>
+    <string name="crash_dialog_comment_prompt">Please add your comments below:</string>
+    <string name="crash_dialog_ok_toast">Thank you!</string>
 </resources>
