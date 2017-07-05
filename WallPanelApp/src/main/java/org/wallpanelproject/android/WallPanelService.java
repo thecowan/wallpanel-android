@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
+import android.media.MediaPlayer;
 import android.net.wifi.WifiManager;
 import android.os.Binder;
 import android.os.Build;
@@ -43,6 +44,7 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -63,6 +65,9 @@ public class WallPanelService extends Service {
     private PowerManager.WakeLock partialWakeLock;
     private WifiManager.WifiLock wifiLock;
     private KeyguardManager.KeyguardLock keyguardLock;
+
+    private MediaPlayer audioPlayer;
+    private boolean audioPlayerBusy;
 
     private MqttAndroidClient mqttAndroidClient;
     private String topicPrefix;
@@ -118,6 +123,7 @@ public class WallPanelService extends Service {
         configureHttp();
         configureMqtt();
         configureCamera();
+        configureAudioPlayer();
 
         config.startListeningForConfigChanges(prefsChangedListener);
 
@@ -430,6 +436,38 @@ public class WallPanelService extends Service {
         }
     }
 
+    private void configureAudioPlayer() {
+        audioPlayer = new MediaPlayer();
+
+        audioPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+            @Override
+            public void onPrepared(MediaPlayer audioPlayer) {
+                Log.d(TAG, "audioPlayer: File buffered, playing it now");
+                audioPlayerBusy = false;
+                audioPlayer.start();
+            }
+        });
+        audioPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer audioPlayer) {
+                Log.d(TAG, "audioPlayer: Cleanup");
+                if (audioPlayer.isPlaying()) {  // should never happen, just in case
+                    audioPlayer.stop();
+                }
+                audioPlayer.reset();
+                audioPlayerBusy = false;
+            }
+        });
+        audioPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
+            @Override
+            public boolean onError(MediaPlayer audioPlayer, int i, int i1) {
+                Log.d(TAG, "audioPlayer: Error playing file");
+                audioPlayerBusy = false;
+                return false;
+            }
+        });
+    }
+
     private void stopCamera() {
         Log.d(TAG, "stopCamera Called");
         cameraReader.stop();
@@ -650,6 +688,9 @@ public class WallPanelService extends Service {
             if(commandJson.has("eval")) {
                 evalJavascript(commandJson.getString("eval"));
             }
+            if(commandJson.has("audio")) {
+                playAudio(commandJson.getString("audio"));
+            }
         }
         catch (JSONException ex) {
             Log.e(TAG, "Invalid JSON passed as a command: " + commandJson.toString());
@@ -698,6 +739,32 @@ public class WallPanelService extends Service {
         intent.putExtra(BrowserActivity.BROADCAST_ACTION_LOAD_URL, url);
         LocalBroadcastManager bm = LocalBroadcastManager.getInstance(getApplicationContext());
         bm.sendBroadcast(intent);
+    }
+
+    private void playAudio(String audioUrl) {
+        Log.d(TAG, "audioPlayer Called");
+
+        if (audioPlayerBusy) {
+            Log.d(TAG, "audioPlayer: Cancelling all previous buffers because new audio was requested");
+            audioPlayer.reset();
+        }
+        else if (audioPlayer.isPlaying()) {
+            Log.d(TAG, "audioPlayer: Stopping all media playback because new audio was requested");
+            audioPlayer.stop();
+            audioPlayer.reset();
+        }
+
+        audioPlayerBusy = true;
+        try {
+            audioPlayer.setDataSource(audioUrl);
+        } catch (IOException e) {
+            Log.e(TAG, "audioPlayer: An error occurred while preparing audio (" + e.getMessage() + ")");
+            audioPlayerBusy = false;
+            audioPlayer.reset();
+            return;
+        }
+        Log.d(TAG, "audioPlayer: Buffering " + audioUrl);
+        audioPlayer.prepareAsync();
     }
 
     private void switchScreenOn(){ //todo: wake out of 'Daydream' mode?
