@@ -17,9 +17,11 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
+import android.provider.Settings;
 import android.support.v4.content.LocalBroadcastManager;
 
 import android.util.Log;
+import android.view.WindowManager;
 
 import com.koushikdutta.async.AsyncServer;
 import com.koushikdutta.async.ByteBufferList;
@@ -440,6 +442,7 @@ public class WallPanelService extends Service {
         public void onMotionDetected() {
             Log.i(TAG, "Motion detected");
             if (config.getCameraMotionWake()) { switchScreenOn(); }
+            if (config.getCameraMotionBright()) { changeScreenBrightness(255); }
             sensorReader.doMotionDetected();
 
             Intent intent = new Intent(CameraTestActivity.BROADCAST_CAMERA_TEST_MSG);
@@ -460,6 +463,7 @@ public class WallPanelService extends Service {
         public void onFaceDetected() {
             Log.i(TAG, "Face detected");
             if (config.getCameraFaceWake()) { switchScreenOn(); }
+            if (config.getCameraMotionBright()) { changeScreenBrightness(255); }
             sensorReader.doFaceDetected();
 
             Intent intent = new Intent(CameraTestActivity.BROADCAST_CAMERA_TEST_MSG);
@@ -674,6 +678,16 @@ public class WallPanelService extends Service {
         return Build.VERSION.SDK_INT>= Build.VERSION_CODES.KITKAT_WATCH&&powerManager.isInteractive()|| Build.VERSION.SDK_INT< Build.VERSION_CODES.KITKAT_WATCH&&powerManager.isScreenOn();
     }
 
+    private int getScreenBrightness(){
+        Log.d(TAG, "getScreenBrightness called");
+        int brightness = 0;
+        try {
+             brightness = Settings.System.getInt(getContentResolver(), Settings.System.SCREEN_BRIGHTNESS);  //returns integer value 0-255
+        } catch (Exception e) { e.printStackTrace(); }
+
+        return brightness;
+    }
+
     private JSONObject getState() {
         Log.d(TAG, "getState Called");
         JSONObject state = new JSONObject();
@@ -708,6 +722,34 @@ public class WallPanelService extends Service {
             fullWakeLock.release();
             if (config.getAppPreventSleep()) { fullWakeLock.acquire(); }
         }
+    }
+
+    private void changeScreenBrightness(int brightness){
+        Log.d(TAG, "changeScreenBrightness Called");
+
+        if (getScreenBrightness() != brightness){
+            int mode = -1;
+            try {
+                mode = Settings.System.getInt(getContentResolver(), Settings.System.SCREEN_BRIGHTNESS_MODE); //this will return integer (0 or 1)
+            } catch (Exception e) { e.printStackTrace(); }
+            if (mode == Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC) {
+                //Automatic mode, need to be in manual to change brightness
+                Settings.System.putInt(getContentResolver(), Settings.System.SCREEN_BRIGHTNESS_MODE, Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL);
+            }
+
+            if (brightness > 0 && brightness < 256) {
+                Settings.System.putInt(getContentResolver(), Settings.System.SCREEN_BRIGHTNESS, brightness);
+            }
+        }
+
+        // Refresh screen to implement change
+        //try {
+        //    int br = Settings.System.getInt(getContentResolver(), Settings.System.SCREEN_BRIGHTNESS);
+        //
+        //    WindowManager.LayoutParams lp = getWindow().getAttributes();
+        //    lp.screenBrightness = (float) br / 255; //...and put it here
+        //    getWindow().setAttributes(lp);
+        //} catch (Exception e) {}
     }
 
     private void evalJavascript(String js) {

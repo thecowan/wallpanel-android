@@ -47,6 +47,19 @@
                 android:defaultValue="@string/default_setting_camera_motionwake"
                 android:title="@string/title_setting_camera_motionwake"
                 android:key="@string/key_setting_camera_motionwake" />
+            <SwitchPreference
+                android:defaultValue="@string/default_setting_camera_motionbright"
+                android:key="@string/key_setting_camera_motionbright"
+                android:title="@string/title_setting_camera_motionbright" />
+            <EditTextPreference
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:defaultValue="@string/default_setting_camera_motionontime"
+                android:inputType="number"
+                android:key="@string/key_setting_camera_motionontime"
+                android:selectAllOnFocus="true"
+                android:singleLine="true"
+                android:title="@string/title_setting_camera_motionontime" />
             <EditTextPreference
                 android:defaultValue="@string/default_setting_camera_motionleniency"
                 android:selectAllOnFocus="true"

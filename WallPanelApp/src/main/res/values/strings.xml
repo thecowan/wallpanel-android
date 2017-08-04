@@ -66,7 +66,13 @@
     <string name="default_setting_camera_motionminluma">1000</string>
     <string name="key_setting_camera_motionwake">setting_camera_motionwake</string>
     <string name="title_setting_camera_motionwake">Motion Wakes Screen</string>
-    <string name="default_setting_camera_motionwake">true</string>
+    <string name="default_setting_camera_motionwake">false</string>
+    <string name="key_setting_camera_motionbright">setting_camera_motionbright</string>
+    <string name="title_setting_camera_motionbright">Motion Increases Screen Brightness</string>
+    <string name="default_setting_camera_motionbright">false</string>
+    <string name="key_setting_camera_motionontime">setting_camera_motionontime</string>
+    <string name="title_setting_camera_motionontime">Motion Screen On Time (Seconds)</string>
+    <string name="default_setting_camera_motionontime">60</string>
     <string name="key_setting_camera_faceenabled">setting_camera_faceenabled</string>
     <string name="title_setting_camera_faceenabled">Face Detection Enabled</string>
     <string name="default_setting_camera_faceenabled">false</string>
