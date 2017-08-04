@@ -66,6 +66,9 @@ public class WallPanelService extends Service {
     private WifiManager.WifiLock wifiLock;
     private KeyguardManager.KeyguardLock keyguardLock;
 
+    private Handler brightTimer = new Handler();
+    private boolean timerActive = false;
+
     private MqttAndroidClient mqttAndroidClient;
     private String topicPrefix;
 
@@ -444,6 +447,13 @@ public class WallPanelService extends Service {
             if (config.getCameraMotionWake()) { switchScreenOn(); }
             if (config.getCameraMotionBright()) { changeScreenBrightness(255); }
             sensorReader.doMotionDetected();
+            if (!timerActive) {
+                brightTimer.postDelayed(dimScreen, config.getCameraMotionOnTime() * 1000);
+                timerActive = true;
+            } else {
+                brightTimer.removeCallbacks(dimScreen);
+                brightTimer.postDelayed(dimScreen, config.getCameraMotionOnTime() * 1000);
+            }
 
             Intent intent = new Intent(CameraTestActivity.BROADCAST_CAMERA_TEST_MSG);
             intent.putExtra("message","Motion Detected!");
@@ -465,6 +475,13 @@ public class WallPanelService extends Service {
             if (config.getCameraFaceWake()) { switchScreenOn(); }
             if (config.getCameraMotionBright()) { changeScreenBrightness(255); }
             sensorReader.doFaceDetected();
+            if (!timerActive) {
+                brightTimer.postDelayed(dimScreen, config.getCameraMotionOnTime() * 1000);
+                timerActive = true;
+            } else {
+                brightTimer.removeCallbacks(dimScreen);
+                brightTimer.postDelayed(dimScreen, config.getCameraMotionOnTime() * 1000);
+            }
 
             Intent intent = new Intent(CameraTestActivity.BROADCAST_CAMERA_TEST_MSG);
             intent.putExtra("message","Face Detected!");
@@ -773,4 +790,13 @@ public class WallPanelService extends Service {
         LocalBroadcastManager bm = LocalBroadcastManager.getInstance(getApplicationContext());
         bm.sendBroadcast(intent);
     }
+
+    private Runnable dimScreen = new Runnable() {
+        @Override
+        public void run() {
+            // Dim screen, most devices won't go below 5
+            changeScreenBrightness(5);
+            timerActive = false;
+        }
+    };
 }
