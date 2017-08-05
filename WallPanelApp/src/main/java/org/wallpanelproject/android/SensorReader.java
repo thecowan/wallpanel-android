@@ -213,4 +213,11 @@ class SensorReader  {
         }
         publishSensorData("qrcode", jdata);
     }
+
+    public void doTouchDetected() {
+        Log.d(TAG, "dTouch called");
+        JSONObject data = new JSONObject();
+        try { data.put(VALUE, false); } catch (JSONException ex) { ex.printStackTrace(); }
+        publishSensorData("touch", data);
+    }
 }

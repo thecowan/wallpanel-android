@@ -201,6 +201,7 @@ public class WallPanelService extends Service {
                     brightTimer.removeCallbacks(dimScreen);
                     brightTimer.postDelayed(dimScreen, config.getCameraMotionOnTime() * 1000);
                 }
+                //sensorReader.doTouchDetected();
                 stateChanged();
             }
         }
