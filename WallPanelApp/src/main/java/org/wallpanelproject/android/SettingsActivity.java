@@ -160,6 +160,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_camera_enabled)));
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_camera_motionenabled)));
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_camera_motionwake)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_camera_motionbright)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_camera_motionontime)));
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_camera_processinginterval)));
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_camera_motionleniency)));
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_camera_motionminluma)));

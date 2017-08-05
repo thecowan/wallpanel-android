@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.MotionEvent;
 
 abstract class BrowserActivity extends AppCompatActivity  {
     public static final String BROADCAST_ACTION_LOAD_URL = "BROADCAST_ACTION_LOAD_URL";
@@ -56,6 +57,14 @@ abstract class BrowserActivity extends AppCompatActivity  {
         filter.addAction(BROADCAST_ACTION_RELOAD_PAGE);
         LocalBroadcastManager bm = LocalBroadcastManager.getInstance(this);
         bm.registerReceiver(mBroadcastReceiver, filter);
+
+        decorView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                resetScreen();
+                return true;
+            }
+        });
 
         String url = config.getAppLaunchUrl();
         loadUrl(url);
@@ -108,6 +117,14 @@ abstract class BrowserActivity extends AppCompatActivity  {
             }
         }
     };
+
+    public final void resetScreen(){
+        Log.d(TAG, "resetScreen Called");
+        Intent intent = new Intent(WallPanelService.BROADCAST_EVENT_SCREEN_TOUCH);
+        intent.putExtra(WallPanelService.BROADCAST_EVENT_SCREEN_TOUCH, true);
+        LocalBroadcastManager bm = LocalBroadcastManager.getInstance(getApplicationContext());
+        bm.sendBroadcast(intent);
+    }
 
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
