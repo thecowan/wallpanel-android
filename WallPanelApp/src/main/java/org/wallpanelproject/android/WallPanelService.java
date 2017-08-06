@@ -127,8 +127,6 @@ public class WallPanelService extends Service {
 
         config.startListeningForConfigChanges(prefsChangedListener);
 
-
-
         startForeground();
     }
 

@@ -213,5 +213,4 @@ class SensorReader  {
         }
         publishSensorData("qrcode", jdata);
     }
-
 }
