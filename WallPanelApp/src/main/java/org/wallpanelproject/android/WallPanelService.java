@@ -193,7 +193,7 @@ public class WallPanelService extends Service {
                 stateChanged();
             } else if (intent.getAction().equals(BROADCAST_EVENT_SCREEN_TOUCH)) {
                 Log.i(TAG, "Screen touched");
-                setBrightScreen(255);
+                if (config.getCameraMotionBright()) { setBrightScreen(255); }
                 stateChanged();
             }
         }
