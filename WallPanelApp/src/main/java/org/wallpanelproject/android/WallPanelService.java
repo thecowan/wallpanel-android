@@ -193,15 +193,7 @@ public class WallPanelService extends Service {
                 stateChanged();
             } else if (intent.getAction().equals(BROADCAST_EVENT_SCREEN_TOUCH)) {
                 Log.i(TAG, "Screen touched");
-                changeScreenBrightness(255);
-                if (!timerActive) {
-                    timerActive = true;
-                    brightTimer.postDelayed(dimScreen, config.getCameraMotionOnTime() * 1000);
-                } else {
-                    brightTimer.removeCallbacks(dimScreen);
-                    brightTimer.postDelayed(dimScreen, config.getCameraMotionOnTime() * 1000);
-                }
-                //sensorReader.doTouchDetected();
+                setBrightScreen(255);
                 stateChanged();
             }
         }
@@ -460,15 +452,8 @@ public class WallPanelService extends Service {
         public void onMotionDetected() {
             Log.i(TAG, "Motion detected");
             if (config.getCameraMotionWake()) { switchScreenOn(); }
-            if (config.getCameraMotionBright()) { changeScreenBrightness(255); }
+            if (config.getCameraMotionBright()) { setBrightScreen(255); }
             sensorReader.doMotionDetected();
-            if (!timerActive) {
-                timerActive = true;
-                brightTimer.postDelayed(dimScreen, config.getCameraMotionOnTime() * 1000);
-            } else {
-                brightTimer.removeCallbacks(dimScreen);
-                brightTimer.postDelayed(dimScreen, config.getCameraMotionOnTime() * 1000);
-            }
 
             Intent intent = new Intent(CameraTestActivity.BROADCAST_CAMERA_TEST_MSG);
             intent.putExtra("message","Motion Detected!");
@@ -488,15 +473,8 @@ public class WallPanelService extends Service {
         public void onFaceDetected() {
             Log.i(TAG, "Face detected");
             if (config.getCameraFaceWake()) { switchScreenOn(); }
-            if (config.getCameraMotionBright()) { changeScreenBrightness(255); }
+            if (config.getCameraMotionBright()) { setBrightScreen(255); }
             sensorReader.doFaceDetected();
-            if (!timerActive) {
-                timerActive = true;
-                brightTimer.postDelayed(dimScreen, config.getCameraMotionOnTime() * 1000);
-            } else {
-                brightTimer.removeCallbacks(dimScreen);
-                brightTimer.postDelayed(dimScreen, config.getCameraMotionOnTime() * 1000);
-            }
 
             Intent intent = new Intent(CameraTestActivity.BROADCAST_CAMERA_TEST_MSG);
             intent.putExtra("message","Face Detected!");
@@ -678,7 +656,7 @@ public class WallPanelService extends Service {
                 if (commandJson.getBoolean("wake")) { switchScreenOn(); }
             }
             if(commandJson.has("brightness")){
-                changeScreenBrightness(commandJson.getInt("brightness"));
+                setBrightScreen(commandJson.getInt("brightness"));
             }
             if(commandJson.has("reload")) {
                 if (commandJson.getBoolean("reload")) { reloadPage(); }
@@ -777,6 +755,20 @@ public class WallPanelService extends Service {
             }
             if (brightness > 0 && brightness < 256) {
                 Settings.System.putInt(getContentResolver(), Settings.System.SCREEN_BRIGHTNESS, brightness);
+            }
+        }
+    }
+
+    private void setBrightScreen(int brightness){
+        Log.d(TAG, "setBrightScreen called");
+        changeScreenBrightness(brightness);
+        if (config.getCameraMotionOnTime() > 0) {
+            if (!timerActive) {
+                timerActive = true;
+                brightTimer.postDelayed(dimScreen, config.getCameraMotionOnTime() * 1000);
+            } else {
+                brightTimer.removeCallbacks(dimScreen);
+                brightTimer.postDelayed(dimScreen, config.getCameraMotionOnTime() * 1000);
             }
         }
     }
