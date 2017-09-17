@@ -119,6 +119,14 @@ abstract class BrowserActivity extends AppCompatActivity  {
         return super.dispatchKeyEvent(event);
     }
 
+    void resetScreen(){
+        Log.d(TAG, "resetScreen Called");
+        Intent intent = new Intent(WallPanelService.BROADCAST_EVENT_SCREEN_TOUCH);
+        intent.putExtra(WallPanelService.BROADCAST_EVENT_SCREEN_TOUCH, true);
+        LocalBroadcastManager bm = LocalBroadcastManager.getInstance(getApplicationContext());
+        bm.sendBroadcast(intent);
+    }
+
     void pageLoadComplete(final String url) {
         Log.d(TAG, "pageLoadComplete Called");
         Intent intent = new Intent(WallPanelService.BROADCAST_EVENT_URL_CHANGE);

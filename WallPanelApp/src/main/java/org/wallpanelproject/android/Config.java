@@ -101,9 +101,19 @@ class Config {
                 R.string.default_setting_camera_motionminluma));
     }
 
+    public int getCameraMotionOnTime() {
+        return Integer.valueOf(getStringPref(R.string.key_setting_camera_motionontime,
+                R.string.default_setting_camera_motionontime));
+    }
+
     public boolean getCameraMotionWake() {
         return getBoolPref(R.string.key_setting_camera_motionwake,
                 R.string.default_setting_camera_motionwake);
+    }
+
+    public boolean getCameraMotionBright() {
+        return getBoolPref(R.string.key_setting_camera_motionbright,
+                R.string.default_setting_camera_motionbright);
     }
 
     public boolean getCameraFaceEnabled() {
