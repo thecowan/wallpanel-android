@@ -3,6 +3,7 @@ import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 
 import org.xwalk.core.XWalkResourceClient;
@@ -47,6 +48,22 @@ public class BrowserActivityLegacy extends BrowserActivity {
                 }
             }
 
+        });
+
+        xWebView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        resetScreen();
+                    case MotionEvent.ACTION_UP:
+                        if (!v.hasFocus()) {
+                            v.requestFocus();
+                        }
+                        break;
+                }
+                return false;
+            }
         });
 
         XWalkSettings webSettings = xWebView.getSettings();

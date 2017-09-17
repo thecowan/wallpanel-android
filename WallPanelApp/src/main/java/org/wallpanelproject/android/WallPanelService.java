@@ -17,6 +17,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
+import android.provider.Settings;
 import android.support.v4.content.LocalBroadcastManager;
 
 import android.util.Log;
@@ -53,6 +54,7 @@ import org.wallpanelproject.android.R;
 public class WallPanelService extends Service {
     private static final int ONGOING_NOTIFICATION_ID = 1;
     public static final String BROADCAST_EVENT_URL_CHANGE = "BROADCAST_EVENT_URL_CHANGE";
+    public static final String BROADCAST_EVENT_SCREEN_TOUCH = "BROADCAST_EVENT_SCREEN_TOUCH";
     private final String TAG = WallPanelService.class.getName();
 
     private SensorReader sensorReader;
@@ -63,6 +65,9 @@ public class WallPanelService extends Service {
     private PowerManager.WakeLock partialWakeLock;
     private WifiManager.WifiLock wifiLock;
     private KeyguardManager.KeyguardLock keyguardLock;
+
+    private Handler brightTimer = new Handler();
+    private boolean timerActive = false;
 
     private MqttAndroidClient mqttAndroidClient;
     private String topicPrefix;
@@ -108,6 +113,7 @@ public class WallPanelService extends Service {
 
         IntentFilter filter = new IntentFilter();
         filter.addAction(BROADCAST_EVENT_URL_CHANGE);
+        filter.addAction(BROADCAST_EVENT_SCREEN_TOUCH);
         filter.addAction(Intent.ACTION_SCREEN_ON);
         filter.addAction(Intent.ACTION_SCREEN_OFF);
         filter.addAction(Intent.ACTION_USER_PRESENT);
@@ -182,6 +188,10 @@ public class WallPanelService extends Service {
                     intent.getAction().equals(Intent.ACTION_SCREEN_ON) ||
                     intent.getAction().equals(Intent.ACTION_USER_PRESENT)) {
                 Log.i(TAG, "Screen state changed");
+                stateChanged();
+            } else if (intent.getAction().equals(BROADCAST_EVENT_SCREEN_TOUCH)) {
+                Log.i(TAG, "Screen touched");
+                if (config.getCameraMotionBright()) { setBrightScreen(255); }
                 stateChanged();
             }
         }
@@ -440,6 +450,7 @@ public class WallPanelService extends Service {
         public void onMotionDetected() {
             Log.i(TAG, "Motion detected");
             if (config.getCameraMotionWake()) { switchScreenOn(); }
+            if (config.getCameraMotionBright()) { setBrightScreen(255); }
             sensorReader.doMotionDetected();
 
             Intent intent = new Intent(CameraTestActivity.BROADCAST_CAMERA_TEST_MSG);
@@ -460,6 +471,7 @@ public class WallPanelService extends Service {
         public void onFaceDetected() {
             Log.i(TAG, "Face detected");
             if (config.getCameraFaceWake()) { switchScreenOn(); }
+            if (config.getCameraMotionBright()) { setBrightScreen(255); }
             sensorReader.doFaceDetected();
 
             Intent intent = new Intent(CameraTestActivity.BROADCAST_CAMERA_TEST_MSG);
@@ -641,6 +653,9 @@ public class WallPanelService extends Service {
             if(commandJson.has("wake")){
                 if (commandJson.getBoolean("wake")) { switchScreenOn(); }
             }
+            if(commandJson.has("brightness")){
+                setBrightScreen(commandJson.getInt("brightness"));
+            }
             if(commandJson.has("reload")) {
                 if (commandJson.getBoolean("reload")) { reloadPage(); }
             }
@@ -674,6 +689,16 @@ public class WallPanelService extends Service {
         return Build.VERSION.SDK_INT>= Build.VERSION_CODES.KITKAT_WATCH&&powerManager.isInteractive()|| Build.VERSION.SDK_INT< Build.VERSION_CODES.KITKAT_WATCH&&powerManager.isScreenOn();
     }
 
+    private int getScreenBrightness(){
+        Log.d(TAG, "getScreenBrightness called");
+        int brightness = 0;
+        try {
+             brightness = Settings.System.getInt(getContentResolver(), Settings.System.SCREEN_BRIGHTNESS);  //returns integer value 0-255
+        } catch (Exception e) { e.printStackTrace(); }
+
+        return brightness;
+    }
+
     private JSONObject getState() {
         Log.d(TAG, "getState Called");
         JSONObject state = new JSONObject();
@@ -682,6 +707,10 @@ public class WallPanelService extends Service {
         } catch(JSONException e) { e.printStackTrace(); }
         try {
             state.put("screenOn", isScreenOn());
+        }
+        catch(JSONException e) { e.printStackTrace(); }
+        try {
+            state.put("brightness", getScreenBrightness());
         }
         catch(JSONException e) { e.printStackTrace(); }
         return state;
@@ -710,6 +739,38 @@ public class WallPanelService extends Service {
         }
     }
 
+    private void changeScreenBrightness(int brightness){
+        Log.d(TAG, "changeScreenBrightness Called");
+
+        if (getScreenBrightness() != brightness){
+            int mode = -1;
+            try {
+                mode = Settings.System.getInt(getContentResolver(), Settings.System.SCREEN_BRIGHTNESS_MODE); //this will return integer (0 or 1)
+            } catch (Exception e) { e.printStackTrace(); }
+            if (mode == Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC) {
+                //Automatic mode, need to be in manual to change brightness
+                Settings.System.putInt(getContentResolver(), Settings.System.SCREEN_BRIGHTNESS_MODE, Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL);
+            }
+            if (brightness > 0 && brightness < 256) {
+                Settings.System.putInt(getContentResolver(), Settings.System.SCREEN_BRIGHTNESS, brightness);
+            }
+        }
+    }
+
+    private void setBrightScreen(int brightness){
+        Log.d(TAG, "setBrightScreen called");
+        changeScreenBrightness(brightness);
+        if (config.getCameraMotionOnTime() > 0) {
+            if (!timerActive) {
+                timerActive = true;
+                brightTimer.postDelayed(dimScreen, config.getCameraMotionOnTime() * 1000);
+            } else {
+                brightTimer.removeCallbacks(dimScreen);
+                brightTimer.postDelayed(dimScreen, config.getCameraMotionOnTime() * 1000);
+            }
+        }
+    }
+
     private void evalJavascript(String js) {
         Log.d(TAG, "evalJavascript Called");
         Intent intent = new Intent(BrowserActivity.BROADCAST_ACTION_JS_EXEC);
@@ -731,4 +792,13 @@ public class WallPanelService extends Service {
         LocalBroadcastManager bm = LocalBroadcastManager.getInstance(getApplicationContext());
         bm.sendBroadcast(intent);
     }
+
+    private Runnable dimScreen = new Runnable() {
+        @Override
+        public void run() {
+            // Dim screen, most devices won't go below 5
+            changeScreenBrightness(5);
+            timerActive = false;
+        }
+    };
 }
