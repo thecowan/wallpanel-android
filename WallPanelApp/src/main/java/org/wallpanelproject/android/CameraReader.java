@@ -36,7 +36,6 @@ public class CameraReader {
 
     private final SurfaceTexture mSurfaceTexture;
     private Camera mCamera;
-    private static ArrayList<String> cameraList;
 
     private byte[] currentFrame = new byte[0];
     private int currentWidth = 0;
@@ -61,7 +60,6 @@ public class CameraReader {
         mContext = context;
         mSurfaceTexture = new SurfaceTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES);
         rs = RenderScript.create(context);
-        getCameras();
     }
 
     protected void finalize() {
@@ -202,33 +200,31 @@ public class CameraReader {
     }
 
     public static ArrayList<String> getCameras() {
-        if (cameraList == null) {
-            cameraList = new ArrayList<>();
-            for (int i = 0; i < Camera.getNumberOfCameras(); i++) {
-                String description;
-                try {
-                    final Camera c = Camera.open(i);
-                    Camera.Parameters p = c.getParameters();
-                    final Camera.Size previewSize = p.getPreviewSize();
-                    int width = previewSize.width;
-                    int height = previewSize.height;
-                    Camera.CameraInfo info = new Camera.CameraInfo();
-                    Camera.getCameraInfo(i, info);
-                    description = java.text.MessageFormat.format(
-                            "{0}: {1} Camera {3}x{4} {2}º",
-                            i,
-                            (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) ? "Front" : "Back",
-                            info.orientation,
-                            width,
-                            height);
-                    c.release();
-                } catch (Exception e) {
-                    Log.e("CameraReader", "Had a problem reading camera " + i);
-                    e.printStackTrace();
-                    description = java.text.MessageFormat.format("{0}: Error", i);
-                }
-                cameraList.add(description);
+        ArrayList<String> cameraList = new ArrayList<>();
+        for (int i = 0; i < Camera.getNumberOfCameras(); i++) {
+            String description;
+            try {
+                final Camera c = Camera.open(i);
+                Camera.Parameters p = c.getParameters();
+                final Camera.Size previewSize = p.getPreviewSize();
+                int width = previewSize.width;
+                int height = previewSize.height;
+                Camera.CameraInfo info = new Camera.CameraInfo();
+                Camera.getCameraInfo(i, info);
+                description = java.text.MessageFormat.format(
+                        "{0}: {1} Camera {3}x{4} {2}º",
+                        i,
+                        (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) ? "Front" : "Back",
+                        info.orientation,
+                        width,
+                        height);
+                c.release();
+            } catch (Exception e) {
+                Log.e("CameraReader", "Had a problem reading camera " + i);
+                e.printStackTrace();
+                description = java.text.MessageFormat.format("{0}: No Permission or Error", i);
             }
+            cameraList.add(description);
         }
         return cameraList;
     }

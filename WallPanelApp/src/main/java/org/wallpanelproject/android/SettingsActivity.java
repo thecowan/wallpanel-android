@@ -95,7 +95,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     @Override
     public void onCreate(Bundle savedInstance) {
         super.onCreate(savedInstance);
-        requestCameraPermissions();
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
@@ -150,12 +149,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                 }
             });
 
-            ListPreference cameras = (ListPreference) findPreference(getString(R.string.key_setting_camera_cameraid));
-            ArrayList<String> cameraList = CameraReader.getCameras();
-            cameras.setEntries(cameraList.toArray(new CharSequence[cameraList.size()]));
-            CharSequence[] vals = new CharSequence[cameraList.size()];
-            for (int i=0; i<cameraList.size(); i++) { vals[i] = Integer.toString(i); }
-            cameras.setEntryValues(vals);
+            updateCameraList();
 
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_camera_enabled)));
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_camera_motionenabled)));
@@ -168,46 +162,30 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_camera_faceenabled)));
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_camera_facewake)));
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_camera_qrcodeenabled)));
-            bindPreferenceSummaryToValue(cameras);
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_setting_camera_cameraid)));
+        }
+
+        @Override
+        public void onStart() {
+            super.onStart();
         }
 
         private void startCameraTestActivity(Context c) {
             Log.d(TAG, "startCameraTestActivity Called");
-            startActivity(new Intent(c, CameraTestActivity.class));
+            Config config = new Config(c);
+            if (config.getCameraEnabled())
+                startActivity(new Intent(c, CameraTestActivity.class));
         }
-    }
 
-    private void requestCameraPermissions(){
-        if(PackageManager.PERMISSION_DENIED == ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA)){
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.CAMERA},
-                    MY_PERMISSIONS_REQUEST_CAMERA);
+        public void updateCameraList() {
+            ListPreference cameras = (ListPreference) findPreference(getString(R.string.key_setting_camera_cameraid));
+            ArrayList<String> cameraList = CameraReader.getCameras();
+            cameras.setEntries(cameraList.toArray(new CharSequence[cameraList.size()]));
+            CharSequence[] vals = new CharSequence[cameraList.size()];
+            for (int i=0; i<cameraList.size(); i++) { vals[i] = Integer.toString(i); }
+            cameras.setEntryValues(vals);
         }
-    }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String permissions[], @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case MY_PERMISSIONS_REQUEST_CAMERA: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Snackbar snackbar = Snackbar.make(getWindow().getDecorView().getRootView(),
-                            "Camera permission granted.",
-                            Snackbar.LENGTH_LONG);
-                    snackbar.show();
-                } else {
-                    Snackbar snackbar = Snackbar.make(getWindow().getDecorView().getRootView(),
-                            "Camera permission not granted.",
-                            Snackbar.LENGTH_LONG);
-                    snackbar.show();
-                }
-            }
-
-            // other 'case' lines to check for other
-            // permissions this app might request
-        }
     }
 
 }
