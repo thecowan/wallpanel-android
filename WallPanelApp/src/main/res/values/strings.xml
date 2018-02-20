@@ -40,7 +40,7 @@
     <string name="title_setting_app_preventsleep">Prevent Screen From Sleeping</string>
     <string name="default_setting_app_preventsleep">false</string>
     <string name="key_setting_app_launchurl">setting_app_launchurl</string>
-    <string name="default_setting_app_launchurl">https://wallpanel-project.github.io/app-launchurl</string>
+    <string name="default_setting_app_launchurl">https://wallpanel-project.org/launch/android</string>
     <string name="title_setting_app_launchurl">Dashboard Launch URL</string>
     <string name="key_setting_app_showactivity">setting_app_showactivity</string>
     <string name="title_setting_app_showactivity">Show Browser Activity</string>
