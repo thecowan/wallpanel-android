@@ -108,10 +108,15 @@ class SensorReader  {
                 public void onSensorChanged(SensorEvent event) {
                     JSONObject data = new JSONObject();
                     try {
-                        data.put(VALUE, event.values[0]);
+                        if (event.values[0] != 0.0) { // @tringler's fix for his device
+                            data.put(VALUE, event.values[0]);
+                        } else {
+                            data.put(VALUE, event.values[1]);
+                        }
                         data.put(UNIT, "??"); // todo not useful units :)
                         data.put(ID, event.sensor.getName());
-                    } catch (JSONException ex) { ex.printStackTrace(); }
+                    }
+                    catch (JSONException ex) { ex.printStackTrace(); }
 
                     publishSensorData(getSensorName(event.sensor.getType()), data);
                     mSensorManager.unregisterListener(this);
