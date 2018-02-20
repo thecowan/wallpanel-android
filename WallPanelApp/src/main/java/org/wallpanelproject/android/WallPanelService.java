@@ -796,14 +796,14 @@ public class WallPanelService extends Service {
         audioPlayer.prepareAsync();
     }
 
-    private void switchScreenOn(){ //todo: wake out of 'Daydream' mode?
+    private void switchScreenOn(){
         Log.d(TAG, "switchScreenOn Called");
 
-        if (!isScreenOn()) {
-            if (!fullWakeLock.isHeld()) { fullWakeLock.acquire(); }
-            fullWakeLock.release();
-            if (config.getAppPreventSleep()) { fullWakeLock.acquire(); }
-        }
+        //issue #26 to try to wake from screensaver
+        if (fullWakeLock.isHeld()) { fullWakeLock.release(); }
+        fullWakeLock.acquire();
+        fullWakeLock.release();
+        if (config.getAppPreventSleep()) { fullWakeLock.acquire(); }
     }
 
     private void changeScreenBrightness(int brightness){
