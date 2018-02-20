@@ -1,10 +1,12 @@
 package org.wallpanelproject.android;
 import android.annotation.SuppressLint;
+import android.net.http.SslError;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.webkit.ValueCallback;
 
 import org.xwalk.core.XWalkResourceClient;
 import org.xwalk.core.XWalkView;
@@ -46,6 +48,12 @@ public class BrowserActivityLegacy extends BrowserActivity {
                     snackbar.setText(text);
                     snackbar.show();
                 }
+            }
+
+            @Override
+            public void onReceivedSslError(XWalkView view, ValueCallback<Boolean> callback, SslError error) {
+                callback.onReceiveValue(true); // ignore SSL errors
+                // TODO: this does not work in CrossWalk :( may need work to patch it
             }
 
         });

@@ -1,12 +1,14 @@
 package org.wallpanelproject.android;
 
 import android.annotation.SuppressLint;
+import android.net.http.SslError;
 import android.os.Build;
 import android.support.design.widget.Snackbar;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.webkit.CookieManager;
+import android.webkit.SslErrorHandler;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
@@ -27,7 +29,7 @@ public class BrowserActivityNative extends BrowserActivity {
         mWebView = (WebView) findViewById(R.id.activity_browser_webview_native);
         mWebView.setVisibility(View.VISIBLE);
 
-        // Force links and redirects to open in the WebView instead of in a browser
+        // WebChromeClient overrides
         mWebView.setWebChromeClient(new WebChromeClient(){
 
             Snackbar snackbar;
@@ -52,14 +54,20 @@ public class BrowserActivityNative extends BrowserActivity {
 
         });
 
-        mWebView.setWebViewClient(new WebViewClient(){
-            //If you will not use this method url links are open in new browser not in webview
+        // WebViewClient overrides
+        mWebView.setWebViewClient(new WebViewClient() {
 
             @Override
-            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-                return true;
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                return false;
             }
 
+            @Override
+            public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
+                Log.i(TAG, "SSL Error reported and ignored");
+                handler.proceed(); // Ignore SSL certificate errors
+                //TODO: add option to enable/disable this behavior
+            }
         });
 
         mWebView.setOnTouchListener(new View.OnTouchListener() {
