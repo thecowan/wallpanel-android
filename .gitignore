@@ -1,10 +1,20 @@
+# IntelliJ IDEA
+.idea
 *.iml
+app.iml
+
+# Gradle
 .gradle
-/local.properties
-/.idea/workspace.xml
-/.idea/libraries
+gradlew.bat
+build
+local.properties
+reports
+
+# Apple
 .DS_Store
-/build
-/captures
-.externalNativeBuild
-.idea/markdown-navigator*
+npm-debug.log
+
+#Fabric
+crashlytics.properties
+app-prod-release.apk
+fabric.properties
