@@ -1,6 +1,6 @@
 # WallPanel
-WallPanel (Formerly HomeDash) is an Android browser for displaying web based dashboards which has 
-other features that integrate into your home automation.
+WallPanelis an Android application for displaying web based dashboards which has 
+other features that integrate into your home automation platform.
 
 ## Quick Start
 Install the application to your device and run it. It will go straight to a default page just to
