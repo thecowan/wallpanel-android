@@ -27,37 +27,27 @@
         android:title="@string/title_setting_camera_cameraid"
         android:dependency="@string/key_setting_camera_enabled"/>
 
-   <!-- <EditTextPreference
-        android:defaultValue="@string/default_setting_camera_processinginterval"
-        android:inputType="number"
-        android:key="@string/key_setting_camera_processinginterval"
-        android:selectAllOnFocus="true"
-        android:singleLine="true"
-        android:title="@string/title_setting_camera_processinginterval"
-        android:dependency="@string/key_setting_camera_enabled"/>-->
-
     <Preference
         android:key="button_key_motion_detection"
-        android:title="Motion Detection"
+        android:title="@string/pref_button_motion_detection"
         android:dependency="@string/key_setting_camera_enabled"/>
 
     <Preference
         android:key="button_key_face_detection"
-        android:title="Face Detection"
+        android:title="@string/pref_button_face_detection"
         android:dependency="@string/key_setting_camera_enabled"/>
 
     <Preference
         android:key="button_key_qr_code"
-        android:title="QR Code Reader"
+        android:title="@string/pref_button_qrcode_reader"
         android:dependency="@string/key_setting_camera_enabled"/>
 
     <Preference
         android:icon="@android:drawable/ic_menu_camera"
         android:key="button_key_camera_test"
         android:title="Camera Test"
-        android:summary="Test the camera settings."
+        android:summary="@string/pref_button_camera_test"
         android:dependency="@string/key_setting_camera_enabled"/>
-
 
 </PreferenceScreen>
 

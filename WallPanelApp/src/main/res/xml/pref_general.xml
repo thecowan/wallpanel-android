@@ -16,11 +16,11 @@
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <PreferenceCategory android:title="Application Settings">
+    <PreferenceCategory android:title="@string/pref_application_settings_title">
 
         <EditTextPreference
             android:defaultValue="@string/default_setting_app_launchurl"
-            android:summary="Enter the fully qualified URL for your home automation dashboard."
+            android:summary="@string/pref_launchurl_summary"
             android:key="@string/key_setting_app_launchurl"
             android:selectAllOnFocus="true"
             android:singleLine="true"
@@ -29,20 +29,20 @@
         <SwitchPreference
             android:defaultValue="@string/default_setting_app_showactivity"
             android:key="@string/key_setting_app_showactivity"
-            android:summary="Display browser loading progress."
+            android:summary="@string/pref_show_browser_activity_summary"
             android:title="@string/title_setting_app_showactivity" />
 
         <SwitchPreference
             android:defaultValue="@string/default_setting_app_preventsleep"
             android:key="@string/key_setting_app_preventsleep"
             android:title="@string/title_setting_app_preventsleep"
-            android:summary="When active, keeps the screen on."/>
+            android:summary="@string/pref_prevent_sleep_summary"/>
 
         <SwitchPreference
             android:defaultValue="@string/default_setting_android_startonboot"
             android:key="@string/key_setting_android_startonboot"
             android:title="@string/title_setting_android_startonboot"
-            android:summary="Will start the application upon system boot."/>
+            android:summary="@string/pref_start_boot_summary"/>
 
         <ListPreference
             android:defaultValue="@string/default_setting_android_browsertype"
@@ -56,13 +56,13 @@
             android:entries="@array/zoom_level_names"
             android:entryValues="@array/zoom_level_values"
             android:key="@string/key_setting_test_zoomlevel"
-            android:summary="Zooms the browser level (experimental)."
+            android:summary="@string/pref_zoom_level_summary"
             android:title="@string/title_setting_test_zoomlevel" />
 
     </PreferenceCategory>
 
 
-    <PreferenceCategory android:title="Additional Settings">
+    <PreferenceCategory android:title="@string/pref_additional_settings_title">
 
         <Preference
             android:key="button_key_mqtt"

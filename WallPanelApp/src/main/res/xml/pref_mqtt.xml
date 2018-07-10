@@ -16,7 +16,7 @@
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <PreferenceCategory android:title="MQTT Settings">
+    <PreferenceCategory android:title="@string/pref_mqtt_settings_title">
 
         <SwitchPreference
             android:defaultValue="@string/default_setting_mqtt_enabled"

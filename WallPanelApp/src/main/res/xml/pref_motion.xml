@@ -22,20 +22,20 @@
         <SwitchPreference
             android:key="@string/key_setting_camera_motionenabled"
             android:title="@string/title_setting_camera_motionenabled"
-            android:summary="Detects motion using the device's camera."/>
+            android:summary="@string/pref_motion_detection_summary"/>
 
         <SwitchPreference
             android:defaultValue="@string/default_setting_camera_motionwake"
             android:key="@string/key_setting_camera_motionwake"
             android:title="@string/title_setting_camera_motionwake"
-            android:summary="Wakes the device screen when motion detected."
+            android:summary="@string/pref_motion_wake_summary"
             android:dependency="@string/key_setting_camera_motionenabled"/>
 
         <SwitchPreference
             android:defaultValue="@string/default_setting_camera_motionbright"
             android:key="@string/key_setting_camera_motionbright"
             android:title="@string/title_setting_camera_motionbright"
-            android:summary="Increases the screen brightness when motion detected."
+            android:summary="@string/pref_camera_bright_summary"
             android:dependency="@string/key_setting_camera_motionenabled"/>
 
     </PreferenceCategory>
@@ -71,7 +71,7 @@
             android:textSize="12sp"
             android:selectable="false"
             android:paddingTop="0dp"
-            android:summary="The maximum tolerance of the difference between images. A lower tolerance means motion is more sensitive (1-20)."/>
+            android:summary="@string/pref_motion_leniency_description"/>
 
         <EditTextPreference
             android:defaultValue="@string/default_setting_camera_motionminluma"
@@ -87,7 +87,7 @@
             android:textSize="12sp"
             android:selectable="false"
             android:paddingTop="0dp"
-            android:summary="Minimum brightness level to detect motion. No motion will be detected if brightness falls below this value (1 - 1000)."/>
+            android:summary="@string/pref_motion_luma_description"/>
 
     </PreferenceCategory>
 

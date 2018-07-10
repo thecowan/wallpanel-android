@@ -22,7 +22,7 @@
             android:defaultValue="@string/default_setting_camera_qrcodeenabled"
             android:key="@string/key_setting_camera_qrcodeenabled"
             android:title="@string/title_setting_camera_qrcodeenabled"
-            android:summary="When active, will scan QR codes and publish the scanned code over MQTT."/>
+            android:summary="@string/pref_qr_code_summary"/>
 
     </PreferenceCategory>
 

@@ -39,7 +39,7 @@
         <EditTextPreference
             android:paddingTop="0dp"
             android:selectable="false"
-            android:summary="Below is a list of sensor data available on this device to be published as MQTT data."
+            android:summary="@string/pref_sensor_list_summary"
             android:textColor="@color/light_gray"
             android:textSize="12sp"/>
 

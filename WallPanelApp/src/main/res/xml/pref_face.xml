@@ -16,19 +16,19 @@
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <PreferenceCategory android:title="Face Detection">
+    <PreferenceCategory android:title="@string/pref_face_detection_title">
 
         <SwitchPreference
             android:defaultValue="@string/default_setting_camera_faceenabled"
             android:key="@string/key_setting_camera_faceenabled"
             android:title="@string/title_setting_camera_faceenabled"
-            android:summary="Enables face detection."/>
+            android:summary="@string/pref_enable_face_detection_summary"/>
 
         <SwitchPreference
             android:defaultValue="@string/default_setting_camera_facewake"
             android:key="@string/key_setting_camera_facewake"
             android:title="@string/title_setting_camera_facewake"
-            android:summary="Turns on the screen when face detected."
+            android:summary="@string/pref_face_wake_summary"
             android:dependency="@string/key_setting_camera_faceenabled"/>
 
     </PreferenceCategory>
