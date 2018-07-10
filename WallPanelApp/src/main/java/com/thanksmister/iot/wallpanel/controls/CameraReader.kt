@@ -202,7 +202,7 @@ constructor(private val context: Context) {
             cameraSource = CameraSource.Builder(context, multiDetector)
                     .setRequestedFps(15.0f)
                     .setRequestedPreviewSize(640, 480)
-                    .setFacing(Camera.CameraInfo.CAMERA_FACING_FRONT)
+                    .setFacing(configuration.cameraId)
                     .build()
 
             if(preview != null) {
