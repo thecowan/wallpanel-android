@@ -132,3 +132,8 @@ mqtt.clientId | String | The client ID to connect to MQTT with | {app.deviceId}
 mqtt.username | String | The username to connect to MQTT with (or blank) |  
 mqtt.password | String | The password to connect to MQTT with (or blank) | 
 mqtt.sensorFrequency | Int | The frequency to post sensor data in seconds, or 0 to never post | 0 
+
+
+## Credits
+
+WallPanel (Formerly HomeDash) is a fork from the [original WallPanel project](https://github.com/WallPanel-Project/wallpanel-android) developed by [quadportnick](https://github.com/quadportnick).
