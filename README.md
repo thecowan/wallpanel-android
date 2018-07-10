@@ -3,22 +3,10 @@ WallPanelis an Android application for displaying web based dashboards which has
 other features that integrate into your home automation platform.
 
 ## Quick Start
-Install the application to your device and run it. It will go straight to a default page just to
-say it's working. To go/return to settings, swipe from the top or bottom of the screen and press
-Back. To close the background services swipe out the app from the Android task manager.
-
-## Motion Detection
-// TODO
-
-## Face Detection
-// TODO
-
-## QR Code Reader
-// TODO
+You can either side load the application to your device from the release section or install the application from the Google Play store. The application will open to the welcome page with a link to update the settings. Go to settings, and setup the link to your web page or home automation platform. You may also update additional settings for Motion, Face Detection, and for publishing device sensor data. 
 
 ## Sensors
-If MQTT is enabled and Sensor Reading Frequency is set, the app will post sensors per the API 
-description. Currently only motion, pressure, light, and battery are posted.
+If MQTT is enabled, the app will post sensors per the API description and Sensor Reading Frequency. Curerntly device sensors for Pressure, Temperature, Light, and Battery Level are published. Note that not all sensors are available on all devices.
 
 ### Home Assistant Examples
 ```YAML
@@ -41,11 +29,25 @@ sensor:
     unit_of_measurement: "mb"
     value_template: '{{ value_json.value }}'
 ```
+
+## Motion, Face, and QR Codes 
+In additiona to device sensor data publishing. The application can also publish states for Motion detection and Face detection, as well as the data from QR Codes.  
+
+### Home Assistant Examples
+
 ```YAML
 binary_sensor:
   - platform: mqtt
     state_topic: "wallpanel/mywallpanel/sensor/motion"
     name: "Motion"
+    payload_on: '{"value":true}'
+    payload_off: '{"value":false}'
+    device_class: motion 
+    
+binary_sensor:
+  - platform: mqtt
+    state_topic: "wallpanel/mywallpanel/sensor/face"
+    name: "Face Detected"
     payload_on: '{"value":true}'
     payload_off: '{"value":false}'
     device_class: motion 
@@ -108,7 +110,7 @@ motion | value | ```{"value": false}``` | Published immediately when motion dete
     * Example: ```wallpanel/mywallpanel/sensor/battery```
 
 
-## Default Appication Configuration
+<!-- ## Default Appication Configuration
 Key | Value | Behavior | Default
 -|-|-|-
 app.deviceId | String | The unique identifier for this WallPanel device | mywallpanel
@@ -131,7 +133,7 @@ mqtt.baseTopic | String | The root topic WallPanel will pub/sub under | wallpane
 mqtt.clientId | String | The client ID to connect to MQTT with | {app.deviceId}  
 mqtt.username | String | The username to connect to MQTT with (or blank) |  
 mqtt.password | String | The password to connect to MQTT with (or blank) | 
-mqtt.sensorFrequency | Int | The frequency to post sensor data in seconds, or 0 to never post | 0 
+mqtt.sensorFrequency | Int | The frequency to post sensor data in seconds, or 0 to never post | 0 -->
 
 
 ## Credits
