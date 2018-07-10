@@ -48,7 +48,7 @@
             android:textSize="12sp"
             android:selectable="false"
             android:paddingTop="0dp"
-            android:summary="Use the device camera as an MJPEG streaming server. Connect to the stream using the device IP address
+            android:summary="Use the device camera as a live MJPEG stream. Connect to the stream using the device IP address
 and end point: 'http://192.168.1.1/camera/stream'"/>
 
         <SwitchPreference
