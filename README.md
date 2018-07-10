@@ -7,9 +7,14 @@ Install the application to your device and run it. It will go straight to a defa
 say it's working. To go/return to settings, swipe from the top or bottom of the screen and press
 Back. To close the background services swipe out the app from the Android task manager.
 
-## API
-You can control the app remotely via MQTT or HTTP(REST). For a description of the API calls, visit
-https://github.com/WallPanel-Project/wallpanel-api/blob/master/README.md
+## Motion Detection
+// TODO
+
+## Face Detection
+// TODO
+
+## QR Code Reader
+// TODO
 
 ## Sensors
 If MQTT is enabled and Sensor Reading Frequency is set, the app will post sensors per the API 
@@ -46,7 +51,11 @@ binary_sensor:
     device_class: motion 
 ```
 
-## WallPanel Common API
+## MJPEG Video Streaming
+// TODO
+
+## API
+You can control the app remotely via MQTT or HTTP(REST). 
 
 ### Commands
 Key | Value | Example Payload | Description
