@@ -25,11 +25,9 @@ import android.content.ContextWrapper
 import android.content.DialogInterface
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
-import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
 import com.thanksmister.iot.wallpanel.R
-import com.thanksmister.iot.wallpanel.ui.views.CameraTestView
 import timber.log.Timber
 
 /**
@@ -105,18 +103,28 @@ class DialogUtils(base: Context?) : ContextWrapper(base), LifecycleObserver {
                 .show()
     }
 
-    fun showCameraTestView(activity: AppCompatActivity, cameraId: Int, processingInterval: Long, motionDetection: Boolean,
+    /*fun showCameraTestView(activity: AppCompatActivity, cameraId: Int, processingInterval: Long, motionDetection: Boolean,
                            faceDetection: Boolean, qrCodeEnabled: Boolean, motionMinLuma: Int, motionLeniency: Int) {
         clearDialogs() // clear any alert dialogs
         val inflater = activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val view = inflater.inflate(R.layout.dialog_camera_test, null, false)
-        val screenSaverView = view.findViewById<CameraTestView>(R.id.cameraTestView)
-        screenSaverView.init(cameraId, processingInterval, motionDetection ,faceDetection, qrCodeEnabled, motionMinLuma, motionLeniency)
-        dialog = buildImmersiveDialog(activity, true, screenSaverView, true)
-        /*if (dialog != null){
+        val cameraTestView = view.findViewById<CameraTestView>(R.id.cameraTestView)
+        cameraTestView.init(cameraId, processingInterval, motionDetection ,faceDetection, qrCodeEnabled,
+                motionMinLuma, motionLeniency, object: CameraTestView.ViewListener{
+            override fun onClose() {
+                clearDialogs()
+            }
+        })
+        val displayRectangle = Rect()
+        val window = activity.window
+        window.decorView.getWindowVisibleDisplayFrame(displayRectangle)
+        //view.minimumWidth = (displayRectangle.width() * 0.9f).toInt()
+        view.minimumHeight = (displayRectangle.height() * 0.8f).toInt()
+        dialog = buildImmersiveDialog(activity, true, cameraTestView, false)
+        *//*if (dialog != null){
             dialog!!.window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        }*/
-    }
+        }*//*
+    }*/
 
     // immersive dialogs without navigation
     // https://stackoverflow.com/questions/22794049/how-do-i-maintain-the-immersive-mode-in-dialogs
@@ -125,7 +133,7 @@ class DialogUtils(base: Context?) : ContextWrapper(base), LifecycleObserver {
         if (fullscreen) {
             dialog = Dialog(context, android.R.style.Theme_Black_NoTitleBar_Fullscreen)
         } else {
-            dialog = Dialog(context)
+            dialog = Dialog(context, R.style.CustomAlertDialog)
         }
         dialog.setCancelable(cancelable)
         dialog.setContentView(view)

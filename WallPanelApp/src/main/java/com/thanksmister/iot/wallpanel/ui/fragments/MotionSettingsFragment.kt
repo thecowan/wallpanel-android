@@ -16,156 +16,80 @@
 
 package com.thanksmister.iot.wallpanel.ui.fragments
 
-import android.Manifest
 import android.content.Context
-import android.content.Intent
-import android.content.SharedPreferences
-import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
-import android.support.v4.app.ActivityCompat
-import android.support.v7.preference.*
+import android.support.v14.preference.SwitchPreference
+import android.support.v7.preference.EditTextPreference
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import androidx.navigation.Navigation
 import com.thanksmister.iot.wallpanel.R
-import com.thanksmister.iot.wallpanel.controls.CameraReader
-import com.thanksmister.iot.wallpanel.persistence.Configuration
-import com.thanksmister.iot.wallpanel.ui.activities.CameraTestActivity
 import com.thanksmister.iot.wallpanel.ui.activities.SettingsActivity
-
 import dagger.android.support.AndroidSupportInjection
-import javax.inject.Inject
 
-class MotionSettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedPreferenceChangeListener {
+class MotionSettingsFragment : BaseSettingsFragment() {
 
-    @Inject lateinit var configuration: Configuration
-
-    private var cameraListPreference: ListPreference? = null
-    private var cameraTestPreference: Preference? = null
-    private var qrCodePreference: Preference? = null
-    private var motionDetectionPreference: Preference? = null
-    private var processingIntervalPreference: EditTextPreference? = null
-    private var cameraPreference: CheckBoxPreference? = null
-    private var faceDetectionPreference: Preference? = null
+    private var motionDetectionPreference: SwitchPreference? = null
+    private var motionWakePreference: SwitchPreference? = null
+    private var motionBrightPreference: SwitchPreference? = null
+    //private var motionIntervalPreference: EditTextPreference? = null
+    private var motionLeniencyPreference: EditTextPreference? = null
+    private var motionLumaPreference: EditTextPreference? = null
 
     override fun onAttach(context: Context) {
         AndroidSupportInjection.inject(this)
         super.onAttach(context)
+        setHasOptionsMenu(true)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        // Set title bar
         if((activity as SettingsActivity).supportActionBar != null) {
+            (activity as SettingsActivity).supportActionBar!!.setDisplayHomeAsUpEnabled(true)
+            (activity as SettingsActivity).supportActionBar!!.setDisplayShowHomeEnabled(true)
             (activity as SettingsActivity).supportActionBar!!.title = (getString(R.string.title_motion_settings))
         }
     }
 
-    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-        addPreferencesFromResource(R.xml.pref_camera)
+    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater!!.inflate(R.menu.menu_help, menu)
     }
 
-    override fun onResume() {
-        super.onResume()
-        preferenceScreen.sharedPreferences.registerOnSharedPreferenceChangeListener(this)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            if (ActivityCompat.checkSelfPermission(activity!!.applicationContext, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
-                createCameraList()
-            }
-        } else {
-            createCameraList()
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        val id = item.itemId
+        if (id == android.R.id.home) {
+            view?.let { Navigation.findNavController(it).navigate(R.id.camera_action) }
+            return true
+        } else if (id == R.id.action_help) {
+            // TODO launch help
+            return true
         }
+        return super.onOptionsItemSelected(item)
     }
 
-    override fun onPause() {
-        super.onPause()
-        preferenceScreen.sharedPreferences.unregisterOnSharedPreferenceChangeListener(this)
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
+    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+        addPreferencesFromResource(R.xml.pref_motion)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
         super.onViewCreated(view, savedInstanceState)
 
-        cameraPreference = findPreference(getString(R.string.key_setting_camera_enabled)) as CheckBoxPreference
-        processingIntervalPreference = findPreference(getString(R.string.key_setting_camera_processinginterval)) as EditTextPreference
-        cameraListPreference = findPreference(getString(R.string.key_setting_camera_cameraid)) as ListPreference
-        cameraListPreference!!.setOnPreferenceChangeListener { preference, newValue ->
-            if (preference is ListPreference) {
-                val index = preference.findIndexOfValue(newValue.toString())
-                preference.setSummary(
-                        if (index >= 0)
-                            preference.entries[index]
-                        else
-                            "")
-            }
-           true;
-        }
+        motionDetectionPreference = findPreference(getString(R.string.key_setting_camera_motionenabled)) as SwitchPreference
+        motionWakePreference = findPreference(getString(R.string.key_setting_camera_motionwake)) as SwitchPreference
+        motionBrightPreference = findPreference(getString(R.string.key_setting_camera_motionbright)) as SwitchPreference
+        //motionIntervalPreference = findPreference(getString(R.string.key_setting_camera_motionontime)) as EditTextPreference
+        motionLeniencyPreference = findPreference(getString(R.string.key_setting_camera_motionleniency)) as EditTextPreference
+        motionLumaPreference = findPreference(getString(R.string.key_setting_camera_motionminluma)) as EditTextPreference
 
-        motionDetectionPreference = findPreference("button_key_motion_detection")
-        faceDetectionPreference = findPreference("button_key_face_detection")
-        qrCodePreference = findPreference("button_key_qr_code")
-        cameraTestPreference = findPreference("button_key_camera_test")
-
-        processingIntervalPreference!!.summary = configuration.cameraProcessingInterval.toString()
-
-        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            if (ActivityCompat.checkSelfPermission(activity!!.applicationContext, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                cameraPreference!!.isEnabled = false
-                configuration.cameraEnabled = false
-                // TODO ask for permissions again
-                return
-            }
-        }*/
-
-        cameraTestPreference!!.onPreferenceClickListener = Preference.OnPreferenceClickListener { preference ->
-            startCameraTest(preference.context)
-            false
-        }
-
-        motionDetectionPreference!!.onPreferenceClickListener = Preference.OnPreferenceClickListener { preference ->
-            view?.let { Navigation.findNavController(it).navigate(R.id.camera_action) }
-            false
-        }
-
-        faceDetectionPreference!!.onPreferenceClickListener = Preference.OnPreferenceClickListener { preference ->
-            // TODO navigate to preference fragment
-            false
-        }
-
-        qrCodePreference!!.onPreferenceClickListener = Preference.OnPreferenceClickListener { preference ->
-            // TODO navigate to preference fragment
-            false
-        }
-    }
-
-    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
-        when (key) {
-            getString(R.string.key_setting_camera_processinginterval) -> {
-                val value = processingIntervalPreference!!.text
-                processingIntervalPreference!!.summary = value
-            }
-        }
-    }
-
-    private fun createCameraList() {
-        val cameraList = CameraReader.getCameraList()
-        cameraListPreference!!.entries = cameraList.toTypedArray<CharSequence>()
-        val vals = arrayOfNulls<CharSequence>(cameraList.size)
-        for (i in cameraList.indices) {
-            vals[i] = Integer.toString(i)
-        }
-        cameraListPreference?.entryValues = vals
-    }
-
-    private fun startCameraTest(c: Context) {
-        startActivity(Intent(c, CameraTestActivity::class.java))
+        bindPreferenceSummaryToValue(motionDetectionPreference!!)
+        bindPreferenceSummaryToValue(motionWakePreference!!)
+        bindPreferenceSummaryToValue(motionBrightPreference!!)
+        //bindPreferenceSummaryToValue(motionIntervalPreference!!)
+        bindPreferenceSummaryToValue(motionLeniencyPreference!!)
+        bindPreferenceSummaryToValue(motionLumaPreference!!)
     }
 }

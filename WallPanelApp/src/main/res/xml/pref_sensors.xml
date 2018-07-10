@@ -16,20 +16,67 @@
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <PreferenceCategory android:title="Face Detection">
+    <PreferenceCategory android:title="Sensors">
 
         <SwitchPreference
-            android:defaultValue="@string/default_setting_camera_faceenabled"
-            android:key="@string/key_setting_camera_faceenabled"
-            android:title="@string/title_setting_camera_faceenabled"
-            android:summary="Enables face detection."/>
+            android:key="@string/key_setting_sensors_enabled"
+            android:title="@string/title_enable_sensor_data"
+            android:summary="@string/summary_enable_sensor_data"/>
 
-        <SwitchPreference
-            android:defaultValue="@string/default_setting_camera_facewake"
-            android:key="@string/key_setting_camera_facewake"
-            android:title="@string/title_setting_camera_facewake"
-            android:summary="Turns on the screen when face detected."
-            android:dependency="@string/key_setting_camera_faceenabled"/>
+        <EditTextPreference
+            android:defaultValue="@string/default_setting_mqtt_sensorfrequency"
+            android:dependency="@string/key_setting_sensors_enabled"
+            android:inputType="number"
+            android:key="@string/key_setting_mqtt_sensorfrequency"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="@string/title_setting_mqtt_sensorfrequency" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Sensor List">
+
+        <EditTextPreference
+            android:paddingTop="0dp"
+            android:selectable="false"
+            android:summary="Below is a list of sensor data available on this device to be published as MQTT data."
+            android:textColor="@color/light_gray"
+            android:textSize="12sp"/>
+
+        <Preference
+            android:key="@string/key_settings_sensors_temperature"
+            android:selectable="false"
+            android:summary="@string/summary_setting_sensors_default"
+            android:title="@string/title_setting_sensors_temperature"
+            android:dependency="@string/key_setting_sensors_enabled"/>
+
+        <Preference
+            android:key="@string/key_settings_sensors_light"
+            android:summary="@string/summary_setting_sensors_default"
+            android:selectable="false"
+            android:title="@string/title_setting_sensors_light"
+            android:dependency="@string/key_setting_sensors_enabled"/>
+
+        <Preference
+            android:key="@string/key_settings_sensors_magneticField"
+            android:summary="@string/summary_setting_sensors_default"
+            android:selectable="false"
+            android:title="@string/title_setting_sensors_magneticField"
+            android:dependency="@string/key_setting_sensors_enabled"/>
+
+        <Preference
+            android:key="@string/key_settings_sensors_pressure"
+            android:summary="@string/summary_setting_sensors_default"
+            android:selectable="false"
+            android:title="@string/title_setting_sensors_pressure"
+            android:dependency="@string/key_setting_sensors_enabled"/>
+
+        <Preference
+            android:key="@string/key_settings_sensors_humidity"
+            android:summary="@string/summary_setting_sensors_default"
+            android:selectable="false"
+            android:title="@string/title_setting_sensors_humidity"
+            android:dependency="@string/key_setting_sensors_enabled"/>
 
     </PreferenceCategory>
 

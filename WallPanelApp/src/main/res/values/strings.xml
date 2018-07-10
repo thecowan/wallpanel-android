@@ -1,3 +1,19 @@
+<!--
+  ~ Copyright (c) 2018 ThanksMister LLC
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed
+  ~ under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
 <!--suppress CheckTagEmptyBody, CheckTagEmptyBody -->
 <resources>
 
@@ -6,137 +22,80 @@
         <item>"Android WebView"</item>
         <item>"Crosswalk Project"</item>
     </string-array>
+
     <string-array name="browser_type_values">
         <item>"Auto"</item>
         <item>"Native"</item>
         <item>"Legacy"</item>
     </string-array>
 
-    <string-array name="zoom_level_names">
-        <item>"50%"</item>
-        <item>"100%"</item>
-        <item>"150%"</item>
-        <item>"200%"</item>
-    </string-array>
-    <string-array name="zoom_level_values">
-        <item>0.5</item>
-        <item>1.0</item>
-        <item>1.5</item>
-        <item>2.0</item>
-    </string-array>
-
     <string name="app_name">WallPanel</string>
-
     <string name="wallpanel_service_notification_title">WallPanel</string>
-    <string name="wallpanel_service_notification_message">running</string>
-
-    <string name="title_activity_settings">WallPanel Settings</string>
+    <string name="wallpanel_service_notification_message">WallPanel Running…</string>
+    <string name="title_settings">Settings</string>
+    <string name="title_camera_settings">Camera Settings</string>
+    <string name="title_mqtt_settings">MQTT Settings</string>
+    <string name="title_http_settings">HTTP Settings</string>
+    <string name="title_motion_settings">Motion Detection Settings</string>
+    <string name="title_facedetection_settings">Face Detection Settings</string>
+    <string name="title_qrcode_settings">QR Code Settings</string>
     <string name="title_activity_browser">Browser</string>
-
-    <string name="key_setting_app_deviceid">setting_app_deviceid</string>
     <string name="title_setting_app_deviceid">Device ID</string>
-    <string name="default_setting_app_deviceid">mywallpanel</string>
-    <string name="key_setting_app_preventsleep">setting_app_preventsleep</string>
-    <string name="title_setting_app_preventsleep">Prevent Screen From Sleeping</string>
-    <string name="default_setting_app_preventsleep">false</string>
-    <string name="key_setting_app_launchurl">setting_app_launchurl</string>
-    <string name="default_setting_app_launchurl">https://wallpanel-project.github.io/app-launchurl</string>
-    <string name="title_setting_app_launchurl">Dashboard Launch URL</string>
-    <string name="key_setting_app_showactivity">setting_app_showactivity</string>
+    <string name="title_setting_app_preventsleep">Prevent Screen Sleep</string>
+    <string name="title_setting_app_launchurl">Dashboard URL</string>
     <string name="title_setting_app_showactivity">Show Browser Activity</string>
-    <string name="default_setting_app_showactivity">true</string>
-
-    <string name="key_setting_camera_enabled">setting_camera_enabled</string>
     <string name="title_setting_camera_enabled">Camera Enabled</string>
-    <string name="default_setting_camera_enabled">false</string>
-    <string name="key_setting_camera_cameraid">setting_camera_cameraid</string>
     <string name="title_setting_camera_cameraid">Selected Camera</string>
-    <string name="default_setting_camera_cameraid">0</string>
-    <string name="key_setting_camera_motionenabled">setting_camera_motionenabled</string>
     <string name="title_setting_camera_motionenabled">Motion Detection Enabled</string>
-    <string name="default_setting_camera_motionenabled">false</string>
-    <string name="key_setting_camera_processinginterval">setting_camera_processinginterval</string>
     <string name="title_setting_camera_processinginterval">Image Processing Interval (ms)</string>
-    <string name="default_setting_camera_processinginterval">500</string>
-    <string name="key_setting_camera_motionleniency">setting_camera_motionleniency</string>
-    <string name="title_setting_camera_motionleniency">Motion Minimum Leniency</string>
-    <string name="default_setting_camera_motionleniency">20</string>
-    <string name="key_setting_camera_motionminluma">setting_camera_motionminluma</string>
-    <string name="title_setting_camera_motionminluma">Motion Minimum Luma (Brightness)</string>
-    <string name="default_setting_camera_motionminluma">1000</string>
-    <string name="key_setting_camera_motionwake">setting_camera_motionwake</string>
-    <string name="title_setting_camera_motionwake">Motion Wakes Screen</string>
-    <string name="default_setting_camera_motionwake">false</string>
-    <string name="key_setting_camera_motionbright">setting_camera_motionbright</string>
-    <string name="title_setting_camera_motionbright">Motion Increases Screen Brightness</string>
-    <string name="default_setting_camera_motionbright">false</string>
-    <string name="key_setting_camera_motionontime">setting_camera_motionontime</string>
-    <string name="title_setting_camera_motionontime">Motion Auto Screen Off Delay (Seconds)</string>
-    <string name="default_setting_camera_motionontime">0</string>
-    <string name="key_setting_camera_faceenabled">setting_camera_faceenabled</string>
+    <string name="title_setting_camera_motionleniency">Maximum Leniency</string>
+    <string name="title_setting_camera_motionminluma">Minimum Luma</string>
+    <string name="title_setting_camera_motionwake">Wakes Screen</string>
+    <string name="title_setting_camera_motionbright">Increases Screen Brightness</string>
+    <string name="title_setting_camera_motionontime">Auto Screen Off Delay (Seconds)</string>
     <string name="title_setting_camera_faceenabled">Face Detection Enabled</string>
-    <string name="default_setting_camera_faceenabled">false</string>
-    <string name="key_setting_camera_facewake">setting_camera_facewake</string>
-    <string name="title_setting_camera_facewake">Face Wakes Screen</string>
-    <string name="default_setting_camera_facewake">false</string>
-    <string name="key_setting_camera_qrcodeenabled">setting_camera_qrcodeenabled</string>
+    <string name="title_setting_camera_facewake">Wakes Screen</string>
     <string name="title_setting_camera_qrcodeenabled">QR Code Reader Enabled</string>
-    <string name="default_setting_camera_qrcodeenabled">false</string>
-
-    <string name="key_setting_http_restenabled">setting_http_enabled</string>
-    <string name="title_setting_http_restenabled">REST API Enabled</string>
-    <string name="default_setting_http_restenabled">false</string>
-    <string name="key_setting_http_port">setting_http_port</string>
+    <string name="title_setting_http_restenabled">REST API</string>
     <string name="title_setting_http_port">HTTP Listening Port</string>
-    <string name="default_setting_http_port">2971</string>
-    <string name="key_setting_http_mjpegenabled">setting_http_mjpegenabled</string>
-    <string name="title_setting_http_mjpegenabled">MJPEG Camera Streaming Enabled</string>
-    <string name="default_setting_http_mjpegenabled">false</string>
-    <string name="key_setting_http_mjpegmaxstreams">setting_http_mjpegmaxstreams</string>
+    <string name="title_setting_http_mjpegenabled">MJPEG Camera Streaming</string>
     <string name="title_setting_http_mjpegmaxstreams">MJPEG Camera Max Streams</string>
-    <string name="default_setting_http_mjpegmaxstreams">1</string>
-
-    <string name="title_setting_mqtt_enabled">MQTT Client Enabled</string>
-    <string name="key_setting_mqtt_enabled">setting_mqtt_enabled</string>
-    <string name="default_setting_mqtt_enabled">false</string>
-    <string name="title_setting_mqtt_servername">Server Name</string>
-    <string name="key_setting_mqtt_servername">setting_mqtt_servername</string>
-    <string name="default_setting_mqtt_servername">mqtt</string>
-    <string name="title_setting_mqtt_serverport">Server Port</string>
-    <string name="key_setting_mqtt_serverport">setting_mqtt_serverport</string>
-    <string name="default_setting_mqtt_serverport">1883</string>
-    <string name="key_setting_mqtt_basetopic">setting_mqtt_basetopic</string>
+    <string name="title_setting_mqtt_enabled">Enabled MQTT Client</string>
+    <string name="title_setting_mqtt_servername">MQTT Broker Address</string>
+    <string name="title_setting_mqtt_serverport">Broker Port Number</string>
     <string name="title_setting_mqtt_basetopic">Base Topic</string>
-    <string name="default_setting_mqtt_basetopic">wallpanel/mywallpanel/</string>
-    <string name="key_setting_mqtt_clientid">setting_mqtt_clientid</string>
     <string name="title_setting_mqtt_clientid">Client ID</string>
-    <string name="default_setting_mqtt_clientid">mywallpanel</string>
     <string name="title_setting_mqtt_username">Username (Optional)</string>
-    <string name="key_setting_mqtt_username">setting_mqtt_username</string>
-    <string name="default_setting_mqtt_username"></string>
-    <string name="title_setting_mqtt_password">Password</string>
-    <string name="key_setting_mqtt_password">setting_mqtt_password</string>
-    <string name="default_setting_mqtt_password"></string>
-    <string name="key_setting_mqtt_sensorfrequency">setting_mqtt_sensorfrequency</string>
-    <string name="title_setting_mqtt_sensorfrequency">Sensor Publish Frequency (0 to disable)</string>
-    <string name="default_setting_mqtt_sensorfrequency">0</string>
-
-    <string name="key_setting_android_startonboot">setting_android_startonboot</string>
-    <string name="title_setting_android_startonboot">Open WallPanel on Android Boot</string>
-    <string name="default_setting_android_startonboot">false</string>
-    <string name="key_setting_android_browsertype">setting_android_browsertype</string>
+    <string name="title_setting_mqtt_password">Password (Optional)</string>
+    <string name="title_setting_mqtt_sensorfrequency">Publish Frequency (in seconds)</string>
+    <string name="title_setting_android_startonboot">Open On Device Boot</string>
     <string name="title_setting_android_browsertype">Specify Browser Engine</string>
     <string name="default_setting_android_browsertype">Auto</string>
-
-    <string name="key_setting_test_zoomlevel">setting_test_zoomlevel</string>
     <string name="title_setting_test_zoomlevel">Browser Zoom Level</string>
-    <string name="default_setting_test_zoomlevel">1.0</string>
+    <string name="summary_setting_sensors_default">Not available</string>
+    <string name="title_setting_sensors_temperature">Temperature</string>
+    <string name="title_setting_sensors_light">Light</string>
+    <string name="title_setting_sensors_magneticField">Magnetic Field</string>
+    <string name="title_setting_sensors_pressure">Pressure</string>
+    <string name="title_setting_sensors_humidity">Humidity</string>
 
-    <string name="crash_toast_text">Uh oh, there was a crash! We are collecting information about the crash.</string>
-    <string name="crash_dialog_title">WallPanel has crashed</string>
-    <string name="crash_dialog_text">An unexpected error occurred forcing the
-    application to stop. Please help us fix this by sending us error data,
-    all you have to do is click OK.</string>
-    <string name="crash_dialog_comment_prompt">Please add your comments below:</string>
-    <string name="crash_dialog_ok_toast">Thank you!</string>
+    <string name="text_seconds">%1$s seconds</string>
+    <string name="title_camera_test">Camera Test</string>
+    <string name="title_welcome_to_wallpanel">Welcome to WallPanel!</string>
+    <string name="text_wallpanel_description">At this time you will want to configure your app to have a different \'Dashboard URL\' in the settings. The dashboard can be any web page or home automation platform that you wish to display on your wall.</string>
+    <string name="button_launch_settings">Launch Settings</string>
+    <string name="toast_camera_permission_granted">Camera permission granted.</string>
+    <string name="toast_camera_permission_denied">Camera permission not granted.</string>
+    <string name="dialog_write_permissions_title">Permissions Required</string>
+    <string name="dialog_write_permissions_description">Do you want to grant permission to modify the system settings for screen brightness?</string>
+    <string name="toast_write_permissions_denied">Write settings permission denied…</string>
+    <string name="toast_write_permissions_granted">Write settings permission granted…</string>
+    <string name="pref_http_settings_title">HTTP Settings</string>
+    <string name="pref_motion_detection_title">Motion Detection</string>
+    <string name="pref_motion_adjustments_title">Motion Adjustments</string>
+    <string name="title_sensor_settings">Sensor Settings</string>
+    <string name="title_enable_sensor_data">Enable Sensor Publishing</string>
+    <string name="summary_enable_sensor_data">Publishes available device sensor data over MQTT</string>
+    <string name="menu_title_help">Help</string>
+    <string name="menu_title_dashboard">Dashboard</string>
 </resources>

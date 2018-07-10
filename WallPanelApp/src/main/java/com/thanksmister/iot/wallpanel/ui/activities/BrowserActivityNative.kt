@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thanksmister.iot.wallpanel.ui
+package com.thanksmister.iot.wallpanel.ui.activities
 
 import android.annotation.SuppressLint
 import android.os.Build

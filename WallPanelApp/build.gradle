@@ -1,16 +1,48 @@
+/*
+ * Copyright (c) 2018 ThanksMister LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed
+ * under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
+
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
+
+def versionMajor = 0
+def versionMinor = 7
+def versionPatch = 0
+def versionBuild = 0 // bump for dog food builds, public betas, etc.
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion '25.0.2'
+    kapt {
+        generateStubs = true
+        correctErrorTypes = true
+    }
+    compileSdkVersion 27
+    buildToolsVersion "27.0.3"
     defaultConfig {
-        applicationId "de.rhuber.homedash"
-        minSdkVersion 16
-        targetSdkVersion 25
-        versionCode 1
-        versionName '0.6.1'
+        applicationId "com.thanksmister.iot.wallpanel"
+        minSdkVersion versions.min_sdk
+        targetSdkVersion versions.target_sdk
+        versionCode versionMajor * 10000 + versionMinor * 1000 + versionPatch * 100 + versionBuild
+        versionName "${versionMajor}.${versionMinor}.${versionPatch}.${versionBuild}"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         renderscriptTargetApi 16
         renderscriptSupportModeEnabled true
+        multiDexEnabled true
     }
     buildTypes {
         release {
@@ -18,42 +50,107 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    flavorDimensions "default"
     productFlavors {
+        def BASE_ENVIRONMENT = "BASE_ENVIRONMENT"
+        dev {
+            dimension "default"
+            buildConfigField "String", BASE_ENVIRONMENT, '"DEV_ENVIRONMENT"'
+            applicationId "com.thanksmister.iot.wallpanel"
+            versionName "${versionMajor}.${versionMinor}.${versionPatch} Build ${versionBuild}-DEV"
+        }
+        qa {
+            dimension "default"
+            buildConfigField "String", BASE_ENVIRONMENT, '"QA_ENVIRONMENT"'
+            applicationId "com.thanksmister.iot.wallpanel"
+            versionName "${versionMajor}.${versionMinor}.${versionPatch} Build ${versionBuild}-QA"
+        }
+        prod {
+            dimension "default"
+            buildConfigField "String", BASE_ENVIRONMENT, '"PROD_ENVIRONMENT"'
+            applicationId "com.thanksmister.iot.wallpanel"
+            versionName "${versionMajor}.${versionMinor}.${versionPatch} Build ${versionBuild}"
+        }
     }
-}
-
-
-repositories {
-    maven { url "https://repo.eclipse.org/content/repositories/paho-snapshots/" }
-    maven { url "https://download.01.org/crosswalk/releases/crosswalk/android/maven2" }
-    mavenCentral()
-    jcenter()
 }
 
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$versions.kotlin"
+
+    /*androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
-    })
-    compile 'org.eclipse.paho:org.eclipse.paho.android.service:1.1.1', {
+    })*/
+
+   /* compile 'org.eclipse.paho:org.eclipse.paho.android.service:1.1.1', {
+        exclude module: 'support-v4'
+    }*/
+
+    implementation 'com.android.support:multidex:1.0.3'
+    implementation "com.android.support:appcompat-v7:$versions.support"
+    implementation "com.android.support:design:$versions.support"
+    implementation "com.android.support:support-v13:$versions.support"
+    implementation "com.android.support:preference-v14:$versions.support"
+    implementation 'com.android.support.constraint:constraint-layout:1.1.2'
+    implementation "com.android.support:support-vector-drawable:$versions.support"
+    implementation 'com.google.android.gms:play-services-vision:15.0.2'
+
+    // Navigation
+    implementation "android.arch.navigation:navigation-fragment:$versions.navigation"
+    implementation "android.arch.navigation:navigation-ui:$versions.navigation"
+
+    // RxJava
+    implementation 'io.reactivex.rxjava2:rxjava:2.1.7'
+    implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
+
+    // LiveData + ViewModel
+    implementation "android.arch.lifecycle:extensions:$versions.archVersion"
+    annotationProcessor "android.arch.lifecycle:compiler:$versions.archVersion"
+    implementation "android.arch.lifecycle:reactivestreams:$versions.archVersion"
+
+    // Retrofit
+    implementation "com.squareup.retrofit2:retrofit:$versions.retrofit"
+    implementation "com.squareup.retrofit2:converter-gson:$versions.retrofit"
+    implementation "com.squareup.retrofit2:adapter-rxjava2:$versions.retrofit"
+
+    // OKHttp
+    implementation 'com.squareup.okhttp3:logging-interceptor:3.4.1'
+    implementation 'com.squareup.okhttp3:okhttp:3.10.0'
+
+    // Dagger
+    implementation "com.google.dagger:dagger:$versions.dagger"
+    annotationProcessor "com.google.dagger:dagger-compiler:$versions.dagger"
+    implementation "com.google.dagger:dagger-android-support:$versions.dagger"
+    kapt "com.google.dagger:dagger-compiler:$versions.dagger"
+    implementation "com.google.dagger:dagger-android:$versions.dagger"
+    annotationProcessor "com.google.dagger:dagger-android-processor:$versions.dagger"
+    kapt "com.google.dagger:dagger-android-processor:$versions.dagger"
+
+    // MQTT
+    implementation 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.0'
+    implementation 'org.eclipse.paho:org.eclipse.paho.android.service:1.1.1', {
         exclude module: 'support-v4'
     }
-    compile 'com.android.support:appcompat-v7:25.3.2'
-    compile 'com.android.support:support-v4:25.3.1'
-    compile 'com.android.support:design:25.3.1'
-    compile 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.1.1'
-    testCompile 'junit:junit:4.12'
-    //compile project(':motiondetection')
-    //compile 'com.github.ray0711:android-motion-detection:41f41e4f1d'
-    compile 'org.xwalk:xwalk_core_library:23.53.589.4'
-    compile 'com.koushikdutta.async:androidasync:2.1.9'
-    compile 'ch.acra:acra:4.9.2'
-    compile 'com.google.android.gms:play-services-vision:10.2.1'
-    compile 'io.github.silvaren:easyrs:0.5.3'
+
+    implementation 'org.xwalk:xwalk_core_library:23.53.589.4'
+    implementation 'com.koushikdutta.async:androidasync:2.1.9'
+    implementation 'io.github.silvaren:easyrs:0.5.3'
+
+    // Logging
+    implementation 'com.jakewharton.timber:timber:4.5.1'
+
 }
 
 configurations.all {
+    resolutionStrategy {
+        force 'com.android.support:support-v4:27.1.1'
+        force 'com.android.support:support-v7:27.1.1'
+    }
+}
+
+/*configurations.all {
     resolutionStrategy.eachDependency { DependencyResolveDetails details ->
         def requested = details.requested
         if (requested.group == 'com.android.support') {
@@ -62,4 +159,4 @@ configurations.all {
             }
         }
     }
-}
+}*/

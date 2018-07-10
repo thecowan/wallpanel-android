@@ -1,3 +1,4 @@
+
 package com.jjoe64.motiondetection.motiondetection;
 
 //import android.util.Log;
@@ -8,7 +9,7 @@ public class AggregateLumaMotionDetection implements IMotionDetection {
 
     // Specific settings
     private int mLeniency = 20; // Difference of aggregate map of
-                                             // luma values
+    // luma values
     private static final int mDebugMode = 2; // State based debug
     private static final int mXBoxes = 10; // State based debug
     private static final int mYBoxes = 10; // State based debug

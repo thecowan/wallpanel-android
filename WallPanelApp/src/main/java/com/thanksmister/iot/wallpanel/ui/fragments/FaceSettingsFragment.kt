@@ -24,6 +24,8 @@ import android.support.v7.preference.CheckBoxPreference
 import android.support.v7.preference.EditTextPreference
 import android.support.v7.preference.ListPreference
 import android.support.v7.preference.Preference
+import android.view.Menu
+import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import androidx.navigation.Navigation
@@ -31,16 +33,10 @@ import com.thanksmister.iot.wallpanel.R
 import com.thanksmister.iot.wallpanel.ui.activities.SettingsActivity
 import dagger.android.support.AndroidSupportInjection
 
-class FaceDetectionSettingsFragment : BaseSettingsFragment() {
+class FaceSettingsFragment : BaseSettingsFragment() {
 
     private var motionDetectionPreference: SwitchPreference? = null
-    private var mqttBrokerAddress: EditTextPreference? = null
-    private var mqttBrokerPort: EditTextPreference? = null
-    private var mqttClientId: EditTextPreference? = null
-    private var mqttBaseTopic: EditTextPreference? = null
-    private var mqttUsername: EditTextPreference? = null
-    private var mqttPassword: EditTextPreference? = null
-    private var mqttPublishFrequency: EditTextPreference? = null
+    private var motionDetectionPreference2: SwitchPreference? = null
 
     override fun onAttach(context: Context) {
         AndroidSupportInjection.inject(this)
@@ -53,43 +49,39 @@ class FaceDetectionSettingsFragment : BaseSettingsFragment() {
         if((activity as SettingsActivity).supportActionBar != null) {
             (activity as SettingsActivity).supportActionBar!!.setDisplayHomeAsUpEnabled(true)
             (activity as SettingsActivity).supportActionBar!!.setDisplayShowHomeEnabled(true)
-            (activity as SettingsActivity).supportActionBar!!.title = (getString(R.string.title_motion_settings))
+            (activity as SettingsActivity).supportActionBar!!.title = (getString(R.string.title_facedetection_settings))
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater!!.inflate(R.menu.menu_help, menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         val id = item.itemId
         if (id == android.R.id.home) {
-            view?.let { Navigation.findNavController(it).navigate(R.id.settings_action) }
+            view?.let { Navigation.findNavController(it).navigate(R.id.camera_action) }
+            return true
+        } else if (id == R.id.action_help) {
+            // TODO launch help
             return true
         }
         return super.onOptionsItemSelected(item)
     }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-        addPreferencesFromResource(R.xml.pref_motion)
+        addPreferencesFromResource(R.xml.pref_face)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
         super.onViewCreated(view, savedInstanceState)
 
-        motionDetectionPreference = findPreference(getString(R.string.key_setting_mqtt_enabled)) as SwitchPreference
-        mqttBrokerAddress = findPreference(getString(R.string.key_setting_mqtt_servername)) as EditTextPreference
-        mqttBrokerPort = findPreference(getString(R.string.key_setting_mqtt_serverport)) as EditTextPreference
-        mqttClientId = findPreference(getString(R.string.key_setting_mqtt_clientid)) as EditTextPreference
-        mqttBaseTopic = findPreference(getString(R.string.key_setting_mqtt_basetopic)) as EditTextPreference
-        mqttUsername = findPreference(getString(R.string.key_setting_mqtt_username)) as EditTextPreference
-        mqttPassword = findPreference(getString(R.string.key_setting_mqtt_password)) as EditTextPreference
-        mqttPublishFrequency = findPreference(getString(R.string.key_setting_mqtt_sensorfrequency)) as EditTextPreference
+        motionDetectionPreference = findPreference(getString(R.string.key_setting_camera_faceenabled)) as SwitchPreference
+        motionDetectionPreference2 = findPreference(getString(R.string.key_setting_camera_facewake)) as SwitchPreference
 
         bindPreferenceSummaryToValue(motionDetectionPreference!!)
-        bindPreferenceSummaryToValue(mqttBrokerAddress!!)
-        bindPreferenceSummaryToValue(mqttBrokerPort!!)
-        bindPreferenceSummaryToValue(mqttClientId!!)
-        bindPreferenceSummaryToValue(mqttBaseTopic!!)
-        bindPreferenceSummaryToValue(mqttUsername!!)
-        bindPreferenceSummaryToValue(mqttPassword!!)
-        bindPreferenceSummaryToValue(mqttPublishFrequency!!)
+        bindPreferenceSummaryToValue(motionDetectionPreference2!!)
     }
 }

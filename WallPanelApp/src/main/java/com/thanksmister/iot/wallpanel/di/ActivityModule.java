@@ -14,26 +14,36 @@
  * limitations under the License.
  */
 
-package com.localbuzz.mobile.android.di;
+package com.thanksmister.iot.wallpanel.di;
 
 import android.app.Application;
 import android.content.Context;
-
+import android.content.SharedPreferences;
 
 import android.content.res.Resources;
 import android.location.LocationManager;
+import android.support.v7.preference.PreferenceManager;
 import android.view.LayoutInflater;
 
-import com.localbuzz.mobile.android.persistence.Preferences;
-import com.localbuzz.mobile.android.utils.DialogUtils;
+import com.thanksmister.iot.wallpanel.controls.CameraReader2;
+import com.thanksmister.iot.wallpanel.controls.SensorReader2;
+import com.thanksmister.iot.wallpanel.persistence.Configuration;
+import com.thanksmister.iot.wallpanel.utils.DialogUtils;
 
-import net.grandcentrix.tray.AppPreferences;
+import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
 
+import static android.content.Context.MODE_PRIVATE;
+
 @Module
 class ActivityModule {
+
+    @Provides
+    static DialogUtils providesDialogUtils(Application application) {
+        return new DialogUtils(application);
+    }
 
     @Provides
     static Resources providesResources(Application application) {
@@ -51,12 +61,23 @@ class ActivityModule {
     }
 
     @Provides
-    static AppPreferences provideAppPreferences(Application application) {
-        return new AppPreferences(application);
+    @Singleton
+    SharedPreferences provideSharedPreferences(Application app) {
+        return PreferenceManager.getDefaultSharedPreferences(app.getApplicationContext());
     }
 
     @Provides
-    static Preferences provideConfiguration(AppPreferences appPreferences) {
-        return new Preferences(appPreferences);
+    static Configuration provideConfiguration(Application app, SharedPreferences sharedPreferences) {
+        return new Configuration(app, sharedPreferences);
+    }
+
+    @Provides
+    static CameraReader2 provideCameraReader(Application app) {
+        return new CameraReader2(app);
+    }
+
+    @Provides
+    static SensorReader2 provideSensorReader(Application app) {
+        return new SensorReader2(app);
     }
 }

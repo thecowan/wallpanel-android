@@ -1,3 +1,19 @@
+<!--
+  ~ Copyright (c) 2018 ThanksMister LLC
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed
+  ~ under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
 <resources>
 
     <!-- Base application theme. -->
@@ -6,11 +22,7 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <!--
-                <item name="windowNoTitle">true</item>
-                <item name="windowActionBar">false</item>
-                <item name="android:windowFullscreen">true</item>
-                <item name="android:windowContentOverlay">@null</item>-->
+        <item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
     </style>
 
     <style name="AppThemeFullScreen" parent="Theme.AppCompat.Light.DarkActionBar">
@@ -22,6 +34,7 @@
         <item name="windowActionBar">false</item>
         <item name="android:windowFullscreen">true</item>
         <item name="android:windowContentOverlay">@null</item>
+        <item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
     </style>
 
     <style name="FullscreenTheme" parent="AppTheme">
@@ -30,13 +43,132 @@
         <item name="android:windowBackground">@null</item>
         <item name="metaButtonBarStyle">?android:attr/buttonBarStyle</item>
         <item name="metaButtonBarButtonStyle">?android:attr/buttonBarButtonStyle</item>
-
         <item name="windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
     </style>
 
     <style name="FullscreenActionBarStyle" parent="Widget.AppCompat.ActionBar">
         <item name="android:background">@color/black_overlay</item>
+    </style>
+
+    <style name="CustomAlertDialog" parent="Theme.AppCompat.DayNight.Dialog.Alert">
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:backgroundDimEnabled">false</item>
+    </style>
+
+    <style name="BorderlessButtonStyle" parent="android:Widget.Holo.Button.Borderless">
+        <item name="android:layout_margin">0dp</item>
+        <item name="android:padding">0dp</item>
+        <item name="android:textSize">@dimen/text_size_small</item>
+        <item name="android:textColor">@color/dark_gray_color</item>
+    </style>
+
+    <style name="BorderlessButtonStyle.Active" parent="BorderlessButtonStyle">
+        <item name="android:textColor">@color/text</item>
+    </style>
+
+    <style name="BottomButtonStyle" parent="BorderlessButtonStyle">
+        <item name="android:layout_margin">0dp</item>
+        <item name="android:padding">0dp</item>
+        <item name="android:height">48dp</item>
+        <item name="android:textSize">@dimen/text_size_large_small_action</item>
+        <item name="android:textColor">@color/text</item>
+        <item name="android:textAllCaps">true</item>
+    </style>
+
+    <style name="DividerVertical">
+        <item name="android:layout_width">1dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_marginLeft">0dip</item>
+        <item name="android:layout_marginRight">0dip</item>
+        <item name="android:background">@color/stroke_gray</item>
+    </style>
+
+    <style name="DividerVertical.Dark" parent="DividerVertical">>
+        <item name="android:background">@color/dark_gray_color</item>
+    </style>
+
+    <style name="DividerHorizontal" parent="DividerVertical">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">1dp</item>
+    </style>
+
+    <style name="AppTextAppearance" parent="@style/TextAppearance.AppCompat.Medium">
+        <item name="android:textColor">@color/text</item>
+    </style>
+
+    <style name="TextAppearance.Caption" parent="AppTextAppearance">
+        <item name="android:paddingLeft">@dimen/view_padding</item>
+        <item name="android:paddingRight">@dimen/view_padding</item>
+        <item name="android:textColor">@color/preference_green</item>
+    </style>
+
+    <style name="TextAppearance.Description" parent="AppTextAppearance">
+        <item name="android:paddingLeft">@dimen/view_padding</item>
+        <item name="android:paddingRight">@dimen/view_padding</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="TextAppearance" parent="@style/AppTextAppearance">
+        <item name="android:ellipsize">end</item>
+    </style>
+
+    <style name="TextAppearance.Title">
+        <item name="android:textSize">32sp</item>
+    </style>
+
+    <style name="TextAppearance.SubTitle">
+        <item name="android:textSize">24sp</item>
+    </style>
+
+    <style name="ButtonStyle" parent="@android:style/Widget.Button">
+        <item name="android:ellipsize">end</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:paddingLeft">8dp</item>
+        <item name="android:paddingRight">8dp</item>
+        <item name="android:textColor">@color/body_text_2</item>
+    </style>
+
+    <style name="ButtonGreen" parent="ButtonStyle">
+        <item name="android:textSize">@dimen/text_size_xlarge</item>
+        <item name="android:textColor">#fff</item>
+        <item name="android:background">@drawable/button_green_selector</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="ButtonGreen.Small" parent="ButtonStyle">
+        <item name="android:maxHeight">14sp</item>
+        <item name="android:textSize">@dimen/text_size_medium</item>
+        <item name="android:textColor">#fff</item>
+        <item name="android:background">@drawable/button_green_selector</item>
+    </style>
+
+    <style name="ButtonBlue" parent="ButtonStyle">
+        <item name="android:textSize">22sp</item>
+        <item name="android:textColor">#fff</item>
+        <item name="android:background">@drawable/button_blue_selector</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textAllCaps">true</item>
+    </style>
+
+    <style name="ButtonBlue.Small" parent="ButtonStyle">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">#fff</item>
+        <item name="android:paddingTop">4dp</item>
+        <item name="android:paddingBottom">4dp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:background">@drawable/button_blue_selector</item>
+    </style>
+
+    <style name="TextButtonStyle" parent="BorderlessButtonStyle">
+        <item name="android:textSize">@dimen/text_size_small</item>
+        <item name="android:textColor">@color/dark_gray_color</item>
+        <item name="android:paddingLeft">@dimen/view_padding</item>
+        <item name="android:paddingRight">@dimen/view_padding</item>
+        <item name="android:paddingTop">@dimen/view_padding_xlarge</item>
+        <item name="android:paddingBottom">@dimen/view_padding_xlarge</item>
+        <item name="android:gravity">left|center_vertical</item>
     </style>
 
 </resources>

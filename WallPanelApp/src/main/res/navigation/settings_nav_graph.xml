@@ -16,21 +16,57 @@
             app:startDestination="@+id/settings_fragment">
 
     <fragment android:id="@+id/settings_fragment"
-              android:label="Home"
+              android:label="@string/title_settings"
               android:name="com.thanksmister.iot.wallpanel.ui.fragments.SettingsFragment" >
         <action android:id="@+id/camera_action" app:destination="@id/camera_fragment"/>
+        <action android:id="@+id/mqtt_action" app:destination="@id/mqtt_fragment"/>
+        <action android:id="@+id/http_action" app:destination="@id/http_fragment"/>
+        <action android:id="@+id/sensors_action" app:destination="@id/sensors_fragment"/>
     </fragment>
 
     <fragment android:id="@+id/camera_fragment"
-              android:label="Camera"
+              android:label="@string/title_camera_settings"
               android:name="com.thanksmister.iot.wallpanel.ui.fragments.CameraSettingsFragment" >
-        <action android:id="@+id/preview_action" app:destination="@id/settings_fragment"/>
+        <action android:id="@+id/settings_action" app:destination="@id/settings_fragment"/>
+        <action android:id="@+id/motion_action" app:destination="@id/motion_fragment"/>
+        <action android:id="@+id/face_action" app:destination="@id/face_fragment"/>
+        <action android:id="@+id/qrcode_action" app:destination="@id/qrcode_fragment"/>
     </fragment>
 
-    <!--<fragment android:id="@+id/preview_dest"
-        android:label="Preview"
-        android:name="com.localbuzz.mobile.android.ui.PreviewFragment">
+    <fragment android:id="@+id/sensors_fragment"
+        android:label="@string/title_sensor_settings"
+        android:name="com.thanksmister.iot.wallpanel.ui.fragments.SensorsSettingsFragment" >
+        <action android:id="@+id/settings_action" app:destination="@id/settings_fragment"/>
+    </fragment>
 
-    </fragment>-->
+    <fragment android:id="@+id/mqtt_fragment"
+        android:label="@string/title_mqtt_settings"
+        android:name="com.thanksmister.iot.wallpanel.ui.fragments.MqttSettingsFragment" >
+        <action android:id="@+id/settings_action" app:destination="@id/settings_fragment"/>
+    </fragment>
+
+    <fragment android:id="@+id/http_fragment"
+        android:label="@string/title_http_settings"
+        android:name="com.thanksmister.iot.wallpanel.ui.fragments.HttpSettingsFragment" >
+        <action android:id="@+id/settings_action" app:destination="@id/settings_fragment"/>
+    </fragment>
+
+    <fragment android:id="@+id/motion_fragment"
+        android:label="@string/title_motion_settings"
+        android:name="com.thanksmister.iot.wallpanel.ui.fragments.MotionSettingsFragment" >
+        <action android:id="@+id/camera_action" app:destination="@id/camera_fragment"/>
+    </fragment>
+
+    <fragment android:id="@+id/face_fragment"
+        android:label="@string/title_facedetection_settings"
+        android:name="com.thanksmister.iot.wallpanel.ui.fragments.FaceSettingsFragment" >
+        <action android:id="@+id/camera_action" app:destination="@id/camera_fragment"/>
+    </fragment>
+
+    <fragment android:id="@+id/qrcode_fragment"
+        android:label="@string/title_qrcode_settings"
+        android:name="com.thanksmister.iot.wallpanel.ui.fragments.QrCodeSettingsFragment" >
+        <action android:id="@+id/camera_action" app:destination="@id/camera_fragment"/>
+    </fragment>
 
 </navigation>

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.wallpanelproject.android.controls;
+package com.thanksmister.iot.wallpanel.controls;
 
 import android.content.Context;
 import android.content.Intent;
@@ -27,9 +27,10 @@ import android.os.BatteryManager;
 import android.os.Handler;
 import android.util.Log;
 
+import com.thanksmister.iot.wallpanel.network.WallPanelService;
+
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.wallpanelproject.android.network.WallPanelService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,9 +62,11 @@ public class SensorReader  {
         this.wallPanelService = wallPanelService;
         this.context = context;
         mSensorManager = (SensorManager) context.getSystemService(SENSOR_SERVICE);
-        for (Sensor s : mSensorManager.getSensorList(Sensor.TYPE_ALL)) {
-            if (getSensorName(s.getType()) != null)
-                mSensorList.add(s);
+        if(mSensorManager != null) {
+            for (Sensor s : mSensorManager.getSensorList(Sensor.TYPE_ALL)) {
+                if (getSensorName(s.getType()) != null)
+                    mSensorList.add(s);
+            }
         }
     }
 
@@ -97,9 +100,7 @@ public class SensorReader  {
 
     private void publishSensorData(String sensorName, JSONObject sensorData) {
         Log.d(TAG, "publishSensorData Called");
-        wallPanelService.publishMessage(
-                sensorData,
-                "sensor/" + sensorName);
+        //wallPanelService.publishMessage(sensorData, "sensor/" + sensorName);
     }
 
     private String getSensorName(int sensorType) {
@@ -119,7 +120,9 @@ public class SensorReader  {
     }
 
     private void getSensorReadings() {
-        Log.d(TAG, "getSensorReadings called");
+
+        Log.d(TAG, "getSensorReadings");
+
         for (Sensor sensor : mSensorList) {
             mSensorManager.registerListener(new SensorEventListener(){
                 @Override
@@ -141,7 +144,8 @@ public class SensorReader  {
         }
     }
 
-    private void getBatteryReading(){
+    private void getBatteryReading() {
+
         IntentFilter intentFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
         Intent batteryStatus = context.registerReceiver(null, intentFilter);
 

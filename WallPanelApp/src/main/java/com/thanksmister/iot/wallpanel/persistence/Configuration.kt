@@ -14,18 +14,17 @@
  * limitations under the License.
  */
 
-package org.wallpanelproject.android.persistence
+package com.thanksmister.iot.wallpanel.persistence
 
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
-import android.preference.PreferenceManager
+import com.thanksmister.iot.wallpanel.R
+import javax.inject.Inject
 
-import org.wallpanelproject.android.R
+class Configuration @Inject
+constructor(private val context: Context, private val sharedPreferences: SharedPreferences) {
 
-class Configuration(private val myContext: Context) {
-
-    private val sharedPreferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(myContext)
     private var prefsChangedListener: SharedPreferences.OnSharedPreferenceChangeListener? = null
 
     // APP
@@ -36,29 +35,38 @@ class Configuration(private val myContext: Context) {
         get() = getBoolPref(R.string.key_setting_app_preventsleep,
                 R.string.default_setting_app_preventsleep)
 
+    var writeScreenPermissionsShown: Boolean
+        get() = sharedPreferences.getBoolean(PREF_WRITE_SCREEN_PERMISSIONS, false)
+        set(value) {
+            sharedPreferences.edit().putBoolean(PREF_WRITE_SCREEN_PERMISSIONS, value).apply()
+        }
+
     var appLaunchUrl: String
         get() = getStringPref(R.string.key_setting_app_launchurl,
                 R.string.default_setting_app_launchurl)
         set(launchUrl) {
-            val ed = sharedPreferences.edit()
-            ed.putString(myContext.getString(R.string.key_setting_app_launchurl), launchUrl)
-            ed.apply()
+            sharedPreferences.edit().putString(context.getString(R.string.key_setting_app_launchurl), launchUrl).apply()
         }
 
     val appShowActivity: Boolean
         get() = getBoolPref(R.string.key_setting_app_showactivity,
                 R.string.default_setting_app_showactivity)
 
-    val cameraEnabled: Boolean
-        get() = getBoolPref(R.string.key_setting_camera_enabled,
-                R.string.default_setting_camera_enabled)
+    var cameraEnabled: Boolean
+        get() = getBoolPref(R.string.key_setting_camera_enabled, R.string.default_setting_camera_enabled)
+        set(value) {
+            sharedPreferences.edit().putBoolean(context.getString(R.string.key_setting_camera_enabled), value).apply()
+        }
 
-    val cameraCameraId: Int
+    val cameraId: Int
         get() = Integer.valueOf(getStringPref(R.string.key_setting_camera_cameraid,
                 R.string.default_setting_camera_cameraid))
 
-    val cameraMotionEnabled: Boolean
+    var cameraMotionEnabled: Boolean
         get() = getBoolPref(R.string.key_setting_camera_motionenabled, R.string.default_setting_camera_motionenabled)
+        set(value) {
+            sharedPreferences.edit().putBoolean(context.getString(R.string.key_setting_camera_motionenabled), value).apply()
+        }
 
     val cameraProcessingInterval: Long
         get() = java.lang.Long.valueOf(getStringPref(R.string.key_setting_camera_processinginterval,
@@ -84,17 +92,23 @@ class Configuration(private val myContext: Context) {
         get() = getBoolPref(R.string.key_setting_camera_motionbright,
                 R.string.default_setting_camera_motionbright)
 
-    val cameraFaceEnabled: Boolean
+    var cameraFaceEnabled: Boolean
         get() = getBoolPref(R.string.key_setting_camera_faceenabled,
                 R.string.default_setting_camera_faceenabled)
+        set(value) {
+            sharedPreferences.edit().putBoolean(context.getString(R.string.key_setting_camera_faceenabled), value).apply()
+        }
 
     val cameraFaceWake: Boolean
         get() = getBoolPref(R.string.key_setting_camera_facewake,
                 R.string.default_setting_camera_facewake)
 
-    val cameraQRCodeEnabled: Boolean
+    var cameraQRCodeEnabled: Boolean
         get() = getBoolPref(R.string.key_setting_camera_qrcodeenabled,
                 R.string.default_setting_camera_qrcodeenabled)
+        set(value) {
+            sharedPreferences.edit().putBoolean(context.getString(R.string.key_setting_camera_qrcodeenabled), value).apply()
+        }
 
     val httpEnabled: Boolean
         get() = httpRestEnabled || httpMJPEGEnabled
@@ -151,6 +165,10 @@ class Configuration(private val myContext: Context) {
         get() = getBoolPref(R.string.key_setting_android_startonboot,
                 R.string.default_setting_android_startonboot)
 
+    val sensorsEnabled: Boolean
+        get() = getBoolPref(R.string.key_setting_sensors_enabled,
+                R.string.default_setting_sensors_value)
+
     val androidBrowserType: String
         get() = getStringPref(R.string.key_setting_android_browsertype,
                 R.string.default_setting_android_browsertype)
@@ -169,15 +187,15 @@ class Configuration(private val myContext: Context) {
     }
 
     private fun getStringPref(resId: Int, defId: Int): String {
-        val def = myContext.getString(defId)
-        val pref = sharedPreferences.getString(myContext.getString(resId), "")
+        val def = context.getString(defId)
+        val pref = sharedPreferences.getString(context.getString(resId), "")
         return if (pref!!.length == 0) def else pref
     }
 
     private fun getBoolPref(resId: Int, defId: Int): Boolean {
         return sharedPreferences.getBoolean(
-                myContext.getString(resId),
-                java.lang.Boolean.valueOf(myContext.getString(defId))
+                context.getString(resId),
+                java.lang.Boolean.valueOf(context.getString(defId))
         )
     }
 
@@ -187,5 +205,9 @@ class Configuration(private val myContext: Context) {
 
     companion object {
         const val PREF_FIRST_TIME = "pref_first_time"
+        const val PREF_WRITE_SCREEN_PERMISSIONS = "pref_write_screen_permissions"
+        const val PREF_BROWSER_LEGACY = "Legacy"
+        const val PREF_BROWSER_NATIVE = "Native"
+        const val PREF_BROWSER_AUTO = "Auto"
     }
 }

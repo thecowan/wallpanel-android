@@ -17,12 +17,12 @@
 package com.thanksmister.iot.wallpanel.ui.fragments
 
 import android.content.Context
-import android.content.SharedPreferences
 import android.os.Bundle
-import android.support.v7.preference.CheckBoxPreference
+import android.support.v14.preference.SwitchPreference
 import android.support.v7.preference.EditTextPreference
-import android.support.v7.preference.ListPreference
-import android.support.v7.preference.Preference
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import androidx.navigation.Navigation
 import com.thanksmister.iot.wallpanel.R
@@ -31,93 +31,68 @@ import dagger.android.support.AndroidSupportInjection
 
 class MqttSettingsFragment : BaseSettingsFragment() {
 
-    private var cameraListPreference: ListPreference? = null
-    private var cameraTestPreference: Preference? = null
-    private var qrCodePreference: Preference? = null
-    private var motionDetectionPreference: Preference? = null
-    private var processingIntervalPreference: EditTextPreference? = null
-    private var cameraPreference: CheckBoxPreference? = null
-    private var faceDetectionPreference: Preference? = null
+    private var mqttPreference: SwitchPreference? = null
+    private var mqttBrokerAddress: EditTextPreference? = null
+    private var mqttBrokerPort: EditTextPreference? = null
+    private var mqttClientId: EditTextPreference? = null
+    private var mqttBaseTopic: EditTextPreference? = null
+    private var mqttUsername: EditTextPreference? = null
+    private var mqttPassword: EditTextPreference? = null
 
     override fun onAttach(context: Context) {
         AndroidSupportInjection.inject(this)
         super.onAttach(context)
+        setHasOptionsMenu(true)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        // Set title bar
         if((activity as SettingsActivity).supportActionBar != null) {
-            (activity as SettingsActivity).supportActionBar!!.title = (getString(R.string.title_motion_settings))
+            (activity as SettingsActivity).supportActionBar!!.setDisplayHomeAsUpEnabled(true)
+            (activity as SettingsActivity).supportActionBar!!.setDisplayShowHomeEnabled(true)
+            (activity as SettingsActivity).supportActionBar!!.title = (getString(R.string.title_mqtt_settings))
         }
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater!!.inflate(R.menu.menu_help, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        val id = item.itemId
+        if (id == android.R.id.home) {
+            view?.let { Navigation.findNavController(it).navigate(R.id.settings_action) }
+            return true
+        } else if (id == R.id.action_help) {
+            // TODO launch help
+            return true
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-        addPreferencesFromResource(R.xml.pref_camera)
+        addPreferencesFromResource(R.xml.pref_mqtt)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
         super.onViewCreated(view, savedInstanceState)
 
-        cameraPreference = findPreference(getString(R.string.key_setting_camera_enabled)) as CheckBoxPreference
-        processingIntervalPreference = findPreference(getString(R.string.key_setting_camera_processinginterval)) as EditTextPreference
-        cameraListPreference = findPreference(getString(R.string.key_setting_camera_cameraid)) as ListPreference
-        cameraListPreference!!.setOnPreferenceChangeListener { preference, newValue ->
-            if (preference is ListPreference) {
-                val index = preference.findIndexOfValue(newValue.toString())
-                preference.setSummary(
-                        if (index >= 0)
-                            preference.entries[index]
-                        else
-                            "")
-            }
-           true;
-        }
+        mqttPreference = findPreference(getString(R.string.key_setting_mqtt_enabled)) as SwitchPreference
+        mqttBrokerAddress = findPreference(getString(R.string.key_setting_mqtt_servername)) as EditTextPreference
+        mqttBrokerPort = findPreference(getString(R.string.key_setting_mqtt_serverport)) as EditTextPreference
+        mqttClientId = findPreference(getString(R.string.key_setting_mqtt_clientid)) as EditTextPreference
+        mqttBaseTopic = findPreference(getString(R.string.key_setting_mqtt_basetopic)) as EditTextPreference
+        mqttUsername = findPreference(getString(R.string.key_setting_mqtt_username)) as EditTextPreference
+        mqttPassword = findPreference(getString(R.string.key_setting_mqtt_password)) as EditTextPreference
 
-        motionDetectionPreference = findPreference("button_key_motion_detection")
-        faceDetectionPreference = findPreference("button_key_face_detection")
-        qrCodePreference = findPreference("button_key_qr_code")
-        cameraTestPreference = findPreference("button_key_camera_test")
-
-        processingIntervalPreference!!.summary = configuration.cameraProcessingInterval.toString()
-
-        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            if (ActivityCompat.checkSelfPermission(activity!!.applicationContext, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                cameraPreference!!.isEnabled = false
-                configuration.cameraEnabled = false
-                // TODO ask for permissions again
-                return
-            }
-        }*/
-
-        cameraTestPreference!!.onPreferenceClickListener = Preference.OnPreferenceClickListener { preference ->
-            //startCameraTest(preference.context)
-            false
-        }
-
-        motionDetectionPreference!!.onPreferenceClickListener = Preference.OnPreferenceClickListener { preference ->
-            view?.let { Navigation.findNavController(it).navigate(R.id.camera_action) }
-            false
-        }
-
-        faceDetectionPreference!!.onPreferenceClickListener = Preference.OnPreferenceClickListener { preference ->
-            // TODO navigate to preference fragment
-            false
-        }
-
-        qrCodePreference!!.onPreferenceClickListener = Preference.OnPreferenceClickListener { preference ->
-            // TODO navigate to preference fragment
-            false
-        }
-    }
-
-    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
-        when (key) {
-            getString(R.string.key_setting_camera_processinginterval) -> {
-                val value = processingIntervalPreference!!.text
-                processingIntervalPreference!!.summary = value
-            }
-        }
+        bindPreferenceSummaryToValue(mqttPreference!!)
+        bindPreferenceSummaryToValue(mqttBrokerAddress!!)
+        bindPreferenceSummaryToValue(mqttBrokerPort!!)
+        bindPreferenceSummaryToValue(mqttClientId!!)
+        bindPreferenceSummaryToValue(mqttBaseTopic!!)
+        bindPreferenceSummaryToValue(mqttUsername!!)
+        bindPreferenceSummaryToValue(mqttPassword!!)
     }
 }

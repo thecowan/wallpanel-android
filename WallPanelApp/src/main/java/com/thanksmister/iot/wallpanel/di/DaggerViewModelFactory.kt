@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.localbuzz.mobile.android.di
+package com.thanksmister.iot.wallpanel.di
 
 import android.arch.lifecycle.ViewModel
 import android.arch.lifecycle.ViewModelProvider

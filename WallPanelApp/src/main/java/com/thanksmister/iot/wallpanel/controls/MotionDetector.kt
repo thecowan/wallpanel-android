@@ -24,27 +24,25 @@ import com.google.android.gms.vision.Frame
 import com.google.common.primitives.Bytes
 import com.jjoe64.motiondetection.motiondetection.AggregateLumaMotionDetection
 import com.jjoe64.motiondetection.motiondetection.ImageProcessing
+import com.thanksmister.iot.wallpanel.controls.Motion.*
+import com.thanksmister.iot.wallpanel.controls.Motion.Companion.MOTION_DETECTED
+import com.thanksmister.iot.wallpanel.controls.Motion.Companion.MOTION_NOT_DETECTED
+import com.thanksmister.iot.wallpanel.controls.Motion.Companion.MOTION_TOO_DARK
 
 import java.nio.ByteBuffer
 
 import timber.log.Timber
 
-import com.thanksmister.iot.wallpanel.controls.Motion.MOTION_DETECTED
-import com.thanksmister.iot.wallpanel.controls.Motion.MOTION_NOT_DETECTED
-
 /**
  * Created by Michael Ritchie on 7/6/18.
  */
-class MotionDetector private constructor(private val minLuma: Int) : Detector<Motion>() {
+class MotionDetector private constructor(private val minLuma: Int, private val motionLeniency: Int) : Detector<Motion>() {
 
-    private val aggregateLumaMotionDetection: AggregateLumaMotionDetection
+    private var aggregateLumaMotionDetection: AggregateLumaMotionDetection? = null
 
     init {
         aggregateLumaMotionDetection = AggregateLumaMotionDetection()
-    }
-
-    override fun release() {
-        super.release()
+        aggregateLumaMotionDetection!!.setLeniency(motionLeniency)
     }
 
     override fun detect(frame: Frame?): SparseArray<Motion> {
@@ -55,13 +53,24 @@ class MotionDetector private constructor(private val minLuma: Int) : Detector<Mo
             val bytes = byteBuffer.array()
             val w = frame.metadata.width
             val h = frame.metadata.height
-
-            val img = ImageProcessing.decodeYUV420SPtoLuma(bytes, w, h)
-
-            val motionDetected = aggregateLumaMotionDetection.detect(img, w, h)
-
             val sparseArray = SparseArray<Motion>()
             val motion = Motion()
+            motion.byteArray = bytes
+            motion.width = w
+            motion.height = h
+
+            val img = ImageProcessing.decodeYUV420SPtoLuma(bytes, w, h)
+            var lumaSum = 0
+            for (i in img) {
+                lumaSum += i
+            }
+            if (lumaSum < minLuma) {
+                motion.type = MOTION_TOO_DARK
+                sparseArray.put(0, motion)
+                return sparseArray
+            }
+
+            val motionDetected = aggregateLumaMotionDetection!!.detect(img, w, h)
             if (motionDetected) {
                 motion.type = MOTION_DETECTED
                 Timber.d("MOTION_DETECTED")
@@ -70,34 +79,13 @@ class MotionDetector private constructor(private val minLuma: Int) : Detector<Mo
                 Timber.d("MOTION_NOT_DETECTED")
             }
             sparseArray.put(0, motion)
-
-            /*
-            val byteArray = params[0] as ByteArray
-            val width = params[1] as Int
-            val height = params[2] as Int
-            val minLuma = params[3] as Int
-
-            val img = ImageProcessing.decodeYUV420SPtoLuma(byteArray, width/10, height/10)
-            var lumaSum = 0
-            for (i in img) {
-                lumaSum += i
-            }
-            if (lumaSum < minLuma) {
-                return MOTION_TOO_DARK
-            } else if (motionDetection.detect(img, width/10, height/10)) {
-                return MOTION_DETECTED
-            }
-            return MOTION_NOT_DETECTED
-            */
-
             return sparseArray
         }
     }
 
-    class Builder(private val minLuma: Int) {
-
+    class Builder(private val minLuma: Int, private val motionLeniency: Int) {
         fun build(): MotionDetector {
-            return MotionDetector(minLuma)
+            return MotionDetector(minLuma, motionLeniency)
         }
     }
 }

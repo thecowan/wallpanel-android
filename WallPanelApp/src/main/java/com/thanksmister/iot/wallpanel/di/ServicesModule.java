@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-package com.thanksmister.bitcoin.localtrader.di;
+package com.thanksmister.iot.wallpanel.di;
 
 import android.app.Service;
-import android.content.AbstractThreadedSyncAdapter;
 
-import com.thanksmister.bitcoin.localtrader.network.services.SyncService;
+import com.thanksmister.iot.wallpanel.network.WallPanelService;
 
 import dagger.Binds;
 import dagger.Module;
@@ -33,6 +32,6 @@ import dagger.multibindings.IntoMap;
 public abstract class ServicesModule {
     @Binds
     @IntoMap
-    @ServiceKey(SyncService.class)
+    @ServiceKey(WallPanelService.class)
     abstract AndroidInjector.Factory<? extends Service> syncServiceInjectorFactory(ServiceSubcomponent.Builder builder);
 }

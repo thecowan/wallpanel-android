@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package com.thanksmister.bitcoin.localtrader.di;
+package com.thanksmister.iot.wallpanel.di;
 
-import com.thanksmister.bitcoin.localtrader.network.services.SyncService;
+import com.thanksmister.iot.wallpanel.network.WallPanelService;
 
 import dagger.Subcomponent;
 import dagger.android.AndroidInjector;
 
 @Subcomponent(modules = {})
-public interface ServiceSubcomponent extends AndroidInjector<SyncService> {
+public interface ServiceSubcomponent extends AndroidInjector<WallPanelService> {
     @Subcomponent.Builder
-    abstract class Builder extends AndroidInjector.Builder<SyncService> {
+    abstract class Builder extends AndroidInjector.Builder<WallPanelService> {
     }
 }

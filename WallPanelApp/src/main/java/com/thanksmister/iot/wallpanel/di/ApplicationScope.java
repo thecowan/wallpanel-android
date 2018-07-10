@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.localbuzz.mobile.android.di;
+package com.thanksmister.iot.wallpanel.di;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;

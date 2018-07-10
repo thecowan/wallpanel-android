@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thanksmister.iot.wallpanel.ui
+package com.thanksmister.iot.wallpanel.ui.activities
 
 import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
@@ -34,14 +34,16 @@ import dagger.android.support.DaggerAppCompatActivity
 
 import timber.log.Timber
 import javax.inject.Inject
+import android.app.ActivityManager
+
+
 
 abstract class BrowserActivity : DaggerAppCompatActivity() {
 
     @Inject
     lateinit var configuration: Configuration
-
+    private var wallPanelService: Intent? = null
     private var decorView: View? = null
-
     var displayProgress = true
     var zoomLevel = 1.0f
 
@@ -68,6 +70,7 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
 
         displayProgress = configuration.appShowActivity
@@ -79,11 +82,15 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
         filter.addAction(BROADCAST_ACTION_JS_EXEC)
         filter.addAction(BROADCAST_ACTION_CLEAR_BROWSER_CACHE)
         filter.addAction(BROADCAST_ACTION_RELOAD_PAGE)
+
         val bm = LocalBroadcastManager.getInstance(this)
         bm.registerReceiver(mBroadcastReceiver, filter)
 
-        val url = configuration.appLaunchUrl
-        loadUrl(url)
+        loadUrl(configuration.appLaunchUrl)
+
+        Timber.d("start wallPanelService")
+        wallPanelService = Intent(this, WallPanelService::class.java)
+        startService(wallPanelService)
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
@@ -122,6 +129,16 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
         return super.dispatchKeyEvent(event)
     }
 
+    private fun isServiceRunning(serviceClass: Class<*>): Boolean {
+        val manager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+        for (service in manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.name == service.service.className) {
+                return true
+            }
+        }
+        return false
+    }
+
     internal fun resetScreen() {
         Timber.d("resetScreen Called")
         val intent = Intent(WallPanelService.BROADCAST_EVENT_SCREEN_TOUCH)
@@ -144,7 +161,6 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
     protected abstract fun reload()
 
     companion object {
-
         val BROADCAST_ACTION_LOAD_URL = "BROADCAST_ACTION_LOAD_URL"
         val BROADCAST_ACTION_JS_EXEC = "BROADCAST_ACTION_JS_EXEC"
         val BROADCAST_ACTION_CLEAR_BROWSER_CACHE = "BROADCAST_ACTION_CLEAR_BROWSER_CACHE"

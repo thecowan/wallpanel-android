@@ -16,7 +16,7 @@
 
 package com.thanksmister.iot.wallpanel.controls;
 
-public interface CameraDetectorCallback {
+public interface CameraCallback {
     void onMotionDetected();
     void onTooDark();
     void onFaceDetected();

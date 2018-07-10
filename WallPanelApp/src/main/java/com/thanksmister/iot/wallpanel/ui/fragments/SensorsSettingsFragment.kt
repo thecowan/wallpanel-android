@@ -17,8 +17,14 @@
 package com.thanksmister.iot.wallpanel.ui.fragments
 
 import android.content.Context
+import android.hardware.Sensor
+import android.hardware.SensorManager
 import android.os.Bundle
 import android.support.v14.preference.SwitchPreference
+import android.support.v7.preference.EditTextPreference
+import android.support.v7.preference.Preference
+import android.view.Menu
+import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import androidx.navigation.Navigation
@@ -26,9 +32,10 @@ import com.thanksmister.iot.wallpanel.R
 import com.thanksmister.iot.wallpanel.ui.activities.SettingsActivity
 import dagger.android.support.AndroidSupportInjection
 
-class QrCodeSettingsFragment : BaseSettingsFragment() {
+class SensorsSettingsFragment : BaseSettingsFragment() {
 
-    private var qrCodePreference: SwitchPreference? = null
+    private var sensorsPreference: SwitchPreference? = null
+    private var mqttPublishFrequency: EditTextPreference? = null
 
     override fun onAttach(context: Context) {
         AndroidSupportInjection.inject(this)
@@ -45,25 +52,49 @@ class QrCodeSettingsFragment : BaseSettingsFragment() {
         }
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater!!.inflate(R.menu.menu_help, menu)
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         val id = item.itemId
         if (id == android.R.id.home) {
-            view?.let { Navigation.findNavController(it).navigate(R.id.camera_action) }
+            view?.let { Navigation.findNavController(it).navigate(R.id.settings_action) }
+            return true
+        } else if (id == R.id.action_help) {
+            // TODO launch help
             return true
         }
         return super.onOptionsItemSelected(item)
     }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-        addPreferencesFromResource(R.xml.pref_qrcode)
+        addPreferencesFromResource(R.xml.pref_sensors)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
         super.onViewCreated(view, savedInstanceState)
 
-        qrCodePreference = findPreference(getString(R.string.key_setting_camera_qrcodeenabled)) as SwitchPreference
+        sensorsPreference = findPreference(getString(R.string.key_setting_sensors_enabled)) as SwitchPreference
+        mqttPublishFrequency = findPreference(getString(R.string.key_setting_mqtt_sensorfrequency)) as EditTextPreference
 
-        bindPreferenceSummaryToValue(qrCodePreference!!)
+        bindPreferenceSummaryToValue(sensorsPreference!!)
+        bindPreferenceSummaryToValue(mqttPublishFrequency!!)
+
+        val mSensorManager = activity!!.getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        setSensorPreferenceSummary(findPreference(getString(R.string.key_settings_sensors_temperature)), mSensorManager.getSensorList(Sensor.TYPE_AMBIENT_TEMPERATURE));
+        setSensorPreferenceSummary(findPreference(getString(R.string.key_settings_sensors_light)), mSensorManager.getSensorList(Sensor.TYPE_LIGHT));
+        setSensorPreferenceSummary(findPreference(getString(R.string.key_settings_sensors_magneticField)), mSensorManager.getSensorList(Sensor.TYPE_MAGNETIC_FIELD));
+        setSensorPreferenceSummary(findPreference(getString(R.string.key_settings_sensors_pressure)), mSensorManager.getSensorList(Sensor.TYPE_PRESSURE));
+        setSensorPreferenceSummary(findPreference(getString(R.string.key_settings_sensors_humidity)), mSensorManager.getSensorList(Sensor.TYPE_RELATIVE_HUMIDITY));
+    }
+
+    private fun setSensorPreferenceSummary(preference: Preference, sensorList: List<Sensor>) {
+        if (sensorList.isNotEmpty()) { // Could we have multiple sensors of same type?
+            preference.summary = sensorList[0].name
+            //preference.isEnabled = true
+        }
     }
 }

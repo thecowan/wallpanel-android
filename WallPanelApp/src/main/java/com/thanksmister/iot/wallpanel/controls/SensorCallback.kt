@@ -16,6 +16,8 @@
 
 package com.thanksmister.iot.wallpanel.controls
 
+import org.json.JSONObject
+
 interface SensorCallback {
-    fun publishMessage(data: String)
+    fun publishSensorData(sensorName: String, sensorData: JSONObject)
 }

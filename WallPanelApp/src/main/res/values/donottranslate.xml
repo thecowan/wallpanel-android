@@ -16,82 +16,100 @@
   -->
 
 <resources>
-
     <string name="text_f" translatable="false">°F</string>
     <string name="text_c" translatable="false">°C</string>
-
-    <string name="license" translatable="false"><![CDATA[
-        <br><b>Copyright 2017 ThanksMister LLC</b><br>
-        <br>
-        This application contains open source libraries under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
-        <br>
-        <a href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a>
-        <br>
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
-    ]]></string>
-
-    <string name="text_sensor_mqtt_output" translatable="false">"{\"topic\":\"%1$s\",\"payload\":\"%2$s\"}"</string>
+    <string name="default_setting_mqtt_sensorfrequency">60</string>
+    <string name="key_setting_android_startonboot">setting_android_startonboot</string>
+    <string name="key_setting_mqtt_password">setting_mqtt_password</string>
+    <string name="default_setting_mqtt_password">""</string>
+    <string name="key_setting_mqtt_sensorfrequency">setting_mqtt_sensorfrequency</string>
+    <string name="key_setting_mqtt_username">setting_mqtt_username</string>
+    <string name="default_setting_mqtt_username">""</string>
+    <string name="default_setting_android_startonboot">false</string>
+    <string name="key_setting_android_browsertype">setting_android_browsertype</string>
+    <string name="key_settings_sensors_light">setting_sensors_light</string>
+    <string name="key_setting_test_zoomlevel">setting_test_zoomlevel</string>
+    <string name="key_settings_sensors_magneticField">setting_sensors_magneticField</string>
+    <string name="key_settings_sensors_temperature">setting_sensors_temperature</string>
+    <string name="key_settings_sensors_pressure">setting_sensors_pressure</string>
+    <string name="key_settings_sensors_humidity">setting_sensors_humidity</string>
+    <string name="key_setting_sensors_enabled">setting_sensors_enabled</string>
+    <string name="default_setting_sensors_value">false</string>
+    <string name="key_setting_mqtt_basetopic">setting_mqtt_basetopic</string>
+    <string name="key_setting_mqtt_serverport">setting_mqtt_serverport</string>
+    <string name="default_setting_mqtt_serverport">1883</string>
+    <string name="key_setting_mqtt_servername">setting_mqtt_servername</string>
+    <string name="default_setting_mqtt_servername">192.186.1.1</string>
+    <string name="key_setting_mqtt_enabled">setting_mqtt_enabled</string>
+    <string name="default_setting_mqtt_enabled">false</string>
+    <string name="default_setting_mqtt_basetopic">wallpanel/mywallpanel/</string>
+    <string name="key_setting_mqtt_clientid">setting_mqtt_clientid</string>
+    <string name="default_setting_mqtt_clientid">mywallpanel</string>
+    <string name="default_setting_http_mjpegmaxstreams">1</string>
+    <string name="default_setting_http_mjpegenabled">false</string>
+    <string name="key_setting_http_mjpegmaxstreams">setting_http_mjpegmaxstreams</string>
+    <string name="default_setting_http_port">2971</string>
+    <string name="key_setting_http_mjpegenabled">setting_http_mjpegenabled</string>
+    <string name="default_setting_http_restenabled">false</string>
+    <string name="key_setting_http_port">setting_http_port</string>
+    <string name="default_setting_camera_qrcodeenabled">false</string>
+    <string name="key_setting_http_restenabled">setting_http_enabled</string>
+    <string name="default_setting_camera_facewake">false</string>
+    <string name="key_setting_camera_qrcodeenabled">setting_camera_qrcodeenabled</string>
+    <string name="default_setting_camera_faceenabled">false</string>
+    <string name="key_setting_camera_facewake">setting_camera_facewake</string>
+    <string name="default_setting_camera_motionontime">0</string>
+    <string name="key_setting_camera_faceenabled">setting_camera_faceenabled</string>
+    <string name="default_setting_camera_motionbright">false</string>
+    <string name="key_setting_camera_motionontime">setting_camera_motionontime</string>
+    <string name="default_setting_camera_motionwake">false</string>
+    <string name="key_setting_camera_motionbright">setting_camera_motionbright</string>
+    <string name="default_setting_camera_motionminluma">1000</string>
+    <string name="key_setting_camera_motionwake">setting_camera_motionwake</string>
+    <string name="default_setting_camera_motionleniency">20</string>
+    <string name="key_setting_camera_motionminluma">setting_camera_motionminluma</string>
+    <string name="default_setting_camera_processinginterval">500</string>
+    <string name="key_setting_camera_motionleniency">setting_camera_motionleniency</string>
+    <string name="default_setting_camera_motionenabled">false</string>
+    <string name="key_setting_camera_processinginterval">setting_camera_processinginterval</string>
+    <string name="default_setting_camera_cameraid">0</string>
+    <string name="key_setting_camera_motionenabled">setting_camera_motionenabled</string>
+    <string name="default_setting_camera_enabled">false</string>
+    <string name="key_setting_camera_cameraid">setting_camera_cameraid</string>
+    <string name="default_setting_app_showactivity">true</string>
+    <string name="key_setting_camera_enabled">setting_camera_enabled</string>
+    <string name="key_setting_app_showactivity">setting_app_showactivity</string>
+    <string name="default_setting_app_preventsleep">false</string>
+    <string name="key_setting_app_launchurl">setting_app_launchurl</string>
+    <string name="default_setting_app_launchurl">https://wallpanel-project.github.io/app-launchurl</string>
+    <string name="default_setting_app_deviceid">mywallpanel</string>
+    <string name="key_setting_app_preventsleep">setting_app_preventsleep</string>
+    <string name="key_settings_first_timed">setting_app_first_time</string>
+    <string name="key_setting_app_deviceid">setting_app_deviceid</string>
+    <string name="default_setting_test_zoomlevel">1.0</string>
+    <string name="key_camera_test">camera_test</string>
 
     <string-array name="settings_titles">
-        <item>@string/action_settings</item>
-        <item>@string/text_alarm_settings</item>
-        <item>@string/text_mqtt_settings</item>
-        <item>@string/sensors_settings</item>
-        <item>@string/preference_title_notification</item>
-        <item>@string/preference_camera_title</item>
-        <item>@string/preference_title_display</item>
-        <item>@string/preference_title_weather_settings</item>
-        <item>@string/preference_title_web_settings</item>
-        <item>@string/text_about</item>
+        <item>@string/title_settings</item>
+        <item>@string/title_camera_settings</item>
+        <item>@string/title_motion_settings</item>
+        <item>@string/title_mqtt_settings</item>
+        <item>@string/title_qrcode_settings</item>
+        <item>@string/title_http_settings</item>
     </string-array>
 
-    <string-array name="inactivity_values">
-        <item>15000</item>
-        <item>30000</item>
-        <item>60000</item>
-        <item>120000</item>
-        <item>180000</item>
-        <item>300000</item>
-        <item>600000</item>
-        <item>1800000</item>
+    <string-array name="zoom_level_names">
+        <item>"50%"</item>
+        <item>"100%"</item>
+        <item>"150%"</item>
+        <item>"200%"</item>
     </string-array>
 
-    <string-array name="timeout_values">
-        <item>15000</item>
-        <item>30000</item>
-        <item>60000</item>
-        <item>120000</item>
-        <item>180000</item>
-        <item>300000</item>
-        <item>600000</item>
-        <item>1800000</item>
-        <item>3600000</item>
-        <item>7200000</item>
-        <item>10800000</item>
-        <item>21600000</item>
-        <item>43200000</item>
-        <item>86400000</item>
-    </string-array>
-
-    <string-array name="flip_values">
-        <item>0F</item>
-        <item>-90f</item>
-        <item>90f</item>
-        <item>180f</item>
-    </string-array>
-
-    <string-array name="screen_brightness_array">
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
-        <item>4</item>
-        <item>5</item>
+    <string-array name="zoom_level_values">
+        <item>0.5</item>
+        <item>1.0</item>
+        <item>1.5</item>
+        <item>2.0</item>
     </string-array>
 
 </resources>

@@ -14,24 +14,27 @@
  * limitations under the License.
  */
 
-package org.wallpanelproject.android.ui
+package com.thanksmister.iot.wallpanel.ui
 
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
-import android.util.Log
-import android.view.Menu
-import android.view.MenuItem
 import android.view.View
-import android.view.WindowManager
+import com.thanksmister.iot.wallpanel.R
 
-import org.wallpanelproject.android.R
-import org.wallpanelproject.android.persistence.Configuration
+import com.thanksmister.iot.wallpanel.persistence.Configuration
+import com.thanksmister.iot.wallpanel.ui.activities.BrowserActivityLegacy
+import com.thanksmister.iot.wallpanel.ui.activities.BrowserActivityNative
+import com.thanksmister.iot.wallpanel.ui.activities.SettingsActivity
+import dagger.android.support.DaggerAppCompatActivity
 
 import timber.log.Timber
+import javax.inject.Inject
 
-class WelcomeActivity : AppCompatActivity() {
+class WelcomeActivity : DaggerAppCompatActivity() {
+
+    @Inject
+    lateinit var configuration: Configuration
 
     public override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -44,13 +47,11 @@ class WelcomeActivity : AppCompatActivity() {
             supportActionBar!!.title = getString(R.string.app_name)
         }
 
-        Timber.d("First time: " + Configuration(this@WelcomeActivity).isFirstTime)
-
-        if (!Configuration(this@WelcomeActivity).isFirstTime) {
+        Timber.d("First time: " + configuration.isFirstTime)
+        if (!configuration.isFirstTime) {
             Timber.d("Starting Browser on Startup")
             startBrowserActivity()
         }
-
         findViewById<View>(R.id.welcomeSettingsButton).setOnClickListener {
             startActivity(Intent(this@WelcomeActivity, SettingsActivity::class.java))
             finish()
@@ -60,7 +61,7 @@ class WelcomeActivity : AppCompatActivity() {
     // TODO move to base activity
     private fun startBrowserActivity() {
         Timber.i("startBrowserActivity Called")
-        val browserType = Configuration(this.applicationContext).androidBrowserType
+        val browserType = configuration.androidBrowserType
         val targetClass: Class<*>
         when (browserType) {
             "Native" -> {

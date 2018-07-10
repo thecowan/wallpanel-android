@@ -20,8 +20,42 @@
     android:id="@+id/cameraTestView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="16dp"
+    android:orientation="vertical"
     android:layout_gravity="center">
 
+    <ImageView
+        android:id="@+id/imageView_preview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_gravity="center"
+        android:background="@color/black"
+        tools:ignore="ContentDescription"/>
 
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="16dp"/>
+
+    <TextView
+        style="@style/TextAppearance.Description"
+        android:id="@+id/textView_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        tools:text="Place your messages here"/>
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="16dp"/>
+
+    <Button
+        android:id="@+id/dialogCloseButton"
+        style="@style/ButtonGreen.Small"
+        android:layout_weight="0"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="Close"/>
 
 </com.thanksmister.iot.wallpanel.ui.views.CameraTestView>

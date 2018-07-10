@@ -14,16 +14,12 @@
  * limitations under the License.
  */
 
-package com.localbuzz.mobile.android.di;
+package com.thanksmister.iot.wallpanel.di;
 
 import android.app.Application;
 import android.content.Context;
 
-
-import com.localbuzz.mobile.android.BaseApplication;
-import com.localbuzz.mobile.android.persistence.AppDatabase;
-import com.localbuzz.mobile.android.persistence.MessageDao;
-import com.localbuzz.mobile.android.utils.DialogUtils;
+import com.thanksmister.iot.wallpanel.WallPanel;
 
 import javax.inject.Singleton;
 
@@ -35,28 +31,11 @@ import dagger.Provides;
 abstract class ApplicationModule {
 
     @Binds
-    abstract Application application(BaseApplication baseApplication);
+    abstract Application application(WallPanel baseApplication);
 
     @Provides
     @Singleton
     static Context provideContext(Application application) {
         return application;
-    }
-
-    @Singleton
-    @Provides
-    static AppDatabase provideDatabase(Application app) {
-        return AppDatabase.getInstance(app);
-    }
-
-    @Singleton
-    @Provides
-    static MessageDao provideMessageDao(AppDatabase database) {
-        return database.messageDao();
-    }
-
-    @Provides
-    static DialogUtils providesDialogUtils(Context context) {
-        return new DialogUtils(context);
     }
 }

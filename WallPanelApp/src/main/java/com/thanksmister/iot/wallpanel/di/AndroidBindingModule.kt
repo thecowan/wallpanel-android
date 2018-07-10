@@ -14,16 +14,13 @@
  * limitations under the License.
  */
 
-package com.localbuzz.mobile.android.di
+package com.thanksmister.iot.wallpanel.di
 
 import android.arch.lifecycle.ViewModel
-import com.localbuzz.mobile.android.BaseActivity
-import com.localbuzz.mobile.android.BaseFragment
-import com.localbuzz.mobile.android.ui.*
-import com.localbuzz.mobile.android.viewmodel.CameraViewModel
-import com.localbuzz.mobile.android.viewmodel.MainViewModel
-import com.localbuzz.mobile.android.viewmodel.StartViewModel
-
+import com.thanksmister.iot.wallpanel.BootUpReceiver
+import com.thanksmister.iot.wallpanel.ui.*
+import com.thanksmister.iot.wallpanel.ui.activities.*
+import com.thanksmister.iot.wallpanel.ui.fragments.*
 import dagger.Binds
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
@@ -34,40 +31,54 @@ internal abstract class AndroidBindingModule {
 
     @Binds
     @IntoMap
-    @ViewModelKey(MainViewModel::class)
-    abstract fun bindsMessageViewModel(mainViewModel: MainViewModel): ViewModel
-
-    @Binds
-    @IntoMap
-    @ViewModelKey(StartViewModel::class)
-    abstract fun bindsStartViewModel(startViewModel: StartViewModel): ViewModel
-
-    @Binds
-    @IntoMap
-    @ViewModelKey(CameraViewModel::class)
-    abstract fun bindsCameraViewModel(cameraViewModel: CameraViewModel): ViewModel
+    @ViewModelKey(DetectionViewModel::class)
+    abstract fun cameraViewModel(viewModel: DetectionViewModel): ViewModel
 
     @ContributesAndroidInjector
-    internal abstract fun baseActivity(): BaseActivity
+    internal abstract fun welcomeActivity(): WelcomeActivity
 
     @ContributesAndroidInjector
-    internal abstract fun mainActivity(): MainActivity
+    internal abstract fun settingsActivity(): SettingsActivity
 
     @ContributesAndroidInjector
-    internal abstract fun mainFragment(): MainFragment
+    internal abstract fun browserActivity(): BrowserActivity
 
     @ContributesAndroidInjector
-    internal abstract fun cameraFragment(): CameraFragment
+    internal abstract fun browserActivityLegacy(): BrowserActivityLegacy
 
     @ContributesAndroidInjector
-    internal abstract fun baseFragment(): BaseFragment
+    internal abstract fun browserActivityNative(): BrowserActivityNative
 
     @ContributesAndroidInjector
-    internal abstract fun startFragment(): StartFragment
+    internal abstract fun liveCameraActivity(): LiveCameraActivity
 
     @ContributesAndroidInjector
-    internal abstract fun previewFragment(): PreviewFragment
+    internal abstract fun bitcoinHandler(): BootUpReceiver
 
     @ContributesAndroidInjector
-    internal abstract fun transitFragment(): TransmitFragment
+    internal abstract fun baseSettingsFragment(): BaseSettingsFragment
+
+    @ContributesAndroidInjector
+    internal abstract fun settingsFragment(): SettingsFragment
+
+    @ContributesAndroidInjector
+    internal abstract fun cameraSettings(): CameraSettingsFragment
+
+    @ContributesAndroidInjector
+    internal abstract fun mqttSettings(): MqttSettingsFragment
+
+    @ContributesAndroidInjector
+    internal abstract fun httpSettings(): HttpSettingsFragment
+
+    @ContributesAndroidInjector
+    internal abstract fun motionSettings(): MotionSettingsFragment
+
+    @ContributesAndroidInjector
+    internal abstract fun faceSettings(): FaceSettingsFragment
+
+    @ContributesAndroidInjector
+    internal abstract fun qrCodeSettings(): QrCodeSettingsFragment
+
+    @ContributesAndroidInjector
+    internal abstract fun sensorsSettings(): SensorsSettingsFragment
 }

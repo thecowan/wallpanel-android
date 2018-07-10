@@ -25,8 +25,9 @@
 
     <TextView
         style="@style/TextAppearance.Title"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textAlignment="center"
         android:text="@string/title_welcome_to_wallpanel"/>
 
     <Space
@@ -44,7 +45,7 @@
         android:layout_height="48dp" />
 
     <Button
-        style="@style/ButtonBlue.Small"
+        style="@style/ButtonGreen.Small"
         android:id="@+id/welcomeSettingsButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

@@ -14,49 +14,62 @@
  * limitations under the License.
  */
 
-package com.thanksmister.iot.wallpanel.ui
+package com.thanksmister.iot.wallpanel.ui.activities
 
 
 import android.Manifest
+import android.app.ActivityManager
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.support.annotation.RequiresApi
 import android.support.v4.app.ActivityCompat
+import android.support.v4.app.Fragment
+import android.support.v4.app.FragmentManager
+import android.support.v4.app.FragmentStatePagerAdapter
 import android.support.v4.content.ContextCompat
+import android.support.v4.view.PagerAdapter
+import android.support.v4.view.ViewPager
 import android.support.v7.app.AlertDialog
-import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
 import com.thanksmister.iot.wallpanel.R
+import com.thanksmister.iot.wallpanel.network.WallPanelService
 
 import com.thanksmister.iot.wallpanel.persistence.Configuration
+import com.thanksmister.iot.wallpanel.persistence.Configuration.Companion.PREF_BROWSER_AUTO
+import com.thanksmister.iot.wallpanel.persistence.Configuration.Companion.PREF_BROWSER_LEGACY
+import com.thanksmister.iot.wallpanel.persistence.Configuration.Companion.PREF_BROWSER_NATIVE
+import com.thanksmister.iot.wallpanel.ui.fragments.CameraSettingsFragment
+import com.thanksmister.iot.wallpanel.ui.fragments.SettingsFragment
+import com.thanksmister.iot.wallpanel.utils.DialogUtils
 import dagger.android.support.DaggerAppCompatActivity
+import kotlinx.android.synthetic.main.activity_settings.*
 
 import timber.log.Timber
 import javax.inject.Inject
 
-class SettingsActivity : DaggerAppCompatActivity() {
+class SettingsActivity : DaggerAppCompatActivity(){
 
-    @Inject
-    lateinit var configuration: Configuration
-
-    private var systemSettingsPermissionAsked: Boolean = false
+    @Inject lateinit var configuration: Configuration
+    @Inject lateinit var dialogUtils: DialogUtils
 
     public override fun onCreate(savedInstance: Bundle?) {
 
         super.onCreate(savedInstance)
 
-        if (supportActionBar != null) {
-            supportActionBar!!.title = "Settings"
-        }
+        setContentView(R.layout.activity_settings)
 
-        if (savedInstance == null) {
-            supportFragmentManager.beginTransaction().add(android.R.id.content, SettingsFragment()).commit()
-        }
+        // Stop our service for performance reasons and to pick up changes
+        val wallPanelService = Intent(this, WallPanelService::class.java)
+        stopService(wallPanelService)
+
+        lifecycle.addObserver(dialogUtils)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, intent: Intent?) {
@@ -65,9 +78,9 @@ class SettingsActivity : DaggerAppCompatActivity() {
         if (requestCode == PERMISSIONS_REQUEST_WRITE_SETTINGS) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (Settings.System.canWrite(applicationContext)) {
-                    Toast.makeText(this, "Write settings permission granted...", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, getString(R.string.toast_write_permissions_granted), Toast.LENGTH_LONG).show()
                 } else {
-                    Toast.makeText(this, "Write settings permission denied...", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, getString(R.string.toast_write_permissions_denied), Toast.LENGTH_LONG).show()
                 }
             }
         }
@@ -79,19 +92,14 @@ class SettingsActivity : DaggerAppCompatActivity() {
         requestCameraPermissions()
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        menuInflater.inflate(R.menu.menu_welcome, menu)
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        val id = item.itemId
-        if (id == R.id.action_settings) {
-            startBrowserActivity()
-            return true
+    private fun isServiceRunning(serviceClass: Class<*>): Boolean {
+        val manager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+        for (service in manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.name == service.service.className) {
+                return true
+            }
         }
-        return super.onOptionsItemSelected(item)
+        return false
     }
 
     private fun requestCameraPermissions() {
@@ -114,12 +122,11 @@ class SettingsActivity : DaggerAppCompatActivity() {
         when (requestCode) {
             PERMISSIONS_REQUEST_CAMERA -> {
                 // If request is cancelled, the result arrays are empty.
-                if (grantResults.size > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Toast.makeText(this, R.string.toast_camera_permission_granted, Toast.LENGTH_LONG).show()
                 } else {
                     Toast.makeText(this, R.string.toast_camera_permission_denied, Toast.LENGTH_LONG).show()
                 }
-
                 checkWriteSettings() // now check if we have write settings
             }
         }
@@ -127,62 +134,33 @@ class SettingsActivity : DaggerAppCompatActivity() {
 
     private fun checkWriteSettings() {
         Timber.d("checkWriteSettings")
-        if(systemSettingsPermissionAsked) return;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (!configuration.writeScreenPermissionsShown && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if(Settings.System.canWrite(applicationContext)) {
                 // na-da
             } else {
                 // launch the dialog to provide permissions
                 AlertDialog.Builder(this@SettingsActivity)
-                        .setTitle("Permissions Required")
-                        .setMessage("Do you want to grant permission to modify the system settings for screen brightness?")
+                        .setMessage(getString(R.string.dialog_write_permissions_description))
                         .setPositiveButton(android.R.string.ok) { _, _ ->
-                            val intent = Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS, Uri.parse("package:$packageName"))
-                            startActivityForResult(intent, 200)
-                            systemSettingsPermissionAsked = true
+                            configuration.writeScreenPermissionsShown = true
+                            launchWriteSettings()
                         }
                         .setNegativeButton(android.R.string.cancel){ _, _ ->
-                            Toast.makeText(this, "Write settings permission denied...", Toast.LENGTH_LONG).show()
-                            systemSettingsPermissionAsked = true
+                            configuration.writeScreenPermissionsShown = true
+                            Toast.makeText(this, getString(R.string.toast_write_permissions_denied), Toast.LENGTH_LONG).show()
                         }.show()
             }
         }
     }
 
-    private fun startBrowserActivity() {
-        Timber.d("startBrowserActivity")
-        val browserType = configuration.androidBrowserType
-        val targetClass: Class<*>
-        when (browserType) {
-            "Native" -> {
-                Timber.d("Explicitly using native browser")
-                targetClass = BrowserActivityNative::class.java
-            }
-            "Legacy" -> {
-                Timber.d("Explicitly using legacy browser")
-                targetClass = BrowserActivityLegacy::class.java
-            }
-            "Auto" -> {
-                Timber.d("Auto-selecting dashboard browser")
-                targetClass = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                    BrowserActivityNative::class.java
-                else
-                    BrowserActivityLegacy::class.java
-            }
-            else -> {
-                Timber.d("Auto-selecting dashboard browser")
-                targetClass = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                    BrowserActivityNative::class.java
-                else
-                    BrowserActivityLegacy::class.java
-            }
-        }
-        startActivity(Intent(applicationContext, targetClass))
+    @RequiresApi(Build.VERSION_CODES.M)
+    private fun launchWriteSettings() {
+        val intent = Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS, Uri.parse("package:$packageName"))
+        startActivityForResult(intent, 200)
     }
 
     companion object {
         const val PERMISSIONS_REQUEST_WRITE_SETTINGS = 200
         const val PERMISSIONS_REQUEST_CAMERA = 201
     }
-
 }

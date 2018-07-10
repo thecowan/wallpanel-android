@@ -22,6 +22,9 @@ package com.thanksmister.iot.wallpanel.controls
 class Motion {
 
     var type = MOTION_NOT_DETECTED
+    var byteArray: ByteArray? = null
+    var width: Int? = null
+    var height: Int? = null
 
     companion object {
         val MOTION_TOO_DARK = "motion_too_dark"

@@ -17,6 +17,7 @@
 package com.thanksmister.iot.wallpanel.controls
 
 import android.content.Context
+import android.content.Context.SENSOR_SERVICE
 import android.content.Intent
 import android.content.IntentFilter
 import android.hardware.Sensor
@@ -25,30 +26,23 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.BatteryManager
 import android.os.Handler
-import android.util.Log
-
-import com.thanksmister.iot.wallpanel.network.WallPanelService
-
 import org.json.JSONException
 import org.json.JSONObject
-
-import java.util.ArrayList
-
 import timber.log.Timber
+import java.util.*
+import javax.inject.Inject
 
-import android.content.Context.SENSOR_SERVICE
-
-class SensorReader2(private val wallPanelService: WallPanelService, private val context: Context) {
+class SensorReader2 @Inject
+constructor(private val context: Context) {
 
     private val VALUE = "value"
     private val UNIT = "unit"
     private val ID = "id"
-
     private val mSensorManager: SensorManager?
     private val mSensorList = ArrayList<Sensor>()
-
     private val sensorHandler = Handler()
-    private var updateFrequencyMilliSeconds: Int? = 0
+    private var updateFrequencyMilliSeconds: Int = 0
+    private var callback: SensorCallback? = null
 
     private val sensorHandlerRunnable = object : Runnable {
         override fun run() {
@@ -56,7 +50,7 @@ class SensorReader2(private val wallPanelService: WallPanelService, private val 
                 Timber.d("Updating Sensors")
                 getSensorReadings()
                 getBatteryReading()
-                sensorHandler.postDelayed(this, updateFrequencyMilliSeconds!!.toLong())
+                sensorHandler.postDelayed(this, updateFrequencyMilliSeconds.toLong())
             }
         }
     }
@@ -64,19 +58,18 @@ class SensorReader2(private val wallPanelService: WallPanelService, private val 
     init {
         Timber.d("Creating SensorReader")
         mSensorManager = context.getSystemService(SENSOR_SERVICE) as SensorManager
-        if (mSensorManager != null) {
-            for (s in mSensorManager.getSensorList(Sensor.TYPE_ALL)) {
-                if (getSensorName(s.type) != null)
-                    mSensorList.add(s)
-            }
+        for (s in mSensorManager.getSensorList(Sensor.TYPE_ALL)) {
+            if (getSensorName(s.type) != null)
+                mSensorList.add(s)
         }
     }
 
-    fun startReadings(freqSeconds: Int) {
+    fun startReadings(freqSeconds: Int, callback: SensorCallback) {
         Timber.d("startReadings Called")
+        this.callback = callback
         if (freqSeconds >= 0) {
             updateFrequencyMilliSeconds = 1000 * freqSeconds
-            sensorHandler.postDelayed(sensorHandlerRunnable, updateFrequencyMilliSeconds!!.toLong())
+            sensorHandler.postDelayed(sensorHandlerRunnable, updateFrequencyMilliSeconds.toLong())
         }
     }
 
@@ -86,18 +79,19 @@ class SensorReader2(private val wallPanelService: WallPanelService, private val 
         updateFrequencyMilliSeconds = 0
     }
 
+    // TODO add a call back same as camera reader to return data all publishing happens in service
     private fun publishSensorData(sensorName: String?, sensorData: JSONObject) {
         Timber.d("publishSensorData Called")
-        wallPanelService.publishMessage(
-                sensorData,
-                "sensor/" + sensorName!!)
+        if(sensorName != null) {
+            callback?.publishSensorData(sensorName, sensorData)
+        }
     }
 
     private fun getSensorName(sensorType: Int): String? {
         when (sensorType) {
             Sensor.TYPE_AMBIENT_TEMPERATURE -> return "temperature"
-            Sensor.TYPE_LIGHT // TODO change in API to light
-            -> return "light"
+            // TODO change in API to light
+            Sensor.TYPE_LIGHT -> return "light"
             Sensor.TYPE_MAGNETIC_FIELD -> return "magneticField"
             Sensor.TYPE_PRESSURE -> return "pressure"
             Sensor.TYPE_RELATIVE_HUMIDITY -> return "humidity"
@@ -131,18 +125,12 @@ class SensorReader2(private val wallPanelService: WallPanelService, private val 
     private fun getBatteryReading() {
         val intentFilter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
         val batteryStatus = context.registerReceiver(null, intentFilter)
-
-        val batteryStatusIntExtra = batteryStatus?.getIntExtra(BatteryManager.EXTRA_STATUS, -1)
-                ?: -1
+        val batteryStatusIntExtra = batteryStatus?.getIntExtra(BatteryManager.EXTRA_STATUS, -1) ?: -1
         val isCharging = batteryStatusIntExtra == BatteryManager.BATTERY_STATUS_CHARGING || batteryStatusIntExtra == BatteryManager.BATTERY_STATUS_FULL
-
         val chargePlug = batteryStatus?.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1) ?: -1
         val usbCharge = chargePlug == BatteryManager.BATTERY_PLUGGED_USB
         val acCharge = chargePlug == BatteryManager.BATTERY_PLUGGED_AC
-
         val level = batteryStatus?.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) ?: -1
-        //int scale = batteryStatus != null ? batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1) : -1;
-
         val data = JSONObject()
         try {
             data.put(VALUE, level)

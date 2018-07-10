@@ -14,23 +14,28 @@
  * limitations under the License.
  */
 
-package org.wallpanelproject.android
+package com.thanksmister.iot.wallpanel
 
 import android.content.Intent
-import android.app.Application
-
-import org.wallpanelproject.android.network.WallPanelService
+import com.thanksmister.iot.wallpanel.di.DaggerApplicationComponent
+import com.thanksmister.iot.wallpanel.network.WallPanelService
+import dagger.android.AndroidInjector
+import dagger.android.support.DaggerApplication
 
 import timber.log.Timber
 
-class WallPanel : Application() {
+class WallPanel : DaggerApplication() {
+
+    override fun applicationInjector(): AndroidInjector<out DaggerApplication> {
+        return DaggerApplicationComponent.builder().create(this);
+    }
 
     private var wallPanelService: Intent? = null
 
     override fun onCreate() {
         super.onCreate()
-        wallPanelService = Intent(this, WallPanelService::class.java)
-        startService(wallPanelService)
+        //wallPanelService = Intent(this, WallPanelService::class.java)
+        //startService(wallPanelService)
         if (BuildConfig.DEBUG) {
             Timber.plant(Timber.DebugTree())
         }

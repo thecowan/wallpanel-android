@@ -16,154 +16,19 @@
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <PreferenceCategory android:title="Application Settings">
+    <PreferenceCategory android:title="@string/pref_http_settings_title">
 
         <EditTextPreference
-            android:defaultValue="@string/default_setting_app_launchurl"
-            android:summary="Enter the fully qualified (include http/https) URL for your home automation dashboard."
-            android:key="@string/key_setting_app_launchurl"
-            android:selectAllOnFocus="true"
-            android:singleLine="true"
-            android:title="@string/title_setting_app_launchurl" />
-
-        <SwitchPreference
-            android:defaultValue="@string/default_setting_app_showactivity"
-            android:key="@string/key_setting_app_showactivity"
-            android:summary="I don't know what htis does, but sure. "
-            android:title="@string/title_setting_app_showactivity" />
-
-        <SwitchPreference
-            android:defaultValue="@string/default_setting_app_preventsleep"
-            android:key="@string/key_setting_app_preventsleep"
-            android:title="@string/title_setting_app_preventsleep"
-            android:summary="When active, keeps the screen on."/>
-
-        <SwitchPreference
-            android:defaultValue="@string/default_setting_android_startonboot"
-            android:key="@string/key_setting_android_startonboot"
-            android:title="@string/title_setting_android_startonboot"
-            android:summary="Will start the application upon system boot."/>
-
-        <ListPreference
-            android:defaultValue="@string/default_setting_android_browsertype"
-            android:entries="@array/browser_type_names"
-            android:entryValues="@array/browser_type_values"
-            android:key="@string/key_setting_android_browsertype"
-            android:title="@string/title_setting_android_browsertype" />
-
-        <ListPreference
-            android:defaultValue="@string/default_setting_test_zoomlevel"
-            android:entries="@array/zoom_level_names"
-            android:entryValues="@array/zoom_level_values"
-            android:key="@string/key_setting_test_zoomlevel"
-            android:summary="Zooms the browser level (experimental)."
-            android:title="@string/title_setting_test_zoomlevel" />
-
-        <Preference
-            android:key="button_key_camera"
-            android:title="@string/title_camera_settings"/>
-
-        <Preference
-            android:key="button_key_mqtt"
-            android:title="@string/title_mqtt_settings"/>
-
-        <Preference
-            android:key="button_key_http"
-            android:title="@string/title_http_settings"/>
-
-    </PreferenceCategory>
-
-
- <!--   <PreferenceCategory android:title="MQTT Settings">
-
-        <SwitchPreference
-            android:id="@+id/mqtt_switch"
-            android:defaultValue="@string/default_setting_mqtt_enabled"
-            android:key="@string/key_setting_mqtt_enabled"
-            android:title="@string/title_setting_mqtt_enabled"/>
-
-        <EditTextPreference
-            android:defaultValue="@string/default_setting_mqtt_servername"
-            android:key="@string/key_setting_mqtt_servername"
-            android:selectAllOnFocus="true"
-            android:singleLine="true"
-            android:title="@string/title_setting_mqtt_servername"
-            android:dependency="@string/key_setting_mqtt_enabled"/>
-
-        <EditTextPreference
-            android:defaultValue="@string/default_setting_mqtt_serverport"
-            android:inputType="number"
-            android:key="@string/key_setting_mqtt_serverport"
-            android:selectAllOnFocus="true"
-            android:singleLine="true"
-            android:title="@string/title_setting_mqtt_serverport"
-            android:dependency="@string/key_setting_mqtt_enabled"/>
-
-        <EditTextPreference
-            android:defaultValue="@string/default_setting_mqtt_basetopic"
-            android:key="@string/key_setting_mqtt_basetopic"
-            android:selectAllOnFocus="true"
-            android:singleLine="true"
-            android:title="@string/title_setting_mqtt_basetopic"
-            android:dependency="@string/key_setting_mqtt_enabled"/>
-
-        <EditTextPreference
-            android:defaultValue="@string/default_setting_mqtt_clientid"
-            android:key="@string/key_setting_mqtt_clientid"
-            android:selectAllOnFocus="true"
-            android:singleLine="true"
-            android:title="@string/title_setting_mqtt_clientid"
-            android:dependency="@string/key_setting_mqtt_enabled"/>
-
-        <EditTextPreference
-            android:defaultValue="@string/default_setting_mqtt_username"
-            android:key="@string/key_setting_mqtt_username"
-            android:selectAllOnFocus="true"
-            android:singleLine="true"
-            android:title="@string/title_setting_mqtt_username"
-            android:dependency="@string/key_setting_mqtt_enabled"/>
-
-        <EditTextPreference
-            android:defaultValue="@string/default_setting_mqtt_password"
-            android:key="@string/key_setting_mqtt_password"
-            android:password="true"
-            android:selectAllOnFocus="true"
-            android:singleLine="true"
-            android:title="@string/title_setting_mqtt_password"
-            android:dependency="@string/key_setting_mqtt_enabled"/>
-
-        <EditTextPreference
-            android:defaultValue="@string/default_setting_mqtt_sensorfrequency"
-            android:inputType="number"
-            android:key="@string/key_setting_mqtt_sensorfrequency"
-            android:selectAllOnFocus="true"
-            android:singleLine="true"
-            android:title="@string/title_setting_mqtt_sensorfrequency"
-            android:dependency="@string/key_setting_mqtt_enabled"/>
-
-    </PreferenceCategory>
-
-    <PreferenceCategory android:title="HTTP Settings">
+            android:textColor="@color/light_gray"
+            android:textSize="12sp"
+            android:selectable="false"
+            android:paddingTop="0dp"
+            android:summary="Control the application over HTTP using REST API calls. To find out which commands work with, review the help documentation."/>
 
         <SwitchPreference
             android:defaultValue="@string/default_setting_http_restenabled"
             android:key="@string/key_setting_http_restenabled"
-            android:title="@string/title_setting_http_restenabled" />
-
-        <SwitchPreference
-            android:defaultValue="@string/default_setting_http_mjpegenabled"
-            android:key="@string/key_setting_http_mjpegenabled"
-            android:title="@string/title_setting_http_mjpegenabled"
-            android:dependency="@string/key_setting_http_restenabled"/>
-
-        <EditTextPreference
-            android:defaultValue="@string/default_setting_http_mjpegmaxstreams"
-            android:inputType="number"
-            android:key="@string/key_setting_http_mjpegmaxstreams"
-            android:selectAllOnFocus="true"
-            android:singleLine="true"
-            android:title="@string/title_setting_http_mjpegmaxstreams"
-            android:dependency="@string/key_setting_http_restenabled"/>
+            android:title="@string/title_setting_http_restenabled"/>
 
         <EditTextPreference
             android:defaultValue="@string/default_setting_http_port"
@@ -176,118 +41,30 @@
 
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="Camera Settings">
-
-        <SwitchPreference
-            android:defaultValue="@string/default_setting_camera_enabled"
-            android:key="@string/key_setting_camera_enabled"
-            android:title="@string/title_setting_camera_enabled" />
-
-        <ListPreference
-            android:defaultValue="@string/default_setting_camera_cameraid"
-            android:key="@string/key_setting_camera_cameraid"
-            android:title="@string/title_setting_camera_cameraid"
-            android:dependency="@string/key_setting_camera_enabled"/>
+    <PreferenceCategory android:title="MJPEG Streaming">
 
         <EditTextPreference
-            android:defaultValue="@string/default_setting_camera_processinginterval"
+            android:textColor="@color/light_gray"
+            android:textSize="12sp"
+            android:selectable="false"
+            android:paddingTop="0dp"
+            android:summary="Use the device camera as an MJPEG streaming server. Connect to the stream using the device IP address
+and end point: 'http://192.168.1.1/camera/stream'"/>
+
+        <SwitchPreference
+            android:defaultValue="@string/default_setting_http_mjpegenabled"
+            android:key="@string/key_setting_http_mjpegenabled"
+            android:title="@string/title_setting_http_mjpegenabled"/>
+
+        <EditTextPreference
+            android:defaultValue="@string/default_setting_http_mjpegmaxstreams"
             android:inputType="number"
-            android:key="@string/key_setting_camera_processinginterval"
+            android:key="@string/key_setting_http_mjpegmaxstreams"
             android:selectAllOnFocus="true"
             android:singleLine="true"
-            android:title="@string/title_setting_camera_processinginterval"
-            android:dependency="@string/key_setting_camera_enabled"/>
-
-        <Preference
-            android:icon="@android:drawable/ic_menu_camera"
-            android:key="camera_test"
-            android:title="Camera Test"
-            android:summary="Test the camera settings."
-            android:dependency="@string/key_setting_camera_enabled"/>
+            android:title="@string/title_setting_http_mjpegmaxstreams"
+            android:dependency="@string/key_setting_http_mjpegenabled"/>
 
     </PreferenceCategory>
-
-    <PreferenceCategory android:title="Motion Detection">
-
-        <SwitchPreference
-            android:defaultValue="@string/default_setting_camera_motionenabled"
-            android:key="@string/key_setting_camera_motionenabled"
-            android:title="@string/title_setting_camera_motionenabled"
-            android:summary="Detects motion using the device's camera."
-            android:dependency="@string/key_setting_camera_enabled"/>
-
-        <SwitchPreference
-            android:defaultValue="@string/default_setting_camera_motionwake"
-            android:key="@string/key_setting_camera_motionwake"
-            android:title="@string/title_setting_camera_motionwake"
-            android:summary="Wakes the device screen when motion detected."
-            android:dependency="@string/key_setting_camera_motionenabled"/>
-
-        <SwitchPreference
-            android:defaultValue="@string/default_setting_camera_motionbright"
-            android:key="@string/key_setting_camera_motionbright"
-            android:title="@string/title_setting_camera_motionbright"
-            android:summary="Increases the screen brightness when motion detected."
-            android:dependency="@string/key_setting_camera_motionenabled"/>
-
-        <EditTextPreference
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:defaultValue="@string/default_setting_camera_motionontime"
-            android:inputType="number"
-            android:key="@string/key_setting_camera_motionontime"
-            android:selectAllOnFocus="true"
-            android:singleLine="true"
-            android:title="@string/title_setting_camera_motionontime"
-            android:dependency="@string/key_setting_camera_enabled"/>
-
-        <EditTextPreference
-            android:defaultValue="@string/default_setting_camera_motionleniency"
-            android:inputType="number"
-            android:key="@string/key_setting_camera_motionleniency"
-            android:selectAllOnFocus="true"
-            android:singleLine="true"
-            android:title="@string/title_setting_camera_motionleniency"
-            android:dependency="@string/key_setting_camera_enabled"/>
-
-        <EditTextPreference
-            android:defaultValue="@string/default_setting_camera_motionminluma"
-            android:inputType="number"
-            android:key="@string/key_setting_camera_motionminluma"
-            android:selectAllOnFocus="true"
-            android:singleLine="true"
-            android:title="@string/title_setting_camera_motionminluma"
-            android:dependency="@string/key_setting_camera_enabled"/>
-
-    </PreferenceCategory>
-
-    <PreferenceCategory android:title="Face Detection">
-
-        <SwitchPreference
-            android:defaultValue="@string/default_setting_camera_faceenabled"
-            android:key="@string/key_setting_camera_faceenabled"
-            android:title="@string/title_setting_camera_faceenabled"
-            android:summary="Enables face detection."
-            android:dependency="@string/key_setting_camera_enabled"/>
-
-        <SwitchPreference
-            android:defaultValue="@string/default_setting_camera_facewake"
-            android:key="@string/key_setting_camera_facewake"
-            android:title="@string/title_setting_camera_facewake"
-            android:summary="Turns on the screen when face detected."
-            android:dependency="@string/key_setting_camera_faceenabled"/>
-
-    </PreferenceCategory>
-
-    <PreferenceCategory android:title="QR Code Detection">
-
-        <SwitchPreference
-            android:defaultValue="@string/default_setting_camera_qrcodeenabled"
-            android:key="@string/key_setting_camera_qrcodeenabled"
-            android:title="@string/title_setting_camera_qrcodeenabled"
-            android:dependency="@string/key_setting_camera_enabled"/>
-
-    </PreferenceCategory>-->
 
 </PreferenceScreen>
-

@@ -30,7 +30,6 @@ import android.opengl.GLES11Ext
 import android.os.Handler
 import android.support.v8.renderscript.RenderScript
 import android.util.Log
-import android.util.SparseArray
 import android.view.Surface
 import android.view.WindowManager
 
@@ -46,7 +45,6 @@ import java.io.IOException
 import java.util.ArrayList
 
 import io.github.silvaren.easyrs.tools.Nv21Image
-import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -66,7 +64,7 @@ class CameraReader(private val mContext: Context) {
     private var motionDetector: AggregateLumaMotionDetection? = null
     private var faceDetector: FaceDetector? = null
     private var barcodeDetector: BarcodeDetector? = null
-    private var cameraDetectorCallback: CameraDetectorCallback? = null
+    private var cameraDetectorCallback: CameraCallback? = null
     private var minLuma = 1000
 
     private var detectorCheckHandler: Handler? = null
@@ -75,12 +73,14 @@ class CameraReader(private val mContext: Context) {
     private var mCheckInterval: Long = 1000
 
     private val previewCallback = Camera.PreviewCallback { data, cam ->
-        val lastFrame = currentFrame
-        val s = cam.parameters.previewSize
-        currentWidth = s.width
-        currentHeight = s.height
-        currentFrame = data
-        cam.addCallbackBuffer(lastFrame)
+        if(cam != null && cam.parameters != null) {
+            val lastFrame = currentFrame
+            val s = cam.parameters.previewSize
+            currentWidth = s.width
+            currentHeight = s.height
+            currentFrame = data
+            cam.addCallbackBuffer(lastFrame)
+        }
     }
 
     val jpeg: ByteArray
@@ -113,7 +113,7 @@ class CameraReader(private val mContext: Context) {
         getCameraList()
     }
 
-    fun start(cameraId: Int, checkInterval: Long, cameraDetectorCallback: CameraDetectorCallback) {
+    fun start(cameraId: Int, checkInterval: Long, cameraDetectorCallback: CameraCallback) {
         Timber.d("start Called")
         mCheckInterval = checkInterval
         this.cameraDetectorCallback = cameraDetectorCallback

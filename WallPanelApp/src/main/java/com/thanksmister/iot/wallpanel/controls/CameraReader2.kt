@@ -16,356 +16,249 @@
 
 package com.thanksmister.iot.wallpanel.controls
 
+import android.arch.lifecycle.LiveData
+import android.arch.lifecycle.MutableLiveData
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.ImageFormat
-import android.graphics.Matrix
-import android.graphics.Paint
-import android.graphics.Rect
-import android.graphics.SurfaceTexture
+import android.graphics.*
 import android.hardware.Camera
 import android.opengl.GLES11Ext
-import android.os.Handler
-import android.support.v8.renderscript.RenderScript
-import android.util.Log
-import android.view.Surface
-import android.view.WindowManager
-
-import com.google.android.gms.vision.Frame
+import android.os.AsyncTask
+import com.google.android.gms.vision.*
 import com.google.android.gms.vision.barcode.Barcode
 import com.google.android.gms.vision.barcode.BarcodeDetector
+import com.google.android.gms.vision.face.Face
 import com.google.android.gms.vision.face.FaceDetector
-import com.jjoe64.motiondetection.motiondetection.AggregateLumaMotionDetection
-import com.jjoe64.motiondetection.motiondetection.ImageProcessing
-
-import java.io.ByteArrayOutputStream
-import java.io.IOException
-import java.util.ArrayList
-
-import io.github.silvaren.easyrs.tools.Nv21Image
-import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
+import com.google.android.gms.vision.face.LargestFaceFocusingProcessor
+import com.thanksmister.iot.wallpanel.persistence.Configuration
+import com.thanksmister.iot.wallpanel.ui.views.CameraSourcePreview
 import timber.log.Timber
+import java.io.ByteArrayOutputStream
+import javax.inject.Inject
 
-class CameraReader(private val mContext: Context) {
+class CameraReader2 @Inject
+constructor(private val context: Context) {
 
-    private val mSurfaceTexture: SurfaceTexture = SurfaceTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES)
-    private var mCamera: Camera? = null
-
-    private var currentFrame = ByteArray(0)
-    private var currentWidth = 0
-    private var currentHeight = 0
-    private var currentOrientation = 0
-
-    private val rs: RenderScript = RenderScript.create(mContext)
-    private var motionDetector: AggregateLumaMotionDetection? = null
+    private var cameraCallback: CameraCallback? = null
     private var faceDetector: FaceDetector? = null
     private var barcodeDetector: BarcodeDetector? = null
-    private var cameraDetectorCallback: CameraCallback? = null
-    private var minLuma = 1000
+    private var motionDetector: MotionDetector? = null
+    private var multiDetector: MultiDetector? = null
+    private var cameraSource: CameraSource? = null
+    private var faceDetectorProcessor: LargestFaceFocusingProcessor? = null
+    private var barCodeDetectorProcessor: MultiProcessor<Barcode>? = null
+    private var motionDetectorProcessor: MultiProcessor<Motion>? = null
+    private val byteArray = MutableLiveData<ByteArray>()
+    private var bitmapComplete = false;
+    private var bitmapCreateTask: BitmapTask? = null
 
-    private var detectorCheckHandler: Handler? = null
-    private var checkQR = false
-    private var checkFace = false
-    private var mCheckInterval: Long = 1000
-
-    private val previewCallback = Camera.PreviewCallback { data, cam ->
-        if(cam != null && cam.parameters != null) {
-            val lastFrame = currentFrame
-            val s = cam.parameters.previewSize
-            currentWidth = s.width
-            currentHeight = s.height
-            currentFrame = data
-            cam.addCallbackBuffer(lastFrame)
-        }
+    fun getJpeg(): LiveData<ByteArray> {
+        return byteArray
     }
 
-    val jpeg: ByteArray
-        get() {
-            val outstr = ByteArrayOutputStream()
-            bitmap!!.compress(Bitmap.CompressFormat.JPEG, 80, outstr)
-            return outstr.toByteArray()
-        }
-
-    val bitmap: Bitmap?
-        get() = getBitmap(currentFrame)
-
-    fun getBitmapObservable(): Observable<Bitmap?> {
-        return Observable.fromCallable { getBitmap(currentFrame) }
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
+    private fun setJpeg(value: ByteArray) {
+        this.byteArray.value = value
     }
 
-    private val checkDetections = object : Runnable {
-        override fun run() {
-            if (currentFrame.size > 0) {
-                checkMotionDetection(currentFrame)
-                checkVisionLib(currentFrame)
-            }
-            detectorCheckHandler!!.postDelayed(this, mCheckInterval)
-        }
-    }
+    fun stopCamera() {
 
-    init {
-        getCameraList()
-    }
-
-    fun start(cameraId: Int, checkInterval: Long, cameraDetectorCallback: CameraCallback) {
-        Timber.d("start Called")
-        mCheckInterval = checkInterval
-        this.cameraDetectorCallback = cameraDetectorCallback
-        if (mCamera == null) {
-            mCamera = getCameraInstance(cameraId)
-            if (mCamera == null) {
-                Timber.d("There is no camera so nothing is going to happen :(")
-            } else {
-                try {
-                    mCamera!!.setPreviewTexture(mSurfaceTexture)
-                } catch (e: IOException) {
-                    e.printStackTrace()
-                }
-
-                val params = mCamera!!.parameters
-                val mPreviewFormat = mCamera!!.parameters.previewFormat
-                val previewSize = params.previewSize
-                currentWidth = previewSize.width
-                currentHeight = previewSize.height
-                val info = Camera.CameraInfo()
-                Camera.getCameraInfo(cameraId, info)
-                currentOrientation = info.orientation
-                val BITS_PER_BYTE = 8
-                val bytesPerPixel = ImageFormat.getBitsPerPixel(mPreviewFormat) / BITS_PER_BYTE
-
-                val mPreviewBufferSize = currentWidth * currentHeight * bytesPerPixel * 3 / 2 + 1
-                val mBuffer = ByteArray(mPreviewBufferSize)
-                currentFrame = ByteArray(mPreviewBufferSize)
-                mCamera!!.addCallbackBuffer(mBuffer)
-                mCamera!!.setPreviewCallbackWithBuffer(previewCallback)
-                mCamera!!.startPreview()
-            }
+        if(bitmapCreateTask != null) {
+            bitmapCreateTask!!.cancel(true)
+            bitmapCreateTask = null
         }
 
-        if (detectorCheckHandler == null) {
-            detectorCheckHandler = Handler()
-            detectorCheckHandler!!.postDelayed(checkDetections, mCheckInterval)
-        }
-    }
-
-    fun startMotionDetection(minLuma: Int, leniency: Int) {
-        Timber.d("startMotionDetection Called")
-        if (motionDetector == null) {
-            motionDetector = AggregateLumaMotionDetection()
-            this.minLuma = minLuma
-            motionDetector!!.setLeniency(leniency)
-        }
-    }
-
-    fun startFaceDetection() {
-        Timber.d("startFaceDetection Called")
-        if (faceDetector == null) {
-            faceDetector = FaceDetector.Builder(mContext)
-                    .setProminentFaceOnly(true)
-                    .build()
-        }
-        checkFace = true
-    }
-
-    fun startQRCodeDetection() {
-        Timber.d("startQRCodeDetection Called")
-        if (barcodeDetector == null) {
-            barcodeDetector = BarcodeDetector.Builder(mContext)
-                    .setBarcodeFormats(Barcode.QR_CODE)
-                    .build()
-        }
-        checkQR = true
-    }
-
-    fun stop() {
-        Timber.d("stop Called")
-        if (detectorCheckHandler != null) {
-            detectorCheckHandler!!.removeCallbacks(checkDetections)
-            detectorCheckHandler = null
+        if(cameraSource != null) {
+            cameraSource!!.release()
+            cameraSource = null
         }
 
-        checkFace = false
-        if (faceDetector != null) {
+        if(faceDetector != null) {
             faceDetector!!.release()
             faceDetector = null
         }
 
-        checkQR = false
-        if (barcodeDetector != null) {
+        if(barcodeDetector != null) {
             barcodeDetector!!.release()
             barcodeDetector = null
         }
 
-        if (motionDetector != null) {
+        if(motionDetector != null) {
+            motionDetector!!.release()
             motionDetector = null
         }
 
-        if (mCamera != null) {
-            mCamera!!.setPreviewCallback(null)
-            mCamera!!.stopPreview()
-            mCamera!!.release()
-            mCamera = null
+        if(multiDetector != null) {
+            multiDetector!!.release()
+            multiDetector = null
+        }
+
+        if(faceDetectorProcessor != null) {
+            faceDetectorProcessor!!.release()
+            faceDetectorProcessor = null
+        }
+
+        if(barCodeDetectorProcessor != null) {
+            barCodeDetectorProcessor!!.release()
+            barCodeDetectorProcessor = null
+        }
+
+        if(motionDetectorProcessor != null) {
+            motionDetectorProcessor!!.release()
+            motionDetectorProcessor = null
         }
     }
 
-    private fun getCameraInstance(cameraId: Int): Camera? {
-        Timber.d("getCameraInstance called")
-        var c: Camera? = null
-        val numCameras = Camera.getNumberOfCameras()
-        try {
-            if (cameraId >= numCameras)
-                c = Camera.open(0)
-            else
-                c = Camera.open(cameraId)
-            c!!.setDisplayOrientation(180)
-        } catch (e: Exception) {
-            Timber.e(e.message)
-        }
-
-        return c
+    fun startCamera(callback: CameraCallback, configuration: Configuration) {
+        startCamera(callback, configuration, null)
     }
 
-    // TODO need to do this on background thread
-    private fun getBitmap(data: ByteArray): Bitmap? {
-        if (mCamera != null) {
-            val result = Nv21Image.nv21ToBitmap(rs, data, currentWidth, currentHeight)
-            val windowService = mContext.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+    fun startCamera(callback: CameraCallback, configuration: Configuration, preview: CameraSourcePreview?) {
+
+        Timber.d("startCamera")
+
+        this.cameraCallback = callback
+
+        if (configuration.cameraEnabled) {
+
+            motionDetector = MotionDetector.Builder(configuration.cameraMotionMinLuma, configuration.cameraMotionLeniency).build()
+
+            motionDetectorProcessor = MultiProcessor.Builder<Motion>(MultiProcessor.Factory<Motion> {
+                object : Tracker<Motion>() {
+                    override fun onUpdate(p0: Detector.Detections<Motion>?, motion: Motion?) {
+                        super.onUpdate(p0, motion)
+                        if (cameraCallback != null && configuration.cameraMotionEnabled) {
+                            Timber.d("Motion Detected : " + motion?.type)
+                            if(Motion.MOTION_TOO_DARK == motion?.type) {
+                                cameraCallback!!.onTooDark()
+                            } else if (Motion.MOTION_DETECTED == motion?.type) {
+                                cameraCallback!!.onMotionDetected()
+                            }
+                        }
+                        if (motion?.byteArray != null) {
+                            bitmapCreateTask = BitmapTask(object : OnCompleteListener {
+                                override fun onComplete(byteArray: ByteArray?) {
+                                    bitmapComplete = true
+                                    setJpeg(byteArray!!)
+                                }
+                            })
+                            if(bitmapComplete) {
+                                bitmapComplete = false
+                                bitmapCreateTask!!.execute(motion.byteArray, motion.width, motion.height)
+                            }
+                        }
+                    }
+                }
+            }).build()
+
+            motionDetector!!.setProcessor(motionDetectorProcessor)
+
+            faceDetector = FaceDetector.Builder(context)
+                    .setProminentFaceOnly(true)
+                    .setTrackingEnabled(false)
+                    .setMode(FaceDetector.FAST_MODE)
+                    .setClassificationType(FaceDetector.NO_CLASSIFICATIONS)
+                    .setLandmarkType(FaceDetector.NO_LANDMARKS)
+                    .build()
+
+            faceDetectorProcessor = LargestFaceFocusingProcessor(faceDetector, object: Tracker<Face>() {
+                override fun onUpdate(detections: Detector.Detections<Face>, face: Face) {
+                    super.onUpdate(detections, face)
+                    if(detections.detectedItems.size() > 0) {
+                        if(cameraCallback != null && configuration.cameraFaceEnabled) {
+                            Timber.d("Face Detected")
+                            cameraCallback!!.onFaceDetected()
+                        }
+                    }
+                }
+            })
+
+            faceDetector!!.setProcessor(faceDetectorProcessor)
+
+            barcodeDetector = BarcodeDetector.Builder(context)
+                    .setBarcodeFormats(Barcode.QR_CODE)
+                    .build()
+
+            barCodeDetectorProcessor = MultiProcessor.Builder<Barcode>(MultiProcessor.Factory<Barcode> {
+                object : Tracker<Barcode>() {
+                    override fun onUpdate(p0: Detector.Detections<Barcode>?, p1: Barcode?) {
+                        super.onUpdate(p0, p1)
+                        if(cameraCallback != null && configuration.cameraQRCodeEnabled) {
+                            Timber.d("Barcode: " + p1?.displayValue)
+                            cameraCallback!!.onQRCode(p1?.displayValue)
+                        }
+                    }
+                }
+            }).build()
+
+            barcodeDetector!!.setProcessor(barCodeDetectorProcessor);
+
+            multiDetector = MultiDetector.Builder()
+                    .add(barcodeDetector)
+                    .add(faceDetector)
+                    .add(motionDetector)
+                    .build();
+
+            cameraSource = CameraSource.Builder(context, multiDetector)
+                    .setRequestedFps(15.0f)
+                    .setRequestedPreviewSize(640, 480)
+                    .setFacing(Camera.CameraInfo.CAMERA_FACING_FRONT)
+                    .build()
+
+            if(preview != null) {
+                preview.start(cameraSource)
+            }
+        }
+    }
+
+    interface OnCompleteListener {
+        fun onComplete(byteArray: ByteArray?)
+    }
+
+    class BitmapTask(private val onCompleteListener: OnCompleteListener) : AsyncTask<Any, Void, ByteArray>() {
+
+        override fun doInBackground(vararg params: kotlin.Any): ByteArray? {
+            if (isCancelled) {
+                return null
+            }
+            val byteArray = params[0] as ByteArray
+            val width = params[1] as Int
+            val height = params[2] as Int
+            val orientation = params[3] as Int
+
+            val out = ByteArrayOutputStream();
+            val yuvImage =  YuvImage(byteArray, ImageFormat.NV21, width, height, null);
+            yuvImage.compressToJpeg(Rect(0, 0, width, height), 30, out);
+            val imageBytes = out.toByteArray();
+            /*val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size);
+            val outstr = ByteArrayOutputStream()
+            bitmap!!.compress(Bitmap.CompressFormat.JPEG, 80, outstr)
+            return outstr.toByteArray()*/
+            return imageBytes
+
+            /*val result = Nv21Image.nv21ToBitmap(renderScript, byteArray, width, height)
+            val windowService = contextRef.get()!!.getSystemService(Context.WINDOW_SERVICE) as WindowManager
             val currentRotation = windowService.defaultDisplay.rotation
-            var rotate = currentOrientation
+            var rotate = orientation
             if (currentRotation == Surface.ROTATION_90)
                 rotate += 90
             else if (currentRotation == Surface.ROTATION_180)
                 rotate += 180
             else if (currentRotation == Surface.ROTATION_270) rotate += 270
             rotate %= 360
-
             val matrix = Matrix()
             matrix.postRotate(rotate.toFloat())
-            return Bitmap.createBitmap(result, 0, 0, currentWidth, currentHeight, matrix, true)
-        } else if (currentWidth > 0 && currentHeight > 0) {
-            return cameraNotEnabledBitmap()
-        } else {
-            Timber.e("Doesn't look like the canvas is ready.")
+            return Bitmap.createBitmap(result, 0, 0, width, height, matrix, true)*/
         }
-        return null
-    }
 
-    // TODO do on background thread
-    private fun cameraNotEnabledBitmap(): Bitmap? {
-        if (currentWidth == 0 && currentHeight == 0) {
-            return null
-        }
-        val b = Bitmap.createBitmap(currentWidth, currentHeight, Bitmap.Config.ARGB_8888)
-        val c = Canvas(b)
-        val paint = Paint()
-        paint.color = Color.BLACK
-        paint.style = Paint.Style.FILL
-        c.drawPaint(paint)
-
-        paint.color = Color.WHITE
-        paint.textSize = 20f
-        val r = Rect()
-        val text = "Camera Not Enabled "
-        c.getClipBounds(r)
-        val cHeight = r.height()
-        val cWidth = r.width()
-        paint.textAlign = Paint.Align.LEFT
-        paint.getTextBounds(text, 0, text.length, r)
-        val x = cWidth / 2f - r.width() / 2f - r.left.toFloat()
-        val y = cHeight / 2f + r.height() / 2f - r.bottom
-        c.drawText(text, x, y, paint)
-
-        return b
-    }
-
-    private fun checkMotionDetection(currentFrame: ByteArray) {
-        if (motionDetector != null) {
-            val img = ImageProcessing.decodeYUV420SPtoLuma(currentFrame, currentWidth, currentHeight)
-
-            // check if it is too dark
-            var lumaSum = 0
-            for (i in img) {
-                lumaSum += i
+        override fun onPostExecute(result: ByteArray?) {
+            super.onPostExecute(result)
+            if (isCancelled) {
+                return
             }
-            if (lumaSum < minLuma) {
-                if (cameraDetectorCallback != null) {
-                    cameraDetectorCallback!!.onTooDark()
-                }
-            } else if (motionDetector!!.detect(img, currentWidth, currentHeight)) {
-                // we have motion!
-                if (cameraDetectorCallback != null) {
-                    cameraDetectorCallback!!.onMotionDetected()
-                }
-            }
-        }
-    }
-
-    private fun checkVisionLib(currentFrame: ByteArray) {
-        if (checkFace || checkQR) {
-            val frame = Frame.Builder()
-                    .setBitmap(getBitmap(currentFrame)!!)
-                    .build()
-
-            if (checkFace) {
-                if (faceDetector!!.isOperational) { //TODO rebuild the face detector when the screen rotates
-                    if (faceDetector!!.detect(frame).size() > 0) {
-                        if (cameraDetectorCallback != null) {
-                            cameraDetectorCallback!!.onFaceDetected()
-                        }
-                    }
-                }
-            }
-
-            if (checkQR) {
-                if (barcodeDetector!!.isOperational) {
-                    val barcodes = barcodeDetector!!.detect(frame)
-                    if (barcodes.size() > 0) {
-                        val data = barcodes.valueAt(0).displayValue
-                        Timber.d("QR Code result: $data")
-                        if (cameraDetectorCallback != null) {
-                            cameraDetectorCallback!!.onQRCode(data)
-                        }
-                    }
-                }
-            }
+            onCompleteListener.onComplete(result)
         }
     }
 
     companion object {
-        fun getCameraList(): ArrayList<String> {
-            val cameraList: ArrayList<String> = ArrayList()
-            for (i in 0 until Camera.getNumberOfCameras()) {
-                var description: String
-                try {
-                    val c = Camera.open(i)
-                    val p = c.parameters
-                    val previewSize = p.previewSize
-                    val width = previewSize.width
-                    val height = previewSize.height
-                    val info = Camera.CameraInfo()
-                    Camera.getCameraInfo(i, info)
-                    description = java.text.MessageFormat.format(
-                            "{0}: {1} Camera {3}x{4} {2}º",
-                            i,
-                            if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) "Front" else "Back",
-                            info.orientation,
-                            width,
-                            height)
-                    c.release()
-                } catch (e: Exception) {
-                    Log.e("CameraReader", "Had a problem reading camera $i")
-                    e.printStackTrace()
-                    description = java.text.MessageFormat.format("{0}: Error", i)
-                }
-                cameraList.add(description)
-            }
-            return cameraList
-        }
+
     }
 }

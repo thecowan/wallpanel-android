@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.localbuzz.mobile.android.di;
+package com.thanksmister.iot.wallpanel.di;
 
-import com.localbuzz.mobile.android.BaseApplication;
+import com.thanksmister.iot.wallpanel.WallPanel;
 
 import javax.inject.Singleton;
 
@@ -28,14 +28,15 @@ import dagger.android.support.AndroidSupportInjectionModule;
 @Component(modules = {
         AndroidSupportInjectionModule.class,
         ApplicationModule.class,
+        ServicesModule.class,
         ActivityModule.class,
         AndroidBindingModule.class,
         DaggerViewModelInjectionModule.class
 })
 
 @ApplicationScope
-public interface ApplicationComponent extends AndroidInjector<BaseApplication> {
+public interface ApplicationComponent extends AndroidInjector<WallPanel> {
     @Component.Builder
-    abstract class Builder extends AndroidInjector.Builder<BaseApplication>{
+    abstract class Builder extends AndroidInjector.Builder<WallPanel>{
     }
 }
