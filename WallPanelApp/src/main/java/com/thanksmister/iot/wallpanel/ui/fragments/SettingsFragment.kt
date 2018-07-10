@@ -164,6 +164,7 @@ class SettingsFragment : BaseSettingsFragment() {
                     BrowserActivityLegacy::class.java
             }
         }
+        configuration.writeScreenPermissionsShown = false
         startActivity(Intent(context, targetClass))
     }
 

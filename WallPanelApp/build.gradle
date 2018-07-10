@@ -22,7 +22,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 
 def versionMajor = 0
-def versionMinor = 7
+def versionMinor = 8
 def versionPatch = 0
 def versionBuild = 0 // bump for dog food builds, public betas, etc.
 

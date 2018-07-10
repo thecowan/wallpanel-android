@@ -92,16 +92,6 @@ class SettingsActivity : DaggerAppCompatActivity(){
         requestCameraPermissions()
     }
 
-    private fun isServiceRunning(serviceClass: Class<*>): Boolean {
-        val manager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-        for (service in manager.getRunningServices(Integer.MAX_VALUE)) {
-            if (serviceClass.name == service.service.className) {
-                return true
-            }
-        }
-        return false
-    }
-
     private fun requestCameraPermissions() {
         Timber.d("requestCameraPermissions")
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -136,17 +126,16 @@ class SettingsActivity : DaggerAppCompatActivity(){
         Timber.d("checkWriteSettings")
         if (!configuration.writeScreenPermissionsShown && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if(Settings.System.canWrite(applicationContext)) {
-                // na-da
-            } else {
+                configuration.writeScreenPermissionsShown = true
+            } else if (!configuration.writeScreenPermissionsShown) {
                 // launch the dialog to provide permissions
+                configuration.writeScreenPermissionsShown = true
                 AlertDialog.Builder(this@SettingsActivity)
                         .setMessage(getString(R.string.dialog_write_permissions_description))
                         .setPositiveButton(android.R.string.ok) { _, _ ->
-                            configuration.writeScreenPermissionsShown = true
                             launchWriteSettings()
                         }
                         .setNegativeButton(android.R.string.cancel){ _, _ ->
-                            configuration.writeScreenPermissionsShown = true
                             Toast.makeText(this, getString(R.string.toast_write_permissions_denied), Toast.LENGTH_LONG).show()
                         }.show()
             }
