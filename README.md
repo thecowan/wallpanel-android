@@ -43,4 +43,5 @@ binary_sensor:
     name: "Motion"
     payload_on: '{"value":true}'
     payload_off: '{"value":false}'
-    device_class: motion
+    device_class: motion 
+```
