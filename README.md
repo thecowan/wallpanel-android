@@ -5,8 +5,8 @@ other features that integrate into your home automation platform.
 ## Quick Start
 You can either side load the application to your device from the release section or install the application from the Google Play store. The application will open to the welcome page with a link to update the settings. Go to settings, and setup the link to your web page or home automation platform. You may also update additional settings for Motion, Face Detection, and for publishing device sensor data. 
 
-## Sensors
-If MQTT is enabled, the application can publish data and states for various device sensors and camera.
+## MQTT Sensors and States Data
+If MQTT is enabled, the application can publish data and states for various device sensors, device camera detection, and application states.
 
 ### Device Sensors
 The application will post device sensors data per the API description and Sensor Reading Frequency. Curerntly device sensors for Pressure, Temperature, Light, and Battery Level are published. 
@@ -49,11 +49,10 @@ sensor:
     value_template: '{{ value_json.value }}'
 ```
 
-### Motion, Face, and QR Codes 
+### Camera Motion, Face, and QR Codes Detections
 In additional to device sensor data publishing. The application can also publish states for Motion detection and Face detection, as well as the data from QR Codes derived from the device camera.  
 
-#### Camera Data
-Sensor | Keys | Example | Notes
+Detection | Keys | Example | Notes
 -|-|-|-
 motion | value | ```{"value": false}``` | Published immediately when motion detected
 face | value | ```{"value": false}``` | Published immediately when face detected
@@ -83,6 +82,21 @@ binary_sensor:
     device_class: motion 
 ```
 
+### Application State Data
+The application canl also publish state data about the application such as the current dashboard url loaded or the screen state.
+
+Key | Value | Example | Description
+-|-|-|-
+currentUrl | URL String | ```{"currentUrl":"http://hasbian:8123/states"}``` | Current URL the Dashboard is displaying
+screenOn | true/false | ```{"screenOn":true}``` | If the screen is currently on
+
+* State values are presented together as a JSON block
+  * eg, ```{"currentUrl":"http://hasbian:8123/states","screenOn":true}```
+* For REST
+  * GET the JSON from URL ```http://[mywallpanel]:2971/api/state```
+* For MQTT
+  * WallPanel publishes state to topic ```[baseTopic]/state```
+    * Default Topic: ```wallpanel/mywallpanel/state```
 
 ## MJPEG Video Streaming
 
@@ -114,20 +128,6 @@ wake | true | ```{"wake": true}``` | Wakes the screen if it is asleep
   * WallPanel subscribes to topic ```[baseTopic]/command```
     * Default Topic: ```wallpanel/mywallpanel/command```
   * Publish a JSON payload to this topic
-
-### State
-Key | Value | Example | Description
--|-|-|-
-currentUrl | URL String | ```{"currentUrl":"http://hasbian:8123/states"}``` | Current URL the Dashboard is displaying
-screenOn | true/false | ```{"screenOn":true}``` | If the screen is currently on
-
-* State values are presented together as a JSON block
-  * eg, ```{"currentUrl":"http://hasbian:8123/states","screenOn":true}```
-* For REST
-  * GET the JSON from URL ```http://[mywallpanel]:2971/api/state```
-* For MQTT
-  * WallPanel publishes state to topic ```[baseTopic]/state```
-    * Default Topic: ```wallpanel/mywallpanel/state```
 
 
 <!-- ## Default Appication Configuration
