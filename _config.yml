@@ -1,4 +1,4 @@
 theme: jekyll-theme-minimal
 title: "WallPanel"
 description: "WallPanel is an Android application for Web Based Dashboards and Home Automation Platforms"
-logo: "https://github.com/thanksmister/wallpanel-android/blob/master/WallPanelApp/src/main/res/web_hi_res_512.png"
+logo: https://github.com/thanksmister/wallpanel-android/blob/master/WallPanelApp/src/main/res/web_hi_res_512.png
