@@ -48,6 +48,7 @@ class SettingsFragment : BaseSettingsFragment() {
     private var mqttPreference: Preference? = null
     private var httpPreference: Preference? = null
     private var sensorsPreference: Preference? = null
+    private var aboutPreference: Preference? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -75,6 +76,9 @@ class SettingsFragment : BaseSettingsFragment() {
         val id = item.itemId
         if (id == R.id.action_settings) {
             startBrowserActivity()
+            return true
+        } else if (id == R.id.action_help) {
+            showSupport()
             return true
         }
         return super.onOptionsItemSelected(item)
@@ -104,6 +108,7 @@ class SettingsFragment : BaseSettingsFragment() {
         mqttPreference = findPreference("button_key_mqtt")
         httpPreference = findPreference("button_key_http")
         sensorsPreference = findPreference("button_key_sensors")
+        aboutPreference = findPreference("button_key_about")
 
         cameraPreference!!.onPreferenceClickListener = Preference.OnPreferenceClickListener { preference ->
             view.let { Navigation.findNavController(it).navigate(R.id.camera_action) }
@@ -122,6 +127,11 @@ class SettingsFragment : BaseSettingsFragment() {
 
         sensorsPreference!!.onPreferenceClickListener = Preference.OnPreferenceClickListener { preference ->
             view.let { Navigation.findNavController(it).navigate(R.id.sensors_action) }
+            false
+        }
+
+        aboutPreference!!.onPreferenceClickListener = Preference.OnPreferenceClickListener { preference ->
+            view.let { Navigation.findNavController(it).navigate(R.id.about_action) }
             false
         }
     }

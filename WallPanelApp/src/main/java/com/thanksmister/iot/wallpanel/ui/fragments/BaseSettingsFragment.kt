@@ -17,7 +17,9 @@
 package com.thanksmister.iot.wallpanel.ui.fragments
 
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
+import android.net.Uri
 import android.os.Bundle
 import android.support.v14.preference.SwitchPreference
 import android.support.v7.preference.ListPreference
@@ -72,6 +74,7 @@ open class BaseSettingsFragment : PreferenceFragmentCompat(), SharedPreferences.
         preferenceScreen.sharedPreferences.unregisterOnSharedPreferenceChangeListener(this)
     }
 
+
     private val bindPreferenceSummaryToValueListener = Preference.OnPreferenceChangeListener { preference, value ->
         val stringValue = value.toString()
         if (preference is SwitchPreference) {
@@ -86,6 +89,10 @@ open class BaseSettingsFragment : PreferenceFragmentCompat(), SharedPreferences.
             preference.summary = stringValue
         }
         true
+    }
+
+    fun showSupport() {
+        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(AboutFragment.SUPPORT_URL)))
     }
 
     /**
@@ -112,7 +119,8 @@ open class BaseSettingsFragment : PreferenceFragmentCompat(), SharedPreferences.
         }
     }
 
-    companion object {
 
+    companion object {
+        const val SUPPORT_URL:String = "https://thanksmister.com/wallpanel-android/"
     }
 }// Required empty public constructor

@@ -81,7 +81,7 @@
     <string name="key_setting_app_showactivity">setting_app_showactivity</string>
     <string name="default_setting_app_preventsleep">false</string>
     <string name="key_setting_app_launchurl">setting_app_launchurl</string>
-    <string name="default_setting_app_launchurl">https://wallpanel-project.github.io/app-launchurl</string>
+    <string name="default_setting_app_launchurl">https://thanksmister.com/wallpanel-android/</string>
     <string name="default_setting_app_deviceid">mywallpanel</string>
     <string name="key_setting_app_preventsleep">setting_app_preventsleep</string>
     <string name="key_settings_first_timed">setting_app_first_time</string>

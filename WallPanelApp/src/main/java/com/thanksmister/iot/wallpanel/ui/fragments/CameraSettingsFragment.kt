@@ -19,14 +19,11 @@ package com.thanksmister.iot.wallpanel.ui.fragments
 import android.Manifest
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.support.v14.preference.SwitchPreference
 import android.support.v4.app.ActivityCompat
-import android.support.v7.preference.CheckBoxPreference
-import android.support.v7.preference.EditTextPreference
 import android.support.v7.preference.ListPreference
 import android.support.v7.preference.Preference
 import android.view.Menu
@@ -35,7 +32,6 @@ import android.view.MenuItem
 import android.view.View
 import androidx.navigation.Navigation
 import com.thanksmister.iot.wallpanel.R
-import com.thanksmister.iot.wallpanel.controls.CameraReader
 import com.thanksmister.iot.wallpanel.ui.activities.LiveCameraActivity
 import com.thanksmister.iot.wallpanel.ui.activities.SettingsActivity
 import com.thanksmister.iot.wallpanel.utils.CameraUtils
@@ -48,7 +44,6 @@ class CameraSettingsFragment : BaseSettingsFragment() {
     private var cameraTestPreference: Preference? = null
     private var qrCodePreference: Preference? = null
     private var motionDetectionPreference: Preference? = null
-    private var processingIntervalPreference: EditTextPreference? = null
     private var cameraPreference: SwitchPreference? = null
     private var faceDetectionPreference: Preference? = null
 
@@ -79,7 +74,7 @@ class CameraSettingsFragment : BaseSettingsFragment() {
             view?.let { Navigation.findNavController(it).navigate(R.id.settings_action) }
             return true
         } else if (id == R.id.action_help) {
-            // TODO launch help
+            showSupport()
             return true
         }
         return super.onOptionsItemSelected(item)
@@ -105,9 +100,6 @@ class CameraSettingsFragment : BaseSettingsFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         cameraPreference = findPreference(getString(R.string.key_setting_camera_enabled)) as SwitchPreference
-        bindPreferenceSummaryToValue(cameraPreference!!)
-
-        processingIntervalPreference = findPreference(getString(R.string.key_setting_camera_processinginterval)) as EditTextPreference
         cameraListPreference = findPreference(getString(R.string.key_setting_camera_cameraid)) as ListPreference
         cameraListPreference!!.setOnPreferenceChangeListener { preference, newValue ->
             if (preference is ListPreference) {
@@ -121,12 +113,13 @@ class CameraSettingsFragment : BaseSettingsFragment() {
            true;
         }
 
+        bindPreferenceSummaryToValue(cameraPreference!!)
+        bindPreferenceSummaryToValue(cameraListPreference!!);
+
         motionDetectionPreference = findPreference("button_key_motion_detection")
         faceDetectionPreference = findPreference("button_key_face_detection")
         qrCodePreference = findPreference("button_key_qr_code")
         cameraTestPreference = findPreference("button_key_camera_test")
-
-        processingIntervalPreference!!.summary = configuration.cameraProcessingInterval.toString()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             if (ActivityCompat.checkSelfPermission(activity!!.applicationContext, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
@@ -158,15 +151,6 @@ class CameraSettingsFragment : BaseSettingsFragment() {
         }
     }
 
-    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
-        when (key) {
-            getString(R.string.key_setting_camera_processinginterval) -> {
-                val value = processingIntervalPreference!!.text
-                processingIntervalPreference!!.summary = value
-            }
-        }
-    }
-
     private fun createCameraList() {
         Timber.d("createCameraList")
         val cameraList = CameraUtils.getCameraList()
@@ -176,14 +160,15 @@ class CameraSettingsFragment : BaseSettingsFragment() {
             vals[i] = Integer.toString(i)
         }
         cameraListPreference?.entryValues = vals
+
+        val index = cameraListPreference!!.findIndexOfValue(configuration.cameraId.toString())
+        cameraListPreference!!.summary = if (index >= 0)
+            cameraListPreference!!.entries[index]
+        else
+            ""
     }
 
-    //cameraId: Int, processingInterval: Long, motionDetection: Boolean,
-    //                           faceDetection: Boolean, qrCodeEnabled: Boolean, motionMinLuma: Int, motionLeniency: Int
     private fun startCameraTest(c: Context) {
-    /*    dialogUtils.showCameraTestView((activity as SettingsActivity), configuration.cameraId, configuration.cameraProcessingInterval,
-                configuration.cameraMotionEnabled, configuration.cameraFaceEnabled, configuration.cameraQRCodeEnabled,
-                configuration.cameraMotionMinLuma, configuration.cameraMotionLeniency)*/
         startActivity(Intent(c, LiveCameraActivity::class.java))
     }
 }

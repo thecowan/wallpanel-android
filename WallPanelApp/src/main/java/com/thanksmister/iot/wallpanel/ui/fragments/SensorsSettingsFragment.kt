@@ -63,7 +63,7 @@ class SensorsSettingsFragment : BaseSettingsFragment() {
             view?.let { Navigation.findNavController(it).navigate(R.id.settings_action) }
             return true
         } else if (id == R.id.action_help) {
-            // TODO launch help
+            showSupport()
             return true
         }
         return super.onOptionsItemSelected(item)

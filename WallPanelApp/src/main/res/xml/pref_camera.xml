@@ -27,14 +27,14 @@
         android:title="@string/title_setting_camera_cameraid"
         android:dependency="@string/key_setting_camera_enabled"/>
 
-    <EditTextPreference
+   <!-- <EditTextPreference
         android:defaultValue="@string/default_setting_camera_processinginterval"
         android:inputType="number"
         android:key="@string/key_setting_camera_processinginterval"
         android:selectAllOnFocus="true"
         android:singleLine="true"
         android:title="@string/title_setting_camera_processinginterval"
-        android:dependency="@string/key_setting_camera_enabled"/>
+        android:dependency="@string/key_setting_camera_enabled"/>-->
 
     <Preference
         android:key="button_key_motion_detection"

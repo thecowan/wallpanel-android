@@ -68,10 +68,6 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
             sharedPreferences.edit().putBoolean(context.getString(R.string.key_setting_camera_motionenabled), value).apply()
         }
 
-    val cameraProcessingInterval: Long
-        get() = java.lang.Long.valueOf(getStringPref(R.string.key_setting_camera_processinginterval,
-                R.string.default_setting_camera_processinginterval))
-
     val cameraMotionLeniency: Int
         get() = Integer.valueOf(getStringPref(R.string.key_setting_camera_motionleniency,
                 R.string.default_setting_camera_motionleniency))

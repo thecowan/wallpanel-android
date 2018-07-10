@@ -22,6 +22,7 @@
         <action android:id="@+id/mqtt_action" app:destination="@id/mqtt_fragment"/>
         <action android:id="@+id/http_action" app:destination="@id/http_fragment"/>
         <action android:id="@+id/sensors_action" app:destination="@id/sensors_fragment"/>
+        <action android:id="@+id/about_action" app:destination="@id/about_fragment"/>
     </fragment>
 
     <fragment android:id="@+id/camera_fragment"
@@ -31,6 +32,12 @@
         <action android:id="@+id/motion_action" app:destination="@id/motion_fragment"/>
         <action android:id="@+id/face_action" app:destination="@id/face_fragment"/>
         <action android:id="@+id/qrcode_action" app:destination="@id/qrcode_fragment"/>
+    </fragment>
+
+    <fragment android:id="@+id/about_fragment"
+        android:label="@string/pref_about_title"
+        android:name="com.thanksmister.iot.wallpanel.ui.fragments.AboutFragment" >
+        <action android:id="@+id/settings_action" app:destination="@id/settings_fragment"/>
     </fragment>
 
     <fragment android:id="@+id/sensors_fragment"

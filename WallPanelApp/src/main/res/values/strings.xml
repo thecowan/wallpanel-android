@@ -98,4 +98,18 @@
     <string name="summary_enable_sensor_data">Publishes available device sensor data over MQTT</string>
     <string name="menu_title_help">Help</string>
     <string name="menu_title_dashboard">Dashboard</string>
+
+    <string name="mail_to_subject_text">WallPanel Feedback</string>
+    <string name="mail_subject_text">Send Feedback:</string>
+
+    <string name="thanks_mister_title">Thanks, Mister!</string>
+    <string name="designer_developer_text">Design and development</string>
+    <string name="company_url_text">thanksmister.com</string>
+    <string name="company_email">mister@thanksmister.com</string>
+    <string name="text_feedback">Feedback</string>
+    <string name="text_rate_application">Rate application</string>
+    <string name="text_reddit">Reddit group</string>
+    <string name="text_license_information">License information</string>
+    <string name="text_github_code">GitHub code</string>
+    <string name="pref_about_title">About</string>
 </resources>

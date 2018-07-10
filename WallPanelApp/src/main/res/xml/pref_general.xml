@@ -61,6 +61,7 @@
 
     </PreferenceCategory>
 
+
     <PreferenceCategory android:title="Additional Settings">
 
         <Preference
@@ -80,6 +81,10 @@
             android:title="@string/title_sensor_settings"/>
 
     </PreferenceCategory>
+
+    <Preference
+        android:key="button_key_about"
+        android:title="@string/pref_about_title"/>
 
 </PreferenceScreen>
 
