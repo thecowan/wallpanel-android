@@ -1,6 +1,5 @@
 # WallPanel
-WallPanelis an Android application for displaying web based dashboards which has 
-other features that integrate into your home automation platform.
+WallPanel is an Android application for Web Based Dashboards and Home Automation Platforms.
 
 ## Quick Start
 You can either side load the application to your device from the release section or install the application from the Google Play store. The application will open to the welcome page with a link to update the settings. Go to settings, and setup the link to your web page or home automation platform. You may also update additional settings for Motion, Face Detection, and for publishing device sensor data. 
