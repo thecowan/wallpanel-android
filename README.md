@@ -9,8 +9,24 @@ You can either side load the application to your device from the release section
 If MQTT is enabled, the application can publish data and states for various device sensors and camera.
 
 ### Device Sensors
-The application will post device sensors data per the API description and Sensor Reading Frequency. Curerntly device sensors for Pressure, Temperature, Light, and Battery Level are published. Note that not all sensors are available on all devices.
+The application will post device sensors data per the API description and Sensor Reading Frequency. Curerntly device sensors for Pressure, Temperature, Light, and Battery Level are published. 
 
+#### Sensor Data
+Sensor | Keys | Example | Notes
+-|-|-|-
+battery | unit, value, charging, acPlugged, usbPlugged | ```{"unit":"%", "value":"39", "acPlugged":false, "usbPlugged":true, "charging":true}``` |
+brightness | unit, value | ```{"unit":"lx", "value":"920"}``` |
+pressure | unit, value | ```{"unit":"??", "value":"21"}``` |
+temperature | unit, value | ```{"unit":"??", "value":"70"}``` |
+
+*NOTE:* Sensor values are device specific. Not all devices will publish all sensor values.
+
+* Sensor values are constructued as JSON per the above table
+* For MQTT
+  * WallPanel publishes all sensors to MQTT under ```[baseTopic]/sensor```
+  * Each sensor publishes to a subtopic based on the type of sensor
+    * Example: ```wallpanel/mywallpanel/sensor/battery```
+    
 #### Home Assistant Examples
 ```YAML
 sensor:
@@ -36,6 +52,12 @@ sensor:
 ### Motion, Face, and QR Codes 
 In additional to device sensor data publishing. The application can also publish states for Motion detection and Face detection, as well as the data from QR Codes derived from the device camera.  
 
+#### Camera Data
+Sensor | Keys | Example | Notes
+-|-|-|-
+motion | value | ```{"value": false}``` | Published immediately when motion detected
+face | value | ```{"value": false}``` | Published immediately when face detected
+
 #### Home Assistant Examples
 
 ```YAML
@@ -56,10 +78,12 @@ binary_sensor:
     device_class: motion 
 ```
 
+
 ## MJPEG Video Streaming
 // TODO
 
-## WallPanel API
+
+## MQTT and HTTP Remote Control
 You can control the app remotely via MQTT or HTTP (REST). 
 
 ### Commands
@@ -95,23 +119,6 @@ screenOn | true/false | ```{"screenOn":true}``` | If the screen is currently on
 * For MQTT
   * WallPanel publishes state to topic ```[baseTopic]/state```
     * Default Topic: ```wallpanel/mywallpanel/state```
-
-### Sensors
-Sensor | Keys | Example | Notes
--|-|-|-
-battery | unit, value, charging, acPlugged, usbPlugged | ```{"unit":"%", "value":"39", "acPlugged":false, "usbPlugged":true, "charging":true}``` |
-brightness | unit, value | ```{"unit":"lx", "value":"920"}``` |
-pressure | unit, value | ```{"unit":"??", "value":"21"}``` |
-motion | value | ```{"value": false}``` | Published immediately when motion detected
-face | value | ```{"value": false}``` | Published immediately when face detected
-
-*NOTE:* Sensor values are device specific. Not all devices will publish all sensor values.
-
-* Sensor values are constructued as JSON per the above table
-* For MQTT
-  * WallPanel publishes all sensors to MQTT under ```[baseTopic]/sensor```
-  * Each sensor publishes to a subtopic based on the type of sensor
-    * Example: ```wallpanel/mywallpanel/sensor/battery```
 
 
 <!-- ## Default Appication Configuration
