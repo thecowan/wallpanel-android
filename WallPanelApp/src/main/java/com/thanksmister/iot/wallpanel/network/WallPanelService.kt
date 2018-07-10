@@ -43,9 +43,9 @@ import com.koushikdutta.async.http.server.AsyncHttpServer
 import com.koushikdutta.async.http.server.AsyncHttpServerResponse
 import com.thanksmister.iot.wallpanel.R
 import com.thanksmister.iot.wallpanel.controls.CameraCallback
-import com.thanksmister.iot.wallpanel.controls.CameraReader2
+import com.thanksmister.iot.wallpanel.controls.CameraReader
 import com.thanksmister.iot.wallpanel.controls.SensorCallback
-import com.thanksmister.iot.wallpanel.controls.SensorReader2
+import com.thanksmister.iot.wallpanel.controls.SensorReader
 import com.thanksmister.iot.wallpanel.persistence.Configuration
 import com.thanksmister.iot.wallpanel.ui.WelcomeActivity
 import com.thanksmister.iot.wallpanel.ui.activities.BrowserActivity.Companion.BROADCAST_ACTION_CLEAR_BROWSER_CACHE
@@ -69,9 +69,9 @@ class WallPanelService : LifecycleService() {
     @Inject
     lateinit var configuration: Configuration
     @Inject
-    lateinit var cameraReader: CameraReader2
+    lateinit var cameraReader: CameraReader
     @Inject
-    lateinit var sensorReader: SensorReader2
+    lateinit var sensorReader: SensorReader
 
     private val VALUE = "value"
 

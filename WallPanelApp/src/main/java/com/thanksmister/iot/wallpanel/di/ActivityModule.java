@@ -25,8 +25,8 @@ import android.location.LocationManager;
 import android.support.v7.preference.PreferenceManager;
 import android.view.LayoutInflater;
 
-import com.thanksmister.iot.wallpanel.controls.CameraReader2;
-import com.thanksmister.iot.wallpanel.controls.SensorReader2;
+import com.thanksmister.iot.wallpanel.controls.CameraReader;
+import com.thanksmister.iot.wallpanel.controls.SensorReader;
 import com.thanksmister.iot.wallpanel.persistence.Configuration;
 import com.thanksmister.iot.wallpanel.utils.DialogUtils;
 
@@ -34,8 +34,6 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
-
-import static android.content.Context.MODE_PRIVATE;
 
 @Module
 class ActivityModule {
@@ -72,12 +70,12 @@ class ActivityModule {
     }
 
     @Provides
-    static CameraReader2 provideCameraReader(Application app) {
-        return new CameraReader2(app);
+    static CameraReader provideCameraReader(Application app) {
+        return new CameraReader(app);
     }
 
     @Provides
-    static SensorReader2 provideSensorReader(Application app) {
-        return new SensorReader2(app);
+    static SensorReader provideSensorReader(Application app) {
+        return new SensorReader(app);
     }
 }

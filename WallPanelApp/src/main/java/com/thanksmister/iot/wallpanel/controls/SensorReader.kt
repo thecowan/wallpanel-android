@@ -32,7 +32,7 @@ import timber.log.Timber
 import java.util.*
 import javax.inject.Inject
 
-class SensorReader2 @Inject
+class SensorReader @Inject
 constructor(private val context: Context) {
 
     private val VALUE = "value"

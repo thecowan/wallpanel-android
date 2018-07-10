@@ -23,7 +23,7 @@ import android.arch.lifecycle.MutableLiveData
 import android.hardware.Camera
 import android.util.Log
 import com.thanksmister.iot.wallpanel.controls.CameraCallback
-import com.thanksmister.iot.wallpanel.controls.CameraReader2
+import com.thanksmister.iot.wallpanel.controls.CameraReader
 import com.thanksmister.iot.wallpanel.persistence.Configuration
 import com.thanksmister.iot.wallpanel.ui.views.CameraSourcePreview
 import timber.log.Timber
@@ -35,7 +35,7 @@ import javax.inject.Inject
  */
 class DetectionViewModel @Inject
 constructor(application: Application, private val configuration: Configuration,
-            private val cameraReader: CameraReader2) : AndroidViewModel(application) {
+            private val cameraReader: CameraReader) : AndroidViewModel(application) {
 
     private val cameras = MutableLiveData<ArrayList<String>>()
 
