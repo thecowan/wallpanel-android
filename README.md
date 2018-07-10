@@ -30,8 +30,8 @@ sensor:
     value_template: '{{ value_json.value }}'
 ```
 
-## Motion, Face, and QR Codes 
-In additiona to device sensor data publishing. The application can also publish states for Motion detection and Face detection, as well as the data from QR Codes.  
+### Motion, Face, and QR Codes 
+In additional to device sensor data publishing. The application can also publish states for Motion detection and Face detection, as well as the data from QR Codes derived from the device camera.  
 
 ### Home Assistant Examples
 
