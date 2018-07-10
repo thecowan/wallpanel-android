@@ -54,8 +54,8 @@ binary_sensor:
 ## MJPEG Video Streaming
 // TODO
 
-## API
-You can control the app remotely via MQTT or HTTP(REST). 
+## WallPanel API
+You can control the app remotely via MQTT or HTTP (REST). 
 
 ### Commands
 Key | Value | Example Payload | Description
@@ -107,7 +107,8 @@ motion | value | ```{"value": false}``` | Published immediately when motion dete
   * Each sensor publishes to a subtopic based on the type of sensor
     * Example: ```wallpanel/mywallpanel/sensor/battery```
 
-### Configuration
+
+## Default Appication Configuration
 Key | Value | Behavior | Default
 -|-|-|-
 app.deviceId | String | The unique identifier for this WallPanel device | mywallpanel
@@ -131,5 +132,3 @@ mqtt.clientId | String | The client ID to connect to MQTT with | {app.deviceId}
 mqtt.username | String | The username to connect to MQTT with (or blank) |  
 mqtt.password | String | The password to connect to MQTT with (or blank) | 
 mqtt.sensorFrequency | Int | The frequency to post sensor data in seconds, or 0 to never post | 0 
-
-*NOTE:* Currently these are only configured locally.
