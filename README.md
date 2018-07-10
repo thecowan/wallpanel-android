@@ -58,6 +58,11 @@ Sensor | Keys | Example | Notes
 motion | value | ```{"value": false}``` | Published immediately when motion detected
 face | value | ```{"value": false}``` | Published immediately when face detected
 
+* For MQTT
+  * WallPanel publishes all sensors to MQTT under ```[baseTopic]/sensor```
+  * Each sensor publishes to a subtopic based on the type of sensor
+    * Example: ```wallpanel/mywallpanel/sensor/motion```
+
 #### Home Assistant Examples
 
 ```YAML
