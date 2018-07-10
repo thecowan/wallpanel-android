@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2018 ThanksMister LLC
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License. 
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed 
+  ~ under the License is distributed on an "AS IS" BASIS, 
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+  ~ See the License for the specific language governing permissions and 
+  ~ limitations under the License.
+  -->
+
+<resources>
+
+    <string name="text_f" translatable="false">°F</string>
+    <string name="text_c" translatable="false">°C</string>
+
+    <string name="license" translatable="false"><![CDATA[
+        <br><b>Copyright 2017 ThanksMister LLC</b><br>
+        <br>
+        This application contains open source libraries under the Apache License, Version 2.0 (the "License");
+        you may not use this file except in compliance with the License.
+        You may obtain a copy of the License at
+        <br>
+        <a href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a>
+        <br>
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+    ]]></string>
+
+    <string name="text_sensor_mqtt_output" translatable="false">"{\"topic\":\"%1$s\",\"payload\":\"%2$s\"}"</string>
+
+    <string-array name="settings_titles">
+        <item>@string/action_settings</item>
+        <item>@string/text_alarm_settings</item>
+        <item>@string/text_mqtt_settings</item>
+        <item>@string/sensors_settings</item>
+        <item>@string/preference_title_notification</item>
+        <item>@string/preference_camera_title</item>
+        <item>@string/preference_title_display</item>
+        <item>@string/preference_title_weather_settings</item>
+        <item>@string/preference_title_web_settings</item>
+        <item>@string/text_about</item>
+    </string-array>
+
+    <string-array name="inactivity_values">
+        <item>15000</item>
+        <item>30000</item>
+        <item>60000</item>
+        <item>120000</item>
+        <item>180000</item>
+        <item>300000</item>
+        <item>600000</item>
+        <item>1800000</item>
+    </string-array>
+
+    <string-array name="timeout_values">
+        <item>15000</item>
+        <item>30000</item>
+        <item>60000</item>
+        <item>120000</item>
+        <item>180000</item>
+        <item>300000</item>
+        <item>600000</item>
+        <item>1800000</item>
+        <item>3600000</item>
+        <item>7200000</item>
+        <item>10800000</item>
+        <item>21600000</item>
+        <item>43200000</item>
+        <item>86400000</item>
+    </string-array>
+
+    <string-array name="flip_values">
+        <item>0F</item>
+        <item>-90f</item>
+        <item>90f</item>
+        <item>180f</item>
+    </string-array>
+
+    <string-array name="screen_brightness_array">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+    </string-array>
+
+</resources>
