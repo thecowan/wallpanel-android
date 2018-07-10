@@ -11,7 +11,7 @@ If MQTT is enabled, the application can publish data and states for various devi
 ### Device Sensors
 The application will post device sensors data per the API description and Sensor Reading Frequency. Curerntly device sensors for Pressure, Temperature, Light, and Battery Level are published. Note that not all sensors are available on all devices.
 
-### Home Assistant Examples
+#### Home Assistant Examples
 ```YAML
 sensor:
   - platform: mqtt
@@ -36,7 +36,7 @@ sensor:
 ### Motion, Face, and QR Codes 
 In additional to device sensor data publishing. The application can also publish states for Motion detection and Face detection, as well as the data from QR Codes derived from the device camera.  
 
-### Home Assistant Examples
+#### Home Assistant Examples
 
 ```YAML
 binary_sensor:
