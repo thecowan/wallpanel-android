@@ -6,7 +6,10 @@ other features that integrate into your home automation platform.
 You can either side load the application to your device from the release section or install the application from the Google Play store. The application will open to the welcome page with a link to update the settings. Go to settings, and setup the link to your web page or home automation platform. You may also update additional settings for Motion, Face Detection, and for publishing device sensor data. 
 
 ## Sensors
-If MQTT is enabled, the app will post sensors per the API description and Sensor Reading Frequency. Curerntly device sensors for Pressure, Temperature, Light, and Battery Level are published. Note that not all sensors are available on all devices.
+If MQTT is enabled, the application can publish data and states for various device sensors and camera.
+
+### Device Sensors
+The application will post device sensors data per the API description and Sensor Reading Frequency. Curerntly device sensors for Pressure, Temperature, Light, and Battery Level are published. Note that not all sensors are available on all devices.
 
 ### Home Assistant Examples
 ```YAML
@@ -100,6 +103,7 @@ battery | unit, value, charging, acPlugged, usbPlugged | ```{"unit":"%", "value"
 brightness | unit, value | ```{"unit":"lx", "value":"920"}``` |
 pressure | unit, value | ```{"unit":"??", "value":"21"}``` |
 motion | value | ```{"value": false}``` | Published immediately when motion detected
+face | value | ```{"value": false}``` | Published immediately when face detected
 
 *NOTE:* Sensor values are device specific. Not all devices will publish all sensor values.
 
