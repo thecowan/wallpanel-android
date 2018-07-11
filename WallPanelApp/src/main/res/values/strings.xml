@@ -118,7 +118,7 @@
     <string name="pref_motion_detection_summary">Detects motion using the device\'s camera.</string>
     <string name="pref_motion_wake_summary">Wakes the device screen when motion detected.</string>
     <string name="pref_camera_bright_summary">Increases the screen brightness when motion or face detected.</string>
-    <string name="pref_motion_leniency_description">The maximum tolerance of the difference between images. A lower tolerance means motion is more sensitive (1 –2 0).</string>
+    <string name="pref_motion_leniency_description">The maximum tolerance of the difference between images. A lower tolerance means motion is more sensitive (1 – 20).</string>
     <string name="pref_motion_luma_description">Minimum brightness level to detect motion. No motion will be detected if brightness falls below this value (1 – 1000).</string>
     <string name="pref_mjpeg_streaming_description">Use the device camera as a live MJPEG stream. Connect to the stream using the device IP address, HTTP Port, and end point: http://192.168.1.1:2971/camera/stream</string>
     <string name="pref_mjpeg_streaming_title">MJPEG Streaming</string>

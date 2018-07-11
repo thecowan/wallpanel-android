@@ -24,6 +24,7 @@ import android.os.Build
 import android.os.Bundle
 import android.support.v14.preference.SwitchPreference
 import android.support.v4.app.ActivityCompat
+import android.support.v7.preference.EditTextPreference
 import android.support.v7.preference.ListPreference
 import android.support.v7.preference.Preference
 import android.view.Menu
@@ -46,6 +47,8 @@ class CameraSettingsFragment : BaseSettingsFragment() {
     private var motionDetectionPreference: Preference? = null
     private var cameraPreference: SwitchPreference? = null
     private var faceDetectionPreference: Preference? = null
+    private var motionBrightPreference: SwitchPreference? = null
+    private var motionDimPreference: EditTextPreference? = null
 
     override fun onAttach(context: Context) {
         AndroidSupportInjection.inject(this)
@@ -99,6 +102,8 @@ class CameraSettingsFragment : BaseSettingsFragment() {
 
         super.onViewCreated(view, savedInstanceState)
 
+        motionBrightPreference = findPreference(getString(R.string.key_setting_camera_motionbright)) as SwitchPreference
+        motionDimPreference = findPreference(getString(R.string.key_setting_camera_motionontime)) as EditTextPreference
         cameraPreference = findPreference(getString(R.string.key_setting_camera_enabled)) as SwitchPreference
         cameraListPreference = findPreference(getString(R.string.key_setting_camera_cameraid)) as ListPreference
         cameraListPreference!!.setOnPreferenceChangeListener { preference, newValue ->
@@ -115,6 +120,8 @@ class CameraSettingsFragment : BaseSettingsFragment() {
 
         bindPreferenceSummaryToValue(cameraPreference!!)
         bindPreferenceSummaryToValue(cameraListPreference!!);
+        bindPreferenceSummaryToValue(motionBrightPreference!!)
+        bindPreferenceSummaryToValue(motionDimPreference!!)
 
         motionDetectionPreference = findPreference("button_key_motion_detection")
         faceDetectionPreference = findPreference("button_key_face_detection")
