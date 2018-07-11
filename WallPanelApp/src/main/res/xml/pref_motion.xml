@@ -31,13 +31,6 @@
             android:summary="@string/pref_motion_wake_summary"
             android:dependency="@string/key_setting_camera_motionenabled"/>
 
-        <SwitchPreference
-            android:defaultValue="@string/default_setting_camera_motionbright"
-            android:key="@string/key_setting_camera_motionbright"
-            android:title="@string/title_setting_camera_motionbright"
-            android:summary="@string/pref_camera_bright_summary"
-            android:dependency="@string/key_setting_camera_motionenabled"/>
-
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/pref_motion_adjustments_title">
@@ -88,6 +81,7 @@
             android:selectable="false"
             android:paddingTop="0dp"
             android:summary="@string/pref_motion_luma_description"/>
+
 
     </PreferenceCategory>
 

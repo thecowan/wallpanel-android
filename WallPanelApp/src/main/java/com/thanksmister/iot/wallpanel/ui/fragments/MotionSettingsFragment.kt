@@ -34,7 +34,7 @@ class MotionSettingsFragment : BaseSettingsFragment() {
     private var motionDetectionPreference: SwitchPreference? = null
     private var motionWakePreference: SwitchPreference? = null
     private var motionBrightPreference: SwitchPreference? = null
-    //private var motionIntervalPreference: EditTextPreference? = null
+    private var motionDimPreference: EditTextPreference? = null
     private var motionLeniencyPreference: EditTextPreference? = null
     private var motionLumaPreference: EditTextPreference? = null
 
@@ -81,14 +81,14 @@ class MotionSettingsFragment : BaseSettingsFragment() {
         motionDetectionPreference = findPreference(getString(R.string.key_setting_camera_motionenabled)) as SwitchPreference
         motionWakePreference = findPreference(getString(R.string.key_setting_camera_motionwake)) as SwitchPreference
         motionBrightPreference = findPreference(getString(R.string.key_setting_camera_motionbright)) as SwitchPreference
-        //motionIntervalPreference = findPreference(getString(R.string.key_setting_camera_motionontime)) as EditTextPreference
+        motionDimPreference = findPreference(getString(R.string.key_setting_camera_motionontime)) as EditTextPreference
         motionLeniencyPreference = findPreference(getString(R.string.key_setting_camera_motionleniency)) as EditTextPreference
         motionLumaPreference = findPreference(getString(R.string.key_setting_camera_motionminluma)) as EditTextPreference
 
         bindPreferenceSummaryToValue(motionDetectionPreference!!)
         bindPreferenceSummaryToValue(motionWakePreference!!)
         bindPreferenceSummaryToValue(motionBrightPreference!!)
-        //bindPreferenceSummaryToValue(motionIntervalPreference!!)
+        bindPreferenceSummaryToValue(motionDimPreference!!)
         bindPreferenceSummaryToValue(motionLeniencyPreference!!)
         bindPreferenceSummaryToValue(motionLumaPreference!!)
     }

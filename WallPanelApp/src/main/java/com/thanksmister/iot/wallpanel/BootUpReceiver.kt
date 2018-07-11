@@ -21,7 +21,7 @@ import android.content.Context
 import android.content.Intent
 
 import com.thanksmister.iot.wallpanel.persistence.Configuration
-import com.thanksmister.iot.wallpanel.ui.WelcomeActivity
+import com.thanksmister.iot.wallpanel.ui.activities.WelcomeActivity
 import javax.inject.Inject
 
 class BootUpReceiver : BroadcastReceiver() {

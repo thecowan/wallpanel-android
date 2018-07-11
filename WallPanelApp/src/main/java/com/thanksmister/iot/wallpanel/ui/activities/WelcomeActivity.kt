@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thanksmister.iot.wallpanel.ui
+package com.thanksmister.iot.wallpanel.ui.activities
 
 import android.content.Intent
 import android.os.Build
@@ -23,9 +23,6 @@ import android.view.View
 import com.thanksmister.iot.wallpanel.R
 
 import com.thanksmister.iot.wallpanel.persistence.Configuration
-import com.thanksmister.iot.wallpanel.ui.activities.BrowserActivityLegacy
-import com.thanksmister.iot.wallpanel.ui.activities.BrowserActivityNative
-import com.thanksmister.iot.wallpanel.ui.activities.SettingsActivity
 import dagger.android.support.DaggerAppCompatActivity
 
 import timber.log.Timber
@@ -47,18 +44,18 @@ class WelcomeActivity : DaggerAppCompatActivity() {
             supportActionBar!!.title = getString(R.string.app_name)
         }
 
-        Timber.d("First time: " + configuration.isFirstTime)
+        findViewById<View>(R.id.welcomeSettingsButton).setOnClickListener {
+            configuration.setFirstTime(false)
+            startActivity(Intent(this@WelcomeActivity, SettingsActivity::class.java))
+            finish()
+        }
+
         if (!configuration.isFirstTime) {
             Timber.d("Starting Browser on Startup")
             startBrowserActivity()
         }
-        findViewById<View>(R.id.welcomeSettingsButton).setOnClickListener {
-            startActivity(Intent(this@WelcomeActivity, SettingsActivity::class.java))
-            finish()
-        }
     }
 
-    // TODO move to base activity
     private fun startBrowserActivity() {
         Timber.i("startBrowserActivity Called")
         val browserType = configuration.androidBrowserType

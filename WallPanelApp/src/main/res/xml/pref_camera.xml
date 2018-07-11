@@ -42,6 +42,29 @@
         android:title="@string/pref_button_qrcode_reader"
         android:dependency="@string/key_setting_camera_enabled"/>
 
+    <SwitchPreference
+        android:defaultValue="@string/default_setting_camera_motionbright"
+        android:key="@string/key_setting_camera_motionbright"
+        android:title="@string/title_setting_camera_motionbright"
+        android:summary="@string/pref_camera_bright_summary"
+        android:dependency="@string/key_setting_camera_enabled"/>
+
+    <EditTextPreference
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:defaultValue="@string/default_setting_camera_motionontime"
+        android:inputType="number"
+        android:key="@string/key_setting_camera_motionontime"
+        android:title="@string/title_setting_camera_motionontime"
+        android:dependency="@string/key_setting_camera_motionbright"/>
+
+    <EditTextPreference
+        android:textColor="@color/light_gray"
+        android:textSize="12sp"
+        android:selectable="false"
+        android:paddingTop="0dp"
+        android:summary="@string/pref_camera_motion_time_summary"/>
+
     <Preference
         android:icon="@android:drawable/ic_menu_camera"
         android:key="button_key_camera_test"

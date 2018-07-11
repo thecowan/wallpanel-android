@@ -35,6 +35,7 @@ import android.os.*
 import android.provider.Settings
 import android.support.v4.content.ContextCompat
 import android.support.v4.content.LocalBroadcastManager
+import android.widget.Toast
 import com.koushikdutta.async.AsyncServer
 import com.koushikdutta.async.ByteBufferList
 import com.koushikdutta.async.http.body.JSONObjectBody
@@ -47,7 +48,6 @@ import com.thanksmister.iot.wallpanel.controls.CameraReader
 import com.thanksmister.iot.wallpanel.controls.SensorCallback
 import com.thanksmister.iot.wallpanel.controls.SensorReader
 import com.thanksmister.iot.wallpanel.persistence.Configuration
-import com.thanksmister.iot.wallpanel.ui.WelcomeActivity
 import com.thanksmister.iot.wallpanel.ui.activities.BrowserActivity.Companion.BROADCAST_ACTION_CLEAR_BROWSER_CACHE
 import com.thanksmister.iot.wallpanel.ui.activities.BrowserActivity.Companion.BROADCAST_ACTION_JS_EXEC
 import com.thanksmister.iot.wallpanel.ui.activities.BrowserActivity.Companion.BROADCAST_ACTION_LOAD_URL
@@ -134,7 +134,7 @@ class WallPanelService : LifecycleService() {
         bm.registerReceiver(mBroadcastReceiver, filter)
 
         configurePowerOptions()
-        configureHttp()
+        startHttp()
         configureMqtt()
         configureCamera()
         configureAudioPlayer()
@@ -229,8 +229,8 @@ class WallPanelService : LifecycleService() {
 
         //var notificationIntent = Intent(this, WallPanelService::class.java)
         //var pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0)
-        val notificationIntent = Intent(applicationContext, WelcomeActivity::class.java)
-        notificationIntent.flags = Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT
+        val notificationIntent = Intent(applicationContext, WallPanelService::class.java)
+        notificationIntent.flags = Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP
         val pendingIntent = PendingIntent.getActivity(applicationContext, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT)
 
         var notification: Notification? = null
@@ -291,7 +291,7 @@ class WallPanelService : LifecycleService() {
         try {
             keyguardLock!!.reenableKeyguard()
         } catch (ex: Exception) {
-            Timber.i("Reenabling keyguard didn't work")
+            Timber.i("Enabling keyguard didn't work")
             ex.printStackTrace()
         }
     }
@@ -458,21 +458,12 @@ class WallPanelService : LifecycleService() {
         }
     }
 
-    private fun configureHttp() {
-        Timber.d("configureHttp")
-        stopHttp()
-        if (configuration.httpEnabled) {
-            startHttp()
-        }
-    }
-
     private fun startHttp() {
         Timber.d("startHttp")
-        if (httpServer == null) {
-
+        if (httpServer == null && (configuration.httpEnabled || configuration.httpMJPEGEnabled)) {
             httpServer = AsyncHttpServer()
-
             if (configuration.httpRestEnabled) {
+
                 httpServer!!.addAction("POST", "/api/command") { request, response ->
                     var result = false
                     if (request.body is JSONObjectBody) {
@@ -500,7 +491,7 @@ class WallPanelService : LifecycleService() {
 
             if (configuration.httpMJPEGEnabled) {
                 startMJPEG()
-                httpServer!!.addAction("GET", "/camera/stream") { request, response ->
+                httpServer!!.addAction("GET", "/camera/stream") { _, response ->
                     Timber.i("GET Arrived (/camera/stream)")
                     startMJPEG(response)
                 }
@@ -532,6 +523,7 @@ class WallPanelService : LifecycleService() {
         //mJpegHandler.post(sendmJpegDataAll)
         cameraReader.getJpeg().observe(this, Observer { jpeg ->
             if (mJpegSockets.size > 0 && jpeg != null) {
+                Timber.d("mJpegSockets")
                 var i = 0
                 while (i < mJpegSockets.size) {
                     val s = mJpegSockets[i]
@@ -700,9 +692,9 @@ class WallPanelService : LifecycleService() {
     }
 
     private fun setBrightScreen(brightness: Int) {
-        Timber.d("setBrightScreen")
+        Timber.d("setBrightScreen $brightness")
         changeScreenBrightness(brightness)
-        if (configuration.cameraMotionOnTime > 0) {
+        if (configuration.cameraMotionOnTime > 0 && configuration.cameraMotionBright) {
             if (!timerActive) {
                 timerActive = true
                 brightTimer.postDelayed(dimScreen, (configuration.cameraMotionOnTime * 1000).toLong())
@@ -845,6 +837,7 @@ class WallPanelService : LifecycleService() {
                 switchScreenOn()
             }
             if (configuration.cameraMotionBright) {
+                Timber.d("configuration.cameraMotionBright ${configuration.cameraMotionBright}")
                 setBrightScreen(255)
             }
             publishMotionDetected()
@@ -856,6 +849,7 @@ class WallPanelService : LifecycleService() {
 
         override fun onFaceDetected() {
             Timber.i("Face detected")
+            Timber.d("configuration.cameraMotionBright ${configuration.cameraMotionBright}")
             if (configuration.cameraFaceWake) {
                 switchScreenOn()
             }
@@ -866,7 +860,8 @@ class WallPanelService : LifecycleService() {
         }
 
         override fun onQRCode(data: String) {
-            Timber.i("QR Code Received")
+            Timber.i("QR Code Received: $data")
+            Toast.makeText(this@WallPanelService, getString(R.string.toast_qr_code_read), Toast.LENGTH_SHORT).show()
             publishQrCode(data)
         }
     }

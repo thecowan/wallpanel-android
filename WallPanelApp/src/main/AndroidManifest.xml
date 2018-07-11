@@ -45,7 +45,7 @@
         android:fullBackupContent="true">
 
         <activity
-            android:name="com.thanksmister.iot.wallpanel.ui.WelcomeActivity"
+            android:name="com.thanksmister.iot.wallpanel.ui.activities.WelcomeActivity"
             android:theme="@style/AppTheme"
             android:label="@string/app_name">
             <intent-filter>

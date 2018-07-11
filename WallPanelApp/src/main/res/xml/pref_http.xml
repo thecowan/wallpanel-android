@@ -19,6 +19,18 @@
     <PreferenceCategory android:title="@string/pref_http_settings_title">
 
         <EditTextPreference
+            android:defaultValue="@string/default_setting_http_port"
+            android:inputType="number"
+            android:key="@string/key_setting_http_port"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="@string/title_setting_http_port"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/pref_rest_api_title">
+
+        <EditTextPreference
             android:textColor="@color/light_gray"
             android:textSize="12sp"
             android:selectable="false"
@@ -29,15 +41,6 @@
             android:defaultValue="@string/default_setting_http_restenabled"
             android:key="@string/key_setting_http_restenabled"
             android:title="@string/title_setting_http_restenabled"/>
-
-        <EditTextPreference
-            android:defaultValue="@string/default_setting_http_port"
-            android:inputType="number"
-            android:key="@string/key_setting_http_port"
-            android:selectAllOnFocus="true"
-            android:singleLine="true"
-            android:title="@string/title_setting_http_port"
-            android:dependency="@string/key_setting_http_restenabled"/>
 
     </PreferenceCategory>
 

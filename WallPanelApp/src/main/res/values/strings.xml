@@ -51,8 +51,8 @@
     <string name="title_setting_camera_motionleniency">Maximum Leniency</string>
     <string name="title_setting_camera_motionminluma">Minimum Luma</string>
     <string name="title_setting_camera_motionwake">Wakes Screen</string>
-    <string name="title_setting_camera_motionbright">Increases Screen Brightness</string>
-    <string name="title_setting_camera_motionontime">Auto Screen Off Delay (Seconds)</string>
+    <string name="title_setting_camera_motionbright">Screen Brightness</string>
+    <string name="title_setting_camera_motionontime">Screen Dim Delay (Seconds)</string>
     <string name="title_setting_camera_faceenabled">Face Detection Enabled</string>
     <string name="title_setting_camera_facewake">Wakes Screen</string>
     <string name="title_setting_camera_qrcodeenabled">QR Code Reader Enabled</string>
@@ -117,10 +117,10 @@
     <string name="pref_mqtt_settings_title">MQTT Settings</string>
     <string name="pref_motion_detection_summary">Detects motion using the device\'s camera.</string>
     <string name="pref_motion_wake_summary">Wakes the device screen when motion detected.</string>
-    <string name="pref_camera_bright_summary">Increases the screen brightness when motion detected.</string>
-    <string name="pref_motion_leniency_description">The maximum tolerance of the difference between images. A lower tolerance means motion is more sensitive (1-20).</string>
-    <string name="pref_motion_luma_description">Minimum brightness level to detect motion. No motion will be detected if brightness falls below this value (1 - 1000).</string>
-    <string name="pref_mjpeg_streaming_description">Use the device camera as a live MJPEG stream. Connect to the stream using the device IP address and end point: \'http://192.168.1.1/camera/stream\'</string>
+    <string name="pref_camera_bright_summary">Increases the screen brightness when motion or face detected.</string>
+    <string name="pref_motion_leniency_description">The maximum tolerance of the difference between images. A lower tolerance means motion is more sensitive (1 –2 0).</string>
+    <string name="pref_motion_luma_description">Minimum brightness level to detect motion. No motion will be detected if brightness falls below this value (1 – 1000).</string>
+    <string name="pref_mjpeg_streaming_description">Use the device camera as a live MJPEG stream. Connect to the stream using the device IP address and end point: http://192.168.1.1/camera/stream</string>
     <string name="pref_mjpeg_streaming_title">MJPEG Streaming</string>
     <string name="pref_http_description">Control the application over HTTP using REST API calls. To find out which commands work with, review the help documentation.</string>
     <string name="pref_launchurl_summary">Enter the fully qualified URL for your home automation dashboard.</string>
@@ -137,4 +137,7 @@
     <string name="pref_button_face_detection">Face Detection</string>
     <string name="pref_button_qrcode_reader">QR Code Reader</string>
     <string name="pref_button_camera_test">Test the camera settings.</string>
+    <string name="toast_qr_code_read">QR Code Read....</string>
+    <string name="pref_camera_motion_time_summary">Amount of time before the screen dims after brightness is set (requires value above 0).</string>
+    <string name="pref_rest_api_title">REST API Settings</string>
 </resources>
