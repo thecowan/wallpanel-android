@@ -14,11 +14,21 @@
  * limitations under the License.
  */
 
-package com.thanksmister.iot.wallpanel.controls;
+package com.thanksmister.iot.wallpanel.modules
 
-public interface CameraCallback {
-    void onMotionDetected();
-    void onTooDark();
-    void onFaceDetected();
-    void onQRCode(String data);
+/**
+ * Created by Michael Ritchie on 7/6/18.
+ */
+class Motion {
+
+    var type = MOTION_NOT_DETECTED
+    var byteArray: ByteArray? = null
+    var width: Int? = null
+    var height: Int? = null
+
+    companion object {
+        val MOTION_TOO_DARK = "motion_too_dark"
+        val MOTION_DETECTED = "motion_detected"
+        val MOTION_NOT_DETECTED = "motion_not_detected"
+    }
 }

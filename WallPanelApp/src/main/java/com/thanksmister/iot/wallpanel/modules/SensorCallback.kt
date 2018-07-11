@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thanksmister.iot.wallpanel.controls
+package com.thanksmister.iot.wallpanel.modules
 
 import org.json.JSONObject
 

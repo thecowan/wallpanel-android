@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thanksmister.iot.wallpanel.controls
+package com.thanksmister.iot.wallpanel.modules
 
 import android.content.Context
 import android.content.Context.SENSOR_SERVICE

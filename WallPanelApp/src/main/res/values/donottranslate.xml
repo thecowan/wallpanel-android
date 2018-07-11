@@ -79,7 +79,7 @@
     <string name="default_setting_app_showactivity">true</string>
     <string name="key_setting_camera_enabled">setting_camera_enabled</string>
     <string name="key_setting_app_showactivity">setting_app_showactivity</string>
-    <string name="default_setting_app_preventsleep">false</string>
+
     <string name="key_setting_app_launchurl">setting_app_launchurl</string>
     <string name="default_setting_app_launchurl">https://thanksmister.com/wallpanel-android/</string>
     <string name="default_setting_app_deviceid">mywallpanel</string>
@@ -88,6 +88,9 @@
     <string name="key_setting_app_deviceid">setting_app_deviceid</string>
     <string name="default_setting_test_zoomlevel">1.0</string>
     <string name="key_camera_test">camera_test</string>
+
+    <string name="key_setting_tts_enabled">setting_tts_enabled</string>
+    <string name="default_setting_tss_enabled">false</string>
 
     <string-array name="settings_titles">
         <item>@string/title_settings</item>

@@ -43,10 +43,10 @@ import com.koushikdutta.async.http.body.StringBody
 import com.koushikdutta.async.http.server.AsyncHttpServer
 import com.koushikdutta.async.http.server.AsyncHttpServerResponse
 import com.thanksmister.iot.wallpanel.R
-import com.thanksmister.iot.wallpanel.controls.CameraCallback
-import com.thanksmister.iot.wallpanel.controls.CameraReader
-import com.thanksmister.iot.wallpanel.controls.SensorCallback
-import com.thanksmister.iot.wallpanel.controls.SensorReader
+import com.thanksmister.iot.wallpanel.modules.CameraCallback
+import com.thanksmister.iot.wallpanel.modules.CameraReader
+import com.thanksmister.iot.wallpanel.modules.SensorCallback
+import com.thanksmister.iot.wallpanel.modules.SensorReader
 import com.thanksmister.iot.wallpanel.persistence.Configuration
 import com.thanksmister.iot.wallpanel.ui.activities.BrowserActivity.Companion.BROADCAST_ACTION_CLEAR_BROWSER_CACHE
 import com.thanksmister.iot.wallpanel.ui.activities.BrowserActivity.Companion.BROADCAST_ACTION_JS_EXEC

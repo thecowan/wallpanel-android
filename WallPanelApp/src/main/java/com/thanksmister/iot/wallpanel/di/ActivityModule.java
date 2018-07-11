@@ -25,8 +25,8 @@ import android.location.LocationManager;
 import android.support.v7.preference.PreferenceManager;
 import android.view.LayoutInflater;
 
-import com.thanksmister.iot.wallpanel.controls.CameraReader;
-import com.thanksmister.iot.wallpanel.controls.SensorReader;
+import com.thanksmister.iot.wallpanel.modules.CameraReader;
+import com.thanksmister.iot.wallpanel.modules.SensorReader;
 import com.thanksmister.iot.wallpanel.persistence.Configuration;
 import com.thanksmister.iot.wallpanel.utils.DialogUtils;
 

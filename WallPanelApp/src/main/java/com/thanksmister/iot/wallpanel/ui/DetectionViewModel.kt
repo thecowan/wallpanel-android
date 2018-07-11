@@ -22,8 +22,8 @@ import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.hardware.Camera
 import android.util.Log
-import com.thanksmister.iot.wallpanel.controls.CameraCallback
-import com.thanksmister.iot.wallpanel.controls.CameraReader
+import com.thanksmister.iot.wallpanel.modules.CameraCallback
+import com.thanksmister.iot.wallpanel.modules.CameraReader
 import com.thanksmister.iot.wallpanel.persistence.Configuration
 import com.thanksmister.iot.wallpanel.ui.views.CameraSourcePreview
 import timber.log.Timber

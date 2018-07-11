@@ -14,22 +14,17 @@
  * limitations under the License.
  */
 
-package com.thanksmister.iot.wallpanel.controls
+package com.thanksmister.iot.wallpanel.modules
 
-import android.content.Context
 import android.util.SparseArray
 
 import com.google.android.gms.vision.Detector
 import com.google.android.gms.vision.Frame
-import com.google.common.primitives.Bytes
 import com.jjoe64.motiondetection.motiondetection.AggregateLumaMotionDetection
 import com.jjoe64.motiondetection.motiondetection.ImageProcessing
-import com.thanksmister.iot.wallpanel.controls.Motion.*
-import com.thanksmister.iot.wallpanel.controls.Motion.Companion.MOTION_DETECTED
-import com.thanksmister.iot.wallpanel.controls.Motion.Companion.MOTION_NOT_DETECTED
-import com.thanksmister.iot.wallpanel.controls.Motion.Companion.MOTION_TOO_DARK
-
-import java.nio.ByteBuffer
+import com.thanksmister.iot.wallpanel.modules.Motion.Companion.MOTION_DETECTED
+import com.thanksmister.iot.wallpanel.modules.Motion.Companion.MOTION_NOT_DETECTED
+import com.thanksmister.iot.wallpanel.modules.Motion.Companion.MOTION_TOO_DARK
 
 import timber.log.Timber
 

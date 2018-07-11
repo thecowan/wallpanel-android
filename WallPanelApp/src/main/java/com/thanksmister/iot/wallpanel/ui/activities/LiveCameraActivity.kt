@@ -23,7 +23,7 @@ import android.os.Handler
 import android.view.MenuItem
 import android.view.WindowManager
 import com.thanksmister.iot.wallpanel.R
-import com.thanksmister.iot.wallpanel.controls.CameraCallback
+import com.thanksmister.iot.wallpanel.modules.CameraCallback
 import com.thanksmister.iot.wallpanel.persistence.Configuration
 import com.thanksmister.iot.wallpanel.ui.DetectionViewModel
 import com.thanksmister.iot.wallpanel.ui.views.CameraSourcePreview

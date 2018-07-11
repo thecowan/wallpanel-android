@@ -58,6 +58,12 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
             sharedPreferences.edit().putBoolean(context.getString(R.string.key_setting_camera_enabled), value).apply()
         }
 
+    var hasTextToSpeech: Boolean
+        get() = getBoolPref(R.string.key_setting_tts_enabled, R.string.default_setting_tss_enabled)
+        set(value) {
+            sharedPreferences.edit().putBoolean(context.getString(R.string.key_setting_tts_enabled), value).apply()
+        }
+
     val cameraId: Int
         get() = Integer.valueOf(getStringPref(R.string.key_setting_camera_cameraid,
                 R.string.default_setting_camera_cameraid))
