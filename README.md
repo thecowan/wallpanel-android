@@ -55,6 +55,7 @@ Detection | Keys | Example | Notes
 -|-|-|-
 motion | value | ```{"value": false}``` | Published immediately when motion detected
 face | value | ```{"value": false}``` | Published immediately when face detected
+qrcode | value | ```{"value": data}``` | Published immediately when QR Code scanned
 
 * For MQTT
   * WallPanel publishes all sensors to MQTT under ```[baseTopic]/sensor```
@@ -99,11 +100,19 @@ screenOn | true/false | ```{"screenOn":true}``` | If the screen is currently on
 
 ## MJPEG Video Streaming
 
-Use the device camera as a live MJPEG stream. Just connect to the stream using the device IP address and end point. Be sure to turn on the camera streaming options in the settings and set the number of allowed streams. Note that performance depends upon your device (older devices will be slow).
+Use the device camera as a live MJPEG stream. Just connect to the stream using the device IP address and end point. Be sure to turn on the camera streaming options in the settings and set the number of allowed streams and HTTP port number. Note that performance depends upon your device (older devices will be slow).
 
-Example stream URL (replace the IP address with your device's IP): 
+#### Browser Example:
 
-```http://192.168.1.1/camera/stream```
+```http://192.168.1.1:2971/camera/stream```
+
+#### Home Assistant Example:
+
+```YAML
+camera:
+  - platform: mjpeg
+    mjpeg_url: http://192.168.1.1:2971/camera/stream
+```
 
 ## MQTT and HTTP Remote Control
 You can control the app remotely via MQTT or HTTP (REST). 
