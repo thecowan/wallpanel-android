@@ -240,42 +240,29 @@ constructor(private val context: Context) {
             val byteArray = params[0] as ByteArray
             val width = params[1] as Int
             val height = params[2] as Int
-            var orientation = params[3] as Int
-
-           /* val out = ByteArrayOutputStream();
-            val yuvImage = YuvImage(byteArray, ImageFormat.NV21, width, height, null);
-            yuvImage.compressToJpeg(Rect(0, 0, width, height), 80, out);
-            var imageBytes = out.toByteArray();*/
+            val orientation = params[3] as Int
 
             val windowService = contextRef.get()!!.getSystemService(Context.WINDOW_SERVICE) as WindowManager
             val currentRotation = windowService.defaultDisplay.rotation
-
-            Timber.d("orientation: $orientation")
-            Timber.d("currentRotation: $currentRotation")
-
             val nv21Bitmap = Nv21Image.nv21ToBitmap(renderScript, byteArray, width, height)
+
             var rotate = orientation
             when (currentRotation) {
                 Surface.ROTATION_90 -> {
-                    Timber.d("ROTATION_90")
-                    orientation += 90
+                    rotate += 90
                 }
                 Surface.ROTATION_180 -> {
-                    Timber.d("ROTATION_180")
-                    orientation += 180
+                    rotate += 180
                 }
                 Surface.ROTATION_270 -> {
-                    Timber.d("ROTATION_270")
-                    orientation += 270
+                    rotate += 270
                 }
             }
-
             rotate %= 360
 
             val matrix = Matrix()
             matrix.postRotate(rotate.toFloat())
             val bitmap =  Bitmap.createBitmap(nv21Bitmap, 0, 0, width, height, matrix, true)
-
             val stream = ByteArrayOutputStream()
             bitmap.compress(Bitmap.CompressFormat.JPEG, 80, stream)
             val byteArrayOut = stream.toByteArray()
