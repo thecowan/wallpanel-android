@@ -80,6 +80,13 @@ binary_sensor:
     payload_on: '{"value":true}'
     payload_off: '{"value":false}'
     device_class: motion 
+  
+sensor:
+  - platform: mqtt
+    state_topic: "wallpanel/mywallpanel/sensor/qrcode"
+    name: "QR Code"
+    value_template: '{{ value_json.value }}'
+    
 ```
 
 ### Application State Data
