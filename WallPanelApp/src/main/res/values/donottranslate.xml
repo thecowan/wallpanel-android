@@ -79,7 +79,7 @@
     <string name="default_setting_app_showactivity">true</string>
     <string name="key_setting_camera_enabled">setting_camera_enabled</string>
     <string name="key_setting_app_showactivity">setting_app_showactivity</string>
-
+    <string name="default_setting_app_preventsleep">false</string>
     <string name="key_setting_app_launchurl">setting_app_launchurl</string>
     <string name="default_setting_app_launchurl">https://thanksmister.com/wallpanel-android/</string>
     <string name="default_setting_app_deviceid">mywallpanel</string>
