@@ -19,19 +19,16 @@ package com.thanksmister.iot.wallpanel
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-
-import com.thanksmister.iot.wallpanel.persistence.Configuration
+import android.support.v7.preference.PreferenceManager
 import com.thanksmister.iot.wallpanel.ui.activities.WelcomeActivity
-import javax.inject.Inject
 
 class BootUpReceiver : BroadcastReceiver() {
 
-    @Inject
-    lateinit var configuration: Configuration
-
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == Intent.ACTION_BOOT_COMPLETED) {
-            if (configuration.androidStartOnBoot) {
+            val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context.applicationContext)
+            val startOnBoot = sharedPreferences.getBoolean(context.getString(R.string.key_setting_android_startonboot), false)
+            if (startOnBoot) {
                 val i = Intent(context, WelcomeActivity::class.java)
                 i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 context.startActivity(i)

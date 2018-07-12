@@ -14,32 +14,46 @@
   ~ limitations under the License.
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp"
-    android:orientation="vertical">
+    android:keepScreenOn="true">
 
-    <com.thanksmister.iot.wallpanel.ui.views.CameraSourcePreview
-        android:id="@+id/imageView_preview"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
+    <LinearLayout
+        android:orientation="vertical"
         android:layout_gravity="center"
-        android:layout_weight="1"/>
+        android:gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
 
-    <TextView
-        style="@style/TextAppearance.Description"
-        android:id="@+id/statusTextView"
-        android:layout_width="match_parent"
+        <com.thanksmister.iot.wallpanel.ui.views.CameraSourcePreview
+            android:id="@+id/imageView_preview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+    </LinearLayout>
+
+
+    <FrameLayout
+        android:id="@+id/statusBackground"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAlignment="center"
-        android:layout_weight="0"
-        tools:text="Place your messages here"/>
+        android:background="@color/white_alpha"
+        android:padding="16dp"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="24dp"
+        android:visibility="gone">
 
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="8dp"/>
+        <TextView
+            style="@style/TextAppearance.Description"
+            android:id="@+id/statusTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            tools:text="Place your messages here"/>
 
-</LinearLayout>
+    </FrameLayout>
+
+</FrameLayout>

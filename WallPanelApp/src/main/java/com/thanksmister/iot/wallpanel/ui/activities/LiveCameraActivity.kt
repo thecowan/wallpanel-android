@@ -16,12 +16,18 @@
 
 package com.thanksmister.iot.wallpanel.ui.activities
 
+import android.Manifest
 import android.arch.lifecycle.ViewModelProvider
 import android.arch.lifecycle.ViewModelProviders
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Handler
+import android.support.v4.app.ActivityCompat
+import android.view.Gravity
 import android.view.MenuItem
+import android.view.View
 import android.view.WindowManager
+import android.widget.Toast
 import com.thanksmister.iot.wallpanel.R
 import com.thanksmister.iot.wallpanel.modules.CameraCallback
 import com.thanksmister.iot.wallpanel.persistence.Configuration
@@ -32,6 +38,7 @@ import kotlinx.android.synthetic.main.activity_cameratest.*
 import timber.log.Timber
 import javax.inject.Inject
 
+
 class LiveCameraActivity : DaggerAppCompatActivity() {
 
     @Inject lateinit var viewModelFactory: ViewModelProvider.Factory
@@ -41,13 +48,16 @@ class LiveCameraActivity : DaggerAppCompatActivity() {
     private var removeTextCountdown: Int = 0
     private val interval = 1000/15L
     private var preview: CameraSourcePreview? = null
+    private var toastShown = false
+    private var toast: Toast? = null
 
     private val updatePicture = object : Runnable {
         override fun run() {
             if (removeTextCountdown > 0) {
                 removeTextCountdown--
                 if (removeTextCountdown == 0) {
-                    setStatusText("")
+                    toast!!.cancel()
+                    toastShown = false
                 }
             }
             updateHandler!!.postDelayed(this, interval)
@@ -63,20 +73,25 @@ class LiveCameraActivity : DaggerAppCompatActivity() {
             supportActionBar!!.show()
             supportActionBar!!.setDisplayHomeAsUpEnabled(true)
             supportActionBar!!.setDisplayShowHomeEnabled(true)
-            supportActionBar!!.title = "Live Camera Test"
+            supportActionBar!!.title = getString(R.string.title_camera_test)
         }
 
         window.setFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED, WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED)
         preview = findViewById<CameraSourcePreview>(R.id.imageView_preview)
-
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(DetectionViewModel::class.java)
-        viewModel.startCamera(cameraCallback, preview!!)
+
+        // Check for the camera permission before accessing the camera.
+        val rc = ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+        if (rc == PackageManager.PERMISSION_GRANTED) {
+            viewModel.startCamera(cameraCallback, preview!!)
+        } else {
+            requestCameraPermission()
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         val id = item.itemId
         if (id == android.R.id.home) {
-            //viewModel.stopCamera()
             onBackPressed()
             return true
         }
@@ -85,7 +100,9 @@ class LiveCameraActivity : DaggerAppCompatActivity() {
 
     override fun onBackPressed() {
         super.onBackPressed()
-        //viewModel.stopCamera()
+        if(toast != null) {
+            toast!!.cancel()
+        }
     }
 
     public override fun onStart() {
@@ -95,6 +112,9 @@ class LiveCameraActivity : DaggerAppCompatActivity() {
 
     public override fun onStop() {
         super.onStop()
+        if(toast != null) {
+            toast!!.cancel()
+        }
         stopUpdatePicture()
     }
 
@@ -102,8 +122,33 @@ class LiveCameraActivity : DaggerAppCompatActivity() {
         super.onResume()
     }
 
-    public override fun onPause() {
-        super.onPause()
+    public override fun onDestroy() {
+        super.onDestroy()
+        if (toast != null) {
+            toast!!.cancel()
+        }
+    }
+
+    private fun requestCameraPermission() {
+        val permissions = arrayOf(Manifest.permission.CAMERA)
+        if (!ActivityCompat.shouldShowRequestPermissionRationale(this,
+                        Manifest.permission.CAMERA)) {
+            ActivityCompat.requestPermissions(this, permissions, PERMISSIONS_REQUEST_CAMERA)
+            return
+        }
+        ActivityCompat.requestPermissions(this@LiveCameraActivity, permissions, PERMISSIONS_REQUEST_CAMERA)
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+        if (requestCode != PERMISSIONS_REQUEST_CAMERA) {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+            return
+        }
+        if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            viewModel.startCamera(cameraCallback, preview!!)
+            return
+        }
+        Toast.makeText(this, getString(R.string.toast_write_permissions_denied), Toast.LENGTH_LONG).show()
     }
 
     private fun startUpdatePicture() {
@@ -122,7 +167,7 @@ class LiveCameraActivity : DaggerAppCompatActivity() {
         override fun onMotionDetected() {
             runOnUiThread {
                 if(removeTextCountdown == 0) {
-                    setStatusText("Motion Detected!")
+                    setStatusText(getString(R.string.toast_motion_detected))
                     removeTextCountdown = 10
                 }
             }
@@ -131,7 +176,7 @@ class LiveCameraActivity : DaggerAppCompatActivity() {
         override fun onTooDark() {
             runOnUiThread {
                 if(removeTextCountdown == 0) {
-                    setStatusText("Too dark for motion detection")
+                    setStatusText(getString(R.string.toast_too_dark_motion))
                     removeTextCountdown = 10
                 }
             }
@@ -140,7 +185,7 @@ class LiveCameraActivity : DaggerAppCompatActivity() {
         override fun onFaceDetected() {
             runOnUiThread {
                 if(removeTextCountdown == 0) {
-                    setStatusText("Face Detected!")
+                    setStatusText(getString(R.string.toast_face_detected))
                     removeTextCountdown = 10
                 }
             }
@@ -149,7 +194,7 @@ class LiveCameraActivity : DaggerAppCompatActivity() {
         override fun onQRCode(data: String) {
             runOnUiThread {
                 if(removeTextCountdown == 0) {
-                    setStatusText("QR Code: $data")
+                    setStatusText(getString(R.string.toast_qrcode_read, data))
                     removeTextCountdown = 10
                 }
             }
@@ -158,10 +203,15 @@ class LiveCameraActivity : DaggerAppCompatActivity() {
 
     private fun setStatusText(text: String) {
         Timber.d("statusTextView: $text")
-        statusTextView.text = text
+        if(!toastShown) {
+            toastShown = true
+            toast = Toast.makeText(this@LiveCameraActivity, text, Toast.LENGTH_SHORT)
+            toast!!.setGravity(Gravity.BOTTOM, 0, 40)
+            toast!!.show()
+        }
     }
 
     companion object {
-
+        const val PERMISSIONS_REQUEST_CAMERA = 201
     }
 }

@@ -53,7 +53,7 @@ internal abstract class AndroidBindingModule {
     internal abstract fun liveCameraActivity(): LiveCameraActivity
 
     @ContributesAndroidInjector
-    internal abstract fun bitcoinHandler(): BootUpReceiver
+    internal abstract fun bootupReceiver(): BootUpReceiver
 
     @ContributesAndroidInjector
     internal abstract fun baseSettingsFragment(): BaseSettingsFragment

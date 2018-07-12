@@ -78,8 +78,6 @@ class WallPanelService : LifecycleService() {
     private var motionDetectedCountdown = 0
     private var faceDetectedCountdown = 0
     private val mJpegSockets = ArrayList<AsyncHttpServerResponse>()
-    @Deprecated("We no longer need this handler")
-    private val mJpegHandler = Handler()
     private var fullWakeLock: PowerManager.WakeLock? = null
     private var partialWakeLock: PowerManager.WakeLock? = null
     private var wifiLock: WifiManager.WifiLock? = null
@@ -111,16 +109,17 @@ class WallPanelService : LifecycleService() {
         val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
         fullWakeLock = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK or PowerManager.ON_AFTER_RELEASE or PowerManager.ACQUIRE_CAUSES_WAKEUP, "wallPanel:fullWakeLock")
         partialWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "wallPanel:partialWakeLock")
+
+        // wifi lock
         val wifiManager = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
         wifiLock = wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL, "wallPanel:wifiLock")
-        val km = getSystemService(Activity.KEYGUARD_SERVICE) as KeyguardManager
-        keyguardLock = km.newKeyguardLock(Context.KEYGUARD_SERVICE)
 
         // Some Amazon devices are not seeing this permission so we are trying to check
         val permission = "android.permission.DISABLE_KEYGUARD"
-        val checkSelfPermission = ContextCompat.checkSelfPermission(this, permission)
+        val checkSelfPermission = ContextCompat.checkSelfPermission(this@WallPanelService, permission)
         if (checkSelfPermission == PackageManager.PERMISSION_GRANTED) {
-            val keyguardLock = km.newKeyguardLock("ALARM_KEYBOARD_LOCK_TAG")
+            val keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
+            val keyguardLock = keyguardManager.newKeyguardLock("ALARM_KEYBOARD_LOCK_TAG")
             keyguardLock.disableKeyguard()
         }
 
@@ -153,34 +152,6 @@ class WallPanelService : LifecycleService() {
     override fun onBind(intent: Intent): IBinder? {
         super.onBind(intent)
         return mBinder
-    }
-
-    @Deprecated("We are using LiveData")
-    private val sendmJpegDataAll = object : Runnable {
-        override fun run() {
-            if (mJpegSockets.size > 0) {
-                val buffer = cameraReader.getJpeg()
-                var i = 0
-                while (i < mJpegSockets.size) {
-                    val s = mJpegSockets[i]
-                    val bb = ByteBufferList()
-                    if (s.isOpen) {
-                        bb.recycle()
-                        bb.add(ByteBuffer.wrap("--jpgboundary\r\nContent-Type: image/jpeg\r\n".toByteArray()))
-                        bb.add(ByteBuffer.wrap(("Content-Length: " + buffer.value!!.size + "\r\n\r\n").toByteArray()))
-                        bb.add(ByteBuffer.wrap(buffer.value))
-                        bb.add(ByteBuffer.wrap("\r\n".toByteArray()))
-                        s.write(bb)
-                    } else {
-                        mJpegSockets.removeAt(i)
-                        i--
-                        Timber.i("MJPEG Session Count is " + mJpegSockets.size)
-                    }
-                    i++
-                }
-            }
-            mJpegHandler.postDelayed(this, 100)
-        }
     }
 
     private val isScreenOn: Boolean
@@ -227,8 +198,6 @@ class WallPanelService : LifecycleService() {
 
         Timber.d("startForeground")
 
-        //var notificationIntent = Intent(this, WallPanelService::class.java)
-        //var pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0)
         val notificationIntent = Intent(applicationContext, WallPanelService::class.java)
         notificationIntent.flags = Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP
         val pendingIntent = PendingIntent.getActivity(applicationContext, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT)
@@ -238,7 +207,7 @@ class WallPanelService : LifecycleService() {
             notification = Notification.Builder(this)
                     .setContentTitle(getText(R.string.wallpanel_service_notification_title))
                     .setContentText(getText(R.string.wallpanel_service_notification_message))
-                    .setSmallIcon(R.drawable.ic_home_white_24dp)
+                    .setSmallIcon(R.drawable.ic_dashboard)
                     .setLargeIcon(BitmapFactory.decodeResource(application.resources, R.mipmap.ic_launcher))
                     .setContentIntent(pendingIntent)
                     .setLocalOnly(true)
@@ -248,7 +217,7 @@ class WallPanelService : LifecycleService() {
                 notification = Notification.Builder(this)
                         .setContentTitle(getText(R.string.wallpanel_service_notification_title))
                         .setContentText(getText(R.string.wallpanel_service_notification_message))
-                        .setSmallIcon(R.drawable.ic_home_white_24dp)
+                        .setSmallIcon(R.drawable.ic_dashboard)
                         .setLargeIcon(BitmapFactory.decodeResource(application.resources, R.mipmap.ic_launcher))
                         .setContentIntent(pendingIntent)
                         .build()
@@ -312,7 +281,6 @@ class WallPanelService : LifecycleService() {
 
     private fun startMqttConnection(serverUri: String, clientId: String, topic: String, username: String, password: String) {
         Timber.d("startMqttConnection")
-
         if (mqttAndroidClient == null) {
             topicPrefix = topic
             if (!topicPrefix!!.endsWith("/")) {
@@ -520,7 +488,6 @@ class WallPanelService : LifecycleService() {
 
     private fun startMJPEG() {
         Timber.d("startMJPEG")
-        //mJpegHandler.post(sendmJpegDataAll)
         cameraReader.getJpeg().observe(this, Observer { jpeg ->
             if (mJpegSockets.size > 0 && jpeg != null) {
                 Timber.d("mJpegSockets")
@@ -548,7 +515,6 @@ class WallPanelService : LifecycleService() {
 
     private fun stopMJPEG() {
         Timber.d("stopMJPEG Called")
-        //mJpegHandler.removeCallbacks(sendmJpegDataAll)
         mJpegSockets.clear()
     }
 

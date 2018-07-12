@@ -25,8 +25,6 @@ import javax.inject.Inject
 class Configuration @Inject
 constructor(private val context: Context, private val sharedPreferences: SharedPreferences) {
 
-    private var prefsChangedListener: SharedPreferences.OnSharedPreferenceChangeListener? = null
-
     // APP
     val isFirstTime: Boolean
         get() = sharedPreferences.getBoolean(PREF_FIRST_TIME, true)
@@ -178,15 +176,6 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
     val testZoomLevel: Float
         get() = java.lang.Float.valueOf(getStringPref(R.string.key_setting_test_zoomlevel,
                 R.string.default_setting_test_zoomlevel))!!
-
-    fun startListeningForConfigChanges(prefsChangedListener: SharedPreferences.OnSharedPreferenceChangeListener) {
-        this.prefsChangedListener = prefsChangedListener
-        sharedPreferences.registerOnSharedPreferenceChangeListener(prefsChangedListener)
-    }
-
-    fun stopListeningForConfigChanges() {
-        sharedPreferences.registerOnSharedPreferenceChangeListener(prefsChangedListener)
-    }
 
     private fun getStringPref(resId: Int, defId: Int): String {
         val def = context.getString(defId)

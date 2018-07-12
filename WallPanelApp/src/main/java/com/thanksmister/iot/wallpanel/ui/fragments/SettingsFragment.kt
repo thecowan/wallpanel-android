@@ -63,6 +63,8 @@ class SettingsFragment : BaseSettingsFragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         if ((activity as SettingsActivity).supportActionBar != null) {
+            (activity as SettingsActivity).supportActionBar!!.setDisplayHomeAsUpEnabled(false)
+            (activity as SettingsActivity).supportActionBar!!.setDisplayShowHomeEnabled(false)
             (activity as SettingsActivity).supportActionBar!!.title = (getString(R.string.title_settings))
         }
     }
