@@ -131,11 +131,14 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
     val mqttEnabled: Boolean
         get() = getBoolPref(R.string.key_setting_mqtt_enabled, R.string.default_setting_mqtt_enabled)
 
+    val mqttTlsEnabled: Boolean
+        get() = getBoolPref(R.string.key_setting_mqtt_tls_enabled, R.string.default_setting_mqtt_tts_enabled)
+
     val mqttUrl: String
         @SuppressLint("DefaultLocale")
-        get() = String.format("tcp://%s:%d", mqttServerName, mqttServerPort)
+        get() = String.format("tcp://%s:%d", mqttBroker, mqttServerPort)
 
-    val mqttServerName: String
+    val mqttBroker: String
         get() = getStringPref(R.string.key_setting_mqtt_servername, R.string.default_setting_mqtt_servername)
 
     val mqttServerPort: Int
@@ -164,6 +167,10 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
     val androidStartOnBoot: Boolean
         get() = getBoolPref(R.string.key_setting_android_startonboot,
                 R.string.default_setting_android_startonboot)
+
+    val ttsEnabled: Boolean
+        get() = getBoolPref(R.string.key_pref_tts_notification,
+                R.string.default_tts_notification)
 
     val sensorsEnabled: Boolean
         get() = getBoolPref(R.string.key_setting_sensors_enabled,

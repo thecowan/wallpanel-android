@@ -41,7 +41,9 @@
     <string name="key_setting_mqtt_servername">setting_mqtt_servername</string>
     <string name="default_setting_mqtt_servername">192.186.1.1</string>
     <string name="key_setting_mqtt_enabled">setting_mqtt_enabled</string>
+    <string name="key_setting_mqtt_tls_enabled">setting_mqtt_tls_enabled</string>
     <string name="default_setting_mqtt_enabled">false</string>
+    <string name="default_setting_mqtt_tts_enabled">false</string>
     <string name="default_setting_mqtt_basetopic">wallpanel/mywallpanel/</string>
     <string name="key_setting_mqtt_clientid">setting_mqtt_clientid</string>
     <string name="default_setting_mqtt_clientid">mywallpanel</string>
@@ -91,6 +93,12 @@
 
     <string name="key_setting_tts_enabled">setting_tts_enabled</string>
     <string name="default_setting_tss_enabled">false</string>
+
+    <string name="key_pref_module_tss">pref_module_tss</string>
+    <string name="key_pref_description">pref_description</string>
+    <string name="key_pref_module_notification">pref_module_notification</string>
+    <string name="key_pref_tts_notification">pref_module_tss</string>
+    <string name="default_tts_notification">false</string>
 
     <string-array name="settings_titles">
         <item>@string/title_settings</item>

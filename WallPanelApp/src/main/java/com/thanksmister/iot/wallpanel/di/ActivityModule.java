@@ -27,6 +27,7 @@ import android.view.LayoutInflater;
 
 import com.thanksmister.iot.wallpanel.modules.CameraReader;
 import com.thanksmister.iot.wallpanel.modules.SensorReader;
+import com.thanksmister.iot.wallpanel.network.MQTTOptions;
 import com.thanksmister.iot.wallpanel.persistence.Configuration;
 import com.thanksmister.iot.wallpanel.utils.DialogUtils;
 
@@ -77,5 +78,10 @@ class ActivityModule {
     @Provides
     static SensorReader provideSensorReader(Application app) {
         return new SensorReader(app);
+    }
+
+    @Provides
+    static MQTTOptions provideMQTTOptions(Configuration configuration) {
+        return new MQTTOptions(configuration);
     }
 }

@@ -75,4 +75,13 @@
 
     </PreferenceCategory>
 
+  <!--  <PreferenceCategory android:title="@string/pref_mqtt_settings_category">
+
+        <SwitchPreference
+            android:key="@string/key_pref_module_tss"
+            android:summary="@string/preference_summary_tts"
+            android:title="@string/preference_tts"/>
+
+    </PreferenceCategory>-->
+
 </PreferenceScreen>

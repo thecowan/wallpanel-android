@@ -90,7 +90,6 @@ constructor(private val context: Context) {
     private fun getSensorName(sensorType: Int): String? {
         when (sensorType) {
             Sensor.TYPE_AMBIENT_TEMPERATURE -> return "temperature"
-            // TODO change in API to light
             Sensor.TYPE_LIGHT -> return "light"
             Sensor.TYPE_MAGNETIC_FIELD -> return "magneticField"
             Sensor.TYPE_PRESSURE -> return "pressure"
@@ -99,30 +98,43 @@ constructor(private val context: Context) {
         return null
     }
 
+    private fun getSensorUnit(sensorType: Int): String? {
+        when (sensorType) {
+            Sensor.TYPE_AMBIENT_TEMPERATURE -> return "°C"
+            Sensor.TYPE_LIGHT -> return "lx"
+            Sensor.TYPE_MAGNETIC_FIELD -> return "uT"
+            Sensor.TYPE_PRESSURE -> return "hPa"
+            Sensor.TYPE_RELATIVE_HUMIDITY -> return "%"
+        }
+        return null
+    }
+
+    // TODO determine the sensor and give it proper values for UNIT
     private fun getSensorReadings() {
         Timber.d("getSensorReadings")
         for (sensor in mSensorList) {
             mSensorManager!!.registerListener(object : SensorEventListener {
                 override fun onSensorChanged(event: SensorEvent) {
+                    Timber.d("Sensor Type ${event.sensor.type}")
+                    val unit = getSensorUnit(event.sensor.type)
                     val data = JSONObject()
                     try {
                         data.put(VALUE, event.values[0].toDouble())
-                        data.put(UNIT, "??") // todo not useful units :)
+                        data.put(UNIT, unit)
                         data.put(ID, event.sensor.name)
                     } catch (ex: JSONException) {
                         ex.printStackTrace()
                     }
-
                     publishSensorData(getSensorName(event.sensor.type), data)
                     mSensorManager.unregisterListener(this)
                 }
-
                 override fun onAccuracyChanged(sensor: Sensor, accuracy: Int) {}
             }, sensor, 1000)
         }
     }
 
     private fun getBatteryReading() {
+        Timber.d("getBatteryReading")
         val intentFilter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
         val batteryStatus = context.registerReceiver(null, intentFilter)
         val batteryStatusIntExtra = batteryStatus?.getIntExtra(BatteryManager.EXTRA_STATUS, -1) ?: -1
@@ -134,8 +146,7 @@ constructor(private val context: Context) {
         val data = JSONObject()
         try {
             data.put(VALUE, level)
-            val BATTERYSENSOR_UNIT = "%"
-            data.put(UNIT, BATTERYSENSOR_UNIT)
+            data.put(UNIT, "%")
             data.put("charging", isCharging)
             data.put("acPlugged", acCharge)
             data.put("usbPlugged", usbCharge)

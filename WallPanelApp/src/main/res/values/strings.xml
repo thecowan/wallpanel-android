@@ -148,4 +148,18 @@
     <string name="toast_motion_detected">Motion Detected!</string>
     <string name="toast_face_detected">Face Detected!</string>
     <string name="toast_qrcode_read">QR Code %1$s</string>
+    <string name="preference_title_notifications">Notifications</string>
+    <string name="preference_title_mqtt_notifications">MQTT Notifications</string>
+    <string name="preference_summary_mqtt_notifications">Speak notifications from an MQTT message.</string>
+    <string name="pref_mqtt_settings_category">TTS Notifications</string>
+    <string name="preference_tts_voice">TTS Voice</string>
+    <string name="preference_tts">TTS Notifications</string>
+    <string name="preference_summary_tts">Use Text-To-Speech to speak the payload value of an MQTT message.</string>
+
+    <string name="error_mqtt_connection">The MQTT client connection wasn\'t established or was closed unexpectedly. Will try to reconnect.</string>
+    <string name="error_mqtt_subscription">Couldn\'t subscribe to the MQTT topics, check the MQTT broker settings or your connection.</string>
+    <string name="text_android_channel_name">WallPanel Running</string>
+    <string name="text_android_channel_description">WallPanel Running...</string>
+
+
 </resources>

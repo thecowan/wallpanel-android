@@ -17,16 +17,12 @@
 package com.thanksmister.iot.wallpanel.network
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.KeyguardManager
 import android.app.Notification
 import android.app.PendingIntent
 import android.arch.lifecycle.LifecycleService
 import android.arch.lifecycle.Observer
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
+import android.content.*
 import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
 import android.media.MediaPlayer
@@ -43,15 +39,15 @@ import com.koushikdutta.async.http.body.StringBody
 import com.koushikdutta.async.http.server.AsyncHttpServer
 import com.koushikdutta.async.http.server.AsyncHttpServerResponse
 import com.thanksmister.iot.wallpanel.R
-import com.thanksmister.iot.wallpanel.modules.CameraCallback
-import com.thanksmister.iot.wallpanel.modules.CameraReader
-import com.thanksmister.iot.wallpanel.modules.SensorCallback
-import com.thanksmister.iot.wallpanel.modules.SensorReader
+import com.thanksmister.iot.wallpanel.modules.*
 import com.thanksmister.iot.wallpanel.persistence.Configuration
 import com.thanksmister.iot.wallpanel.ui.activities.BrowserActivity.Companion.BROADCAST_ACTION_CLEAR_BROWSER_CACHE
 import com.thanksmister.iot.wallpanel.ui.activities.BrowserActivity.Companion.BROADCAST_ACTION_JS_EXEC
 import com.thanksmister.iot.wallpanel.ui.activities.BrowserActivity.Companion.BROADCAST_ACTION_LOAD_URL
 import com.thanksmister.iot.wallpanel.ui.activities.BrowserActivity.Companion.BROADCAST_ACTION_RELOAD_PAGE
+import com.thanksmister.iot.wallpanel.ui.activities.WelcomeActivity
+import com.thanksmister.iot.wallpanel.utils.MqttUtils
+import com.thanksmister.iot.wallpanel.utils.NotificationUtils
 import dagger.android.AndroidInjection
 import org.eclipse.paho.android.service.MqttAndroidClient
 import org.eclipse.paho.client.mqttv3.*
@@ -62,9 +58,10 @@ import java.io.IOException
 import java.nio.ByteBuffer
 import java.nio.charset.Charset
 import java.util.*
+import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 
-class WallPanelService : LifecycleService() {
+class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
 
     @Inject
     lateinit var configuration: Configuration
@@ -72,8 +69,8 @@ class WallPanelService : LifecycleService() {
     lateinit var cameraReader: CameraReader
     @Inject
     lateinit var sensorReader: SensorReader
-
-    private val VALUE = "value"
+    @Inject
+    lateinit var mqttOptions: MQTTOptions
 
     private var motionDetectedCountdown = 0
     private var faceDetectedCountdown = 0
@@ -86,12 +83,14 @@ class WallPanelService : LifecycleService() {
     private var audioPlayerBusy: Boolean = false
     private val brightTimer = Handler()
     private var timerActive = false
-    private var mqttAndroidClient: MqttAndroidClient? = null
-    private var topicPrefix: String? = null
     private var httpServer: AsyncHttpServer? = null
     private val mBinder = WallPanelServiceBinder()
     private val motionHandler = Handler()
     private val faceHandler = Handler()
+    private var textToSpeechModule: TextToSpeechModule? = null
+    private var mqttModule: MQTTModule? = null
+    private var connectionLiveData: ConnectionLiveData? = null
+    private var hasNetwork = AtomicBoolean(true)
 
     inner class WallPanelServiceBinder : Binder() {
         val service: WallPanelService
@@ -119,8 +118,8 @@ class WallPanelService : LifecycleService() {
         val checkSelfPermission = ContextCompat.checkSelfPermission(this@WallPanelService, permission)
         if (checkSelfPermission == PackageManager.PERMISSION_GRANTED) {
             val keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
-            val keyguardLock = keyguardManager.newKeyguardLock("ALARM_KEYBOARD_LOCK_TAG")
-            keyguardLock.disableKeyguard()
+            keyguardLock = keyguardManager.newKeyguardLock("ALARM_KEYBOARD_LOCK_TAG")
+            keyguardLock!!.disableKeyguard()
         }
 
         val filter = IntentFilter()
@@ -132,19 +131,20 @@ class WallPanelService : LifecycleService() {
         val bm = LocalBroadcastManager.getInstance(this)
         bm.registerReceiver(mBroadcastReceiver, filter)
 
+        configureMqtt()
         configurePowerOptions()
         startHttp()
-        configureMqtt()
         configureCamera()
         configureAudioPlayer()
         startForeground()
+        configureTextToSpeach()
+        startSensors()
     }
 
     override fun onDestroy() {
         super.onDestroy()
         cameraReader.stopCamera()
         sensorReader.stopReadings()
-        stopMqtt()
         stopHttp()
         stopPowerOptions()
     }
@@ -195,40 +195,44 @@ class WallPanelService : LifecycleService() {
     }
 
     private fun startForeground() {
-
         Timber.d("startForeground")
 
-        val notificationIntent = Intent(applicationContext, WallPanelService::class.java)
-        notificationIntent.flags = Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP
-        val pendingIntent = PendingIntent.getActivity(applicationContext, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT)
-
-        var notification: Notification? = null
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH) {
-            notification = Notification.Builder(this)
-                    .setContentTitle(getText(R.string.wallpanel_service_notification_title))
-                    .setContentText(getText(R.string.wallpanel_service_notification_message))
-                    .setSmallIcon(R.drawable.ic_dashboard)
-                    .setLargeIcon(BitmapFactory.decodeResource(application.resources, R.mipmap.ic_launcher))
-                    .setContentIntent(pendingIntent)
-                    .setLocalOnly(true)
-                    .build()
-        } else {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                notification = Notification.Builder(this)
-                        .setContentTitle(getText(R.string.wallpanel_service_notification_title))
-                        .setContentText(getText(R.string.wallpanel_service_notification_message))
-                        .setSmallIcon(R.drawable.ic_dashboard)
-                        .setLargeIcon(BitmapFactory.decodeResource(application.resources, R.mipmap.ic_launcher))
-                        .setContentIntent(pendingIntent)
-                        .build()
-            }
-        }
-
+        // make a continuously running notification
+        val notificationUtils = NotificationUtils(applicationContext, application.resources)
+        val notification = notificationUtils.createNotification(getString(R.string.wallpanel_service_notification_title),
+                getString(R.string.wallpanel_service_notification_message))
         if (notification != null) {
             startForeground(ONGOING_NOTIFICATION_ID, notification)
         }
+
+        // listen for network connectivity changes
+        connectionLiveData = ConnectionLiveData(this)
+        connectionLiveData?.observe(this, Observer { connected ->
+            if(connected!!) {
+                handleNetworkConnect()
+            } else {
+                handleNetworkDisconnect()
+            }
+        })
     }
 
+    private fun handleNetworkConnect() {
+        Timber.d("handleNetworkConnect")
+        if (mqttModule != null && !hasNetwork.get()) {
+            mqttModule?.restart()
+        }
+        hasNetwork.set(true)
+    }
+
+    private fun handleNetworkDisconnect() {
+        Timber.d("handleNetworkDisconnect")
+        if (mqttModule != null && hasNetwork.get()) {
+            mqttModule?.pause()
+        }
+        hasNetwork.set(false)
+    }
+
+    @SuppressLint("WakelockTimeout")
     private fun configurePowerOptions() {
         Timber.d("configurePowerOptions")
 
@@ -258,6 +262,7 @@ class WallPanelService : LifecycleService() {
         if (fullWakeLock!!.isHeld) fullWakeLock!!.release()
         if (wifiLock!!.isHeld) wifiLock!!.release()
         try {
+            // TODO fix keygaurd
             keyguardLock!!.reenableKeyguard()
         } catch (ex: Exception) {
             Timber.i("Enabling keyguard didn't work")
@@ -265,142 +270,58 @@ class WallPanelService : LifecycleService() {
         }
     }
 
+    private fun startSensors() {
+        if (configuration.sensorsEnabled && mqttOptions.isValid) {
+            sensorReader.startReadings(configuration.mqttSensorFrequency, sensorCallback)
+        }
+    }
+
     private fun configureMqtt() {
         Timber.d("configureMqtt")
-        stopMqtt()
-        if (configuration.mqttEnabled) {
-            startMqttConnection(
-                    configuration.mqttUrl,
-                    configuration.mqttClientId,
-                    configuration.mqttBaseTopic,
-                    configuration.mqttUsername,
-                    configuration.mqttPassword
-            )
+        if (mqttModule == null && mqttOptions.isValid) {
+            mqttModule = MQTTModule(this@WallPanelService.applicationContext, mqttOptions,this@WallPanelService)
+            lifecycle.addObserver(mqttModule!!)
+            publishMessage(MqttUtils.TOPIC_STATE, state.toString())
         }
     }
 
-    private fun startMqttConnection(serverUri: String, clientId: String, topic: String, username: String, password: String) {
-        Timber.d("startMqttConnection")
-        if (mqttAndroidClient == null) {
-            topicPrefix = topic
-            if (!topicPrefix!!.endsWith("/")) {
-                topicPrefix += "/"
-            }
-
-            mqttAndroidClient = MqttAndroidClient(applicationContext, serverUri, clientId)
-            mqttAndroidClient!!.setCallback(object : MqttCallbackExtended {
-                override fun connectionLost(cause: Throwable) {
-                    Timber.i("MQTT connectionLost ", cause)
-                }
-
-                @Throws(Exception::class)
-                override fun messageArrived(topic: String, message: MqttMessage) {
-                    Timber.i("MQTT messageArrived $message")
-                }
-
-                override fun deliveryComplete(token: IMqttDeliveryToken) {
-                    Timber.i("MQTT deliveryComplete $token")
-                }
-
-                override fun connectComplete(reconnect: Boolean, serverURI: String) {
-                    Timber.i("MQTT connectComplete $serverURI")
-                }
-            })
-            val mqttConnectOptions = MqttConnectOptions()
-            if (username.length > 0) {
-                mqttConnectOptions.userName = username
-                mqttConnectOptions.password = password.toCharArray()
-            }
-            mqttConnectOptions.isAutomaticReconnect = true
-            mqttConnectOptions.isCleanSession = false
-            try {
-                mqttAndroidClient!!.connect(mqttConnectOptions, null, object : IMqttActionListener {
-                    override fun onSuccess(asyncActionToken: IMqttToken) {
-                        val disconnectedBufferOptions = DisconnectedBufferOptions()
-                        disconnectedBufferOptions.isBufferEnabled = true
-                        disconnectedBufferOptions.bufferSize = 100
-                        disconnectedBufferOptions.isPersistBuffer = false
-                        disconnectedBufferOptions.isDeleteOldestMessages = false
-                        mqttAndroidClient!!.setBufferOpts(disconnectedBufferOptions)
-                        subscribeToTopic(topicPrefix!! + "command")
-                        publishMessage("state", state.toString().toByteArray())
-                    }
-
-                    override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
-                        Timber.i("MQTT connection failure: " + exception.message)
-                    }
-                })
-            } catch (ex: MqttException) {
-                ex.printStackTrace()
-            }
-
-            if (configuration.sensorsEnabled) {
-                sensorReader.startReadings(configuration.mqttSensorFrequency, sensorCallback)
-            }
-        }
+    override fun onMQTTDisconnect() {
+        Timber.d("onMQTTDisconnect")
+        Toast.makeText(this, getString(R.string.error_mqtt_connection), Toast.LENGTH_SHORT).show()
+        //mqttModule!!.restart()
     }
 
-    private fun stopMqtt() {
-        Timber.d("stopMqtt")
-        sensorReader.stopReadings()
-        try {
-            if (mqttAndroidClient != null && mqttAndroidClient!!.isConnected) {
-                mqttAndroidClient!!.disconnect()
-            }
-        } catch (e: MqttException) {
-            e.printStackTrace()
-        }
-        mqttAndroidClient = null
+    override fun onMQTTException(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+        //mqttModule!!.restart()
     }
 
-    private fun publishMessage(topicPostfix: String, data: JSONObject) {
-        publishMessage(topicPostfix, data.toString().toByteArray())
+    override fun onMQTTMessage(id: String, topic: String, payload: String) {
+        Timber.i("onMQTTMessage: $payload")
+        processCommand(payload)
     }
 
-    private fun publishMessage(topicPostfix: String, message: ByteArray) {
+    private fun publishMessage(command: String, data: JSONObject) {
+        publishMessage(command, data.toString())
+    }
+
+    private fun publishMessage(command: String, message: String) {
         Timber.d("publishMessage")
-        if (mqttAndroidClient != null && mqttAndroidClient!!.isConnected) {
-            try {
-                val test = String(message, Charset.forName("UTF-8"))
-                Timber.i("Publishing: [$topicPrefix$topicPostfix]: $test")
-                mqttAndroidClient!!.publish(topicPrefix!! + topicPostfix, message, 0, false)
-            } catch (e: MqttException) {
-                e.printStackTrace()
-            }
-        }
-    }
-
-    private fun subscribeToTopic(subscriptionTopic: String): Boolean {
-        Timber.d("subscribeToTopic")
-        if (mqttAndroidClient!!.isConnected) {
-            try {
-                mqttAndroidClient!!.subscribe(subscriptionTopic, 0, null, object : IMqttActionListener {
-                    override fun onSuccess(asyncActionToken: IMqttToken) {
-                        Timber.i("subscribed to: $subscriptionTopic")
-                    }
-
-                    override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
-                        Timber.i("Failed to subscribe to: $subscriptionTopic")
-                    }
-                })
-                mqttAndroidClient!!.subscribe(subscriptionTopic, 0) { topic, message ->
-                    val payload = String(message.payload, Charset.forName("UTF-8"))
-                    Timber.i("messageArrived: $payload")
-                    processCommand(payload)
-                }
-                return true
-            } catch (ex: MqttException) {
-                System.err.println("Exception while subscribing")
-                ex.printStackTrace()
-            }
-        }
-        return false
+        mqttModule!!.publish(command, message)
     }
 
     private fun configureCamera() {
         Timber.d("configureCamera ${configuration.cameraEnabled}")
         if (configuration.cameraEnabled) {
             cameraReader.startCamera(cameraDetectorCallback, configuration)
+        }
+    }
+
+    private fun configureTextToSpeach() {
+        Timber.d("configureTextToSpeach")
+        if (textToSpeechModule == null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            textToSpeechModule = TextToSpeechModule(this)
+            lifecycle.addObserver(textToSpeechModule!!)
         }
     }
 
@@ -538,7 +459,7 @@ class WallPanelService : LifecycleService() {
     }
 
     private fun processCommand(commandJson: JSONObject): Boolean {
-        Timber.d("processCommand Called")
+        Timber.d("processCommand ${commandJson.toString()}")
         try {
             if (commandJson.has("url")) {
                 browseUrl(commandJson.getString("url"))
@@ -571,6 +492,9 @@ class WallPanelService : LifecycleService() {
             }
             if (commandJson.has("audio")) {
                 playAudio(commandJson.getString("audio"))
+            }
+            if (commandJson.has("speak")) {
+                speakMessage(commandJson.getString("speak"))
             }
         } catch (ex: JSONException) {
             Timber.e("Invalid JSON passed as a command: " + commandJson.toString())
@@ -621,6 +545,15 @@ class WallPanelService : LifecycleService() {
 
         Timber.d("audioPlayer: Buffering $audioUrl")
         audioPlayer!!.prepareAsync()
+    }
+
+    private fun speakMessage(message: String) {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            if (textToSpeechModule != null) {
+                Timber.d("speakMessage $message")
+                textToSpeechModule!!.speakText(message)
+            }
+        }
     }
 
     @SuppressLint("WakelockTimeout")
@@ -698,7 +631,7 @@ class WallPanelService : LifecycleService() {
         if (motionDetectedCountdown <= 0) {
             val data = JSONObject()
             try {
-                data.put(VALUE, true)
+                data.put(MqttUtils.VALUE, true)
             } catch (ex: JSONException) {
                 ex.printStackTrace()
             }
@@ -713,7 +646,7 @@ class WallPanelService : LifecycleService() {
         if (faceDetectedCountdown <= 0) {
             val data = JSONObject()
             try {
-                data.put(VALUE, true)
+                data.put(MqttUtils.VALUE, true)
             } catch (ex: JSONException) {
                 ex.printStackTrace()
             }
@@ -730,7 +663,7 @@ class WallPanelService : LifecycleService() {
                 Timber.d("Clearing motion detected status")
                 val data = JSONObject()
                 try {
-                    data.put(VALUE, false)
+                    data.put(MqttUtils.VALUE, false)
                 } catch (ex: JSONException) {
                     ex.printStackTrace()
                 }
@@ -746,7 +679,7 @@ class WallPanelService : LifecycleService() {
                 Timber.d("Clearing face detected status")
                 val data = JSONObject()
                 try {
-                    data.put(VALUE, false)
+                    data.put(MqttUtils.VALUE, false)
                 } catch (ex: JSONException) {
                     ex.printStackTrace()
                 }
@@ -759,7 +692,7 @@ class WallPanelService : LifecycleService() {
         Timber.d("publishQrCode")
         val jdata = JSONObject()
         try {
-            jdata.put(VALUE, data)
+            jdata.put(MqttUtils.VALUE, data)
         } catch (ex: JSONException) {
             ex.printStackTrace()
         }
@@ -773,19 +706,19 @@ class WallPanelService : LifecycleService() {
                 if (url != configuration.appLaunchUrl) {
                     Timber.i("Url changed to $url")
                     configuration.appLaunchUrl = url
-                    publishMessage("state", state.toString().toByteArray())
+                    publishMessage("state", state.toString())
                 }
             } else if (Intent.ACTION_SCREEN_OFF == intent.action ||
                     intent.action == Intent.ACTION_SCREEN_ON ||
                     intent.action == Intent.ACTION_USER_PRESENT) {
                 Timber.i("Screen state changed")
-                publishMessage("state", state.toString().toByteArray())
+                publishMessage("state", state.toString())
             } else if (BROADCAST_EVENT_SCREEN_TOUCH == intent.action) {
                 Timber.i("Screen touched")
                 if (configuration.cameraMotionBright) {
                     setBrightScreen(255)
                 }
-                publishMessage("state", state.toString().toByteArray())
+                publishMessage("state", state.toString())
             }
         }
     }
@@ -810,7 +743,7 @@ class WallPanelService : LifecycleService() {
         }
 
         override fun onTooDark() {
-            Timber.i("Too dark for motion detection")
+           // Timber.i("Too dark for motion detection")
         }
 
         override fun onFaceDetected() {
