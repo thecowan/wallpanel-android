@@ -1,8 +1,18 @@
 # WallPanel
 WallPanel is an Android application for Web Based Dashboards and Home Automation Platforms.
 
+## Features
+- Web Based Dashboards and Home Automation Platforms support for viewing your home automation website or dashboard.
+- Camera support for streaming video, motion detection, face detection, and QR Code reading.
+- Google Text-to-Speech support to speak notification messages using MQTT or HTTP.
+- MQTT or HTTP commands to remotely control device and application (url, brightness, wake, etc.)
+- Sensor data reporting for the device (tempeature, light, pressure, battery)
+
 ## Quick Start
 You can either side load the application to your device from the release section or install the application from the Google Play store. The application will open to the welcome page with a link to update the settings. Go to settings, and setup the link to your web page or home automation platform. You may also update additional settings for Motion, Face Detection, and for publishing device sensor data. 
+
+## Support
+For issues, feature requests, comments or questions, use the [Github issues tracker](https://github.com/thanksmister/wallpanel-android/issues).
 
 ## MQTT Sensor and State Data
 If MQTT is enabled in the settings and properly configured, the application can publish data and states for various device sensors, camera detections, and application states.
