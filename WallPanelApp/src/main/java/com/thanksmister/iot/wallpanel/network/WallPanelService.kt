@@ -307,7 +307,9 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
 
     private fun publishMessage(command: String, message: String) {
         Timber.d("publishMessage")
-        mqttModule!!.publish(command, message)
+        if(mqttModule != null) {
+            mqttModule!!.publish(command, message)
+        }
     }
 
     private fun configureCamera() {
