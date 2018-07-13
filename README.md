@@ -14,9 +14,10 @@ The application will post device sensors data per the API description and Sensor
 Sensor | Keys | Example | Notes
 -|-|-|-
 battery | unit, value, charging, acPlugged, usbPlugged | ```{"unit":"%", "value":"39", "acPlugged":false, "usbPlugged":true, "charging":true}``` |
-brightness | unit, value | ```{"unit":"lx", "value":"920"}``` |
-pressure | unit, value | ```{"unit":"??", "value":"21"}``` |
-temperature | unit, value | ```{"unit":"??", "value":"70"}``` |
+light | unit, value | ```{"unit":"lx", "value":"920"}``` |
+magnetic_field | unit, value | ```{"unit":"uT", "value":"-1780.699951171875"}``` |
+pressure | unit, value | ```{"unit":"hPa", "value":"1011.584716796875"}``` |
+temperature | unit, value | ```{"unit":"°C", "value":"24"}``` |
 
 *NOTE:* Sensor values are device specific. Not all devices will publish all sensor values.
 
