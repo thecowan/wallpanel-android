@@ -134,8 +134,8 @@ camera:
     mjpeg_url: http://192.168.1.1:2971/camera/stream
 ```
 
-## MQTT and HTTP Remote Control
-You can control the app remotely via MQTT or HTTP (REST). 
+## MQTT and HTTP Commands
+Interact and control the application and device remotely using either MQTT or HTTP (REST) commands, including using your device as an announcer with Google Text-To-Speach. 
 
 ### Commands
 Key | Value | Example Payload | Description
