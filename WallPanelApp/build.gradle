@@ -15,15 +15,20 @@
  */
 
 
-
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
+apply plugin: 'io.fabric'
+
+repositories {
+    maven { url 'https://maven.fabric.io/public' }
+    mavenCentral()
+}
 
 def versionMajor = 0
 def versionMinor = 8
-def versionPatch = 0
+def versionPatch = 1
 def versionBuild = 0 // bump for dog food builds, public betas, etc.
 
 android {
@@ -80,14 +85,6 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$versions.kotlin"
 
-    /*androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
-        exclude group: 'com.android.support', module: 'support-annotations'
-    })*/
-
-   /* compile 'org.eclipse.paho:org.eclipse.paho.android.service:1.1.1', {
-        exclude module: 'support-v4'
-    }*/
-
     implementation 'com.android.support:multidex:1.0.3'
     implementation "com.android.support:appcompat-v7:$versions.support"
     implementation "com.android.support:design:$versions.support"
@@ -141,6 +138,13 @@ dependencies {
     // Logging
     implementation 'com.jakewharton.timber:timber:4.5.1'
 
+    implementation('com.crashlytics.sdk.android:crashlytics:2.9.4@aar') {
+        transitive = true;
+    }
+
+    implementation('com.crashlytics.sdk.android:answers:1.4.2@aar') {
+        transitive = true;
+    }
 }
 
 configurations.all {
