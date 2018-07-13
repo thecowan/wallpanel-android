@@ -31,20 +31,32 @@ temperature | unit, value | ```{"unit":"??", "value":"70"}``` |
 sensor:
   - platform: mqtt
     state_topic: "wallpanel/mywallpanel/sensor/battery"
-    name: "wallpanel battery"
+    name: "WallPanel Battery Level"
     unit_of_measurement: "%"
+    value_template: '{{ value_json.value }}'
+    
+ - platform: mqtt
+    state_topic: "wallpanel/mywallpanel/sensor/temperature"
+    name: "WallPanel Temperature"
+    unit_of_measurement: "°C"
     value_template: '{{ value_json.value }}'
 
   - platform: mqtt
-    state_topic: "wallpanel/mywallpanel/sensor/brightness"
-    name: "wallpanel brightness"
+    state_topic: "wallpanel/mywallpanel/sensor/light"
+    name: "WallPanel Light Level"
     unit_of_measurement: "lx"
+    value_template: '{{ value_json.value }}'
+    
+  - platform: mqtt
+    state_topic: "wallpanel/mywallpanel/sensor/magnetic_field"
+    name: "WallPanel Magnetic Field"
+    unit_of_measurement: "uT"
     value_template: '{{ value_json.value }}'
 
   - platform: mqtt
     state_topic: "wallpanel/mywallpanel/sensor/pressure"
-    name: "wallpanel pressure"
-    unit_of_measurement: "mb"
+    name: "WallPanel Pressure"
+    unit_of_measurement: "hPa"
     value_template: '{{ value_json.value }}'
 ```
 
@@ -134,16 +146,25 @@ relaunch | true | ```{"relaunch": true}``` | Relaunches the dashboard from confi
 reload | true | ```{"reload": true}``` | Reloads the current page immediately 
 url | URL | ```{"url": "http://<url>"}``` | Browse to a new URL immediately
 wake | true | ```{"wake": true}``` | Wakes the screen if it is asleep
+speak | data | ```{"speak": "Hello!"}``` | Uses the devices TTS to speak the message
 
+* The base topic value (default is "mywallpanel") should be unique to each device running the application unless you want all devices to receive the same command. The base topic and can be changed in the application settingssettings.
 * Commands are constructed via valid JSON. It is possible to string multiple commands together:
   * eg, ```{"clearCache":true, "relaunch":true}```
 * For REST
   * POST the JSON to URL ```http://[mywallpanel]:2971/api/command```
 * For MQTT
-  * WallPanel subscribes to topic ```[baseTopic]/command```
+  * WallPanel subscribes to topic ```wallpanel/[baseTopic]/command```
     * Default Topic: ```wallpanel/mywallpanel/command```
-  * Publish a JSON payload to this topic
+  * Publish a JSON payload to this topic (be mindfula of quotes in JSON should be single quotes not double)
 
+
+## Google Text-To-Speach Command
+You can send a command using either HTTP or MQTT to have the device speak a message using Google's Text-To-Speach. Note that the device must be running Android Lollipop or above. 
+
+Example format for the message topic and payload: 
+
+```{"topic":"wallpanel/mywallpanel/command", "payload":"{'speak':'Hello!'}"}```
 
 <!-- ## Default Appication Configuration
 Key | Value | Behavior | Default
