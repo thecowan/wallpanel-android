@@ -160,7 +160,7 @@ speak | data | ```{"speak": "Hello!"}``` | Uses the devices TTS to speak the mes
   * Publish a JSON payload to this topic (be mindfula of quotes in JSON should be single quotes not double)
 
 
-## Google Text-To-Speach Command
+### Google Text-To-Speach Command
 You can send a command using either HTTP or MQTT to have the device speak a message using Google's Text-To-Speach. Note that the device must be running Android Lollipop or above. 
 
 Example format for the message topic and payload: 
