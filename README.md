@@ -15,7 +15,7 @@ Sensor | Keys | Example | Notes
 -|-|-|-
 battery | unit, value, charging, acPlugged, usbPlugged | ```{"unit":"%", "value":"39", "acPlugged":false, "usbPlugged":true, "charging":true}``` |
 light | unit, value | ```{"unit":"lx", "value":"920"}``` |
-magnetic_field | unit, value | ```{"unit":"uT", "value":"-1780.699951171875"}``` |
+magneticField | unit, value | ```{"unit":"uT", "value":"-1780.699951171875"}``` |
 pressure | unit, value | ```{"unit":"hPa", "value":"1011.584716796875"}``` |
 temperature | unit, value | ```{"unit":"°C", "value":"24"}``` |
 
@@ -49,7 +49,7 @@ sensor:
     value_template: '{{ value_json.value }}'
     
   - platform: mqtt
-    state_topic: "wallpanel/mywallpanel/sensor/magnetic_field"
+    state_topic: "wallpanel/mywallpanel/sensor/magneticField"
     name: "WallPanel Magnetic Field"
     unit_of_measurement: "uT"
     value_template: '{{ value_json.value }}'
