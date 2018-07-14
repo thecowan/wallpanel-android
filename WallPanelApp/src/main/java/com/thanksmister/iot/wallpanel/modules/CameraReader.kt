@@ -65,7 +65,6 @@ constructor(private val context: Context) {
     }
 
     private fun setJpeg(value: ByteArray) {
-        Timber.d("setJpeg $value")
         this.byteArray.value = value
     }
 
@@ -149,7 +148,6 @@ constructor(private val context: Context) {
                             }
                         }
                         if (motion?.byteArray != null && bitmapComplete) {
-                            Timber.d("bitmapCreateTask")
                             bitmapCreateTask = BitmapTask(context, renderScript, object : OnCompleteListener {
                                 override fun onComplete(byteArray: ByteArray?) {
                                     bitmapComplete = true
@@ -276,7 +274,6 @@ constructor(private val context: Context) {
             if (isCancelled) {
                 return
             }
-            Timber.d("onPostExecute")
             onCompleteListener.onComplete(result)
         }
     }

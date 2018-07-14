@@ -108,7 +108,7 @@ class MQTTService(private var context: Context, options: MQTTOptions,
                 Timber.d("Command Topic: " + command)
                 val mqttMessage = MqttMessage()
                 mqttMessage.payload = payload.toByteArray()
-                mqttMessage.isRetained = true // we want to remember last state
+                mqttMessage.isRetained = SHOULD_RETAIN
                 sendMessage(mqttOptions?.getBaseTopic() + command, mqttMessage)
             }
         } catch (e: MqttException) {
@@ -249,7 +249,6 @@ class MQTTService(private var context: Context, options: MQTTOptions,
     companion object {
         // Indicate if this message should be a MQTT 'retained' message.
         private val SHOULD_RETAIN = false
-
         // Use mqttQos=1 (at least once delivery), mqttQos=0 (at most once delivery) also supported.
         private val MQTT_QOS = 0
     }
