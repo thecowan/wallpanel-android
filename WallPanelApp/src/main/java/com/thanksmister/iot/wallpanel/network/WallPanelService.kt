@@ -198,15 +198,14 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         Timber.d("startForeground")
 
         // make a continuously running notification
-        /*val notificationUtils = NotificationUtils(applicationContext, application.resources)
+        val notificationUtils = NotificationUtils(applicationContext, application.resources)
         val notification = notificationUtils.createNotification(getString(R.string.wallpanel_service_notification_title),
                 getString(R.string.wallpanel_service_notification_message))
         if (notification != null) {
             startForeground(ONGOING_NOTIFICATION_ID, notification)
         }
-*/
 
-        val notificationIntent = Intent(applicationContext, WallPanelService::class.java)
+        /*val notificationIntent = Intent(applicationContext, WallPanelService::class.java)
         notificationIntent.flags = Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP
         val pendingIntent = PendingIntent.getActivity(applicationContext, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT)
 
@@ -231,7 +230,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
                         .build()
             }
         }
-
+*/
         if (notification != null) {
             startForeground(ONGOING_NOTIFICATION_ID, notification)
         }

@@ -63,14 +63,9 @@ public class NotificationUtils extends ContextWrapper {
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void createChannels() {
         String description = getString(R.string.text_android_channel_description);
-        int importance = NotificationManager.IMPORTANCE_HIGH;
+        int importance = NotificationManager.IMPORTANCE_LOW;
         NotificationChannel mChannel = new NotificationChannel(ANDROID_CHANNEL_ID, ANDROID_CHANNEL_NAME, importance);
         mChannel.setDescription(description);
-        mChannel.enableLights(true);
-        mChannel.setLightColor(Color.RED);
-        mChannel.enableVibration(true);
-        mChannel.setLockscreenVisibility(VISIBILITY_PUBLIC);
-        mChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
         getManager().createNotificationChannel(mChannel);
     }
 
@@ -105,12 +100,11 @@ public class NotificationUtils extends ContextWrapper {
                 .setContentTitle(title)
                 .setContentText(body)
                 .setColor(color)
-                .setOnlyAlertOnce(true)
-                .setOngoing(false)
-                .setWhen(System.currentTimeMillis())
+                .setOngoing(true)
+                .setLocalOnly(true)
                 .setLargeIcon(BitmapFactory.decodeResource(resources, R.mipmap.ic_launcher))
                 .setSmallIcon(R.drawable.ic_dashboard_white)
-                .setAutoCancel(true);
+                .setAutoCancel(false);
         
         builder.setContentIntent(pendingIntent);
         return builder;
@@ -123,13 +117,10 @@ public class NotificationUtils extends ContextWrapper {
                 .setLargeIcon(BitmapFactory.decodeResource(resources, R.mipmap.ic_launcher))
                 .setContentTitle(title)
                 .setContentText(body)
-                .setOnlyAlertOnce(true)
                 .setOngoing(false)
-                .setPriority(PRIORITY_MAX)
-                .setVisibility(VISIBILITY_PUBLIC)
-                .setWhen(System.currentTimeMillis())
+                .setLocalOnly(true)
                 .setColor(color)
-                .setAutoCancel(true);
+                .setAutoCancel(false);
     }
 
     public void clearNotification() {
