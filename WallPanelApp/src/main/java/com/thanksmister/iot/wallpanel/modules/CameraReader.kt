@@ -40,6 +40,9 @@ import java.lang.ref.WeakReference
 import javax.inject.Inject
 import android.graphics.Bitmap
 import android.support.v8.renderscript.RenderScript
+import com.crashlytics.android.Crashlytics
+import com.thanksmister.iot.wallpanel.BuildConfig
+import java.io.IOException
 
 
 class CameraReader @Inject
@@ -215,10 +218,18 @@ constructor(private val context: Context) {
                     .setFacing(configuration.cameraId)
                     .build()
 
-            if (preview != null) {
-                preview.start(cameraSource)
-            } else {
-                cameraSource!!.start()
+            try {
+                if (preview != null) {
+                    preview.start(cameraSource)
+                } else {
+                    cameraSource!!.start()
+                }
+            } catch (e : IOException) {
+                Timber.e(e.message)
+                if(!BuildConfig.DEBUG) {
+                    Crashlytics.setString("camera_key", configuration.cameraId.toString())
+                    Crashlytics.log(e.message)
+                }
             }
         }
     }
