@@ -24,10 +24,7 @@ import android.support.v14.preference.SwitchPreference
 import android.support.v7.preference.EditTextPreference
 import android.support.v7.preference.ListPreference
 import android.support.v7.preference.Preference
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
-import android.view.View
+import android.view.*
 import androidx.navigation.Navigation
 import com.thanksmister.iot.wallpanel.R
 import com.thanksmister.iot.wallpanel.persistence.Configuration
@@ -49,6 +46,12 @@ class SettingsFragment : BaseSettingsFragment() {
     private var httpPreference: Preference? = null
     private var sensorsPreference: Preference? = null
     private var aboutPreference: Preference? = null
+    private var listener: OnSettingsFragmentListener? = null
+
+    interface OnSettingsFragmentListener {
+        fun onFinish()
+        fun onBrowserButton()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,6 +60,11 @@ class SettingsFragment : BaseSettingsFragment() {
 
     override fun onAttach(context: Context) {
         AndroidSupportInjection.inject(this)
+        if (context is OnSettingsFragmentListener) {
+            listener = context
+        } else {
+            throw RuntimeException(context.toString() + " must implement OnSettingsFragmentListener")
+        }
         super.onAttach(context)
     }
 
@@ -77,7 +85,7 @@ class SettingsFragment : BaseSettingsFragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         val id = item.itemId
         if (id == R.id.action_settings) {
-            startBrowserActivity()
+            listener!!.onBrowserButton()
             return true
         } else if (id == R.id.action_help) {
             showSupport()
@@ -136,38 +144,6 @@ class SettingsFragment : BaseSettingsFragment() {
             view.let { Navigation.findNavController(it).navigate(R.id.about_action) }
             false
         }
-    }
-
-    private fun startBrowserActivity() {
-        Timber.d("startBrowserActivity")
-        val browserType = configuration.androidBrowserType
-        val targetClass: Class<*>
-        when (browserType) {
-            Configuration.PREF_BROWSER_NATIVE -> {
-                Timber.d("Explicitly using native browser")
-                targetClass = BrowserActivityNative::class.java
-            }
-            Configuration.PREF_BROWSER_LEGACY -> {
-                Timber.d("Explicitly using legacy browser")
-                targetClass = BrowserActivityLegacy::class.java
-            }
-            Configuration.PREF_BROWSER_AUTO -> {
-                Timber.d("Auto-selecting dashboard browser")
-                targetClass = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                    BrowserActivityNative::class.java
-                else
-                    BrowserActivityLegacy::class.java
-            }
-            else -> {
-                Timber.d("Auto-selecting dashboard browser")
-                targetClass = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                    BrowserActivityNative::class.java
-                else
-                    BrowserActivityLegacy::class.java
-            }
-        }
-        configuration.writeScreenPermissionsShown = false
-        startActivity(Intent(context, targetClass))
     }
 
     companion object {

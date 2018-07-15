@@ -35,6 +35,7 @@ import android.support.v4.content.ContextCompat
 import android.support.v4.view.PagerAdapter
 import android.support.v4.view.ViewPager
 import android.support.v7.app.AlertDialog
+import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
@@ -54,7 +55,7 @@ import kotlinx.android.synthetic.main.activity_settings.*
 import timber.log.Timber
 import javax.inject.Inject
 
-class SettingsActivity : DaggerAppCompatActivity(){
+class SettingsActivity : DaggerAppCompatActivity(), SettingsFragment.OnSettingsFragmentListener {
 
     @Inject lateinit var configuration: Configuration
     @Inject lateinit var dialogUtils: DialogUtils
@@ -70,6 +71,21 @@ class SettingsActivity : DaggerAppCompatActivity(){
         stopService(wallPanelService)
 
         lifecycle.addObserver(dialogUtils)
+    }
+
+    override fun onBackPressed() {
+        Timber.d("onBackPressed")
+        super.onBackPressed()
+        this.finish()
+    }
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        Timber.d("onKeyDown")
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            this.finish()
+            return true;
+        }
+        return super.onKeyDown(keyCode, event)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, intent: Intent?) {
@@ -146,6 +162,44 @@ class SettingsActivity : DaggerAppCompatActivity(){
     private fun launchWriteSettings() {
         val intent = Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS, Uri.parse("package:$packageName"))
         startActivityForResult(intent, 200)
+    }
+
+    override fun onFinish() {
+        this.finish()
+    }
+
+    override fun onBrowserButton() {
+        val browserType = configuration.androidBrowserType
+        val targetClass: Class<*>
+        when (browserType) {
+            Configuration.PREF_BROWSER_NATIVE -> {
+                Timber.d("Explicitly using native browser")
+                targetClass = BrowserActivityNative::class.java
+            }
+            Configuration.PREF_BROWSER_LEGACY -> {
+                Timber.d("Explicitly using legacy browser")
+                targetClass = BrowserActivityLegacy::class.java
+            }
+            Configuration.PREF_BROWSER_AUTO -> {
+                Timber.d("Auto-selecting dashboard browser")
+                targetClass = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                    BrowserActivityNative::class.java
+                else
+                    BrowserActivityLegacy::class.java
+            }
+            else -> {
+                Timber.d("Auto-selecting dashboard browser")
+                targetClass = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                    BrowserActivityNative::class.java
+                else
+                    BrowserActivityLegacy::class.java
+            }
+        }
+        configuration.writeScreenPermissionsShown = false
+        val intent = Intent(this@SettingsActivity, targetClass)
+        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+        startActivity(intent)
+        finish()
     }
 
     companion object {

@@ -84,6 +84,9 @@ class WelcomeActivity : DaggerAppCompatActivity() {
                     BrowserActivityLegacy::class.java
             }
         }
-        startActivity(Intent(applicationContext, targetClass))
+        val intent = Intent(this@WelcomeActivity, targetClass)
+        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+        startActivity(intent)
+        finish()
     }
 }
