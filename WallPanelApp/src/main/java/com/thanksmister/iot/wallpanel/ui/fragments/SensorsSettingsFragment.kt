@@ -48,7 +48,7 @@ class SensorsSettingsFragment : BaseSettingsFragment() {
         if((activity as SettingsActivity).supportActionBar != null) {
             (activity as SettingsActivity).supportActionBar!!.setDisplayHomeAsUpEnabled(true)
             (activity as SettingsActivity).supportActionBar!!.setDisplayShowHomeEnabled(true)
-            (activity as SettingsActivity).supportActionBar!!.title = (getString(R.string.title_facedetection_settings))
+            (activity as SettingsActivity).supportActionBar!!.title = (getString(R.string.title_sensor_settings))
         }
     }
 
