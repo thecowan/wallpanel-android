@@ -142,6 +142,7 @@ Use the device camera as a live MJPEG stream. Just connect to the stream using t
 camera:
   - platform: mjpeg
     mjpeg_url: http://192.168.1.1:2971/camera/stream
+    name: WallPanel Camera
 ```
 
 ## MQTT and HTTP Commands
