@@ -160,19 +160,23 @@ class CameraSettingsFragment : BaseSettingsFragment() {
 
     private fun createCameraList() {
         Timber.d("createCameraList")
-        val cameraList = CameraUtils.getCameraList()
-        cameraListPreference!!.entries = cameraList.toTypedArray<CharSequence>()
-        val vals = arrayOfNulls<CharSequence>(cameraList.size)
-        for (i in cameraList.indices) {
-            vals[i] = Integer.toString(i)
-        }
-        cameraListPreference?.entryValues = vals
+        try {
+            val cameraList = CameraUtils.getCameraListError()
+            cameraListPreference!!.entries = cameraList.toTypedArray<CharSequence>()
+            val vals = arrayOfNulls<CharSequence>(cameraList.size)
+            for (i in cameraList.indices) {
+                vals[i] = Integer.toString(i)
+            }
+            cameraListPreference?.entryValues = vals
 
-        val index = cameraListPreference!!.findIndexOfValue(configuration.cameraId.toString())
-        cameraListPreference!!.summary = if (index >= 0)
-            cameraListPreference!!.entries[index]
-        else
-            ""
+            val index = cameraListPreference!!.findIndexOfValue(configuration.cameraId.toString())
+            cameraListPreference!!.summary = if (index >= 0)
+                cameraListPreference!!.entries[index]
+            else
+                ""
+        } catch (e: RuntimeException) {
+            Timber.e(e.message)
+        }
     }
 
     private fun startCameraTest(c: Context) {

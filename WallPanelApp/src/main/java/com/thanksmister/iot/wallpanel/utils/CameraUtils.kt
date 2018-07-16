@@ -27,6 +27,7 @@ import java.util.ArrayList
 class CameraUtils {
 
     companion object {
+        @Throws(RuntimeException::class)
         fun getCameraList(): ArrayList<String> {
             val cameraList: ArrayList<String> = ArrayList()
             for (i in 0 until Camera.getNumberOfCameras()) {
@@ -47,11 +48,36 @@ class CameraUtils {
                             width,
                             height)
                     c.release()
-                } catch (e: Exception) {
+                } catch (e: RuntimeException) {
                     Timber.e("Had a problem reading camera $i")
                     e.printStackTrace()
                     description = java.text.MessageFormat.format("{0}: Error", i)
                 }
+                cameraList.add(description)
+            }
+            return cameraList
+        }
+
+        @Throws(RuntimeException::class)
+        fun getCameraListError(): ArrayList<String> {
+            val cameraList: ArrayList<String> = ArrayList()
+            for (i in 0 until Camera.getNumberOfCameras()) {
+                var description: String
+                val c = Camera.open(i)
+                val p = c.parameters
+                val previewSize = p.previewSize
+                val width = previewSize.width
+                val height = previewSize.height
+                val info = Camera.CameraInfo()
+                Camera.getCameraInfo(i, info)
+                description = java.text.MessageFormat.format(
+                        "{0}: {1} Camera {3}x{4} {2}º",
+                        i,
+                        if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) "Front" else "Back",
+                        info.orientation,
+                        width,
+                        height)
+                c.release()
                 cameraList.add(description)
             }
             return cameraList

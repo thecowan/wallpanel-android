@@ -41,6 +41,8 @@ import javax.inject.Inject
 import android.graphics.Bitmap
 import android.support.v8.renderscript.RenderScript
 import com.crashlytics.android.Crashlytics
+import com.google.android.gms.vision.CameraSource.CAMERA_FACING_BACK
+import com.google.android.gms.vision.CameraSource.CAMERA_FACING_FRONT
 import com.thanksmister.iot.wallpanel.BuildConfig
 import java.io.IOException
 
@@ -125,112 +127,165 @@ constructor(private val context: Context) {
 
     @SuppressLint("MissingPermission")
     fun startCamera(callback: CameraCallback, configuration: Configuration, preview: CameraSourcePreview?) {
-
-        Timber.d("startCamera")
-
+        Timber.d("startCameraPreview")
         this.cameraCallback = callback
-
         if (configuration.cameraEnabled) {
-
-            val info = Camera.CameraInfo()
-            Camera.getCameraInfo(configuration.cameraId, info)
-            cameraOrientation = info.orientation
-
-            motionDetector = MotionDetector.Builder(configuration.cameraMotionMinLuma, configuration.cameraMotionLeniency).build()
-
-            motionDetectorProcessor = MultiProcessor.Builder<Motion>(MultiProcessor.Factory<Motion> {
-                object : Tracker<Motion>() {
-                    override fun onUpdate(p0: Detector.Detections<Motion>?, motion: Motion?) {
-                        super.onUpdate(p0, motion)
-                        if (cameraCallback != null && configuration.cameraMotionEnabled) {
-                            if (Motion.MOTION_TOO_DARK == motion?.type) {
-                                cameraCallback!!.onTooDark()
-                            } else if (Motion.MOTION_DETECTED == motion?.type) {
-                                Timber.d("motionDetected")
-                                cameraCallback!!.onMotionDetected()
-                            }
-                        }
-                        if (motion?.byteArray != null && bitmapComplete) {
-                            bitmapCreateTask = BitmapTask(context, renderScript, object : OnCompleteListener {
-                                override fun onComplete(byteArray: ByteArray?) {
-                                    bitmapComplete = true
-                                    setJpeg(byteArray!!)
-                                }
-                            })
-                            bitmapComplete = false
-                            bitmapCreateTask!!.execute(motion.byteArray, motion.width, motion.height, cameraOrientation)
-                        }
+            buildDetectors(configuration)
+            try {
+                initCamera(configuration.cameraId, preview)
+            } catch (e : IOException) {
+                Timber.e(e.message)
+                try {
+                    if(configuration.cameraId == CAMERA_FACING_FRONT) {
+                        initCamera(CAMERA_FACING_BACK, preview)
+                    } else {
+                        initCamera(CAMERA_FACING_FRONT, preview)
                     }
+                } catch (e : IOException) {
+                    Timber.e(e.message)
+                    cameraCallback?.onCameraError()
                 }
-            }).build()
+            }
+        }
+    }
 
-            motionDetector!!.setProcessor(motionDetectorProcessor)
-
-            faceDetector = FaceDetector.Builder(context)
-                    .setProminentFaceOnly(true)
-                    .setTrackingEnabled(false)
-                    .setMode(FaceDetector.FAST_MODE)
-                    .setClassificationType(FaceDetector.NO_CLASSIFICATIONS)
-                    .setLandmarkType(FaceDetector.NO_LANDMARKS)
-                    .build()
-
-            faceDetectorProcessor = LargestFaceFocusingProcessor(faceDetector, object : Tracker<Face>() {
-                override fun onUpdate(detections: Detector.Detections<Face>, face: Face) {
-                    super.onUpdate(detections, face)
-                    if (detections.detectedItems.size() > 0) {
-                        if (cameraCallback != null && configuration.cameraFaceEnabled) {
-                            Timber.d("faceDetected")
-                            cameraCallback!!.onFaceDetected()
-                        }
+    /*@SuppressLint("MissingPermission")
+    @Throws(IOException::class)
+    fun startCameraPreview(callback: CameraCallback, configuration: Configuration, preview: CameraSourcePreview) {
+        Timber.d("startCameraPreview")
+        this.cameraCallback = callback
+        this.cameraPreview = preview
+        if (configuration.cameraEnabled && cameraPreview != null) {
+            buildDetectors(configuration)
+            cameraSource = initCameraPreview(configuration.cameraId)
+            cameraPreview!!.start(cameraSource, object : CameraSourcePreview.OnCameraPreviewListener {
+                override fun onCameraError() {
+                    Timber.e("Camera Preview Error")
+                    cameraSource = if(configuration.cameraId == CAMERA_FACING_FRONT) {
+                        initCameraPreview(CAMERA_FACING_BACK)
+                    } else {
+                        initCameraPreview(CAMERA_FACING_FRONT)
+                    }
+                    if(cameraPreview != null) {
+                        cameraPreview!!.start(cameraSource, object : CameraSourcePreview.OnCameraPreviewListener {
+                            override fun onCameraError() {
+                                Timber.e("Camera Preview Error")
+                                cameraCallback!!.onCameraError()
+                            }
+                        })
                     }
                 }
             })
+        }
+    }*/
 
-            faceDetector!!.setProcessor(faceDetectorProcessor)
+    private fun buildDetectors(configuration: Configuration) {
 
-            barcodeDetector = BarcodeDetector.Builder(context)
-                    .setBarcodeFormats(Barcode.QR_CODE)
-                    .build()
+        val info = Camera.CameraInfo()
+        Camera.getCameraInfo(configuration.cameraId, info)
+        cameraOrientation = info.orientation
 
-            barCodeDetectorProcessor = MultiProcessor.Builder<Barcode>(MultiProcessor.Factory<Barcode> {
-                object : Tracker<Barcode>() {
-                    override fun onUpdate(p0: Detector.Detections<Barcode>?, p1: Barcode?) {
-                        super.onUpdate(p0, p1)
-                        if (cameraCallback != null && configuration.cameraQRCodeEnabled) {
-                            Timber.d("Barcode: " + p1?.displayValue)
-                            cameraCallback!!.onQRCode(p1?.displayValue)
+        motionDetector = MotionDetector.Builder(configuration.cameraMotionMinLuma, configuration.cameraMotionLeniency).build()
+
+        motionDetectorProcessor = MultiProcessor.Builder<Motion>(MultiProcessor.Factory<Motion> {
+            object : Tracker<Motion>() {
+                override fun onUpdate(p0: Detector.Detections<Motion>?, motion: Motion?) {
+                    super.onUpdate(p0, motion)
+                    if (cameraCallback != null && configuration.cameraMotionEnabled) {
+                        if (Motion.MOTION_TOO_DARK == motion?.type) {
+                            cameraCallback!!.onTooDark()
+                        } else if (Motion.MOTION_DETECTED == motion?.type) {
+                            Timber.d("motionDetected")
+                            cameraCallback!!.onMotionDetected()
                         }
                     }
-                }
-            }).build()
-
-            barcodeDetector!!.setProcessor(barCodeDetectorProcessor);
-
-            multiDetector = MultiDetector.Builder()
-                    .add(barcodeDetector)
-                    .add(faceDetector)
-                    .add(motionDetector)
-                    .build();
-
-            cameraSource = CameraSource.Builder(context, multiDetector)
-                    .setRequestedFps(15.0f)
-                    .setRequestedPreviewSize(640, 480)
-                    .setFacing(configuration.cameraId)
-                    .build()
-
-            try {
-                if (preview != null) {
-                    preview.start(cameraSource)
-                } else {
-                    cameraSource!!.start()
-                }
-            } catch (e : IOException) {
-                Timber.e(e.message)
-                if(!BuildConfig.DEBUG) {
-                    Crashlytics.setString("camera_key", configuration.cameraId.toString())
-                    Crashlytics.log(e.message)
+                    if (motion?.byteArray != null && bitmapComplete && configuration.httpMJPEGEnabled) {
+                        bitmapCreateTask = BitmapTask(context, renderScript, object : OnCompleteListener {
+                            override fun onComplete(byteArray: ByteArray?) {
+                                bitmapComplete = true
+                                setJpeg(byteArray!!)
+                            }
+                        })
+                        bitmapComplete = false
+                        bitmapCreateTask!!.execute(motion.byteArray, motion.width, motion.height, cameraOrientation)
+                    }
                 }
             }
+        }).build()
+
+        motionDetector!!.setProcessor(motionDetectorProcessor)
+
+        faceDetector = FaceDetector.Builder(context)
+                .setProminentFaceOnly(true)
+                .setTrackingEnabled(false)
+                .setMode(FaceDetector.FAST_MODE)
+                .setClassificationType(FaceDetector.NO_CLASSIFICATIONS)
+                .setLandmarkType(FaceDetector.NO_LANDMARKS)
+                .build()
+
+        faceDetectorProcessor = LargestFaceFocusingProcessor(faceDetector, object : Tracker<Face>() {
+            override fun onUpdate(detections: Detector.Detections<Face>, face: Face) {
+                super.onUpdate(detections, face)
+                if (detections.detectedItems.size() > 0) {
+                    if (cameraCallback != null && configuration.cameraFaceEnabled) {
+                        Timber.d("faceDetected")
+                        cameraCallback!!.onFaceDetected()
+                    }
+                }
+            }
+        })
+
+        faceDetector!!.setProcessor(faceDetectorProcessor)
+
+        barcodeDetector = BarcodeDetector.Builder(context)
+                .setBarcodeFormats(Barcode.QR_CODE)
+                .build()
+
+        barCodeDetectorProcessor = MultiProcessor.Builder<Barcode>(MultiProcessor.Factory<Barcode> {
+            object : Tracker<Barcode>() {
+                override fun onUpdate(p0: Detector.Detections<Barcode>?, p1: Barcode?) {
+                    super.onUpdate(p0, p1)
+                    if (cameraCallback != null && configuration.cameraQRCodeEnabled) {
+                        Timber.d("Barcode: " + p1?.displayValue)
+                        cameraCallback!!.onQRCode(p1?.displayValue)
+                    }
+                }
+            }
+        }).build()
+
+        barcodeDetector!!.setProcessor(barCodeDetectorProcessor);
+
+        multiDetector = MultiDetector.Builder()
+                .add(barcodeDetector)
+                .add(faceDetector)
+                .add(motionDetector)
+                .build();
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun initCameraPreview(camerId: Int): CameraSource {
+        Timber.d("initCamera camerId $camerId")
+        return CameraSource.Builder(context, multiDetector)
+                .setRequestedFps(15.0f)
+                .setRequestedPreviewSize(640, 480)
+                .setFacing(camerId)
+                .build()
+    }
+
+    @SuppressLint("MissingPermission")
+    @Throws(IOException::class)
+    private fun initCamera(camerId: Int, preview: CameraSourcePreview?) {
+        Timber.d("initCamera camerId $camerId")
+        cameraSource = CameraSource.Builder(context, multiDetector)
+                .setRequestedFps(15.0f)
+                .setRequestedPreviewSize(640, 480)
+                .setFacing(camerId)
+                .build()
+
+        if(preview != null) {
+            preview.start(cameraSource)
+        } else {
+            cameraSource!!.start()
         }
     }
 

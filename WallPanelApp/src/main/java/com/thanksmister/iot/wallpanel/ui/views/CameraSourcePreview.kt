@@ -75,7 +75,7 @@ class CameraSourcePreview(private val mContext: Context, attrs: AttributeSet) : 
     @Throws(IOException::class)
     fun start(cameraSource: CameraSource?) {
         if (cameraSource == null) {
-            stop()
+            //stop()
             return
         }
 
@@ -106,9 +106,9 @@ class CameraSourcePreview(private val mContext: Context, attrs: AttributeSet) : 
                 mStartRequested = false
             }
         } catch (e: Exception) {
+            mStartRequested = false
             Timber.e(e.message)
         }
-
     }
 
     private inner class SurfaceCallback : SurfaceHolder.Callback {
@@ -117,13 +117,13 @@ class CameraSourcePreview(private val mContext: Context, attrs: AttributeSet) : 
             try {
                 startIfReady()
             } catch (e: IOException) {
-                Timber.e("Could not start camera source.", e)
+                Timber.e("Could not start camera source ${e.message}")
             }
-
         }
 
         override fun surfaceDestroyed(surface: SurfaceHolder) {
             mSurfaceAvailable = false
+            mStartRequested = false
         }
 
         override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {}
@@ -163,12 +163,11 @@ class CameraSourcePreview(private val mContext: Context, attrs: AttributeSet) : 
         mLayout.layout((layoutWidth - childWidth)/2, 0, layoutWidth, layoutHeight)
         mSurfaceView.layout(0, 0, childWidth, childHeight)
 
-        try {
+        /*try {
             startIfReady()
         } catch (e: IOException) {
             Timber.e("Could not start camera source.", e)
-        }
-
+        }*/
     }
 
     companion object {

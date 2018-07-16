@@ -51,9 +51,9 @@
 
         <EditTextPreference
             android:defaultValue="@string/default_browser_user_agent"
-            android:summary="Set the browser user agent stream if needed to load the dashboard (leave blank otherwise)"
+            android:summary="@string/pref_user_agent_summary"
             android:key="@string/key_setting_browser_user_agent"
-            android:title="User Agent String (Optinal)"/>
+            android:title="@string/pref_user_agent_title"/>
 
         <ListPreference
             android:defaultValue="@string/default_setting_test_zoomlevel"
