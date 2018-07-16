@@ -17,17 +17,23 @@
 package com.thanksmister.iot.wallpanel.ui.activities
 
 import android.annotation.SuppressLint
+import android.os.Build
 import android.os.Bundle
 import android.support.design.widget.Snackbar
+import android.support.v7.preference.PreferenceManager
+import android.text.TextUtils
 import android.view.MotionEvent
 import android.view.View
+import android.webkit.WebSettings
 import com.thanksmister.iot.wallpanel.R
+import com.thanksmister.iot.wallpanel.persistence.Configuration
 
 import org.xwalk.core.XWalkResourceClient
 import org.xwalk.core.XWalkView
 import org.xwalk.core.XWalkCookieManager
 
 import timber.log.Timber
+import javax.inject.Inject
 
 class BrowserActivityLegacy : BrowserActivity() {
 
@@ -78,14 +84,19 @@ class BrowserActivityLegacy : BrowserActivity() {
             false
         }
 
+        super.onCreate(savedInstanceState)
+    }
+
+    override fun configureWebSettings(userAgent: String) {
         val webSettings = xWebView!!.settings
         webSettings.javaScriptEnabled = true
         webSettings.domStorageEnabled = true
         webSettings.databaseEnabled = true
 
+        if(!TextUtils.isEmpty(userAgent)) {
+            webSettings.userAgentString = userAgent
+        }
         Timber.d(webSettings.userAgentString)
-
-        super.onCreate(savedInstanceState)
     }
 
     override fun loadUrl(url: String) {
@@ -108,5 +119,4 @@ class BrowserActivityLegacy : BrowserActivity() {
     override fun reload() {
         xWebView!!.reload(XWalkView.RELOAD_NORMAL)
     }
-
 }

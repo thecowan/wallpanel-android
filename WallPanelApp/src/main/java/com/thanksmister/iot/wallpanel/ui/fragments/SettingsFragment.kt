@@ -17,8 +17,6 @@
 package com.thanksmister.iot.wallpanel.ui.fragments
 
 import android.content.Context
-import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.support.v14.preference.SwitchPreference
 import android.support.v7.preference.EditTextPreference
@@ -27,12 +25,8 @@ import android.support.v7.preference.Preference
 import android.view.*
 import androidx.navigation.Navigation
 import com.thanksmister.iot.wallpanel.R
-import com.thanksmister.iot.wallpanel.persistence.Configuration
-import com.thanksmister.iot.wallpanel.ui.activities.BrowserActivityLegacy
-import com.thanksmister.iot.wallpanel.ui.activities.BrowserActivityNative
 import com.thanksmister.iot.wallpanel.ui.activities.SettingsActivity
 import dagger.android.support.AndroidSupportInjection
-import timber.log.Timber
 
 class SettingsFragment : BaseSettingsFragment() {
 
@@ -40,6 +34,7 @@ class SettingsFragment : BaseSettingsFragment() {
     private var preventSleepPreference: SwitchPreference? = null
     private var browserActivityPreference: SwitchPreference? = null
     private var browserTypePreference: ListPreference? = null
+    private var browserHeaderPreference: EditTextPreference? = null
     private var dashboardPreference: EditTextPreference? = null
     private var cameraPreference: Preference? = null
     private var mqttPreference: Preference? = null
@@ -103,6 +98,7 @@ class SettingsFragment : BaseSettingsFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         dashboardPreference = findPreference(getString(R.string.key_setting_app_launchurl)) as EditTextPreference
+        browserHeaderPreference = findPreference(getString(R.string.key_setting_browser_user_agent)) as EditTextPreference
         preventSleepPreference = findPreference(getString(R.string.key_setting_app_preventsleep)) as SwitchPreference
         browserActivityPreference = findPreference(getString(R.string.key_setting_app_showactivity)) as SwitchPreference
         openOnBootPreference = findPreference(getString(R.string.key_setting_android_startonboot)) as SwitchPreference

@@ -160,6 +160,9 @@
     <string name="error_mqtt_subscription">Couldn\'t subscribe to the MQTT topics, check the MQTT broker settings or your connection.</string>
     <string name="text_android_channel_name">WallPanel Running</string>
     <string name="text_android_channel_description">WallPanel Running...</string>
+    <string name="text_camera_front">Front</string>
+    <string name="text_camera_back">Back</string>
+    <string name="toast_camera_source_error">Could not start camera source.</string>
 
 
 </resources>

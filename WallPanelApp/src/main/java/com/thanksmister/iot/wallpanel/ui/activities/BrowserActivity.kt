@@ -35,17 +35,18 @@ import dagger.android.support.DaggerAppCompatActivity
 import timber.log.Timber
 import javax.inject.Inject
 import android.app.ActivityManager
-
+import android.webkit.WebSettings
 
 
 abstract class BrowserActivity : DaggerAppCompatActivity() {
 
-    @Inject
-    lateinit var configuration: Configuration
+    @Inject lateinit var configuration: Configuration
+
     private var wallPanelService: Intent? = null
     private var decorView: View? = null
     var displayProgress = true
     var zoomLevel = 1.0f
+    var webSettings: WebSettings? = null
 
     // handler for received data from service
     private val mBroadcastReceiver = object : BroadcastReceiver() {
@@ -86,6 +87,7 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
         val bm = LocalBroadcastManager.getInstance(this)
         bm.registerReceiver(mBroadcastReceiver, filter)
 
+        configureWebSettings(configuration.browserUserAgent)
         loadUrl(configuration.appLaunchUrl)
 
         Timber.d("start wallPanelService")
@@ -155,6 +157,7 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
         bm.sendBroadcast(intent)
     }
 
+    protected abstract fun configureWebSettings(userAgent: String)
     protected abstract fun loadUrl(url: String)
     protected abstract fun evaluateJavascript(js: String)
     protected abstract fun clearCache()

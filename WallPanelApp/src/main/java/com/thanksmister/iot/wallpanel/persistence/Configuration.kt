@@ -180,6 +180,10 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
         get() = getStringPref(R.string.key_setting_android_browsertype,
                 R.string.default_setting_android_browsertype)
 
+    val browserUserAgent: String
+        get() = getStringPref(R.string.key_setting_browser_user_agent,
+                R.string.default_browser_user_agent)
+
     val testZoomLevel: Float
         get() = java.lang.Float.valueOf(getStringPref(R.string.key_setting_test_zoomlevel,
                 R.string.default_setting_test_zoomlevel))!!

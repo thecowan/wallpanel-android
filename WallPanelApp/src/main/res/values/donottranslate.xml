@@ -100,6 +100,9 @@
     <string name="key_pref_tts_notification">pref_module_tss</string>
     <string name="default_tts_notification">false</string>
 
+    <string name="key_setting_browser_user_agent">setting_browser_header</string>
+    <string name="default_browser_user_agent">""</string>
+
     <string-array name="settings_titles">
         <item>@string/title_settings</item>
         <item>@string/title_camera_settings</item>

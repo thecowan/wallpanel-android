@@ -18,21 +18,18 @@ package com.thanksmister.iot.wallpanel.ui.activities
 
 import android.annotation.SuppressLint
 import android.os.Build
+import android.os.Bundle
 import android.support.design.widget.Snackbar
+import android.support.v7.preference.PreferenceManager
+import android.text.TextUtils
 import android.view.MotionEvent
 import android.view.View
-import android.webkit.CookieManager
-import android.webkit.WebChromeClient
-import android.webkit.WebResourceRequest
-import android.webkit.WebSettings
-import android.webkit.WebView
-import android.os.Bundle
-import android.webkit.WebViewClient
+import android.webkit.*
 import com.thanksmister.iot.wallpanel.R
-
 import timber.log.Timber
 
 class BrowserActivityNative : BrowserActivity() {
+
     private var mWebView: WebView? = null
 
     @SuppressLint("SetJavaScriptEnabled", "ClickableViewAccessibility")
@@ -63,16 +60,13 @@ class BrowserActivityNative : BrowserActivity() {
                 }
                 snackbar!!.show()
             }
-
         }
 
         mWebView!!.webViewClient = object : WebViewClient() {
             //If you will not use this method url links are open in new browser not in webview
-
             override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
                 return true
             }
-
         }
 
         mWebView!!.setOnTouchListener { v, event ->
@@ -90,19 +84,25 @@ class BrowserActivityNative : BrowserActivity() {
             false
         }
 
+        super.onCreate(savedInstanceState)
+    }
+
+    override fun configureWebSettings(userAgent: String) {
         val webSettings = mWebView!!.settings
         webSettings.javaScriptEnabled = true
         webSettings.domStorageEnabled = true
         webSettings.databaseEnabled = true
         webSettings.setAppCacheEnabled(true)
 
+         if(!TextUtils.isEmpty(userAgent)) {
+            webSettings.userAgentString = userAgent
+        }
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             webSettings.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
         }
 
         Timber.d(webSettings.userAgentString)
-
-        super.onCreate(savedInstanceState)
     }
 
     override fun loadUrl(url: String) {

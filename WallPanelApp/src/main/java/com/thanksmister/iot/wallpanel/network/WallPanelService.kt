@@ -761,6 +761,10 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
     }
 
     private val cameraDetectorCallback = object : CameraCallback {
+        override fun onCameraError() {
+            Toast.makeText(this@WallPanelService, this@WallPanelService.getString(R.string.toast_camera_source_error), Toast.LENGTH_LONG).show()
+        }
+
         override fun onMotionDetected() {
             Timber.i("Motion detected")
             if (configuration.cameraMotionWake) {

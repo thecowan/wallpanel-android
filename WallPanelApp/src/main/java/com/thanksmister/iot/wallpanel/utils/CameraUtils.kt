@@ -18,6 +18,7 @@ package com.thanksmister.iot.wallpanel.utils
 
 import android.hardware.Camera
 import android.util.Log
+import timber.log.Timber
 import java.util.ArrayList
 
 /**
@@ -47,7 +48,7 @@ class CameraUtils {
                             height)
                     c.release()
                 } catch (e: Exception) {
-                    Log.e("CameraReader", "Had a problem reading camera $i")
+                    Timber.e("Had a problem reading camera $i")
                     e.printStackTrace()
                     description = java.text.MessageFormat.format("{0}: Error", i)
                 }

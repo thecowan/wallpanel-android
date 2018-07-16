@@ -22,8 +22,6 @@
             android:defaultValue="@string/default_setting_app_launchurl"
             android:summary="@string/pref_launchurl_summary"
             android:key="@string/key_setting_app_launchurl"
-            android:selectAllOnFocus="true"
-            android:singleLine="true"
             android:title="@string/title_setting_app_launchurl" />
 
         <SwitchPreference
@@ -50,6 +48,12 @@
             android:entryValues="@array/browser_type_values"
             android:key="@string/key_setting_android_browsertype"
             android:title="@string/title_setting_android_browsertype" />
+
+        <EditTextPreference
+            android:defaultValue="@string/default_browser_user_agent"
+            android:summary="Set the browser user agent stream if needed to load the dashboard (leave blank otherwise)"
+            android:key="@string/key_setting_browser_user_agent"
+            android:title="User Agent String (Optinal)"/>
 
         <ListPreference
             android:defaultValue="@string/default_setting_test_zoomlevel"

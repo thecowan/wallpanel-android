@@ -21,4 +21,5 @@ public interface CameraCallback {
     void onTooDark();
     void onFaceDetected();
     void onQRCode(String data);
+    void onCameraError();
 }
