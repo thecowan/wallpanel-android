@@ -103,6 +103,10 @@
     <string name="key_setting_browser_user_agent">setting_browser_header</string>
     <string name="default_browser_user_agent">""</string>
 
+    <string name="key_setting_camera_fps">setting_camera_fps</string>
+    <string name="default_camera_fps">15</string>
+
+
     <string-array name="settings_titles">
         <item>@string/title_settings</item>
         <item>@string/title_camera_settings</item>

@@ -184,6 +184,13 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
         get() = getStringPref(R.string.key_setting_browser_user_agent,
                 R.string.default_browser_user_agent)
 
+    val cameraFPS: Float
+        get() = try {
+            getStringPref(R.string.key_setting_camera_fps, R.string.default_camera_fps).toFloat()
+        } catch (e: Exception) {
+            15.0F
+        }
+
     val testZoomLevel: Float
         get() = java.lang.Float.valueOf(getStringPref(R.string.key_setting_test_zoomlevel,
                 R.string.default_setting_test_zoomlevel))!!

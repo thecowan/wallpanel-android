@@ -165,6 +165,8 @@
     <string name="toast_camera_source_error">Could not start camera source.</string>
     <string name="pref_user_agent_title">User Agent String (Optional)</string>
     <string name="pref_user_agent_summary">Set the browser user agent stream if needed to load the dashboard (leave blank otherwise)</string>
+    <string name="pref_camera_fps_title">Camera FPS</string>
+    <string name="pref_camera_fps_summary">Set the camera speed, use lower value for older values if you see a dark image during testing (default is 15).</string>
 
 
 </resources>

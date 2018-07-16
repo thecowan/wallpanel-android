@@ -29,6 +29,12 @@
             android:title="@string/title_setting_camera_cameraid"
             android:dependency="@string/key_setting_camera_enabled"/>
 
+        <EditTextPreference
+            android:defaultValue="@string/default_camera_fps"
+            android:key="@string/key_setting_camera_fps"
+            android:summary="@string/pref_camera_fps_summary"
+            android:title="@string/pref_camera_fps_title"/>
+
         <Preference
             android:icon="@drawable/ic_directions_run"
             android:key="button_key_motion_detection"

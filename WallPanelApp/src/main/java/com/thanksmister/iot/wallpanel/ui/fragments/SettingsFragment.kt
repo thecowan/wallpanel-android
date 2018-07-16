@@ -109,6 +109,7 @@ class SettingsFragment : BaseSettingsFragment() {
         bindPreferenceSummaryToValue(browserActivityPreference!!)
         bindPreferenceSummaryToValue(openOnBootPreference!!)
         bindPreferenceSummaryToValue(browserTypePreference!!)
+        bindPreferenceSummaryToValue(browserHeaderPreference!!)
 
         cameraPreference = findPreference("button_key_camera")
         mqttPreference = findPreference("button_key_mqtt")
