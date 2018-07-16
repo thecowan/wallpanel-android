@@ -103,6 +103,11 @@ constructor(private val context: Context) {
             motionDetector = null
         }
 
+        if (streamDetector != null) {
+            streamDetector!!.release()
+            streamDetector = null
+        }
+
         if (multiDetector != null) {
             multiDetector!!.release()
             multiDetector = null
@@ -121,6 +126,11 @@ constructor(private val context: Context) {
         if (motionDetectorProcessor != null) {
             motionDetectorProcessor!!.release()
             motionDetectorProcessor = null
+        }
+
+        if (streamDetectorProcessor != null) {
+            streamDetectorProcessor!!.release()
+            streamDetectorProcessor = null
         }
     }
 
