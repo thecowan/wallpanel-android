@@ -90,7 +90,7 @@ constructor(application: Application, private val configuration: Configuration,
 
     fun startCamera(callback: CameraCallback, preview: CameraSourcePreview?) {
         Timber.d("startCamera")
-        cameraReader.startCamera(callback, configuration, preview)
+        cameraReader.startCameraPreview(callback, configuration, preview)
     }
 
     companion object {

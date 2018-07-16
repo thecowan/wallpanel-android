@@ -44,6 +44,11 @@ class CameraSourcePreview(private val mContext: Context, attrs: AttributeSet) : 
     private var mStartRequested: Boolean = false
     private var mSurfaceAvailable: Boolean = false
     private var mCameraSource: CameraSource? = null
+    private var listener: OnCameraPreviewListener? = null
+
+    interface OnCameraPreviewListener {
+        fun onCameraError()
+    }
 
     private val isPortraitMode: Boolean
         get() {
@@ -64,7 +69,7 @@ class CameraSourcePreview(private val mContext: Context, attrs: AttributeSet) : 
         mLayout = LinearLayout(mContext)
         addView(mLayout)
 
-        mLayout.setGravity(Gravity.CENTER_HORIZONTAL);
+        mLayout.gravity = Gravity.CENTER_HORIZONTAL;
         mLayout.setHorizontalGravity(Gravity.CENTER_HORIZONTAL);
 
         mSurfaceView = SurfaceView(mContext)
@@ -73,12 +78,8 @@ class CameraSourcePreview(private val mContext: Context, attrs: AttributeSet) : 
     }
 
     @Throws(IOException::class)
-    fun start(cameraSource: CameraSource?) {
-        if (cameraSource == null) {
-            //stop()
-            return
-        }
-
+    fun start(cameraSource: CameraSource?, listener: OnCameraPreviewListener) {
+        this.listener = listener
         mCameraSource = cameraSource
         mStartRequested = true
         startIfReady()
@@ -108,6 +109,7 @@ class CameraSourcePreview(private val mContext: Context, attrs: AttributeSet) : 
         } catch (e: Exception) {
             mStartRequested = false
             Timber.e(e.message)
+            listener?.onCameraError()
         }
     }
 
