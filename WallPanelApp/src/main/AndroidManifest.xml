@@ -56,8 +56,7 @@
         </activity>
         <activity
             android:name="com.thanksmister.iot.wallpanel.ui.activities.SettingsActivity"
-            android:label="@string/title_settings"
-            android:noHistory="true">
+            android:label="@string/title_settings">
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>

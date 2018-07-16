@@ -73,11 +73,11 @@ class SettingsActivity : DaggerAppCompatActivity(), SettingsFragment.OnSettingsF
         lifecycle.addObserver(dialogUtils)
     }
 
-    override fun onBackPressed() {
+    /*override fun onBackPressed() {
         Timber.d("onBackPressed")
         super.onBackPressed()
         this.finish()
-    }
+    }*/
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         Timber.d("onKeyDown")
