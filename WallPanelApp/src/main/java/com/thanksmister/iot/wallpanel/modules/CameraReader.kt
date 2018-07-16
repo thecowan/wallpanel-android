@@ -140,19 +140,21 @@ constructor(private val context: Context) {
         this.cameraCallback = callback
         if (configuration.cameraEnabled) {
             buildDetectors(configuration)
-            try {
-                initCamera(configuration.cameraId)
-            } catch (e : IOException) {
-                Timber.e(e.message)
+            if(multiDetector != null) {
                 try {
-                    if(configuration.cameraId == CAMERA_FACING_FRONT) {
-                        initCamera(CAMERA_FACING_BACK)
-                    } else {
-                        initCamera(CAMERA_FACING_FRONT)
-                    }
+                    initCamera(configuration.cameraId)
                 } catch (e : IOException) {
                     Timber.e(e.message)
-                    cameraCallback?.onCameraError()
+                    try {
+                        if(configuration.cameraId == CAMERA_FACING_FRONT) {
+                            initCamera(CAMERA_FACING_BACK)
+                        } else {
+                            initCamera(CAMERA_FACING_FRONT)
+                        }
+                    } catch (e : IOException) {
+                        Timber.e(e.message)
+                        cameraCallback?.onCameraError()
+                    }
                 }
             }
         }
@@ -166,25 +168,27 @@ constructor(private val context: Context) {
             this.cameraCallback = callback
             this.cameraPreview = preview
             buildDetectors(configuration)
-            cameraSource = initCameraPreview(configuration.cameraId)
-            cameraPreview!!.start(cameraSource, object : CameraSourcePreview.OnCameraPreviewListener {
-                override fun onCameraError() {
-                    Timber.e("Camera Preview Error")
-                    cameraSource = if(configuration.cameraId == CAMERA_FACING_FRONT) {
-                        initCameraPreview(CAMERA_FACING_BACK)
-                    } else {
-                        initCameraPreview(CAMERA_FACING_FRONT)
+            if(multiDetector != null) {
+                cameraSource = initCameraPreview(configuration.cameraId)
+                cameraPreview!!.start(cameraSource, object : CameraSourcePreview.OnCameraPreviewListener {
+                    override fun onCameraError() {
+                        Timber.e("Camera Preview Error")
+                        cameraSource = if(configuration.cameraId == CAMERA_FACING_FRONT) {
+                            initCameraPreview(CAMERA_FACING_BACK)
+                        } else {
+                            initCameraPreview(CAMERA_FACING_FRONT)
+                        }
+                        if(cameraPreview != null) {
+                            cameraPreview!!.start(cameraSource, object : CameraSourcePreview.OnCameraPreviewListener {
+                                override fun onCameraError() {
+                                    Timber.e("Camera Preview Error")
+                                    cameraCallback!!.onCameraError()
+                                }
+                            })
+                        }
                     }
-                    if(cameraPreview != null) {
-                        cameraPreview!!.start(cameraSource, object : CameraSourcePreview.OnCameraPreviewListener {
-                            override fun onCameraError() {
-                                Timber.e("Camera Preview Error")
-                                cameraCallback!!.onCameraError()
-                            }
-                        })
-                    }
-                }
-            })
+                })
+            }
         }
     }
 
@@ -194,6 +198,7 @@ constructor(private val context: Context) {
         Camera.getCameraInfo(configuration.cameraId, info)
         cameraOrientation = info.orientation
         val multiDetectorBuilder = MultiDetector.Builder()
+        var detectorAdded = false
 
         if(configuration.cameraEnabled && configuration.cameraMotionEnabled) {
             streamDetector = StreamingDetector.Builder().build()
@@ -217,6 +222,7 @@ constructor(private val context: Context) {
 
             streamDetector!!.setProcessor(streamDetectorProcessor)
             multiDetectorBuilder.add(streamDetector)
+            detectorAdded = true
         }
 
         if(configuration.cameraEnabled && configuration.cameraMotionEnabled) {
@@ -239,6 +245,7 @@ constructor(private val context: Context) {
 
             motionDetector!!.setProcessor(motionDetectorProcessor)
             multiDetectorBuilder.add(motionDetector)
+            detectorAdded = true
         }
 
         if(configuration.cameraEnabled && configuration.cameraFaceEnabled) {
@@ -264,6 +271,7 @@ constructor(private val context: Context) {
 
             faceDetector!!.setProcessor(faceDetectorProcessor)
             multiDetectorBuilder.add(faceDetector)
+            detectorAdded = true
         }
 
         if(configuration.cameraEnabled && configuration.cameraQRCodeEnabled) {
@@ -285,9 +293,12 @@ constructor(private val context: Context) {
 
             barcodeDetector!!.setProcessor(barCodeDetectorProcessor);
             multiDetectorBuilder.add(barcodeDetector)
+            detectorAdded = true
         }
 
-        multiDetector = multiDetectorBuilder.build();
+        if(detectorAdded) {
+            multiDetector = multiDetectorBuilder.build()
+        }
     }
 
     @SuppressLint("MissingPermission")
