@@ -82,7 +82,7 @@
     <string name="text_seconds">%1$s seconds</string>
     <string name="title_camera_test">Camera Test</string>
     <string name="title_welcome_to_wallpanel">Welcome to WallPanel!</string>
-    <string name="text_wallpanel_description">At this time you will want to configure the application to have a different \'Dashboard URL\' in the settings as well as other features.\n\nThe dashboard can be any web page or home automation platform website that you wish to display. \n\nAfter you launch the dashboard, you may return to the settings page at any time by using the device back button.</string>
+    <string name="text_wallpanel_description">Configure the application to have a different \'Dashboard URL\' in the settings.\n\nThe dashboard can be any web page or home automation website. \n\nAfter you launch the dashboard, you may return to the settings by using the device back button.</string>
     <string name="button_launch_settings">Launch Settings</string>
     <string name="toast_camera_permission_granted">Camera permission granted.</string>
     <string name="toast_camera_permission_denied">Camera permission not granted.</string>
