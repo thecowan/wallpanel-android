@@ -205,32 +205,6 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
             startForeground(ONGOING_NOTIFICATION_ID, notification)
         }
 
-        /*val notificationIntent = Intent(applicationContext, WallPanelService::class.java)
-        notificationIntent.flags = Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP
-        val pendingIntent = PendingIntent.getActivity(applicationContext, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT)
-
-        var notification: Notification? = null
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH) {
-            notification = Notification.Builder(this)
-                    .setContentTitle(getText(R.string.wallpanel_service_notification_title))
-                    .setContentText(getText(R.string.wallpanel_service_notification_message))
-                    .setSmallIcon(R.drawable.ic_dashboard)
-                    .setLargeIcon(BitmapFactory.decodeResource(application.resources, R.mipmap.ic_launcher))
-                    .setContentIntent(pendingIntent)
-                    .setLocalOnly(true)
-                    .build()
-        } else {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                notification = Notification.Builder(this)
-                        .setContentTitle(getText(R.string.wallpanel_service_notification_title))
-                        .setContentText(getText(R.string.wallpanel_service_notification_message))
-                        .setSmallIcon(R.drawable.ic_dashboard)
-                        .setLargeIcon(BitmapFactory.decodeResource(application.resources, R.mipmap.ic_launcher))
-                        .setContentIntent(pendingIntent)
-                        .build()
-            }
-        }
-*/
         if (notification != null) {
             startForeground(ONGOING_NOTIFICATION_ID, notification)
         }
