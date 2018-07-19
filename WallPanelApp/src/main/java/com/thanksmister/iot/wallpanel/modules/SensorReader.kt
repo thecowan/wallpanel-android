@@ -108,28 +108,34 @@ constructor(private val context: Context) {
         }
         return null
     }
-
-    // TODO determine the sensor and give it proper values for UNIT
+    
     private fun getSensorReadings() {
         Timber.d("getSensorReadings")
-        for (sensor in mSensorList) {
-            mSensorManager!!.registerListener(object : SensorEventListener {
-                override fun onSensorChanged(event: SensorEvent) {
-                    Timber.d("Sensor Type ${event.sensor.type}")
-                    val unit = getSensorUnit(event.sensor.type)
-                    val data = JSONObject()
-                    try {
-                        data.put(VALUE, event.values[0].toDouble())
-                        data.put(UNIT, unit)
-                        data.put(ID, event.sensor.name)
-                    } catch (ex: JSONException) {
-                        ex.printStackTrace()
+        if(mSensorManager != null) {
+            for (sensor in mSensorList) {
+                mSensorManager.registerListener(object : SensorEventListener {
+                    override fun onSensorChanged(event: SensorEvent) {
+                        Timber.d("Sensor Type ${event.sensor.type}")
+                        val unit = getSensorUnit(event.sensor.type)
+                        val data = JSONObject()
+                        try {
+                            data.put(VALUE, event.values[0].toDouble())
+                            data.put(UNIT, unit)
+                            data.put(ID, event.sensor.name)
+                        } catch (ex: JSONException) {
+                            ex.printStackTrace()
+                        }
+                        publishSensorData(getSensorName(event.sensor.type), data)
+                        try {
+                            mSensorManager.unregisterListener(this)
+                        } catch (e: Exception) {
+                            Timber.e(e.message)
+                        }
                     }
-                    publishSensorData(getSensorName(event.sensor.type), data)
-                    mSensorManager.unregisterListener(this)
-                }
-                override fun onAccuracyChanged(sensor: Sensor, accuracy: Int) {}
-            }, sensor, 1000)
+
+                    override fun onAccuracyChanged(sensor: Sensor, accuracy: Int) {}
+                }, sensor, 1000)
+            }
         }
     }
 
