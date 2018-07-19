@@ -179,12 +179,19 @@ constructor(private val context: Context) {
                             initCameraPreview(CAMERA_FACING_FRONT, configuration.cameraFPS)
                         }
                         if(cameraPreview != null) {
-                            cameraPreview!!.start(cameraSource, object : CameraSourcePreview.OnCameraPreviewListener {
-                                override fun onCameraError() {
-                                    Timber.e("Camera Preview Error")
-                                    cameraCallback!!.onCameraError()
-                                }
-                            })
+                            try {
+                                cameraPreview!!.start(cameraSource, object : CameraSourcePreview.OnCameraPreviewListener {
+                                    override fun onCameraError() {
+                                        Timber.e("Camera Preview Error")
+                                        cameraCallback!!.onCameraError()
+                                    }
+                                })
+                            } catch (e: Exception) {
+                                Timber.e(e.message)
+                                preview.stop()
+                                cameraSource!!.stop()
+                                cameraCallback!!.onCameraError()
+                            }
                         }
                     }
                 })
@@ -321,7 +328,13 @@ constructor(private val context: Context) {
                 .setFacing(camerId)
                 .build()
 
-        cameraSource!!.start()
+        try {
+            cameraSource!!.start()
+        } catch (e: Exception) {
+            Timber.e(e.message)
+            cameraSource!!.stop()
+            cameraCallback!!.onCameraError()
+        }
     }
 
     interface OnCompleteListener {

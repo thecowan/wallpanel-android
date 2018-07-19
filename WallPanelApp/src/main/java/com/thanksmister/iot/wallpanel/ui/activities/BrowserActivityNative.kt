@@ -17,32 +17,37 @@
 package com.thanksmister.iot.wallpanel.ui.activities
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.support.design.widget.Snackbar
+import android.support.v4.content.LocalBroadcastManager
 import android.support.v7.preference.PreferenceManager
 import android.text.TextUtils
+import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
 import android.webkit.*
+import com.baviux.homeassistant.HassWebView
 import com.thanksmister.iot.wallpanel.R
+import com.thanksmister.iot.wallpanel.network.WallPanelService
 import timber.log.Timber
 
 class BrowserActivityNative : BrowserActivity() {
 
-    private var mWebView: WebView? = null
+    private var mWebView: HassWebView? = null
 
     @SuppressLint("SetJavaScriptEnabled", "ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
 
         setContentView(R.layout.activity_browser)
-        mWebView = findViewById<View>(R.id.activity_browser_webview_native) as WebView
+        mWebView = findViewById<View>(R.id.activity_browser_webview_native) as HassWebView
         mWebView!!.visibility = View.VISIBLE
 
         // Force links and redirects to open in the WebView instead of in a browser
         mWebView!!.webChromeClient = object : WebChromeClient() {
 
-            internal var snackbar: Snackbar? = null
+            var snackbar: Snackbar? = null
 
             override fun onProgressChanged(view: WebView, newProgress: Int) {
                 if (!displayProgress) return
@@ -106,10 +111,11 @@ class BrowserActivityNative : BrowserActivity() {
     }
 
     override fun loadUrl(url: String) {
+        Timber.d("loadUrl $url")
         if (zoomLevel.toDouble() != 1.0) {
             mWebView!!.setInitialScale((zoomLevel * 100).toInt())
         }
-        mWebView!!.loadUrl(url)
+        mWebView?.loadUrl(url)
     }
 
     override fun evaluateJavascript(js: String) {

@@ -34,9 +34,6 @@ import dagger.android.support.DaggerAppCompatActivity
 
 import timber.log.Timber
 import javax.inject.Inject
-import android.app.ActivityManager
-import android.webkit.WebSettings
-
 
 abstract class BrowserActivity : DaggerAppCompatActivity() {
 
@@ -46,7 +43,6 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
     private var decorView: View? = null
     var displayProgress = true
     var zoomLevel = 1.0f
-    var webSettings: WebSettings? = null
 
     // handler for received data from service
     private val mBroadcastReceiver = object : BroadcastReceiver() {
@@ -123,22 +119,12 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
         if (event.keyCode == KeyEvent.KEYCODE_BACK) {
-            Timber.d("Back button pressed")
+            Timber.d("dispatchKeyEvent")
             startActivity(Intent(this@BrowserActivity, SettingsActivity::class.java))
             finish()
             return true
         }
         return super.dispatchKeyEvent(event)
-    }
-
-    private fun isServiceRunning(serviceClass: Class<*>): Boolean {
-        val manager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-        for (service in manager.getRunningServices(Integer.MAX_VALUE)) {
-            if (serviceClass.name == service.service.className) {
-                return true
-            }
-        }
-        return false
     }
 
     internal fun resetScreen() {
@@ -149,8 +135,10 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
         bm.sendBroadcast(intent)
     }
 
+    // FIXME it seems that changing the url by clicking a link also updates the default
+    // FIXME dashboard url by broadcasting event to the service which updates it if different
     internal fun pageLoadComplete(url: String) {
-        Timber.d("pageLoadComplete Called")
+        Timber.d("pageLoadComplete currentUrl $url")
         val intent = Intent(WallPanelService.BROADCAST_EVENT_URL_CHANGE)
         intent.putExtra(WallPanelService.BROADCAST_EVENT_URL_CHANGE, url)
         val bm = LocalBroadcastManager.getInstance(applicationContext)

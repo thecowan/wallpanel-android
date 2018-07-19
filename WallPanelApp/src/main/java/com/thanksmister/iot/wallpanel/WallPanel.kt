@@ -19,6 +19,7 @@ package com.thanksmister.iot.wallpanel
 import android.content.Intent
 import com.crashlytics.android.Crashlytics
 import com.crashlytics.android.answers.Answers
+import com.crashlytics.android.answers.CustomEvent
 import com.thanksmister.iot.wallpanel.di.DaggerApplicationComponent
 import com.thanksmister.iot.wallpanel.network.WallPanelService
 import com.thanksmister.iot.wallpanel.utils.CrashlyticsTree

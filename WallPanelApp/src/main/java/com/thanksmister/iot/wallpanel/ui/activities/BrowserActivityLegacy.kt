@@ -17,11 +17,13 @@
 package com.thanksmister.iot.wallpanel.ui.activities
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v7.preference.PreferenceManager
 import android.text.TextUtils
+import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
 import android.webkit.WebSettings
@@ -48,7 +50,7 @@ class BrowserActivityLegacy : BrowserActivity() {
 
         xWebView!!.setResourceClient(object : XWalkResourceClient(xWebView) {
 
-            internal var snackbar: Snackbar
+            var snackbar: Snackbar
 
             init {
                 snackbar = Snackbar.make(xWebView!!, "", Snackbar.LENGTH_INDEFINITE)

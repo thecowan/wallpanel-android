@@ -18,23 +18,27 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="org.wallpanelproject.android.com.wallpanelproject.android.ui.BrowserActivity"
     android:scrollbars="none">
 
-    <WebView
+    <com.baviux.homeassistant.HassWebView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/activity_browser_webview_native"
         android:scrollbars="none"
-        android:visibility="gone"
-        />
+        android:visibility="gone" />
+
+    <!--<WebView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/activity_browser_webview_native"
+        android:scrollbars="none"
+        android:visibility="gone" />-->
 
     <org.xwalk.core.XWalkView
         android:id="@+id/activity_browser_webview_legacy"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scrollbars="none"
-        android:visibility="gone"
-        />
+        android:visibility="gone" />
 
 </merge>

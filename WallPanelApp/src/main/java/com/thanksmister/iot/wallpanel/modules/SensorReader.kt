@@ -133,6 +133,7 @@ constructor(private val context: Context) {
         }
     }
 
+    // TODO let's move this to its own setting
     private fun getBatteryReading() {
         Timber.d("getBatteryReading")
         val intentFilter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)

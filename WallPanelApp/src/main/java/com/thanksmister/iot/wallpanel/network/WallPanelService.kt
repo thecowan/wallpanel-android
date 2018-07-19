@@ -18,13 +18,13 @@ package com.thanksmister.iot.wallpanel.network
 
 import android.annotation.SuppressLint
 import android.app.KeyguardManager
-import android.app.Notification
-import android.app.PendingIntent
 import android.arch.lifecycle.LifecycleService
 import android.arch.lifecycle.Observer
-import android.content.*
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
-import android.graphics.BitmapFactory
 import android.media.MediaPlayer
 import android.net.wifi.WifiManager
 import android.os.*
@@ -45,18 +45,14 @@ import com.thanksmister.iot.wallpanel.ui.activities.BrowserActivity.Companion.BR
 import com.thanksmister.iot.wallpanel.ui.activities.BrowserActivity.Companion.BROADCAST_ACTION_JS_EXEC
 import com.thanksmister.iot.wallpanel.ui.activities.BrowserActivity.Companion.BROADCAST_ACTION_LOAD_URL
 import com.thanksmister.iot.wallpanel.ui.activities.BrowserActivity.Companion.BROADCAST_ACTION_RELOAD_PAGE
-import com.thanksmister.iot.wallpanel.ui.activities.WelcomeActivity
 import com.thanksmister.iot.wallpanel.utils.MqttUtils
 import com.thanksmister.iot.wallpanel.utils.NotificationUtils
 import dagger.android.AndroidInjection
-import org.eclipse.paho.android.service.MqttAndroidClient
-import org.eclipse.paho.client.mqttv3.*
 import org.json.JSONException
 import org.json.JSONObject
 import timber.log.Timber
 import java.io.IOException
 import java.nio.ByteBuffer
-import java.nio.charset.Charset
 import java.util.*
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
@@ -357,7 +353,6 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         if (httpServer == null && (configuration.httpEnabled || configuration.httpMJPEGEnabled)) {
             httpServer = AsyncHttpServer()
             if (configuration.httpRestEnabled) {
-
                 httpServer!!.addAction("POST", "/api/command") { request, response ->
                     var result = false
                     if (request.body is JSONObjectBody) {
@@ -704,13 +699,14 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         publishMessage("sensor/qrcode", jdata)
     }
 
+    // TODO don't change the user settings when receiving command
     private val mBroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             if (BROADCAST_EVENT_URL_CHANGE == intent.action) {
                 val url = intent.getStringExtra(BROADCAST_EVENT_URL_CHANGE)
                 if (url != configuration.appLaunchUrl) {
                     Timber.i("Url changed to $url")
-                    configuration.appLaunchUrl = url
+                    //configuration.appLaunchUrl = url
                     publishMessage("state", state.toString())
                 }
             } else if (Intent.ACTION_SCREEN_OFF == intent.action ||
@@ -735,6 +731,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
     }
 
     private val cameraDetectorCallback = object : CameraCallback {
+
         override fun onCameraError() {
             Toast.makeText(this@WallPanelService, this@WallPanelService.getString(R.string.toast_camera_source_error), Toast.LENGTH_LONG).show()
         }

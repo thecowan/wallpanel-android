@@ -29,7 +29,7 @@ repositories {
 def versionMajor = 0
 def versionMinor = 8
 def versionPatch = 1
-def versionBuild = 6 // bump for dog food builds, public betas, etc.
+def versionBuild = 7 // bump for dog food builds, public betas, etc.
 
 android {
     kapt {
@@ -134,6 +134,9 @@ dependencies {
     implementation 'org.xwalk:xwalk_core_library:23.53.589.4'
     implementation 'com.koushikdutta.async:androidasync:2.1.9'
     implementation 'io.github.silvaren:easyrs:0.5.3'
+
+    // Home Assistant WebView
+    implementation 'com.github.sjvc:Home-Assistant-WebView:master-SNAPSHOT'
 
     // Logging
     implementation 'com.jakewharton.timber:timber:4.5.1'
