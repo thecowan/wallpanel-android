@@ -124,7 +124,7 @@ class CameraSettingsFragment : BaseSettingsFragment() {
         bindPreferenceSummaryToValue(cameraListPreference!!);
         bindPreferenceSummaryToValue(motionBrightPreference!!)
         bindPreferenceSummaryToValue(motionDimPreference!!)
-        //bindPreferenceSummaryToValue(fpsPreference!!)
+        bindPreferenceSummaryToValue(fpsPreference!!)
 
         motionDetectionPreference = findPreference("button_key_motion_detection")
         faceDetectionPreference = findPreference("button_key_face_detection")

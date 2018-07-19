@@ -33,24 +33,22 @@ import java.util.*
 import javax.inject.Inject
 
 class SensorReader @Inject
-constructor(private val context: Context) {
+constructor(private val context: Context){
 
-    private val VALUE = "value"
-    private val UNIT = "unit"
-    private val ID = "id"
     private val mSensorManager: SensorManager?
     private val mSensorList = ArrayList<Sensor>()
-    private val sensorHandler = Handler()
+    private val batteryHandler = Handler()
     private var updateFrequencyMilliSeconds: Int = 0
     private var callback: SensorCallback? = null
+    private var sensorsPublished: Boolean = false
 
-    private val sensorHandlerRunnable = object : Runnable {
+    private val batteryHandlerRunnable = object : Runnable {
         override fun run() {
             if (updateFrequencyMilliSeconds > 0) {
-                Timber.d("Updating Sensors")
-                getSensorReadings()
+                Timber.d("Updating Battery")
                 getBatteryReading()
-                sensorHandler.postDelayed(this, updateFrequencyMilliSeconds.toLong())
+                batteryHandler.postDelayed(this, updateFrequencyMilliSeconds.toLong())
+                sensorsPublished = false
             }
         }
     }
@@ -65,23 +63,24 @@ constructor(private val context: Context) {
     }
 
     fun startReadings(freqSeconds: Int, callback: SensorCallback) {
-        Timber.d("startReadings Called")
+        Timber.d("startReadings")
         this.callback = callback
         if (freqSeconds >= 0) {
             updateFrequencyMilliSeconds = 1000 * freqSeconds
-            sensorHandler.postDelayed(sensorHandlerRunnable, updateFrequencyMilliSeconds.toLong())
+            batteryHandler.postDelayed(batteryHandlerRunnable, updateFrequencyMilliSeconds.toLong())
+            startSensorReadings()
         }
     }
 
     fun stopReadings() {
-        Timber.d("stopSensorJob Called")
-        sensorHandler.removeCallbacksAndMessages(sensorHandlerRunnable)
+        Timber.d("stopReadings")
+        batteryHandler.removeCallbacksAndMessages(batteryHandlerRunnable)
         updateFrequencyMilliSeconds = 0
+        stopSensorReading()
     }
 
-    // TODO add a call back same as camera reader to return data all publishing happens in service
     private fun publishSensorData(sensorName: String?, sensorData: JSONObject) {
-        Timber.d("publishSensorData Called")
+        Timber.d("publishSensorData")
         if(sensorName != null) {
             callback?.publishSensorData(sensorName, sensorData)
         }
@@ -89,53 +88,65 @@ constructor(private val context: Context) {
 
     private fun getSensorName(sensorType: Int): String? {
         when (sensorType) {
-            Sensor.TYPE_AMBIENT_TEMPERATURE -> return "temperature"
-            Sensor.TYPE_LIGHT -> return "light"
-            Sensor.TYPE_MAGNETIC_FIELD -> return "magneticField"
-            Sensor.TYPE_PRESSURE -> return "pressure"
-            Sensor.TYPE_RELATIVE_HUMIDITY -> return "humidity"
+            Sensor.TYPE_AMBIENT_TEMPERATURE -> return TEMPERATURE
+            Sensor.TYPE_LIGHT -> return LIGHT
+            Sensor.TYPE_MAGNETIC_FIELD -> return MAGNETIC_FIELD
+            Sensor.TYPE_PRESSURE -> return PRESSURE
+            Sensor.TYPE_RELATIVE_HUMIDITY -> return HUMIDITY
         }
         return null
     }
 
     private fun getSensorUnit(sensorType: Int): String? {
         when (sensorType) {
-            Sensor.TYPE_AMBIENT_TEMPERATURE -> return "°C"
-            Sensor.TYPE_LIGHT -> return "lx"
-            Sensor.TYPE_MAGNETIC_FIELD -> return "uT"
-            Sensor.TYPE_PRESSURE -> return "hPa"
-            Sensor.TYPE_RELATIVE_HUMIDITY -> return "%"
+            Sensor.TYPE_AMBIENT_TEMPERATURE -> return UNIT_C
+            Sensor.TYPE_LIGHT -> return UNIT_LX
+            Sensor.TYPE_MAGNETIC_FIELD -> return UNIT_UT
+            Sensor.TYPE_PRESSURE -> return UNIT_HPA
+            Sensor.TYPE_RELATIVE_HUMIDITY -> return UNIT_PERCENTAGE
         }
         return null
     }
-    
-    private fun getSensorReadings() {
-        Timber.d("getSensorReadings")
+
+    /**
+     * Start all sensor readings.
+     */
+    private fun startSensorReadings() {
+        Timber.d("startSensorReadings")
         if(mSensorManager != null) {
             for (sensor in mSensorList) {
-                mSensorManager.registerListener(object : SensorEventListener {
-                    override fun onSensorChanged(event: SensorEvent) {
-                        Timber.d("Sensor Type ${event.sensor.type}")
-                        val unit = getSensorUnit(event.sensor.type)
-                        val data = JSONObject()
-                        try {
-                            data.put(VALUE, event.values[0].toDouble())
-                            data.put(UNIT, unit)
-                            data.put(ID, event.sensor.name)
-                        } catch (ex: JSONException) {
-                            ex.printStackTrace()
-                        }
-                        publishSensorData(getSensorName(event.sensor.type), data)
-                        try {
-                            mSensorManager.unregisterListener(this)
-                        } catch (e: Exception) {
-                            Timber.e(e.message)
-                        }
-                    }
-
-                    override fun onAccuracyChanged(sensor: Sensor, accuracy: Int) {}
-                }, sensor, 1000)
+                mSensorManager.registerListener(sensorListener, sensor, 1000)
             }
+        }
+    }
+
+    /**
+     * Stop all sensor readings.
+     */
+    private fun stopSensorReading() {
+        Timber.d("stopSensorReading")
+        for (sensor in mSensorList) {
+            mSensorManager?.unregisterListener(sensorListener, sensor)
+        }
+    }
+
+    private val sensorListener = object : SensorEventListener {
+        override fun onSensorChanged(event: SensorEvent?) {
+            if(event != null && !sensorsPublished) {
+                val unit = getSensorUnit(event.sensor.type)
+                val data = JSONObject()
+                try {
+                    data.put(VALUE, event.values[0].toDouble())
+                    data.put(UNIT, unit)
+                    data.put(ID, event.sensor.name)
+                } catch (ex: JSONException) {
+                    ex.printStackTrace()
+                }
+                publishSensorData(getSensorName(event.sensor.type), data)
+                sensorsPublished = true
+            }
+        }
+        override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
         }
     }
 
@@ -153,14 +164,34 @@ constructor(private val context: Context) {
         val data = JSONObject()
         try {
             data.put(VALUE, level)
-            data.put(UNIT, "%")
-            data.put("charging", isCharging)
-            data.put("acPlugged", acCharge)
-            data.put("usbPlugged", usbCharge)
+            data.put(UNIT, UNIT_PERCENTAGE)
+            data.put(CHARGING, isCharging)
+            data.put(AC_PLUGGED, acCharge)
+            data.put(USB_PLUGGED, usbCharge)
         } catch (ex: JSONException) {
             ex.printStackTrace()
         }
 
-        publishSensorData("battery", data)
+        publishSensorData(BATTERY, data)
+    }
+
+    companion object {
+        const val BATTERY: String = "battery"
+        const val CHARGING: String = "charging"
+        const val AC_PLUGGED: String = "acPlugged"
+        const val USB_PLUGGED: String = "usbPlugged"
+        const val HUMIDITY: String = "humidity"
+        const val LIGHT: String = "light"
+        const val PRESSURE: String = "pressure"
+        const val TEMPERATURE: String = "temperature"
+        const val MAGNETIC_FIELD: String = "magneticField"
+        const val UNIT_C: String = "°C"
+        const val UNIT_PERCENTAGE: String = "%"
+        const val UNIT_HPA: String = "hPa"
+        const val UNIT_UT: String = "uT"
+        const val UNIT_LX: String = "lx"
+        const val VALUE = "value"
+        const val UNIT = "unit"
+        const val ID = "id"
     }
 }
