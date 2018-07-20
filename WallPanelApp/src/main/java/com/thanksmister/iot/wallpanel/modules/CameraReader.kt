@@ -143,7 +143,7 @@ constructor(private val context: Context) {
             if(multiDetector != null) {
                 try {
                     initCamera(configuration.cameraId, configuration.cameraFPS)
-                } catch (e : Exception) {
+                } catch (e : IOException) {
                     Timber.e(e.message)
                     try {
                         if(configuration.cameraId == CAMERA_FACING_FRONT) {
@@ -151,8 +151,9 @@ constructor(private val context: Context) {
                         } else {
                             initCamera(CAMERA_FACING_FRONT, configuration.cameraFPS)
                         }
-                    } catch (e : Exception) {
+                    } catch (e : IOException) {
                         Timber.e(e.message)
+                        cameraSource!!.stop()
                         cameraCallback?.onCameraError()
                     }
                 }
@@ -188,7 +189,7 @@ constructor(private val context: Context) {
                                 })
                             } catch (e: Exception) {
                                 Timber.e(e.message)
-                                preview.stop()
+                                cameraPreview!!.stop()
                                 cameraSource!!.stop()
                                 cameraCallback!!.onCameraError()
                             }
@@ -202,7 +203,13 @@ constructor(private val context: Context) {
     private fun buildDetectors(configuration: Configuration) {
 
         val info = Camera.CameraInfo()
-        Camera.getCameraInfo(configuration.cameraId, info)
+        try{
+            Camera.getCameraInfo(configuration.cameraId, info)
+        } catch (e: RuntimeException) {
+            Timber.e(e.message)
+            cameraCallback!!.onCameraError()
+            return
+        }
         cameraOrientation = info.orientation
         val multiDetectorBuilder = MultiDetector.Builder()
         var detectorAdded = false

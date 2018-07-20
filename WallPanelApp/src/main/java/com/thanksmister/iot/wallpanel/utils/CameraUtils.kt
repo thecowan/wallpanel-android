@@ -16,8 +16,10 @@
 
 package com.thanksmister.iot.wallpanel.utils
 
+import android.content.Context
 import android.hardware.Camera
 import android.util.Log
+import com.thanksmister.iot.wallpanel.R
 import timber.log.Timber
 import java.util.ArrayList
 
@@ -59,7 +61,7 @@ class CameraUtils {
         }
 
         @Throws(RuntimeException::class)
-        fun getCameraListError(): ArrayList<String> {
+        fun getCameraListError(context: Context): ArrayList<String> {
             val cameraList: ArrayList<String> = ArrayList()
             for (i in 0 until Camera.getNumberOfCameras()) {
                 var description: String
@@ -71,12 +73,13 @@ class CameraUtils {
                 val info = Camera.CameraInfo()
                 Camera.getCameraInfo(i, info)
                 description = java.text.MessageFormat.format(
-                        "{0}: {1} Camera {3}x{4} {2}º",
+                        context.getString(R.string.text_camera_pattern),
                         i,
-                        if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) "Front" else "Back",
+                        if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) context.getString(R.string.text_front) else context.getString(R.string.text_back),
                         info.orientation,
                         width,
                         height)
+                c.stopPreview()
                 c.release()
                 cameraList.add(description)
             }

@@ -31,6 +31,7 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
 import androidx.navigation.Navigation
 import com.thanksmister.iot.wallpanel.R
 import com.thanksmister.iot.wallpanel.ui.activities.LiveCameraActivity
@@ -117,8 +118,9 @@ class CameraSettingsFragment : BaseSettingsFragment() {
                         else
                             "")
             }
-           true;
+            true;
         }
+        cameraListPreference!!.isEnabled = false
 
         bindPreferenceSummaryToValue(cameraPreference!!)
         bindPreferenceSummaryToValue(cameraListPreference!!);
@@ -164,21 +166,25 @@ class CameraSettingsFragment : BaseSettingsFragment() {
     private fun createCameraList() {
         Timber.d("createCameraList")
         try {
-            val cameraList = CameraUtils.getCameraListError()
+            val cameraList = CameraUtils.getCameraListError(activity!!)
             cameraListPreference!!.entries = cameraList.toTypedArray<CharSequence>()
             val vals = arrayOfNulls<CharSequence>(cameraList.size)
             for (i in cameraList.indices) {
                 vals[i] = Integer.toString(i)
             }
             cameraListPreference?.entryValues = vals
-
             val index = cameraListPreference!!.findIndexOfValue(configuration.cameraId.toString())
             cameraListPreference!!.summary = if (index >= 0)
                 cameraListPreference!!.entries[index]
             else
                 ""
-        } catch (e: RuntimeException) {
+            cameraListPreference!!.isEnabled = true
+        } catch (e: Exception) {
             Timber.e(e.message)
+            cameraListPreference!!.isEnabled = false
+            if(activity != null) {
+                Toast.makeText(activity!!, getString(R.string.toast_camera_source_error), Toast.LENGTH_LONG).show()
+            }
         }
     }
 

@@ -33,7 +33,8 @@
             android:defaultValue="@string/default_camera_fps"
             android:key="@string/key_setting_camera_fps"
             android:summary="15"
-            android:title="@string/pref_camera_fps_title"/>
+            android:title="@string/pref_camera_fps_title"
+            android:dependency="@string/key_setting_camera_enabled"/>
 
         <EditTextPreference
             android:textColor="@color/light_gray"

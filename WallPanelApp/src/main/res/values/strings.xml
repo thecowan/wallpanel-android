@@ -169,6 +169,9 @@
     <string name="pref_camera_fps_summary">Set the camera speed, use lower value for older values if you see a dark image during testing (default is 15).</string>
     <string name="pref_motion_reset_title">Motion Reset Time</string>
     <string name="pref_motion_reset_description">The time (in seconds) before resetting the motion detector.</string>
+    <string name="text_front">Front</string>
+    <string name="text_back">Back</string>
+    <string name="text_camera_pattern">{0}: {1} Camera {3}x{4} {2}º</string>
 
 
 </resources>

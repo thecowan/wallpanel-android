@@ -294,7 +294,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         if (mqttModule == null && mqttOptions.isValid) {
             mqttModule = MQTTModule(this@WallPanelService.applicationContext, mqttOptions,this@WallPanelService)
             lifecycle.addObserver(mqttModule!!)
-            publishMessage(MqttUtils.COMMAND_STATE, state.toString())
+            publishMessage(COMMAND_STATE, state.toString())
         }
     }
 
