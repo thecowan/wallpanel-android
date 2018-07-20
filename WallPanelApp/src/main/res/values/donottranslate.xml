@@ -106,6 +106,9 @@
     <string name="key_setting_camera_fps">setting_camera_fps</string>
     <string name="default_camera_fps">15</string>
 
+    <string name="key_setting_motion_clear">setting_motion_clear</string>
+    <string name="default_motion_clear">30</string>
+
 
     <string-array name="settings_titles">
         <item>@string/title_settings</item>

@@ -143,7 +143,7 @@ constructor(private val context: Context) {
             if(multiDetector != null) {
                 try {
                     initCamera(configuration.cameraId, configuration.cameraFPS)
-                } catch (e : IOException) {
+                } catch (e : Exception) {
                     Timber.e(e.message)
                     try {
                         if(configuration.cameraId == CAMERA_FACING_FRONT) {
@@ -151,7 +151,7 @@ constructor(private val context: Context) {
                         } else {
                             initCamera(CAMERA_FACING_FRONT, configuration.cameraFPS)
                         }
-                    } catch (e : IOException) {
+                    } catch (e : Exception) {
                         Timber.e(e.message)
                         cameraCallback?.onCameraError()
                     }
@@ -310,7 +310,7 @@ constructor(private val context: Context) {
 
     @SuppressLint("MissingPermission")
     private fun initCameraPreview(camerId: Int, fsp: Float): CameraSource {
-        Timber.d("initCamera camerId $camerId")
+        Timber.d("initCameraPreview camerId $camerId")
         return CameraSource.Builder(context, multiDetector)
                 .setRequestedFps(fsp)
                 .setRequestedPreviewSize(640, 480)
@@ -319,7 +319,7 @@ constructor(private val context: Context) {
     }
 
     @SuppressLint("MissingPermission")
-    @Throws(IOException::class)
+    @Throws(Exception::class)
     private fun initCamera(camerId: Int, fsp: Float) {
         Timber.d("initCamera camerId $camerId")
         cameraSource = CameraSource.Builder(context, multiDetector)
@@ -328,13 +328,7 @@ constructor(private val context: Context) {
                 .setFacing(camerId)
                 .build()
 
-        try {
-            cameraSource!!.start()
-        } catch (e: Exception) {
-            Timber.e(e.message)
-            cameraSource!!.stop()
-            cameraCallback!!.onCameraError()
-        }
+        cameraSource!!.start()
     }
 
     interface OnCompleteListener {

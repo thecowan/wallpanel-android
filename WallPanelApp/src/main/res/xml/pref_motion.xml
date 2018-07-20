@@ -35,18 +35,21 @@
 
     <PreferenceCategory android:title="@string/pref_motion_adjustments_title">
 
-        <!--   <EditTextPreference
+        <EditTextPreference
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:defaultValue="@string/default_setting_camera_motionontime"
-            android:inputType="number"
-            android:key="@string/key_setting_camera_motionontime"
-            android:selectAllOnFocus="true"
-            android:singleLine="true"
-            android:title="@string/title_setting_camera_motionontime"
+            android:defaultValue="@string/default_motion_clear"
+            android:key="@string/key_setting_motion_clear"
+            android:title="@string/pref_motion_reset_title"
             android:dependency="@string/key_setting_camera_motionenabled"
-            android:paddingBottom="0dp"
-            tools:summary="20"/>-->
+            tools:summary="60"/>
+
+        <EditTextPreference
+            android:textColor="@color/light_gray"
+            android:textSize="12sp"
+            android:selectable="false"
+            android:paddingTop="0dp"
+            android:summary="@string/pref_motion_reset_description"/>
 
         <EditTextPreference
             android:defaultValue="@string/default_setting_camera_motionleniency"

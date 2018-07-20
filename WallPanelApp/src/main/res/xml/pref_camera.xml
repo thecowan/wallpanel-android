@@ -32,8 +32,15 @@
         <EditTextPreference
             android:defaultValue="@string/default_camera_fps"
             android:key="@string/key_setting_camera_fps"
-            android:summary="@string/pref_camera_fps_summary"
+            android:summary="15"
             android:title="@string/pref_camera_fps_title"/>
+
+        <EditTextPreference
+            android:textColor="@color/light_gray"
+            android:textSize="12sp"
+            android:selectable="false"
+            android:paddingTop="0dp"
+            android:summary="@string/pref_camera_fps_summary"/>
 
         <Preference
             android:icon="@drawable/ic_directions_run"

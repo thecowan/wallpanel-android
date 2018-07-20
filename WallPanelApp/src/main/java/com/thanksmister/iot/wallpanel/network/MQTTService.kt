@@ -103,9 +103,9 @@ class MQTTService(private var context: Context, options: MQTTOptions,
                     }
                 }
                 // TODO append the "command" part
-                Timber.d("Publishing: " + payload)
-                Timber.d("Base Topic: " + mqttOptions?.getBaseTopic())
-                Timber.d("Command Topic: " + command)
+                Timber.d("Publishing: $payload")
+                Timber.d("Base Topic: ${mqttOptions?.getBaseTopic()}")
+                Timber.d("Command Topic: $command")
                 val mqttMessage = MqttMessage()
                 mqttMessage.payload = payload.toByteArray()
                 mqttMessage.isRetained = SHOULD_RETAIN

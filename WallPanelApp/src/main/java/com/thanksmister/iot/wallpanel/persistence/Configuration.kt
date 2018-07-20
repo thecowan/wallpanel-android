@@ -118,6 +118,10 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
             sharedPreferences.edit().putBoolean(context.getString(R.string.key_setting_camera_qrcodeenabled), value).apply()
         }
 
+    val motionResetTime: Int
+        get() = Integer.valueOf(getStringPref(R.string.key_setting_motion_clear,
+                R.string.default_motion_clear))
+
     val httpEnabled: Boolean
         get() = httpRestEnabled || httpMJPEGEnabled
 
