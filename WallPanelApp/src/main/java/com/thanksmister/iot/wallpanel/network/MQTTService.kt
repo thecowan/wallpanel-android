@@ -59,6 +59,7 @@ class MQTTService(private var context: Context, options: MQTTOptions,
         fun subscriptionMessage(id: String, topic: String, payload: String)
         fun handleMqttException(errorMessage: String)
         fun handleMqttDisconnected()
+        fun handleMqttConnected()
     }
 
     override fun isReady(): Boolean {
@@ -186,6 +187,8 @@ class MQTTService(private var context: Context, options: MQTTOptions,
                         if (mqttOptions != null) {
                             subscribeToTopics(mqttOptions!!.getStateTopics())
                         }
+
+                        listener?.handleMqttConnected()
                     }
 
                     override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {

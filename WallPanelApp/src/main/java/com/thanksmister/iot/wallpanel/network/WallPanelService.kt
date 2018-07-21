@@ -20,10 +20,7 @@ import android.annotation.SuppressLint
 import android.app.KeyguardManager
 import android.arch.lifecycle.LifecycleService
 import android.arch.lifecycle.Observer
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
+import android.content.*
 import android.content.pm.PackageManager
 import android.media.MediaPlayer
 import android.net.wifi.WifiManager
@@ -45,6 +42,7 @@ import com.thanksmister.iot.wallpanel.ui.activities.BrowserActivity.Companion.BR
 import com.thanksmister.iot.wallpanel.ui.activities.BrowserActivity.Companion.BROADCAST_ACTION_JS_EXEC
 import com.thanksmister.iot.wallpanel.ui.activities.BrowserActivity.Companion.BROADCAST_ACTION_LOAD_URL
 import com.thanksmister.iot.wallpanel.ui.activities.BrowserActivity.Companion.BROADCAST_ACTION_RELOAD_PAGE
+import com.thanksmister.iot.wallpanel.utils.DialogUtils
 import com.thanksmister.iot.wallpanel.utils.MqttUtils
 import com.thanksmister.iot.wallpanel.utils.MqttUtils.Companion.COMMAND_AUDIO
 import com.thanksmister.iot.wallpanel.utils.MqttUtils.Companion.COMMAND_BRIGHTNESS
@@ -84,7 +82,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
     lateinit var mqttOptions: MQTTOptions
 
     private val mJpegSockets = ArrayList<AsyncHttpServerResponse>()
-    private var fullWakeLock: PowerManager.WakeLock? = null
+    //private var fullWakeLock: PowerManager.WakeLock? = null
     private var partialWakeLock: PowerManager.WakeLock? = null
     private var wifiLock: WifiManager.WifiLock? = null
     private var keyguardLock: KeyguardManager.KeyguardLock? = null
@@ -102,6 +100,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
     private var hasNetwork = AtomicBoolean(true)
     private var motionDetected: Boolean = false
     private var faceDetected: Boolean = false
+    private val reconnectHandler = Handler()
 
     inner class WallPanelServiceBinder : Binder() {
         val service: WallPanelService
@@ -117,8 +116,9 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
 
         // prepare the lock types we may use
         val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
-        fullWakeLock = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK or PowerManager.ON_AFTER_RELEASE or PowerManager.ACQUIRE_CAUSES_WAKEUP, "wallPanel:fullWakeLock")
-        partialWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "wallPanel:partialWakeLock")
+        //fullWakeLock = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK or PowerManager.ON_AFTER_RELEASE or PowerManager.ACQUIRE_CAUSES_WAKEUP, "wallPanel:fullWakeLock")
+        //partialWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "wallPanel:partialWakeLock")
+        partialWakeLock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK or PowerManager.ACQUIRE_CAUSES_WAKEUP, "alarm:ALARM_TEMPORARY_WAKE_TAG")
 
         // wifi lock
         val wifiManager = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
@@ -148,7 +148,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         configureCamera()
         configureAudioPlayer()
         startForeground()
-        configureTextToSpeach()
+        configureTextToSpeech()
         startSensors()
     }
 
@@ -231,7 +231,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
     }
 
     private fun handleNetworkConnect() {
-        Timber.d("handleNetworkConnect")
+        Timber.w("handleNetworkConnect")
         if (mqttModule != null && !hasNetwork.get()) {
             mqttModule?.restart()
         }
@@ -239,28 +239,25 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
     }
 
     private fun handleNetworkDisconnect() {
-        Timber.d("handleNetworkDisconnect")
+        Timber.w("handleNetworkDisconnect")
         if (mqttModule != null && hasNetwork.get()) {
             mqttModule?.pause()
         }
         hasNetwork.set(false)
     }
 
+    private fun hasNetwork(): Boolean {
+        return hasNetwork.get()
+    }
+
     @SuppressLint("WakelockTimeout")
     private fun configurePowerOptions() {
         Timber.d("configurePowerOptions")
-
-        // We always grab partialWakeLock & WifiLock
-        Timber.i("Acquiring Partial Wake Lock and WiFi Lock")
-        if (!partialWakeLock!!.isHeld) partialWakeLock!!.acquire()
-        if (!wifiLock!!.isHeld) wifiLock!!.acquire()
-
-        if (configuration.appPreventSleep) {
-            Timber.i("Acquiring WakeLock to prevent screen sleep")
-            if (!fullWakeLock!!.isHeld) fullWakeLock!!.acquire()
-        } else {
-            Timber.i("Will not prevent screen sleep")
-            if (fullWakeLock!!.isHeld) fullWakeLock!!.release()
+        if (!partialWakeLock!!.isHeld) {
+            partialWakeLock!!.acquire()
+        }
+        if (!wifiLock!!.isHeld) {
+            wifiLock!!.acquire()
         }
         try {
             keyguardLock!!.disableKeyguard()
@@ -272,9 +269,15 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
 
     private fun stopPowerOptions() {
         Timber.i("Releasing Screen/WiFi Locks")
-        if (partialWakeLock!!.isHeld) partialWakeLock!!.release()
-        if (fullWakeLock!!.isHeld) fullWakeLock!!.release()
-        if (wifiLock!!.isHeld) wifiLock!!.release()
+        if(partialWakeLock != null && partialWakeLock!!.isHeld) {
+            partialWakeLock!!.release()
+        }
+        /*if(fullWakeLock != null && fullWakeLock!!.isHeld) {
+            fullWakeLock!!.release()
+        }*/
+        if (wifiLock != null && wifiLock!!.isHeld) {
+            wifiLock!!.release()
+        }
         try {
             keyguardLock!!.reenableKeyguard()
         } catch (ex: Exception) {
@@ -294,19 +297,38 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         if (mqttModule == null && mqttOptions.isValid) {
             mqttModule = MQTTModule(this@WallPanelService.applicationContext, mqttOptions,this@WallPanelService)
             lifecycle.addObserver(mqttModule!!)
-            publishMessage(COMMAND_STATE, state.toString())
         }
     }
 
+    override fun onMQTTConnect() {
+        Timber.w("onMQTTConnect")
+        publishMessage(COMMAND_STATE, state.toString())
+        clearFaceDetected()
+        clearMotionDetected()
+    }
+
     override fun onMQTTDisconnect() {
-        Timber.d("onMQTTDisconnect")
-        Toast.makeText(this, getString(R.string.error_mqtt_connection), Toast.LENGTH_SHORT).show()
-        //mqttModule!!.restart()
+        Timber.w("onMQTTDisconnect")
+        if(hasNetwork()) {
+            Toast.makeText(this, getString(R.string.error_mqtt_connection), Toast.LENGTH_SHORT).show()
+            reconnectHandler.postDelayed({
+                if(mqttModule != null) {
+                    mqttModule!!.restart()
+                }
+            }, 3000)
+        }
     }
 
     override fun onMQTTException(message: String) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
-        //mqttModule!!.restart()
+        Timber.w("onMQTTException: $message")
+        if(hasNetwork()) {
+            Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+            reconnectHandler.postDelayed({
+                if (mqttModule != null) {
+                    mqttModule!!.restart()
+                }
+            }, 3000)
+        }
     }
 
     override fun onMQTTMessage(id: String, topic: String, payload: String) {
@@ -332,7 +354,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         }
     }
 
-    private fun configureTextToSpeach() {
+    private fun configureTextToSpeech() {
         Timber.d("configureTextToSpeach")
         if (textToSpeechModule == null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             textToSpeechModule = TextToSpeechModule(this)
@@ -570,13 +592,16 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         }
     }
 
-    @SuppressLint("WakelockTimeout")
+    //@SuppressLint("WakelockTimeout")
     private fun switchScreenOn() {
         Timber.d("switchScreenOn")
-        if (configuration.appPreventSleep && !fullWakeLock!!.isHeld) {
-            fullWakeLock!!.acquire()
-        } else if (!fullWakeLock!!.isHeld) {
-            fullWakeLock!!.acquire(3000)
+        if (!partialWakeLock!!.isHeld) {
+            Timber.d("partialWakeLock")
+            partialWakeLock!!.acquire(3000)
+        } else {
+            Timber.d("new partialWakeLock")
+            partialWakeLock!!.release()
+            partialWakeLock!!.acquire(3000)
         }
     }
 
@@ -641,9 +666,9 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
     }
 
     private fun publishMotionDetected() {
-        Timber.d("publishMotionDetected")
         val delay = (configuration.motionResetTime * 1000).toLong()
         if (!motionDetected) {
+            Timber.d("publishMotionDetected")
             val data = JSONObject()
             try {
                 data.put(MqttUtils.VALUE, true)
@@ -652,8 +677,8 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
             }
             motionDetected = true
             publishMessage(COMMAND_SENSOR_MOTION, data)
+            motionClearHandler.postDelayed({ clearMotionDetected() }, delay)
         }
-        motionClearHandler.postDelayed({ clearMotionDetected() }, delay)
     }
 
     private fun publishFaceDetected() {
@@ -667,32 +692,36 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
             }
             faceDetected = true
             publishMessage(COMMAND_SENSOR_FACE, data)
+            faceClearHandler.postDelayed({ clearFaceDetected() }, 1000)
         }
-        faceClearHandler.postDelayed({ clearFaceDetected() }, 1000)
     }
 
     private fun clearMotionDetected() {
         Timber.d("Clearing motion detected status")
-        motionDetected = false
-        val data = JSONObject()
-        try {
-            data.put(VALUE, false)
-        } catch (ex: JSONException) {
-            ex.printStackTrace()
+        if(motionDetected) {
+            motionDetected = false
+            val data = JSONObject()
+            try {
+                data.put(VALUE, false)
+            } catch (ex: JSONException) {
+                ex.printStackTrace()
+            }
+            publishMessage(COMMAND_SENSOR_MOTION, data)
         }
-        publishMessage(COMMAND_SENSOR_MOTION, data)
     }
 
     private fun clearFaceDetected() {
-        Timber.d("Clearing face detected status")
-        val data = JSONObject()
-        try {
-            data.put(VALUE, false)
-        } catch (ex: JSONException) {
-            ex.printStackTrace()
+        if(faceDetected) {
+            Timber.d("Clearing face detected status")
+            val data = JSONObject()
+            try {
+                data.put(VALUE, false)
+            } catch (ex: JSONException) {
+                ex.printStackTrace()
+            }
+            faceDetected = false
+            publishMessage(MqttUtils.COMMAND_SENSOR_FACE, data)
         }
-        faceDetected = false
-        publishMessage(MqttUtils.COMMAND_SENSOR_FACE, data)
     }
 
     private fun publishQrCode(data: String) {
@@ -746,10 +775,13 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         override fun onMotionDetected() {
             Timber.i("Motion detected")
             if (configuration.cameraMotionWake) {
+                //configurePowerOptions()
                 switchScreenOn()
             }
             if (configuration.cameraMotionBright) {
+                //configurePowerOptions()
                 Timber.d("configuration.cameraMotionBright ${configuration.cameraMotionBright}")
+                switchScreenOn()
                 setBrightScreen(255)
             }
             publishMotionDetected()
@@ -763,9 +795,11 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
             Timber.i("Face detected")
             Timber.d("configuration.cameraMotionBright ${configuration.cameraMotionBright}")
             if (configuration.cameraFaceWake) {
+                configurePowerOptions()
                 switchScreenOn()
             }
             if (configuration.cameraMotionBright) {
+                configurePowerOptions()
                 setBrightScreen(255)
             }
             publishFaceDetected()

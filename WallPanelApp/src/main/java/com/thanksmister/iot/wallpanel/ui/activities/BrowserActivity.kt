@@ -72,6 +72,11 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
 
         displayProgress = configuration.appShowActivity
         zoomLevel = configuration.testZoomLevel
+
+        this.window.setFlags(
+                WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON,
+                WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON)
+
         decorView = window.decorView
 
         val filter = IntentFilter()
@@ -86,7 +91,10 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
         configureWebSettings(configuration.browserUserAgent)
         loadUrl(configuration.appLaunchUrl)
 
-        Timber.d("start wallPanelService")
+        if (configuration.appPreventSleep) {
+            window.addFlags( WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON )
+        }
+
         wallPanelService = Intent(this, WallPanelService::class.java)
         startService(wallPanelService)
     }

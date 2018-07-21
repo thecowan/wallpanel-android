@@ -106,7 +106,12 @@ class MQTTModule (base: Context?, var mqttOptions: MQTTOptions, private val list
         listener.onMQTTDisconnect()
     }
 
+    override fun handleMqttConnected() {
+        listener.onMQTTConnect()
+    }
+
     interface MQTTListener {
+        fun onMQTTConnect()
         fun onMQTTDisconnect()
         fun onMQTTException(message : String)
         fun onMQTTMessage(id: String, topic: String, payload: String)
