@@ -40,12 +40,9 @@ import java.lang.ref.WeakReference
 import javax.inject.Inject
 import android.graphics.Bitmap
 import android.support.v8.renderscript.RenderScript
-import com.crashlytics.android.Crashlytics
 import com.google.android.gms.vision.CameraSource.CAMERA_FACING_BACK
 import com.google.android.gms.vision.CameraSource.CAMERA_FACING_FRONT
-import com.thanksmister.iot.wallpanel.BuildConfig
 import java.io.IOException
-
 
 class CameraReader @Inject
 constructor(private val context: Context) {
