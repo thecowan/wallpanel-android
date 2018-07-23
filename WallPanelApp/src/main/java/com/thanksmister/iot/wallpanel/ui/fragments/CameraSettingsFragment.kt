@@ -91,13 +91,6 @@ class CameraSettingsFragment : BaseSettingsFragment() {
 
     override fun onResume() {
         super.onResume()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            if (ActivityCompat.checkSelfPermission(activity!!.applicationContext, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
-                createCameraList()
-            }
-        } else {
-            createCameraList()
-        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -121,6 +114,14 @@ class CameraSettingsFragment : BaseSettingsFragment() {
             true;
         }
         cameraListPreference!!.isEnabled = false
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            if (ActivityCompat.checkSelfPermission(activity!!.applicationContext, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                createCameraList()
+            }
+        } else {
+            createCameraList()
+        }
 
         bindPreferenceSummaryToValue(cameraPreference!!)
         bindPreferenceSummaryToValue(cameraListPreference!!);
@@ -181,7 +182,7 @@ class CameraSettingsFragment : BaseSettingsFragment() {
             cameraListPreference!!.isEnabled = true
         } catch (e: Exception) {
             Timber.e(e.message)
-            cameraListPreference!!.isEnabled = false
+            //cameraListPreference!!.isEnabled = false
             if(activity != null) {
                 Toast.makeText(activity!!, getString(R.string.toast_camera_source_error), Toast.LENGTH_LONG).show()
             }
