@@ -166,7 +166,7 @@ class CameraSettingsFragment : BaseSettingsFragment() {
     private fun createCameraList() {
         Timber.d("createCameraList")
         try {
-            val cameraList = CameraUtils.getCameraListError(activity!!)
+            val cameraList = CameraUtils.getCameraList(activity!!)
             cameraListPreference!!.entries = cameraList.toTypedArray<CharSequence>()
             val vals = arrayOfNulls<CharSequence>(cameraList.size)
             for (i in cameraList.indices) {

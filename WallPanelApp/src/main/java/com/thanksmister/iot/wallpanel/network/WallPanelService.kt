@@ -100,6 +100,8 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
     private var motionDetected: Boolean = false
     private var faceDetected: Boolean = false
     private val reconnectHandler = Handler()
+    private var appLaunchUrl: String? = null
+    private var localBroadCastManager: LocalBroadcastManager? = null
 
     inner class WallPanelServiceBinder : Binder() {
         val service: WallPanelService
@@ -138,8 +140,10 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         filter.addAction(Intent.ACTION_SCREEN_ON)
         filter.addAction(Intent.ACTION_SCREEN_OFF)
         filter.addAction(Intent.ACTION_USER_PRESENT)
-        val bm = LocalBroadcastManager.getInstance(this)
-        bm.registerReceiver(mBroadcastReceiver, filter)
+        localBroadCastManager = LocalBroadcastManager.getInstance(this)
+        localBroadCastManager!!.registerReceiver(mBroadcastReceiver, filter)
+
+        this.appLaunchUrl = configuration.appLaunchUrl
 
         configureMqtt()
         configurePowerOptions()
@@ -157,6 +161,10 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         sensorReader.stopReadings()
         stopHttp()
         stopPowerOptions()
+        reconnectHandler.removeCallbacks(restartMqttRunnable)
+        if(localBroadCastManager != null) {
+            localBroadCastManager!!.unregisterReceiver(mBroadcastReceiver)
+        }
     }
 
     override fun onBind(intent: Intent): IBinder? {
@@ -187,7 +195,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
             Timber.d("getState")
             val state = JSONObject()
             try {
-                state.put(MqttUtils.STATE_CURRENT_URL, configuration.appLaunchUrl)
+                state.put(MqttUtils.STATE_CURRENT_URL, appLaunchUrl)
                 state.put(MqttUtils.STATE_SCREEN_ON, isScreenOn)
                 state.put(MqttUtils.STATE_BRIGHTNESS, screenBrightness)
             } catch (e: JSONException) {
@@ -310,11 +318,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         Timber.w("onMQTTDisconnect")
         if(hasNetwork()) {
             Toast.makeText(this, getString(R.string.error_mqtt_connection), Toast.LENGTH_SHORT).show()
-            reconnectHandler.postDelayed({
-                if(mqttModule != null) {
-                    mqttModule!!.restart()
-                }
-            }, 3000)
+            reconnectHandler.postDelayed(restartMqttRunnable, 3000)
         }
     }
 
@@ -322,11 +326,15 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         Timber.w("onMQTTException: $message")
         if(hasNetwork()) {
             Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
-            reconnectHandler.postDelayed({
-                if (mqttModule != null) {
-                    mqttModule!!.restart()
-                }
-            }, 3000)
+            reconnectHandler.postDelayed(restartMqttRunnable, 3000)
+        }
+    }
+
+    private val restartMqttRunnable = object: Runnable {
+        override fun run() {
+            if (mqttModule != null) {
+                mqttModule!!.restart()
+            }
         }
     }
 
@@ -738,10 +746,9 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
     private val mBroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             if (BROADCAST_EVENT_URL_CHANGE == intent.action) {
-                val url = intent.getStringExtra(BROADCAST_EVENT_URL_CHANGE)
-                if (url != configuration.appLaunchUrl) {
-                    Timber.i("Url changed to $url")
-                    //configuration.appLaunchUrl = url
+                appLaunchUrl = intent.getStringExtra(BROADCAST_EVENT_URL_CHANGE)
+                if (appLaunchUrl != configuration.appLaunchUrl) {
+                    Timber.i("Url changed to $appLaunchUrl")
                     publishMessage(COMMAND_STATE, state.toString())
                 }
             } else if (Intent.ACTION_SCREEN_OFF == intent.action ||

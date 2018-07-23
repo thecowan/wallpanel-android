@@ -30,7 +30,7 @@ class CameraUtils {
 
     companion object {
         @Throws(RuntimeException::class)
-        fun getCameraList(): ArrayList<String> {
+        fun getCameraList(context: Context): ArrayList<String> {
             val cameraList: ArrayList<String> = ArrayList()
             for (i in 0 until Camera.getNumberOfCameras()) {
                 var description: String

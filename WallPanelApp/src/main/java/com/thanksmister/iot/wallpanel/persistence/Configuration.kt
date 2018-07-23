@@ -39,14 +39,6 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
             sharedPreferences.edit().putBoolean(PREF_WRITE_SCREEN_PERMISSIONS, value).apply()
         }
 
-    /*var adjustBackBehavior: Boolean
-        get() = this.sharedPreferences.getBoolean("PREF_PLATFORM_BACK_BEHAVIOR", true)
-        set(value) = this.sharedPreferences.edit().putBoolean("PREF_PLATFORM_BACK_BEHAVIOR", value).apply()
-
-    var hideAdminMenu: Boolean
-        get() = this.sharedPreferences.getBoolean("PREF_PLATFORM_ADMIN_MENU", true)
-        set(value) = this.sharedPreferences.edit().putBoolean("PREF_PLATFORM_ADMIN_MENU", value).apply()
-*/
     var appLaunchUrl: String
         get() = getStringPref(R.string.key_setting_app_launchurl,
                 R.string.default_setting_app_launchurl)
@@ -62,12 +54,6 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
         get() = getBoolPref(R.string.key_setting_camera_enabled, R.string.default_setting_camera_enabled)
         set(value) {
             sharedPreferences.edit().putBoolean(context.getString(R.string.key_setting_camera_enabled), value).apply()
-        }
-
-    var hasTextToSpeech: Boolean
-        get() = getBoolPref(R.string.key_setting_tts_enabled, R.string.default_setting_tss_enabled)
-        set(value) {
-            sharedPreferences.edit().putBoolean(context.getString(R.string.key_setting_tts_enabled), value).apply()
         }
 
     val cameraId: Int
