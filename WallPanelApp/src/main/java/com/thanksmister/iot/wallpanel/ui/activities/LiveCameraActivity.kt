@@ -25,7 +25,6 @@ import android.os.Handler
 import android.support.v4.app.ActivityCompat
 import android.view.Gravity
 import android.view.MenuItem
-import android.view.View
 import android.view.WindowManager
 import android.widget.Toast
 import com.thanksmister.iot.wallpanel.R
@@ -34,7 +33,6 @@ import com.thanksmister.iot.wallpanel.persistence.Configuration
 import com.thanksmister.iot.wallpanel.ui.DetectionViewModel
 import com.thanksmister.iot.wallpanel.ui.views.CameraSourcePreview
 import dagger.android.support.DaggerAppCompatActivity
-import kotlinx.android.synthetic.main.activity_cameratest.*
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -83,7 +81,7 @@ class LiveCameraActivity : DaggerAppCompatActivity() {
         // Check for the camera permission before accessing the camera.
         val rc = ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
         if (rc == PackageManager.PERMISSION_GRANTED) {
-            viewModel.startCamera(cameraCallback, preview!!)
+            viewModel.startCameraPreview(cameraCallback, preview!!)
         } else {
             requestCameraPermission()
         }
@@ -145,7 +143,7 @@ class LiveCameraActivity : DaggerAppCompatActivity() {
             return
         }
         if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            viewModel.startCamera(cameraCallback, preview!!)
+            viewModel.startCameraPreview(cameraCallback, preview!!)
             return
         }
         Toast.makeText(this, getString(R.string.toast_write_permissions_denied), Toast.LENGTH_LONG).show()

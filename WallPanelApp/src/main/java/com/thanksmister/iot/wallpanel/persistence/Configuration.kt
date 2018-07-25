@@ -193,6 +193,10 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
         get() = java.lang.Float.valueOf(getStringPref(R.string.key_setting_test_zoomlevel,
                 R.string.default_setting_test_zoomlevel))!!
 
+    fun hasCameraDetections() : Boolean {
+        return cameraEnabled && (cameraMotionEnabled || cameraQRCodeEnabled || cameraFaceEnabled || httpMJPEGEnabled)
+    }
+
     private fun getStringPref(resId: Int, defId: Int): String {
         val def = context.getString(defId)
         val pref = sharedPreferences.getString(context.getString(resId), "")

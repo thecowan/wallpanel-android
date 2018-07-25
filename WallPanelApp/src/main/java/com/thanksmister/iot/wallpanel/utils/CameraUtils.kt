@@ -42,39 +42,7 @@ class CameraUtils {
                 val info = Camera.CameraInfo()
                 Camera.getCameraInfo(i, info)
                 val patternString = context.getString(R.string.text_camera_pattern)
-                val facing=
-                        if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT)
-                            context.getString(R.string.text_front)
-                        else
-                            context.getString(R.string.text_back)
-                description = java.text.MessageFormat.format(
-                        patternString,
-                        i,
-                        facing,
-                        info.orientation,
-                        width,
-                        height)
-                c.stopPreview()
-                c.release()
-                cameraList.add(description)
-            }
-            return cameraList
-        }
-
-        @Throws(RuntimeException::class)
-        fun getCameraListError(context: Context): ArrayList<String> {
-            val cameraList: ArrayList<String> = ArrayList()
-            for (i in 0 until Camera.getNumberOfCameras()) {
-                var description: String
-                val c = Camera.open(i)
-                val p = c.parameters
-                val previewSize = p.previewSize
-                val width = previewSize.width
-                val height = previewSize.height
-                val info = Camera.CameraInfo()
-                Camera.getCameraInfo(i, info)
-                val patternString = context.getString(R.string.text_camera_pattern)
-                val facing=
+                val facing =
                         if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT)
                             context.getString(R.string.text_front)
                         else

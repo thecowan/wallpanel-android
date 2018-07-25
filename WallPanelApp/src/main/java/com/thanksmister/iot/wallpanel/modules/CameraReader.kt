@@ -197,6 +197,87 @@ constructor(private val context: Context) {
         }
     }
 
+    @SuppressLint("MissingPermission")
+    @Throws(IOException::class)
+    fun startCameraPreviewSolo(callback: CameraCallback, configuration: Configuration, preview: CameraSourcePreview?) {
+        Timber.d("startCameraPreview")
+        if (configuration.cameraEnabled && preview != null) {
+            this.cameraCallback = callback
+            this.cameraPreview = preview
+            buildCameraDetector(configuration)
+            if(multiDetector != null) {
+                cameraSource = initCameraPreview(configuration.cameraId, configuration.cameraFPS)
+                cameraPreview!!.start(cameraSource, object : CameraSourcePreview.OnCameraPreviewListener {
+                    override fun onCameraError() {
+                        Timber.e("Camera Preview Error")
+                        cameraSource = if(configuration.cameraId == CAMERA_FACING_FRONT) {
+                            initCameraPreview(CAMERA_FACING_BACK, configuration.cameraFPS)
+                        } else {
+                            initCameraPreview(CAMERA_FACING_FRONT, configuration.cameraFPS)
+                        }
+                        if(cameraPreview != null) {
+                            try {
+                                cameraPreview!!.start(cameraSource, object : CameraSourcePreview.OnCameraPreviewListener {
+                                    override fun onCameraError() {
+                                        Timber.e("Camera Preview Error")
+                                        cameraCallback!!.onCameraError()
+                                    }
+                                })
+                            } catch (e: Exception) {
+                                Timber.e(e.message)
+                                cameraPreview!!.stop()
+                                cameraSource!!.stop()
+                                cameraCallback!!.onCameraError()
+                            }
+                        }
+                    }
+                })
+            }
+        }
+    }
+
+    private fun buildCameraDetector(configuration: Configuration) {
+        val info = Camera.CameraInfo()
+        try{
+            Camera.getCameraInfo(configuration.cameraId, info)
+        } catch (e: RuntimeException) {
+            Timber.e(e.message)
+            cameraCallback!!.onCameraError()
+            return
+        }
+        cameraOrientation = info.orientation
+        val multiDetectorBuilder = MultiDetector.Builder()
+        var detectorAdded = false
+        if(configuration.cameraEnabled) {
+            streamDetector = StreamingDetector.Builder().build()
+            streamDetectorProcessor = MultiProcessor.Builder<Stream>(MultiProcessor.Factory<Stream> {
+                object : Tracker<Stream>() {
+                    override fun onUpdate(p0: Detector.Detections<Stream>?, stream: Stream?) {
+                        super.onUpdate(p0, stream)
+                        /*if (stream?.byteArray != null && bitmapComplete && configuration.httpMJPEGEnabled) {
+                            byteArrayCreateTask = ByteArrayTask(context, renderScript, object : OnCompleteListener {
+                                override fun onComplete(byteArray: ByteArray?) {
+                                    bitmapComplete = true
+                                    setJpeg(byteArray!!)
+                                }
+                            })
+                            bitmapComplete = false
+                            byteArrayCreateTask!!.execute(stream.byteArray, stream.width, stream.height, cameraOrientation)
+                        }*/
+                    }
+                }
+            }).build()
+
+            streamDetector!!.setProcessor(streamDetectorProcessor)
+            multiDetectorBuilder.add(streamDetector)
+            detectorAdded = true
+        }
+
+        if(detectorAdded) {
+            multiDetector = multiDetectorBuilder.build()
+        }
+    }
+
     private fun buildDetectors(configuration: Configuration) {
 
         val info = Camera.CameraInfo()

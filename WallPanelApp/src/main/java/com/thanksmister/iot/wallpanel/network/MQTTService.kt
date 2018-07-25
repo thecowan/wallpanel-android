@@ -174,7 +174,7 @@ class MQTTService(private var context: Context, options: MQTTOptions,
             options.isCleanSession = false
 
             try {
-                mqttClient!!.connect(options, null, object : IMqttActionListener {
+                mqttClient?.connect(options, null, object : IMqttActionListener {
                     override fun onSuccess(asyncActionToken: IMqttToken) {
                         val disconnectedBufferOptions = DisconnectedBufferOptions()
                         disconnectedBufferOptions.isBufferEnabled = true
@@ -182,10 +182,10 @@ class MQTTService(private var context: Context, options: MQTTOptions,
                         disconnectedBufferOptions.isPersistBuffer = false
                         disconnectedBufferOptions.isDeleteOldestMessages = false
                         if (mqttClient != null) {
-                            mqttClient!!.setBufferOpts(disconnectedBufferOptions)
+                            mqttClient?.setBufferOpts(disconnectedBufferOptions)
                         }
                         if (mqttOptions != null) {
-                            subscribeToTopics(mqttOptions!!.getStateTopics())
+                            subscribeToTopics(mqttOptions?.getStateTopics())
                         }
 
                         listener?.handleMqttConnected()

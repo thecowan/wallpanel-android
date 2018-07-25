@@ -182,7 +182,7 @@ class CameraSettingsFragment : BaseSettingsFragment() {
             cameraListPreference!!.isEnabled = true
         } catch (e: Exception) {
             Timber.e(e.message)
-            //cameraListPreference!!.isEnabled = false
+            cameraListPreference!!.isEnabled = false
             if(activity != null) {
                 Toast.makeText(activity!!, getString(R.string.toast_camera_source_error), Toast.LENGTH_LONG).show()
             }

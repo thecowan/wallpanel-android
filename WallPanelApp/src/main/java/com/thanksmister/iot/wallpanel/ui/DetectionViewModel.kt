@@ -88,9 +88,13 @@ constructor(application: Application, private val configuration: Configuration,
         setCameras(cameraList)
     }
 
-    fun startCamera(callback: CameraCallback, preview: CameraSourcePreview?) {
-        Timber.d("startCamera")
-        cameraReader.startCameraPreview(callback, configuration, preview)
+    fun startCameraPreview(callback: CameraCallback, preview: CameraSourcePreview?) {
+        Timber.d("startCameraPreview")
+        if (configuration.hasCameraDetections()) {
+            cameraReader.startCameraPreview(callback, configuration, preview)
+        } else if (configuration.cameraEnabled) {
+            cameraReader.startCameraPreviewSolo(callback, configuration, preview)
+        }
     }
 
     companion object {

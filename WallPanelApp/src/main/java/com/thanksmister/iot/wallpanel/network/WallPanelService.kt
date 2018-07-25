@@ -134,15 +134,6 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
             keyguardLock!!.disableKeyguard()
         }
 
-        val filter = IntentFilter()
-        filter.addAction(BROADCAST_EVENT_URL_CHANGE)
-        filter.addAction(BROADCAST_EVENT_SCREEN_TOUCH)
-        filter.addAction(Intent.ACTION_SCREEN_ON)
-        filter.addAction(Intent.ACTION_SCREEN_OFF)
-        filter.addAction(Intent.ACTION_USER_PRESENT)
-        localBroadCastManager = LocalBroadcastManager.getInstance(this)
-        localBroadCastManager!!.registerReceiver(mBroadcastReceiver, filter)
-
         this.appLaunchUrl = configuration.appLaunchUrl
 
         configureMqtt()
@@ -153,18 +144,32 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         startForeground()
         configureTextToSpeech()
         startSensors()
+
+        val filter = IntentFilter()
+        filter.addAction(BROADCAST_EVENT_URL_CHANGE)
+        filter.addAction(BROADCAST_EVENT_SCREEN_TOUCH)
+        filter.addAction(Intent.ACTION_SCREEN_ON)
+        filter.addAction(Intent.ACTION_SCREEN_OFF)
+        filter.addAction(Intent.ACTION_USER_PRESENT)
+        localBroadCastManager = LocalBroadcastManager.getInstance(this)
+        localBroadCastManager!!.registerReceiver(mBroadcastReceiver, filter)
+
     }
 
     override fun onDestroy() {
         super.onDestroy()
+        if(localBroadCastManager != null) {
+            localBroadCastManager!!.unregisterReceiver(mBroadcastReceiver)
+        }
+        if(mqttModule != null) {
+            mqttModule!!.pause()
+            mqttModule = null
+        }
         cameraReader.stopCamera()
         sensorReader.stopReadings()
         stopHttp()
         stopPowerOptions()
         reconnectHandler.removeCallbacks(restartMqttRunnable)
-        if(localBroadCastManager != null) {
-            localBroadCastManager!!.unregisterReceiver(mBroadcastReceiver)
-        }
     }
 
     override fun onBind(intent: Intent): IBinder? {
