@@ -9,6 +9,10 @@ WallPanel is an Android application for Web Based Dashboards and Home Automation
 - Sensor data reporting for the device (temperature, light, pressure, battery).
 - Streaming MJPEG server support using the device camera.
 
+## Hardware & Softare 
+
+- Android Device running Android SDK 16 or above. 
+
 ## Quick Start
 You can either side load the application to your device from the release section or install the application from the [Google Play store](https://play.google.com/store/apps/details?id=com.thanksmister.iot.wallpanel). The application will open to the welcome page with a link to update the settings. Go to settings, and setup the link to your web page or home automation platform. You may also update additional settings for Motion, Face Detection, and for publishing device sensor data. 
 
