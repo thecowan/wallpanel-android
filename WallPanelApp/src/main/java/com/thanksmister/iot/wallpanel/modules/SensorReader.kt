@@ -41,6 +41,7 @@ constructor(private val context: Context){
     private var updateFrequencyMilliSeconds: Int = 0
     private var callback: SensorCallback? = null
     private var sensorsPublished: Boolean = false
+    private var lightSensorEvent: SensorEvent? = null
 
     private val batteryHandlerRunnable = object : Runnable {
         override fun run() {
@@ -133,15 +134,20 @@ constructor(private val context: Context){
     private val sensorListener = object : SensorEventListener {
         override fun onSensorChanged(event: SensorEvent?) {
             if(event != null && !sensorsPublished) {
-                val unit = getSensorUnit(event.sensor.type)
-                val data = JSONObject()
-                try {
-                    data.put(VALUE, event.values[0].toDouble())
-                    data.put(UNIT, unit)
-                    data.put(ID, event.sensor.name)
-                } catch (ex: JSONException) {
-                    ex.printStackTrace()
+                var data = JSONObject()
+                if(event.sensor.type == Sensor.TYPE_LIGHT) {
+                    lightSensorEvent = event
                 }
+                if(lightSensorEvent != null) {
+                    data.put(VALUE, lightSensorEvent!!.values[0])
+                    data.put(UNIT, getSensorUnit(lightSensorEvent!!.sensor.type))
+                    data.put(ID, lightSensorEvent!!.sensor.name)
+                    publishSensorData(getSensorName(lightSensorEvent!!.sensor.type), data)
+                }
+                data = JSONObject()
+                data.put(VALUE, event.values[0])
+                data.put(UNIT, getSensorUnit(event.sensor.type))
+                data.put(ID, event.sensor.name)
                 publishSensorData(getSensorName(event.sensor.type), data)
                 sensorsPublished = true
             }

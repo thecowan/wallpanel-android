@@ -58,6 +58,14 @@ class DialogUtils(base: Context?) : ContextWrapper(base), LifecycleObserver {
         }
     }
 
+    fun showAlertDialog(context: Context, message: String) {
+        hideAlertDialog()
+        alertDialog = AlertDialog.Builder(context)
+                .setMessage(message)
+                .setPositiveButton(android.R.string.ok, null)
+                .show()
+    }
+
     fun showAlertDialog(activity: AppCompatActivity, message: String) {
         hideAlertDialog()
         alertDialog = AlertDialog.Builder(activity)

@@ -30,6 +30,7 @@ import android.view.WindowManager
 
 import com.thanksmister.iot.wallpanel.network.WallPanelService
 import com.thanksmister.iot.wallpanel.persistence.Configuration
+import com.thanksmister.iot.wallpanel.utils.DialogUtils
 import dagger.android.support.DaggerAppCompatActivity
 
 import timber.log.Timber
@@ -37,6 +38,7 @@ import javax.inject.Inject
 
 abstract class BrowserActivity : DaggerAppCompatActivity() {
 
+    @Inject lateinit var dialogUtils: DialogUtils
     @Inject lateinit var configuration: Configuration
 
     private var wallPanelService: Intent? = null
@@ -78,6 +80,8 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
                 WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON)
 
         decorView = window.decorView
+
+        lifecycle.addObserver(dialogUtils)
 
         val filter = IntentFilter()
         filter.addAction(BROADCAST_ACTION_LOAD_URL)

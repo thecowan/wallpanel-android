@@ -17,31 +17,25 @@
 package com.thanksmister.iot.wallpanel.ui.activities
 
 import android.annotation.SuppressLint
-import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.support.design.widget.Snackbar
-import android.support.v4.content.LocalBroadcastManager
-import android.support.v7.preference.PreferenceManager
 import android.text.TextUtils
-import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
 import android.webkit.*
-import com.baviux.homeassistant.HassWebView
 import com.thanksmister.iot.wallpanel.R
-import com.thanksmister.iot.wallpanel.network.WallPanelService
 import timber.log.Timber
 
 class BrowserActivityNative : BrowserActivity() {
 
-    private var mWebView: HassWebView? = null
+    private var mWebView: WebView? = null
 
     @SuppressLint("SetJavaScriptEnabled", "ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
 
         setContentView(R.layout.activity_browser)
-        mWebView = findViewById<View>(R.id.activity_browser_webview_native) as HassWebView
+        mWebView = findViewById<View>(R.id.activity_browser_webview_native) as WebView
         mWebView!!.visibility = View.VISIBLE
 
         // Force links and redirects to open in the WebView instead of in a browser
@@ -65,11 +59,17 @@ class BrowserActivityNative : BrowserActivity() {
                 }
                 snackbar!!.show()
             }
+
+            override fun onJsAlert(view: WebView, url: String, message: String, result: JsResult): Boolean {
+                dialogUtils.showAlertDialog(view.context, message)
+                return true
+            }
         }
 
         mWebView!!.webViewClient = object : WebViewClient() {
             //If you will not use this method url links are open in new browser not in webview
             override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
+                loadUrl(configuration.appLaunchUrl)
                 return true
             }
         }
@@ -97,6 +97,7 @@ class BrowserActivityNative : BrowserActivity() {
         webSettings.javaScriptEnabled = true
         webSettings.domStorageEnabled = true
         webSettings.databaseEnabled = true
+        webSettings.javaScriptCanOpenWindowsAutomatically = true
         webSettings.setAppCacheEnabled(true)
 
          if(!TextUtils.isEmpty(userAgent)) {
