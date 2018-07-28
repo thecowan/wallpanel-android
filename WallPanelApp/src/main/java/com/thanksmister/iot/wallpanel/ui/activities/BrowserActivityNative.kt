@@ -69,7 +69,7 @@ class BrowserActivityNative : BrowserActivity() {
         mWebView!!.webViewClient = object : WebViewClient() {
             //If you will not use this method url links are open in new browser not in webview
             override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
-                loadUrl(configuration.appLaunchUrl)
+                //loadUrl(configuration.appLaunchUrl)
                 return true
             }
         }

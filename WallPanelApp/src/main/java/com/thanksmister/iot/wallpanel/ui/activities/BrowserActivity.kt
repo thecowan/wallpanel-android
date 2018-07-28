@@ -95,8 +95,11 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
         configureWebSettings(configuration.browserUserAgent)
         loadUrl(configuration.appLaunchUrl)
 
+        Timber.d("Prevent Sleep ${configuration.appPreventSleep}")
         if (configuration.appPreventSleep) {
             window.addFlags( WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON )
+        } else {
+            window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         }
 
         wallPanelService = Intent(this, WallPanelService::class.java)
@@ -132,6 +135,7 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
         if (event.keyCode == KeyEvent.KEYCODE_BACK) {
             Timber.d("dispatchKeyEvent")
+            window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
             startActivity(Intent(this@BrowserActivity, SettingsActivity::class.java))
             finish()
             return true
