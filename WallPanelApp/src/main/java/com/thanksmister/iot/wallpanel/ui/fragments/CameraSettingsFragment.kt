@@ -101,6 +101,7 @@ class CameraSettingsFragment : BaseSettingsFragment() {
         motionDimPreference = findPreference(getString(R.string.key_setting_camera_motionontime)) as EditTextPreference
         fpsPreference = findPreference(getString(R.string.key_setting_camera_fps)) as EditTextPreference
         cameraPreference = findPreference(getString(R.string.key_setting_camera_enabled)) as SwitchPreference
+
         cameraListPreference = findPreference(getString(R.string.key_setting_camera_cameraid)) as ListPreference
         cameraListPreference!!.setOnPreferenceChangeListener { preference, newValue ->
             if (preference is ListPreference) {
@@ -110,6 +111,10 @@ class CameraSettingsFragment : BaseSettingsFragment() {
                             preference.entries[index]
                         else
                             "")
+                if(index >= 0) {
+                    //configuration.cameraId = index
+                    Timber.d("Camera Id: " + configuration.cameraId)
+                }
             }
             true;
         }
@@ -136,9 +141,8 @@ class CameraSettingsFragment : BaseSettingsFragment() {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             if (ActivityCompat.checkSelfPermission(activity!!.applicationContext, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                cameraPreference!!.isEnabled = false
                 configuration.cameraEnabled = false
-                // TODO ask for permissions again
+                dialogUtils.showAlertDialog(activity!!.applicationContext, getString(R.string.dialog_no_camera_permissions))
                 return
             }
         }

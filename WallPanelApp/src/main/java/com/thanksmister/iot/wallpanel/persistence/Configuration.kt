@@ -56,9 +56,12 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
             sharedPreferences.edit().putBoolean(context.getString(R.string.key_setting_camera_enabled), value).apply()
         }
 
-    val cameraId: Int
+    var cameraId: Int
         get() = Integer.valueOf(getStringPref(R.string.key_setting_camera_cameraid,
                 R.string.default_setting_camera_cameraid))
+        set(value) {
+            sharedPreferences.edit().putInt(context.getString(R.string.key_setting_camera_cameraid), value).apply()
+        }
 
     var cameraMotionEnabled: Boolean
         get() = getBoolPref(R.string.key_setting_camera_motionenabled, R.string.default_setting_camera_motionenabled)

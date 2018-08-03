@@ -176,6 +176,6 @@
     <string name="pref_title_battery">Battery</string>
     <string name="pref_summary_battery">Battery Level, USB Plugged, AC Plugged, Charging</string>
     <string name="text_loading_percent">Loading %1$s%% %2$s</string>
-
+    <string name="dialog_no_camera_permissions">This feature requires the camera permissions. Go to the device settings, then turn on permissions for this application.</string>
 
 </resources>

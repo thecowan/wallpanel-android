@@ -162,11 +162,9 @@ class LiveCameraActivity : DaggerAppCompatActivity() {
     }
 
     private val cameraCallback = object : CameraCallback {
-
         override fun onCameraError() {
             Toast.makeText(this@LiveCameraActivity, getString(R.string.toast_camera_source_error), Toast.LENGTH_LONG).show()
         }
-
         override fun onMotionDetected() {
             runOnUiThread {
                 if(removeTextCountdown == 0) {
@@ -175,7 +173,6 @@ class LiveCameraActivity : DaggerAppCompatActivity() {
                 }
             }
         }
-
         override fun onTooDark() {
             runOnUiThread {
                 if(removeTextCountdown == 0) {
