@@ -109,6 +109,7 @@
     <string name="key_setting_motion_clear">setting_motion_clear</string>
     <string name="default_motion_clear">30</string>
 
+    <string name="key_setting_battery">setting_battery</string>
 
     <string-array name="settings_titles">
         <item>@string/title_settings</item>

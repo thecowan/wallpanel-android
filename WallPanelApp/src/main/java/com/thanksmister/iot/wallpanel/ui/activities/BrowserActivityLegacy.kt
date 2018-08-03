@@ -36,6 +36,13 @@ import org.xwalk.core.XWalkCookieManager
 
 import timber.log.Timber
 import javax.inject.Inject
+import android.content.DialogInterface
+import android.net.http.SslError
+import android.support.v7.app.AlertDialog
+import android.webkit.SslErrorHandler
+import android.webkit.WebView
+import kotlinx.android.synthetic.main.activity_browser.*
+
 
 class BrowserActivityLegacy : BrowserActivity() {
 
@@ -45,8 +52,12 @@ class BrowserActivityLegacy : BrowserActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
 
         setContentView(R.layout.activity_browser)
+
+        swipeContainer.setOnRefreshListener { loadUrl(configuration.appLaunchUrl)}
+
         xWebView = findViewById<View>(R.id.activity_browser_webview_legacy) as XWalkView
         xWebView!!.visibility = View.VISIBLE
+        clearCache()
 
         xWebView!!.setResourceClient(object : XWalkResourceClient(xWebView) {
 
@@ -63,12 +74,12 @@ class BrowserActivityLegacy : BrowserActivity() {
                     snackbar.dismiss()
                     pageLoadComplete(view.url)
                 } else {
-                    val text = "Loading " + progressInPercent + "% " + view.url
+                    //val text = "Loading " + progressInPercent + "% " + view.url
+                    val text = getString(R.string.text_loading_percent, progressInPercent.toString(), view.url)
                     snackbar.setText(text)
                     snackbar.show()
                 }
             }
-
         })
 
         xWebView!!.setOnTouchListener { v, event ->
@@ -87,6 +98,24 @@ class BrowserActivityLegacy : BrowserActivity() {
         }
 
         super.onCreate(savedInstanceState)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        swipeContainer.viewTreeObserver.addOnScrollChangedListener {
+            swipeContainer.isEnabled = xWebView!!.scrollY == 0
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        swipeContainer.viewTreeObserver.removeOnScrollChangedListener(mOnScrollChangedListener)
+    }
+
+    override fun complete() {
+        if(swipeContainer.isRefreshing) {
+            swipeContainer.isRefreshing = false
+        }
     }
 
     override fun configureWebSettings(userAgent: String) {

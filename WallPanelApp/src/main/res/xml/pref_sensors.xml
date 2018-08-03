@@ -44,6 +44,13 @@
             android:textSize="12sp"/>
 
         <Preference
+            android:key="@string/key_setting_battery"
+            android:selectable="false"
+            android:summary="@string/pref_summary_battery"
+            android:title="@string/pref_title_battery"
+            android:dependency="@string/key_setting_sensors_enabled"/>
+
+        <Preference
             android:key="@string/key_settings_sensors_temperature"
             android:selectable="false"
             android:summary="@string/summary_setting_sensors_default"

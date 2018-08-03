@@ -14,24 +14,35 @@
   ~ limitations under the License.
   -->
 
-<merge xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.SwipeRefreshLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/swipeContainer"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
     android:scrollbars="none">
 
-    <WebView
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/activity_browser_webview_native"
-        android:scrollbars="none"
-        android:visibility="gone" />
+        android:windowSoftInputMode="adjustResize">
 
-    <org.xwalk.core.XWalkView
-        android:id="@+id/activity_browser_webview_legacy"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scrollbars="none"
-        android:visibility="gone" />
+        <WebView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/activity_browser_webview_native"
+            android:scrollbars="none"
+            android:visibility="gone" />
 
-</merge>
+        <org.xwalk.core.XWalkView
+            android:id="@+id/activity_browser_webview_legacy"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scrollbars="none"
+            android:visibility="gone" />
+
+    </RelativeLayout>
+
+</android.support.v4.widget.SwipeRefreshLayout>

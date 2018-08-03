@@ -173,5 +173,9 @@
     <string name="text_back">Back</string>
     <string name="text_camera_pattern">{0}: {1} Camera {3}x{4} {2}º</string>
 
+    <string name="pref_title_battery">Battery</string>
+    <string name="pref_summary_battery">Battery Level, USB Plugged, AC Plugged, Charging</string>
+    <string name="text_loading_percent">Loading %1$s%% %2$s</string>
+
 
 </resources>

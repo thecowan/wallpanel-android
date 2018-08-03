@@ -26,6 +26,7 @@ import android.support.v4.content.LocalBroadcastManager
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.View
+import android.view.ViewTreeObserver
 import android.view.WindowManager
 
 import com.thanksmister.iot.wallpanel.network.WallPanelService
@@ -40,6 +41,8 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
 
     @Inject lateinit var dialogUtils: DialogUtils
     @Inject lateinit var configuration: Configuration
+
+    val mOnScrollChangedListener: ViewTreeObserver.OnScrollChangedListener? = null
 
     private var wallPanelService: Intent? = null
     private var decorView: View? = null
@@ -151,14 +154,13 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
         bm.sendBroadcast(intent)
     }
 
-    // FIXME it seems that changing the url by clicking a link also updates the default
-    // FIXME dashboard url by broadcasting event to the service which updates it if different
     internal fun pageLoadComplete(url: String) {
         Timber.d("pageLoadComplete currentUrl $url")
         val intent = Intent(WallPanelService.BROADCAST_EVENT_URL_CHANGE)
         intent.putExtra(WallPanelService.BROADCAST_EVENT_URL_CHANGE, url)
         val bm = LocalBroadcastManager.getInstance(applicationContext)
         bm.sendBroadcast(intent)
+        complete()
     }
 
     protected abstract fun configureWebSettings(userAgent: String)
@@ -166,6 +168,7 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
     protected abstract fun evaluateJavascript(js: String)
     protected abstract fun clearCache()
     protected abstract fun reload()
+    protected abstract fun complete()
 
     companion object {
         val BROADCAST_ACTION_LOAD_URL = "BROADCAST_ACTION_LOAD_URL"

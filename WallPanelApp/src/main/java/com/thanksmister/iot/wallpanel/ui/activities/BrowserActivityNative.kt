@@ -25,7 +25,11 @@ import android.view.MotionEvent
 import android.view.View
 import android.webkit.*
 import com.thanksmister.iot.wallpanel.R
+import kotlinx.android.synthetic.main.activity_browser.*
 import timber.log.Timber
+import android.webkit.WebView
+import android.widget.Toast
+
 
 class BrowserActivityNative : BrowserActivity() {
 
@@ -35,8 +39,12 @@ class BrowserActivityNative : BrowserActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
 
         setContentView(R.layout.activity_browser)
+
+        swipeContainer.setOnRefreshListener { loadUrl(configuration.appLaunchUrl)}
+
         mWebView = findViewById<View>(R.id.activity_browser_webview_native) as WebView
         mWebView!!.visibility = View.VISIBLE
+        clearCache()
 
         // Force links and redirects to open in the WebView instead of in a browser
         mWebView!!.webChromeClient = object : WebChromeClient() {
@@ -51,7 +59,7 @@ class BrowserActivityNative : BrowserActivity() {
                     pageLoadComplete(view.url)
                     return
                 }
-                val text = "Loading " + newProgress + "% " + view.url
+                val text= getString(R.string.text_loading_percent, newProgress.toString(), view.url)
                 if (snackbar == null) {
                     snackbar = Snackbar.make(view, text, Snackbar.LENGTH_INDEFINITE)
                 } else {
@@ -64,13 +72,18 @@ class BrowserActivityNative : BrowserActivity() {
                 dialogUtils.showAlertDialog(view.context, message)
                 return true
             }
+
         }
 
         mWebView!!.webViewClient = object : WebViewClient() {
             //If you will not use this method url links are open in new browser not in webview
-            override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
-                //loadUrl(configuration.appLaunchUrl)
+            override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
+                view.loadUrl(url)
                 return true
+            }
+
+            override fun onReceivedError(view: WebView, errorCode: Int, description: String, failingUrl: String) {
+                Toast.makeText(this@BrowserActivityNative, description, Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -92,6 +105,25 @@ class BrowserActivityNative : BrowserActivity() {
         super.onCreate(savedInstanceState)
     }
 
+    override fun onStart() {
+        super.onStart()
+        swipeContainer.viewTreeObserver.addOnScrollChangedListener {
+            swipeContainer.isEnabled = mWebView!!.scrollY == 0
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        swipeContainer.viewTreeObserver.removeOnScrollChangedListener(mOnScrollChangedListener)
+    }
+
+    override fun complete() {
+        if(swipeContainer.isRefreshing) {
+            swipeContainer.isRefreshing = false
+        }
+    }
+
+    @SuppressLint("SetJavaScriptEnabled")
     override fun configureWebSettings(userAgent: String) {
         val webSettings = mWebView!!.settings
         webSettings.javaScriptEnabled = true
@@ -100,7 +132,7 @@ class BrowserActivityNative : BrowserActivity() {
         webSettings.javaScriptCanOpenWindowsAutomatically = true
         webSettings.setAppCacheEnabled(true)
 
-         if(!TextUtils.isEmpty(userAgent)) {
+        if(!TextUtils.isEmpty(userAgent)) {
             webSettings.userAgentString = userAgent
         }
 
