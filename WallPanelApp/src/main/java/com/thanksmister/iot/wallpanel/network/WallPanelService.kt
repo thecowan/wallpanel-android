@@ -119,7 +119,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
         //fullWakeLock = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK or PowerManager.ON_AFTER_RELEASE or PowerManager.ACQUIRE_CAUSES_WAKEUP, "wallPanel:fullWakeLock")
         //partialWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "wallPanel:partialWakeLock")
-        partialWakeLock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK or PowerManager.ACQUIRE_CAUSES_WAKEUP, "alarm:ALARM_TEMPORARY_WAKE_TAG")
+        partialWakeLock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK or PowerManager.ACQUIRE_CAUSES_WAKEUP, "wallPanel:partialWakeLock")
 
         // wifi lock
         val wifiManager = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
@@ -262,11 +262,10 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         return hasNetwork.get()
     }
 
-    @SuppressLint("WakelockTimeout")
     private fun configurePowerOptions() {
         Timber.d("configurePowerOptions")
         if (!partialWakeLock!!.isHeld) {
-            partialWakeLock!!.acquire()
+            partialWakeLock!!.acquire(3000)
         }
         if (!wifiLock!!.isHeld) {
             wifiLock!!.acquire()
@@ -284,9 +283,6 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         if(partialWakeLock != null && partialWakeLock!!.isHeld) {
             partialWakeLock!!.release()
         }
-        /*if(fullWakeLock != null && fullWakeLock!!.isHeld) {
-            fullWakeLock!!.release()
-        }*/
         if (wifiLock != null && wifiLock!!.isHeld) {
             wifiLock!!.release()
         }
