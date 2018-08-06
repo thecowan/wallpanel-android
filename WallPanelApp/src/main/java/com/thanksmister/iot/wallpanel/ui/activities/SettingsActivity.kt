@@ -114,7 +114,7 @@ class SettingsActivity : DaggerAppCompatActivity(), SettingsFragment.OnSettingsF
             Timber.d("requestCameraPermissions asking")
             if (PackageManager.PERMISSION_DENIED == ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA)) {
                 ActivityCompat.requestPermissions(this,
-                        arrayOf(Manifest.permission.CAMERA),
+                        arrayOf(Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE),
                         PERMISSIONS_REQUEST_CAMERA)
             } else {
                 checkWriteSettings()

@@ -16,18 +16,24 @@
 
 package com.thanksmister.iot.wallpanel.ui.activities
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.PackageManager
 import android.os.Build
 import android.support.v4.content.LocalBroadcastManager
 import android.os.Bundle
+import android.support.v4.app.ActivityCompat
+import android.support.v4.content.ContextCompat
 import android.view.KeyEvent
 import android.view.View
 import android.view.ViewTreeObserver
 import android.view.WindowManager
+import android.widget.Toast
+import com.thanksmister.iot.wallpanel.R
 
 import com.thanksmister.iot.wallpanel.network.WallPanelService
 import com.thanksmister.iot.wallpanel.persistence.Configuration
@@ -41,6 +47,8 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
 
     @Inject lateinit var dialogUtils: DialogUtils
     @Inject lateinit var configuration: Configuration
+
+    private var PERMISSIONS = arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE, android.Manifest.permission.READ_EXTERNAL_STORAGE)
 
     val mOnScrollChangedListener: ViewTreeObserver.OnScrollChangedListener? = null
 
@@ -107,6 +115,8 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
 
         wallPanelService = Intent(this, WallPanelService::class.java)
         startService(wallPanelService)
+
+        requestPermissions()
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
@@ -146,6 +156,28 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
         return super.dispatchKeyEvent(event)
     }
 
+    private fun requestPermissions() {
+        Timber.d("requestCameraPermissions")
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if(!hasPermissions(this, PERMISSIONS)){
+                ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_REQUEST_ALL);
+            }
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+        when (requestCode) {
+            PERMISSION_REQUEST_ALL -> {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(this, getString(R.string.toast_storage_granted), Toast.LENGTH_LONG).show()
+                } else {
+                    Toast.makeText(this, getString(R.string.toast_storage_denied), Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+
     internal fun resetScreen() {
         Timber.d("resetScreen Called")
         val intent = Intent(WallPanelService.BROADCAST_EVENT_SCREEN_TOUCH)
@@ -163,6 +195,17 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
         complete()
     }
 
+    private fun hasPermissions(context: Context?, permissions: Array<String>): Boolean {
+        if (context != null) {
+            for (permission in permissions) {
+                if (ActivityCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) {
+                    return false
+                }
+            }
+        }
+        return true
+    }
+
     protected abstract fun configureWebSettings(userAgent: String)
     protected abstract fun loadUrl(url: String)
     protected abstract fun evaluateJavascript(js: String)
@@ -171,9 +214,11 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
     protected abstract fun complete()
 
     companion object {
-        val BROADCAST_ACTION_LOAD_URL = "BROADCAST_ACTION_LOAD_URL"
-        val BROADCAST_ACTION_JS_EXEC = "BROADCAST_ACTION_JS_EXEC"
-        val BROADCAST_ACTION_CLEAR_BROWSER_CACHE = "BROADCAST_ACTION_CLEAR_BROWSER_CACHE"
-        val BROADCAST_ACTION_RELOAD_PAGE = "BROADCAST_ACTION_RELOAD_PAGE"
+        const val BROADCAST_ACTION_LOAD_URL = "BROADCAST_ACTION_LOAD_URL"
+        const val BROADCAST_ACTION_JS_EXEC = "BROADCAST_ACTION_JS_EXEC"
+        const val BROADCAST_ACTION_CLEAR_BROWSER_CACHE = "BROADCAST_ACTION_CLEAR_BROWSER_CACHE"
+        const val BROADCAST_ACTION_RELOAD_PAGE = "BROADCAST_ACTION_RELOAD_PAGE"
+        const val PERMISSIONS_REQUEST_STORAGE = 301
+        const val PERMISSION_REQUEST_ALL = 301
     }
 }

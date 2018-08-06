@@ -175,20 +175,23 @@ class MQTTService(private var context: Context, options: MQTTOptions,
             options.isCleanSession = false
 
             try {
-                mqttClient?.connect(options, null, object : IMqttActionListener {
+                mqttClient!!.connect(options, null, object : IMqttActionListener {
                     override fun onSuccess(asyncActionToken: IMqttToken) {
                         val disconnectedBufferOptions = DisconnectedBufferOptions()
                         disconnectedBufferOptions.isBufferEnabled = true
                         disconnectedBufferOptions.bufferSize = 100
                         disconnectedBufferOptions.isPersistBuffer = false
                         disconnectedBufferOptions.isDeleteOldestMessages = false
-                        if (mqttClient != null) {
-                            mqttClient?.setBufferOpts(disconnectedBufferOptions)
+                        if (mqttClient != null && mqttClient!!.isConnected) {
+                            try {
+                                mqttClient!!.setBufferOpts(disconnectedBufferOptions)
+                            } catch (e: NullPointerException) {
+                                Timber.e(e.message)
+                            }
                         }
                         if (mqttOptions != null) {
                             subscribeToTopics(mqttOptions?.getStateTopics())
                         }
-
                         listener?.handleMqttConnected()
                     }
 
@@ -199,13 +202,15 @@ class MQTTService(private var context: Context, options: MQTTOptions,
                         }
                     }
                 })
+            } catch (e: NullPointerException) {
+                Timber.e(e, e.message)
+                e.printStackTrace()
             } catch (e: MqttException) {
                 Timber.e(e, "MqttException")
                 if (listener != null) {
                     listener?.handleMqttException("" + e.message)
                 }
             }
-
             mReady.set(true)
         } catch (e: IllegalArgumentException) {
             e.printStackTrace()

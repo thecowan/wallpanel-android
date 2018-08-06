@@ -123,7 +123,7 @@
     <string name="pref_mjpeg_streaming_description">Use the device camera as a live MJPEG stream. Connect to the stream using the device IP address, HTTP Port, and end point: http://192.168.1.1:2971/camera/stream</string>
     <string name="pref_mjpeg_streaming_title">MJPEG Streaming</string>
     <string name="pref_http_description">Control the application over HTTP using REST API calls. To find out which commands work with, review the help documentation.</string>
-    <string name="pref_launchurl_summary">Enter the fully qualified URL for your home automation dashboard.</string>
+    <string name="pref_launchurl_summary">Enter the fully qualified URL for your home automation dashboard or path to file on the local device (requires storage access permission).</string>
     <string name="pref_show_browser_activity_summary">Display browser loading progress.</string>
     <string name="pref_prevent_sleep_summary">When active, keeps the screen on.</string>
     <string name="pref_start_boot_summary">Will start the application upon system boot.</string>
@@ -177,5 +177,7 @@
     <string name="pref_summary_battery">Battery Level, USB Plugged, AC Plugged, Charging</string>
     <string name="text_loading_percent">Loading %1$s%% %2$s</string>
     <string name="dialog_no_camera_permissions">This feature requires the camera permissions. Go to the device settings, then turn on permissions for this application.</string>
+    <string name="toast_storage_granted">Storage permissions granted…</string>
+    <string name="toast_storage_denied">Storage permissions denied…</string>
 
 </resources>

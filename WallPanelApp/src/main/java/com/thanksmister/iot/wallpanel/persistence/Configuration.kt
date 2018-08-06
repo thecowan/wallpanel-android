@@ -57,8 +57,8 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
         }
 
     var cameraId: Int
-        get() = Integer.valueOf(getStringPref(R.string.key_setting_camera_cameraid,
-                R.string.default_setting_camera_cameraid))
+        get() = getStringPref(R.string.key_setting_camera_cameraid,
+                R.string.default_setting_camera_cameraid).trim().toInt()
         set(value) {
             sharedPreferences.edit().putInt(context.getString(R.string.key_setting_camera_cameraid), value).apply()
         }
@@ -70,16 +70,15 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
         }
 
     val cameraMotionLeniency: Int
-        get() = Integer.valueOf(getStringPref(R.string.key_setting_camera_motionleniency,
-                R.string.default_setting_camera_motionleniency))
+        get() = getStringPref(R.string.key_setting_camera_motionleniency,
+                R.string.default_setting_camera_motionleniency).trim().toInt()
 
     val cameraMotionMinLuma: Int
-        get() = Integer.valueOf(getStringPref(R.string.key_setting_camera_motionminluma,
-                R.string.default_setting_camera_motionminluma))
+        get() = Integer.valueOf(getStringPref(R.string.key_setting_camera_motionminluma, R.string.default_setting_camera_motionminluma).trim().toInt())
 
     val cameraMotionOnTime: Int
-        get() = Integer.valueOf(getStringPref(R.string.key_setting_camera_motionontime,
-                R.string.default_setting_camera_motionontime))
+        get() = getStringPref(R.string.key_setting_camera_motionontime,
+                R.string.default_setting_camera_motionontime).trim().toInt()
 
     val cameraMotionWake: Boolean
         get() = getBoolPref(R.string.key_setting_camera_motionwake,
@@ -108,15 +107,15 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
         }
 
     val motionResetTime: Int
-        get() = Integer.valueOf(getStringPref(R.string.key_setting_motion_clear,
-                R.string.default_motion_clear))
+        get() = getStringPref(R.string.key_setting_motion_clear,
+                R.string.default_motion_clear).trim().toInt()
 
     val httpEnabled: Boolean
         get() = httpRestEnabled || httpMJPEGEnabled
 
     val httpPort: Int
-        get() = Integer.valueOf(getStringPref(R.string.key_setting_http_port,
-                R.string.default_setting_http_port))
+        get() = getStringPref(R.string.key_setting_http_port,
+                R.string.default_setting_http_port).trim().toInt()
 
     val httpRestEnabled: Boolean
         get() = getBoolPref(R.string.key_setting_http_restenabled,
@@ -127,7 +126,7 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
                 R.string.default_setting_http_mjpegenabled)
 
     val httpMJPEGMaxStreams: Int
-        get() = Integer.valueOf(getStringPref(R.string.key_setting_http_mjpegmaxstreams, R.string.default_setting_http_mjpegmaxstreams))
+        get() = getStringPref(R.string.key_setting_http_mjpegmaxstreams, R.string.default_setting_http_mjpegmaxstreams).trim().toInt()
 
     val mqttEnabled: Boolean
         get() = getBoolPref(R.string.key_setting_mqtt_enabled, R.string.default_setting_mqtt_enabled)
@@ -143,7 +142,7 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
         get() = getStringPref(R.string.key_setting_mqtt_servername, R.string.default_setting_mqtt_servername)
 
     val mqttServerPort: Int
-        get() = Integer.valueOf(getStringPref(R.string.key_setting_mqtt_serverport, R.string.default_setting_mqtt_serverport))
+        get() = getStringPref(R.string.key_setting_mqtt_serverport, R.string.default_setting_mqtt_serverport).trim().toInt()
 
     val mqttBaseTopic: String
         get() = getStringPref(R.string.key_setting_mqtt_basetopic,
@@ -162,8 +161,8 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
                 R.string.default_setting_mqtt_password)
 
     val mqttSensorFrequency: Int
-        get() = Integer.valueOf(getStringPref(R.string.key_setting_mqtt_sensorfrequency,
-                R.string.default_setting_mqtt_sensorfrequency))
+        get() = getStringPref(R.string.key_setting_mqtt_sensorfrequency,
+                R.string.default_setting_mqtt_sensorfrequency).trim().toInt()
 
     val androidStartOnBoot: Boolean
         get() = getBoolPref(R.string.key_setting_android_startonboot,
@@ -187,14 +186,13 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
 
     val cameraFPS: Float
         get() = try {
-            getStringPref(R.string.key_setting_camera_fps, R.string.default_camera_fps).toFloat()
+            getStringPref(R.string.key_setting_camera_fps, R.string.default_camera_fps).trim().toFloat()
         } catch (e: Exception) {
             15.0F
         }
 
     val testZoomLevel: Float
-        get() = java.lang.Float.valueOf(getStringPref(R.string.key_setting_test_zoomlevel,
-                R.string.default_setting_test_zoomlevel))!!
+        get() = getStringPref(R.string.key_setting_test_zoomlevel, R.string.default_setting_test_zoomlevel).trim().toFloat()
 
     fun hasCameraDetections() : Boolean {
         return cameraEnabled && (cameraMotionEnabled || cameraQRCodeEnabled || cameraFaceEnabled || httpMJPEGEnabled)
@@ -203,7 +201,7 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
     private fun getStringPref(resId: Int, defId: Int): String {
         val def = context.getString(defId)
         val pref = sharedPreferences.getString(context.getString(resId), "")
-        return if (pref!!.length == 0) def else pref
+        return if (pref!!.isEmpty()) def else pref
     }
 
     private fun getBoolPref(resId: Int, defId: Int): Boolean {

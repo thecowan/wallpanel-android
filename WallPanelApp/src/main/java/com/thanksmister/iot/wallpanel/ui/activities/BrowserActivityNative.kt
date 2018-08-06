@@ -48,31 +48,31 @@ class BrowserActivityNative : BrowserActivity() {
 
         // Force links and redirects to open in the WebView instead of in a browser
         mWebView!!.webChromeClient = object : WebChromeClient() {
-
             var snackbar: Snackbar? = null
-
             override fun onProgressChanged(view: WebView, newProgress: Int) {
-                if (!displayProgress) return
-
-                if (newProgress == 100 && snackbar != null) {
-                    snackbar!!.dismiss()
+                if (newProgress == 100 ) {
+                    if(snackbar != null) {
+                        snackbar!!.dismiss()
+                    }
                     pageLoadComplete(view.url)
                     return
                 }
-                val text= getString(R.string.text_loading_percent, newProgress.toString(), view.url)
-                if (snackbar == null) {
-                    snackbar = Snackbar.make(view, text, Snackbar.LENGTH_INDEFINITE)
-                } else {
-                    snackbar!!.setText(text)
+                if(displayProgress) {
+                    val text = getString(R.string.text_loading_percent, newProgress.toString(), view.url)
+                    if (snackbar == null) {
+                        snackbar = Snackbar.make(view, text, Snackbar.LENGTH_INDEFINITE)
+                    } else {
+                        snackbar!!.setText(text)
+                    }
+                    snackbar!!.show()
                 }
-                snackbar!!.show()
             }
-
             override fun onJsAlert(view: WebView, url: String, message: String, result: JsResult): Boolean {
-                dialogUtils.showAlertDialog(view.context, message)
+                if(view.context != null) {
+                    dialogUtils.showAlertDialog(view.context, message)
+                }
                 return true
             }
-
         }
 
         mWebView!!.webViewClient = object : WebViewClient() {
@@ -81,7 +81,6 @@ class BrowserActivityNative : BrowserActivity() {
                 view.loadUrl(url)
                 return true
             }
-
             override fun onReceivedError(view: WebView, errorCode: Int, description: String, failingUrl: String) {
                 Toast.makeText(this@BrowserActivityNative, description, Toast.LENGTH_SHORT).show()
             }
@@ -115,6 +114,9 @@ class BrowserActivityNative : BrowserActivity() {
     override fun onStop() {
         super.onStop()
         swipeContainer.viewTreeObserver.removeOnScrollChangedListener(mOnScrollChangedListener)
+        if(mWebView != null) {
+            mWebView!!.webChromeClient = null
+        }
     }
 
     override fun complete() {
@@ -131,6 +133,9 @@ class BrowserActivityNative : BrowserActivity() {
         webSettings.databaseEnabled = true
         webSettings.javaScriptCanOpenWindowsAutomatically = true
         webSettings.setAppCacheEnabled(true)
+        webSettings.allowFileAccess = true;
+        webSettings.allowFileAccessFromFileURLs = true;
+        webSettings.allowContentAccess = true;
 
         if(!TextUtils.isEmpty(userAgent)) {
             webSettings.userAgentString = userAgent
