@@ -182,7 +182,7 @@ class MQTTService(private var context: Context, options: MQTTOptions,
                         disconnectedBufferOptions.bufferSize = 100
                         disconnectedBufferOptions.isPersistBuffer = false
                         disconnectedBufferOptions.isDeleteOldestMessages = false
-                        if (mqttClient != null && mqttClient!!.isConnected) {
+                        if (mqttClient != null) {
                             try {
                                 mqttClient!!.setBufferOpts(disconnectedBufferOptions)
                             } catch (e: NullPointerException) {
