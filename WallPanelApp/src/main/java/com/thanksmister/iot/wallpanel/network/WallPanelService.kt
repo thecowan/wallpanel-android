@@ -605,11 +605,11 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         Timber.d("switchScreenOn")
         if (!partialWakeLock!!.isHeld) {
             Timber.d("partialWakeLock")
-            partialWakeLock!!.acquire(3000)
+            partialWakeLock!!.acquire(SCREEN_WAKE_TIME)
         } else {
             Timber.d("new partialWakeLock")
             partialWakeLock!!.release()
-            partialWakeLock!!.acquire(3000)
+            partialWakeLock!!.acquire(SCREEN_WAKE_TIME)
         }
     }
 
@@ -823,5 +823,6 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         const val ONGOING_NOTIFICATION_ID = 1
         const val BROADCAST_EVENT_URL_CHANGE = "BROADCAST_EVENT_URL_CHANGE"
         const val BROADCAST_EVENT_SCREEN_TOUCH = "BROADCAST_EVENT_SCREEN_TOUCH"
+        const val SCREEN_WAKE_TIME = 30000L
     }
 }

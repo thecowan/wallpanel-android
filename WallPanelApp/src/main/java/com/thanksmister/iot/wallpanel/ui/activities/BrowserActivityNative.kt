@@ -17,6 +17,7 @@
 package com.thanksmister.iot.wallpanel.ui.activities
 
 import android.annotation.SuppressLint
+import android.net.http.SslError
 import android.os.Build
 import android.os.Bundle
 import android.support.design.widget.Snackbar
@@ -29,6 +30,8 @@ import kotlinx.android.synthetic.main.activity_browser.*
 import timber.log.Timber
 import android.webkit.WebView
 import android.widget.Toast
+import android.content.DialogInterface
+import android.support.v7.app.AlertDialog
 
 
 class BrowserActivityNative : BrowserActivity() {
@@ -83,6 +86,25 @@ class BrowserActivityNative : BrowserActivity() {
             }
             override fun onReceivedError(view: WebView, errorCode: Int, description: String, failingUrl: String) {
                 Toast.makeText(this@BrowserActivityNative, description, Toast.LENGTH_SHORT).show()
+            }
+
+            override fun onReceivedSslError(view: WebView, handler: SslErrorHandler?, error: SslError?) {
+                super.onReceivedSslError(view, handler, error)
+                val builder = AlertDialog.Builder(this@BrowserActivityNative)
+                var message = getString(R.string.dialog_message_ssl_generic)
+                when (error?.getPrimaryError()) {
+                    SslError.SSL_UNTRUSTED -> message = getString(R.string.dialog_message_ssl_untrusted)
+                    SslError.SSL_EXPIRED -> message = getString(R.string.dialog_message_ssl_expired)
+                    SslError.SSL_IDMISMATCH -> message = getString(R.string.dialog_message_ssl_mismatch)
+                    SslError.SSL_NOTYETVALID -> message = getString(R.string.dialog_message_ssl_not_yet_valid)
+                }
+                message += getString(R.string.dialog_message_ssl_continue)
+                builder.setTitle(getString(R.string.dialog_title_ssl_error))
+                builder.setMessage(message)
+                builder.setPositiveButton(getString(R.string.button_continue), { dialog, which -> handler?.proceed() })
+                builder.setNegativeButton(getString(R.string.button_cancel), { dialog, which -> handler?.cancel() })
+                val dialog = builder.create()
+                dialog.show()
             }
         }
 

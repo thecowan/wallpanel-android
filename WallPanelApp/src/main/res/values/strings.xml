@@ -179,5 +179,14 @@
     <string name="dialog_no_camera_permissions">This feature requires the camera permissions. Go to the device settings, then turn on permissions for this application.</string>
     <string name="toast_storage_granted">Storage permissions granted…</string>
     <string name="toast_storage_denied">Storage permissions denied…</string>
+    <string name="button_cancel">Cancel</string>
+    <string name="button_continue">Continue</string>
+    <string name="dialog_title_ssl_error">SSL Certificate Error</string>
+    <string name="dialog_message_ssl_continue">Do you want to continue anyway?</string>
+    <string name="dialog_message_ssl_not_yet_valid">The certificate is not yet valid.</string>
+    <string name="dialog_message_ssl_mismatch">The certificate Hostname is mismatched.</string>
+    <string name="dialog_message_ssl_expired">The certificate has expired.</string>
+    <string name="dialog_message_ssl_untrusted">The certificate authority is not trusted.</string>
+    <string name="dialog_message_ssl_generic">SSL certificate error.</string>
 
 </resources>
