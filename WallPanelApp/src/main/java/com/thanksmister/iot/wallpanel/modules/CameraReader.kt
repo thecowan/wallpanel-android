@@ -413,7 +413,11 @@ constructor(private val context: Context) {
                 .setFacing(camerId)
                 .build()
 
-        cameraSource!!.start()
+        try {
+            cameraSource!!.start()
+        } catch (e: RuntimeException) {
+            throw e
+        }
     }
 
     interface OnCompleteListener {

@@ -51,7 +51,13 @@ class BrowserActivityLegacy : BrowserActivity() {
     @SuppressLint("SetJavaScriptEnabled", "ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
 
-        setContentView(R.layout.activity_browser)
+        try {
+            setContentView(R.layout.activity_browser)
+         } catch (e: Exception) {
+            Timber.e(e.message)
+            dialogUtils.showAlertDialog(this@BrowserActivityLegacy, getString(R.string.dialog_missing_webview_warning))
+            return
+        }
 
         swipeContainer.setOnRefreshListener { loadUrl(configuration.appLaunchUrl)}
 

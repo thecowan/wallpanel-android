@@ -39,7 +39,7 @@
     <string name="key_setting_mqtt_serverport">setting_mqtt_serverport</string>
     <string name="default_setting_mqtt_serverport">1883</string>
     <string name="key_setting_mqtt_servername">setting_mqtt_servername</string>
-    <string name="default_setting_mqtt_servername">192.186.1.1</string>
+    <string name="default_setting_mqtt_servername">192.168.1.1</string>
     <string name="key_setting_mqtt_enabled">setting_mqtt_enabled</string>
     <string name="key_setting_mqtt_tls_enabled">setting_mqtt_tls_enabled</string>
     <string name="default_setting_mqtt_enabled">false</string>

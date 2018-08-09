@@ -188,5 +188,6 @@
     <string name="dialog_message_ssl_expired">The certificate has expired.</string>
     <string name="dialog_message_ssl_untrusted">The certificate authority is not trusted.</string>
     <string name="dialog_message_ssl_generic">SSL certificate error.</string>
+    <string name="dialog_missing_webview_warning">This device does not have the WebView component installed, please install the component from the Google Play store.</string>
 
 </resources>

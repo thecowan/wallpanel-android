@@ -81,7 +81,6 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
     lateinit var mqttOptions: MQTTOptions
 
     private val mJpegSockets = ArrayList<AsyncHttpServerResponse>()
-    //private var fullWakeLock: PowerManager.WakeLock? = null
     private var partialWakeLock: PowerManager.WakeLock? = null
     private var wifiLock: WifiManager.WifiLock? = null
     private var keyguardLock: KeyguardManager.KeyguardLock? = null
@@ -117,9 +116,13 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
 
         // prepare the lock types we may use
         val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
-        //fullWakeLock = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK or PowerManager.ON_AFTER_RELEASE or PowerManager.ACQUIRE_CAUSES_WAKEUP, "wallPanel:fullWakeLock")
-        //partialWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "wallPanel:partialWakeLock")
-        partialWakeLock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK or PowerManager.ACQUIRE_CAUSES_WAKEUP, "wallPanel:partialWakeLock")
+
+        //noinspection deprecation
+        partialWakeLock = if(Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
+            pm.newWakeLock(PowerManager.FULL_WAKE_LOCK or PowerManager.ACQUIRE_CAUSES_WAKEUP, "wallPanel:partialWakeLock")
+        } else {
+            pm.newWakeLock(PowerManager.FULL_WAKE_LOCK or PowerManager.ACQUIRE_CAUSES_WAKEUP or PowerManager.ON_AFTER_RELEASE, "wallPanel:partialWakeLock")
+        }
 
         // wifi lock
         val wifiManager = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
@@ -349,7 +352,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
     }
 
     private fun publishMessage(command: String, message: String) {
-        Timber.d("publishMessage")
+        Timber.d("publishMessage $command message: $message")
         if(mqttModule != null) {
             mqttModule!!.publish(command, message)
         }
