@@ -144,9 +144,9 @@ constructor(private val context: Context) {
                     Timber.e(e.message)
                     try {
                         if(configuration.cameraId == CAMERA_FACING_FRONT) {
-                            initCamera(CAMERA_FACING_FRONT, configuration.cameraFPS)
-                        } else {
                             initCamera(CAMERA_FACING_BACK, configuration.cameraFPS)
+                        } else {
+                            initCamera(CAMERA_FACING_FRONT, configuration.cameraFPS)
                         }
                     } catch (e : IOException) {
                         Timber.e(e.message)
@@ -172,9 +172,9 @@ constructor(private val context: Context) {
                     override fun onCameraError() {
                         Timber.e("Camera Preview Error")
                         cameraSource = if(configuration.cameraId == CAMERA_FACING_FRONT) {
-                            initCameraPreview(CAMERA_FACING_FRONT, configuration.cameraFPS)
-                        } else {
                             initCameraPreview(CAMERA_FACING_BACK, configuration.cameraFPS)
+                        } else {
+                            initCameraPreview(CAMERA_FACING_FRONT, configuration.cameraFPS)
                         }
                         if(cameraPreview != null) {
                             try {
@@ -211,9 +211,9 @@ constructor(private val context: Context) {
                     override fun onCameraError() {
                         Timber.e("Camera Preview Error")
                         cameraSource = if(configuration.cameraId == CAMERA_FACING_FRONT) {
-                            initCameraPreview(CAMERA_FACING_FRONT, configuration.cameraFPS)
-                        } else {
                             initCameraPreview(CAMERA_FACING_BACK, configuration.cameraFPS)
+                        } else {
+                            initCameraPreview(CAMERA_FACING_FRONT, configuration.cameraFPS)
                         }
                         if(cameraPreview != null) {
                             try {
