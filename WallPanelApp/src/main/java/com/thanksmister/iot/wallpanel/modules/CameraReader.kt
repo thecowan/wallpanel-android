@@ -139,16 +139,19 @@ constructor(private val context: Context) {
             buildDetectors(configuration)
             if(multiDetector != null) {
                 try {
-                    initCamera(configuration.cameraId, configuration.cameraFPS)
-                } catch (e : IOException) {
+                    cameraSource = initCamera(configuration.cameraId, configuration.cameraFPS)
+                    cameraSource!!.start()
+                } catch (e : Exception) {
                     Timber.e(e.message)
                     try {
                         if(configuration.cameraId == CAMERA_FACING_FRONT) {
-                            initCamera(CAMERA_FACING_BACK, configuration.cameraFPS)
+                            cameraSource = initCamera(CAMERA_FACING_BACK, configuration.cameraFPS)
+                            cameraSource!!.start()
                         } else {
-                            initCamera(CAMERA_FACING_FRONT, configuration.cameraFPS)
+                            cameraSource = initCamera(CAMERA_FACING_FRONT, configuration.cameraFPS)
+                            cameraSource!!.start()
                         }
-                    } catch (e : IOException) {
+                    } catch (e : Exception) {
                         Timber.e(e.message)
                         cameraSource!!.stop()
                         cameraCallback?.onCameraError()
@@ -404,20 +407,13 @@ constructor(private val context: Context) {
     }
 
     @SuppressLint("MissingPermission")
-    @Throws(Exception::class)
-    private fun initCamera(camerId: Int, fsp: Float) {
+    private fun initCamera(camerId: Int, fsp: Float): CameraSource {
         Timber.d("initCamera camerId $camerId")
-        cameraSource = CameraSource.Builder(context, multiDetector)
+        return CameraSource.Builder(context, multiDetector)
                 .setRequestedFps(fsp)
                 .setRequestedPreviewSize(640, 480)
                 .setFacing(camerId)
                 .build()
-
-        try {
-            cameraSource!!.start()
-        } catch (e: RuntimeException) {
-            throw e
-        }
     }
 
     interface OnCompleteListener {

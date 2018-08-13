@@ -139,10 +139,12 @@ class CameraSettingsFragment : BaseSettingsFragment() {
         qrCodePreference = findPreference("button_key_qr_code")
         cameraTestPreference = findPreference("button_key_camera_test")
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            if (ActivityCompat.checkSelfPermission(activity!!.applicationContext, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && activity != null) {
+            if (ActivityCompat.checkSelfPermission(activity!!, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
                 configuration.cameraEnabled = false
-                dialogUtils.showAlertDialog(activity!!.applicationContext, getString(R.string.dialog_no_camera_permissions))
+                if(activity != null) {
+                    dialogUtils.showAlertDialog(activity!!, getString(R.string.dialog_no_camera_permissions))
+                }
                 return
             }
         }

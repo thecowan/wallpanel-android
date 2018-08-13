@@ -231,6 +231,8 @@ class MQTTService(private var context: Context, options: MQTTOptions,
             try {
                 mqttClient!!.publish(mqttTopic, mqttMessage)
                 Timber.d("Command Topic: $mqttTopic Payload: $message")
+            } catch (e: NullPointerException) {
+                Timber.e(e.message)
             } catch (e: MqttException) {
                 Timber.e("Error Sending Command: " + e.message)
                 e.printStackTrace()
@@ -248,6 +250,8 @@ class MQTTService(private var context: Context, options: MQTTOptions,
                 mqttClient!!.subscribe(topicFilters, MqttUtils.getQos(topicFilters!!.size),
                         MqttUtils.getMqttMessageListeners(topicFilters.size, listener))
             }
+        } catch (e: NullPointerException) {
+            Timber.e(e.message)
         } catch (e: MqttException) {
             if (listener != null) {
                 listener!!.handleMqttException("Exception while subscribing: " + e.message)

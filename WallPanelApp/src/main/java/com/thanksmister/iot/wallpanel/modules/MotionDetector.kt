@@ -65,13 +65,18 @@ class MotionDetector private constructor(private val minLuma: Int, private val m
                 return sparseArray
             }
 
-            val motionDetected = aggregateLumaMotionDetection!!.detect(img, w, h)
-            if (motionDetected) {
-                motion.type = MOTION_DETECTED
-                //Timber.d("MOTION_DETECTED")
-            } else {
+            try {
+                val motionDetected = aggregateLumaMotionDetection!!.detect(img, w, h)
+                if (motionDetected) {
+                    motion.type = MOTION_DETECTED
+                    //Timber.d("MOTION_DETECTED")
+                } else {
+                    motion.type = MOTION_NOT_DETECTED
+                    //Timber.d("MOTION_NOT_DETECTED")
+                }
+            } catch (e: Exception) {
+                Timber.e(e.message)
                 motion.type = MOTION_NOT_DETECTED
-                //Timber.d("MOTION_NOT_DETECTED")
             }
             sparseArray.put(0, motion)
             return sparseArray

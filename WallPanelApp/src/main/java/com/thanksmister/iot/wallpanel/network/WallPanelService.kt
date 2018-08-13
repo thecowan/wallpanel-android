@@ -156,17 +156,16 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         filter.addAction(Intent.ACTION_USER_PRESENT)
         localBroadCastManager = LocalBroadcastManager.getInstance(this)
         localBroadCastManager!!.registerReceiver(mBroadcastReceiver, filter)
-
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        if(localBroadCastManager != null) {
-            localBroadCastManager!!.unregisterReceiver(mBroadcastReceiver)
-        }
         if(mqttModule != null) {
-            mqttModule!!.pause()
+            mqttModule?.pause()
             mqttModule = null
+        }
+        if(localBroadCastManager != null) {
+            localBroadCastManager?.unregisterReceiver(mBroadcastReceiver)
         }
         cameraReader.stopCamera()
         sensorReader.stopReadings()
@@ -334,11 +333,9 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         }
     }
 
-    private val restartMqttRunnable = object: Runnable {
-        override fun run() {
-            if (mqttModule != null) {
-                mqttModule!!.restart()
-            }
+    private val restartMqttRunnable = Runnable {
+        if (mqttModule != null) {
+            mqttModule!!.restart()
         }
     }
 

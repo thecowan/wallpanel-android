@@ -44,14 +44,14 @@ class DialogUtils(base: Context?) : ContextWrapper(base), LifecycleObserver {
         hideDialog()
     }
 
-    fun hideDialog() {
+    private fun hideDialog() {
         if (dialog != null && dialog!!.isShowing) {
             dialog!!.dismiss()
             dialog = null
         }
     }
 
-    fun hideAlertDialog() {
+    private fun hideAlertDialog() {
         if (alertDialog != null && alertDialog!!.isShowing) {
             alertDialog!!.dismiss()
             alertDialog = null
