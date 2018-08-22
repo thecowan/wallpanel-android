@@ -55,7 +55,11 @@ class BrowserActivityLegacy : BrowserActivity() {
             setContentView(R.layout.activity_browser)
          } catch (e: Exception) {
             Timber.e(e.message)
-            dialogUtils.showAlertDialog(this@BrowserActivityLegacy, getString(R.string.dialog_missing_webview_warning))
+            //dialogUtils.showAlertDialog(this@BrowserActivityLegacy, getString(R.string.dialog_missing_webview_warning))
+            AlertDialog.Builder(this@BrowserActivityLegacy)
+                    .setMessage(getString(R.string.dialog_missing_webview_warning))
+                    .setPositiveButton(android.R.string.ok, null)
+                    .show()
             return
         }
 

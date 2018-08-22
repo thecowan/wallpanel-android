@@ -401,6 +401,7 @@ constructor(private val context: Context) {
         Timber.d("initCamera camerId $camerId")
         return CameraSource.Builder(context, multiDetector)
                 .setRequestedFps(fsp)
+                .setAutoFocusEnabled(true)
                 .setRequestedPreviewSize(640, 480)
                 .setFacing(camerId)
                 .build()
