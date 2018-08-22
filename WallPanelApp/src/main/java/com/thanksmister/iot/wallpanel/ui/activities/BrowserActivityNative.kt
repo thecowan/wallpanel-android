@@ -40,12 +40,16 @@ class BrowserActivityNative : BrowserActivity() {
 
     @SuppressLint("SetJavaScriptEnabled", "ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
 
         try {
             setContentView(R.layout.activity_browser)
         } catch (e: Exception) {
             Timber.e(e.message)
-            dialogUtils.showAlertDialog(this@BrowserActivityNative, getString(R.string.dialog_missing_webview_warning))
+            AlertDialog.Builder(this@BrowserActivityNative)
+                    .setMessage(getString(R.string.dialog_missing_webview_warning))
+                    .setPositiveButton(android.R.string.ok, null)
+                    .show()
             return
         }
 
@@ -78,7 +82,10 @@ class BrowserActivityNative : BrowserActivity() {
             }
             override fun onJsAlert(view: WebView, url: String, message: String, result: JsResult): Boolean {
                 if(view.context != null) {
-                    dialogUtils.showAlertDialog(view.context, message)
+                    AlertDialog.Builder(this@BrowserActivityNative)
+                            .setMessage(message)
+                            .setPositiveButton(android.R.string.ok, null)
+                            .show()
                 }
                 return true
             }

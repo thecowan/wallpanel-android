@@ -16,7 +16,6 @@
 
 package com.thanksmister.iot.wallpanel.ui.activities
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -24,28 +23,25 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.os.Build
-import android.support.v4.content.LocalBroadcastManager
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
-import android.support.v4.content.ContextCompat
+import android.support.v4.content.LocalBroadcastManager
 import android.view.KeyEvent
 import android.view.View
 import android.view.ViewTreeObserver
 import android.view.WindowManager
 import android.widget.Toast
 import com.thanksmister.iot.wallpanel.R
-
 import com.thanksmister.iot.wallpanel.network.WallPanelService
 import com.thanksmister.iot.wallpanel.persistence.Configuration
 import com.thanksmister.iot.wallpanel.utils.DialogUtils
 import dagger.android.support.DaggerAppCompatActivity
-
 import timber.log.Timber
 import javax.inject.Inject
 
 abstract class BrowserActivity : DaggerAppCompatActivity() {
 
-    @Inject lateinit var dialogUtils: DialogUtils
+    //@Inject lateinit var dialogUtils: DialogUtils
     @Inject lateinit var configuration: Configuration
 
     private var PERMISSIONS = arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE, android.Manifest.permission.READ_EXTERNAL_STORAGE)
@@ -92,7 +88,7 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
 
         decorView = window.decorView
 
-        lifecycle.addObserver(dialogUtils)
+        //lifecycle.addObserver(dialogUtils)
 
         val filter = IntentFilter()
         filter.addAction(BROADCAST_ACTION_LOAD_URL)

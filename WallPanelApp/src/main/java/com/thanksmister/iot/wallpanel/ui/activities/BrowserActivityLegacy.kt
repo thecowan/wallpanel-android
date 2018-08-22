@@ -50,6 +50,7 @@ class BrowserActivityLegacy : BrowserActivity() {
 
     @SuppressLint("SetJavaScriptEnabled", "ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
 
         try {
             setContentView(R.layout.activity_browser)
