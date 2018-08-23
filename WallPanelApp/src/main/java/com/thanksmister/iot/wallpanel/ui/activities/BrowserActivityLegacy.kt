@@ -50,6 +50,7 @@ class BrowserActivityLegacy : BrowserActivity() {
 
     @SuppressLint("SetJavaScriptEnabled", "ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
 
         try {
@@ -108,23 +109,28 @@ class BrowserActivityLegacy : BrowserActivity() {
             false
         }
 
-        super.onCreate(savedInstanceState)
+        configureWebSettings(configuration.browserUserAgent)
+        loadUrl(configuration.appLaunchUrl)
     }
 
     override fun onStart() {
         super.onStart()
-        swipeContainer.viewTreeObserver.addOnScrollChangedListener {
-            swipeContainer.isEnabled = xWebView!!.scrollY == 0
+        if(swipeContainer != null) {
+            swipeContainer.viewTreeObserver.addOnScrollChangedListener {
+                swipeContainer.isEnabled = xWebView!!.scrollY == 0
+            }
         }
     }
 
     override fun onStop() {
         super.onStop()
-        swipeContainer.viewTreeObserver.removeOnScrollChangedListener(mOnScrollChangedListener)
+        if(swipeContainer != null) {
+            swipeContainer.viewTreeObserver.removeOnScrollChangedListener(mOnScrollChangedListener)
+        }
     }
 
     override fun complete() {
-        if(swipeContainer.isRefreshing) {
+        if(swipeContainer != null && swipeContainer.isRefreshing) {
             swipeContainer.isRefreshing = false
         }
     }

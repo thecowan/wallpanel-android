@@ -99,8 +99,8 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
         val bm = LocalBroadcastManager.getInstance(this)
         bm.registerReceiver(mBroadcastReceiver, filter)
 
-        configureWebSettings(configuration.browserUserAgent)
-        loadUrl(configuration.appLaunchUrl)
+        /*configureWebSettings(configuration.browserUserAgent)
+        loadUrl(configuration.appLaunchUrl)*/
 
         Timber.d("Prevent Sleep ${configuration.appPreventSleep}")
         if (configuration.appPreventSleep) {
