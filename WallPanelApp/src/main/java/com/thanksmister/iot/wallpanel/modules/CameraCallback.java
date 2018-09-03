@@ -22,4 +22,5 @@ public interface CameraCallback {
     void onFaceDetected();
     void onQRCode(String data);
     void onCameraError();
+    void onDetectorError();
 }

@@ -266,7 +266,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
 
     private fun configurePowerOptions() {
         Timber.d("configurePowerOptions")
-        if (!partialWakeLock!!.isHeld) {
+        if (partialWakeLock != null && !partialWakeLock!!.isHeld) {
             partialWakeLock!!.acquire(3000)
         }
         if (!wifiLock!!.isHeld) {
@@ -393,8 +393,8 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
     }
 
     private fun startHttp() {
-        Timber.d("startHttp")
         if (httpServer == null && (configuration.httpEnabled || configuration.httpMJPEGEnabled)) {
+            Timber.d("startHttp")
             httpServer = AsyncHttpServer()
             if (configuration.httpRestEnabled) {
                 httpServer!!.addAction("POST", "/api/command") { request, response ->
@@ -503,7 +503,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
     }
 
     private fun processCommand(commandJson: JSONObject): Boolean {
-        Timber.d("processCommand ${commandJson.toString()}")
+        Timber.d("processCommand $commandJson")
         try {
             if (commandJson.has(COMMAND_URL)) {
                 browseUrl(commandJson.getString(COMMAND_URL))
@@ -603,10 +603,10 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
     //@SuppressLint("WakelockTimeout")
     private fun switchScreenOn() {
         Timber.d("switchScreenOn")
-        if (!partialWakeLock!!.isHeld) {
+        if (partialWakeLock != null && !partialWakeLock!!.isHeld) {
             Timber.d("partialWakeLock")
             partialWakeLock!!.acquire(SCREEN_WAKE_TIME)
-        } else {
+        } else if (partialWakeLock != null && partialWakeLock!!.isHeld) {
             Timber.d("new partialWakeLock")
             partialWakeLock!!.release()
             partialWakeLock!!.acquire(SCREEN_WAKE_TIME)
@@ -743,6 +743,29 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         publishMessage(COMMAND_SENSOR_QR_CODE, jdata)
     }
 
+    private fun sendAlertMessage(message: String) {
+        Timber.d("sendAlertMessage")
+        val intent = Intent(BROADCAST_ALERT_MESSAGE)
+        intent.putExtra(BROADCAST_ALERT_MESSAGE, message)
+        val bm = LocalBroadcastManager.getInstance(applicationContext)
+        bm.sendBroadcast(intent)
+    }
+
+    private fun sendWakeScreen() {
+        Timber.d("sendWakeScreen")
+        val intent = Intent(BROADCAST_SCREEN_WAKE)
+        val bm = LocalBroadcastManager.getInstance(applicationContext)
+        bm.sendBroadcast(intent)
+    }
+
+    private fun sendToastMessage(message: String) {
+        Timber.d("sendToastMessage")
+        val intent = Intent(BROADCAST_TOAST_MESSAGE)
+        intent.putExtra(BROADCAST_TOAST_MESSAGE, message)
+        val bm = LocalBroadcastManager.getInstance(applicationContext)
+        bm.sendBroadcast(intent)
+    }
+
     // TODO don't change the user settings when receiving command
     private val mBroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
@@ -774,11 +797,12 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
     }
 
     private val cameraDetectorCallback = object : CameraCallback {
-
+        override fun onDetectorError() {
+            Toast.makeText(this@WallPanelService, getString(R.string.error_missing_vision_lib), Toast.LENGTH_LONG).show()
+        }
         override fun onCameraError() {
             Toast.makeText(this@WallPanelService, this@WallPanelService.getString(R.string.toast_camera_source_error), Toast.LENGTH_LONG).show()
         }
-
         override fun onMotionDetected() {
             Timber.i("Motion detected")
             if (configuration.cameraMotionWake) {
@@ -793,11 +817,9 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
             }
             publishMotionDetected()
         }
-
         override fun onTooDark() {
            // Timber.i("Too dark for motion detection")
         }
-
         override fun onFaceDetected() {
             Timber.i("Face detected")
             Timber.d("configuration.cameraMotionBright ${configuration.cameraMotionBright}")
@@ -811,7 +833,6 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
             }
             publishFaceDetected()
         }
-
         override fun onQRCode(data: String) {
             Timber.i("QR Code Received: $data")
             Toast.makeText(this@WallPanelService, getString(R.string.toast_qr_code_read), Toast.LENGTH_SHORT).show()
@@ -824,5 +845,8 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         const val BROADCAST_EVENT_URL_CHANGE = "BROADCAST_EVENT_URL_CHANGE"
         const val BROADCAST_EVENT_SCREEN_TOUCH = "BROADCAST_EVENT_SCREEN_TOUCH"
         const val SCREEN_WAKE_TIME = 30000L
+        const val BROADCAST_ALERT_MESSAGE = "BROADCAST_ALERT_MESSAGE"
+        const val BROADCAST_TOAST_MESSAGE = "BROADCAST_TOAST_MESSAGE"
+        const val BROADCAST_SCREEN_WAKE = "BROADCAST_SCREEN_WAKE"
     }
 }

@@ -61,7 +61,7 @@ constructor(private val context: Context) {
     private var streamDetectorProcessor: MultiProcessor<Stream>? = null
     private val byteArray = MutableLiveData<ByteArray>()
     private var bitmapComplete = true;
-    private var bitmapCreateTask: BitmapTask? = null
+    private var byteArrayCreateTask: ByteArrayTask? = null
     private var cameraOrientation: Int = 0
     private var cameraPreview: CameraSourcePreview? = null
 
@@ -75,9 +75,9 @@ constructor(private val context: Context) {
 
     fun stopCamera() {
 
-        if (bitmapCreateTask != null) {
-            bitmapCreateTask!!.cancel(true)
-            bitmapCreateTask = null
+        if (byteArrayCreateTask != null) {
+            byteArrayCreateTask!!.cancel(true)
+            byteArrayCreateTask = null
         }
 
         if (cameraSource != null) {
@@ -133,7 +133,7 @@ constructor(private val context: Context) {
 
     @SuppressLint("MissingPermission")
     fun startCamera(callback: CameraCallback, configuration: Configuration) {
-        Timber.d("startCameraPreview")
+        Timber.d("startCamera")
         this.cameraCallback = callback
         if (configuration.cameraEnabled) {
             buildDetectors(configuration)
@@ -203,7 +203,7 @@ constructor(private val context: Context) {
     @SuppressLint("MissingPermission")
     @Throws(IOException::class)
     fun startCameraPreviewSolo(callback: CameraCallback, configuration: Configuration, preview: CameraSourcePreview?) {
-        Timber.d("startCameraPreview")
+        Timber.d("startCameraPreviewSolo")
         if (configuration.cameraEnabled && preview != null) {
             this.cameraCallback = callback
             this.cameraPreview = preview
@@ -257,16 +257,6 @@ constructor(private val context: Context) {
                 object : Tracker<Stream>() {
                     override fun onUpdate(p0: Detector.Detections<Stream>?, stream: Stream?) {
                         super.onUpdate(p0, stream)
-                        /*if (stream?.byteArray != null && bitmapComplete && configuration.httpMJPEGEnabled) {
-                            byteArrayCreateTask = ByteArrayTask(context, renderScript, object : OnCompleteListener {
-                                override fun onComplete(byteArray: ByteArray?) {
-                                    bitmapComplete = true
-                                    setJpeg(byteArray!!)
-                                }
-                            })
-                            bitmapComplete = false
-                            byteArrayCreateTask!!.execute(stream.byteArray, stream.width, stream.height, cameraOrientation)
-                        }*/
                     }
                 }
             }).build()
@@ -295,21 +285,21 @@ constructor(private val context: Context) {
         val multiDetectorBuilder = MultiDetector.Builder()
         var detectorAdded = false
 
-        if(configuration.cameraEnabled && configuration.cameraMotionEnabled) {
+        if(configuration.cameraEnabled && configuration.httpMJPEGEnabled) {
             streamDetector = StreamingDetector.Builder().build()
             streamDetectorProcessor = MultiProcessor.Builder<Stream>(MultiProcessor.Factory<Stream> {
                 object : Tracker<Stream>() {
                     override fun onUpdate(p0: Detector.Detections<Stream>?, stream: Stream?) {
                         super.onUpdate(p0, stream)
-                        if (stream?.byteArray != null && bitmapComplete && configuration.httpMJPEGEnabled) {
-                            bitmapCreateTask = BitmapTask(context, renderScript, object : OnCompleteListener {
+                        if (stream?.byteArray != null && bitmapComplete) {
+                            byteArrayCreateTask = ByteArrayTask(context, renderScript, object : OnCompleteListener {
                                 override fun onComplete(byteArray: ByteArray?) {
                                     bitmapComplete = true
                                     setJpeg(byteArray!!)
                                 }
                             })
                             bitmapComplete = false
-                            bitmapCreateTask!!.execute(stream.byteArray, stream.width, stream.height, cameraOrientation)
+                            byteArrayCreateTask!!.execute(stream.byteArray, stream.width, stream.height, cameraOrientation)
                         }
                     }
                 }
@@ -393,12 +383,17 @@ constructor(private val context: Context) {
 
         if(detectorAdded) {
             multiDetector = multiDetectorBuilder.build()
+            if(!multiDetector!!.isOperational) {
+                cameraCallback!!.onDetectorError()
+                return
+            }
         }
     }
     
     @SuppressLint("MissingPermission")
     private fun initCamera(camerId: Int, fsp: Float): CameraSource {
         Timber.d("initCamera camerId $camerId")
+        Timber.d("initCamera fps $fsp")
         return CameraSource.Builder(context, multiDetector)
                 .setRequestedFps(fsp)
                 .setAutoFocusEnabled(true)
@@ -411,7 +406,7 @@ constructor(private val context: Context) {
         fun onComplete(byteArray: ByteArray?)
     }
 
-    class BitmapTask(context: Context, private val renderScript: RenderScript, private val onCompleteListener: OnCompleteListener) : AsyncTask<Any, Void, ByteArray>() {
+    class ByteArrayTask(context: Context, private val renderScript: RenderScript, private val onCompleteListener: OnCompleteListener) : AsyncTask<Any, Void, ByteArray>() {
 
         private val contextRef: WeakReference<Context> = WeakReference(context)
 

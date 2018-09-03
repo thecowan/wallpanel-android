@@ -53,11 +53,13 @@ class BrowserActivityNative : BrowserActivity() {
             return
         }
 
-        swipeContainer.setOnRefreshListener { loadUrl(configuration.appLaunchUrl)}
+        swipeContainer.setOnRefreshListener {
+            clearCache()
+            loadUrl(configuration.appLaunchUrl)
+        }
 
         mWebView = findViewById<View>(R.id.activity_browser_webview_native) as WebView
         mWebView!!.visibility = View.VISIBLE
-        clearCache()
 
         // Force links and redirects to open in the WebView instead of in a browser
         mWebView!!.webChromeClient = object : WebChromeClient() {

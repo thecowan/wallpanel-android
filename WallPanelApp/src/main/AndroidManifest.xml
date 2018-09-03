@@ -106,6 +106,9 @@
 
         <meta-data android:name="com.google.android.gms.vision.DEPENDENCIES" android:value="face,barcode"/>
 
+        <meta-data android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version"/>
+
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="d328872540a331f2245f3d7b842d06bbb7ac1c60" />

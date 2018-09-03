@@ -65,11 +65,13 @@ class BrowserActivityLegacy : BrowserActivity() {
             return
         }
 
-        swipeContainer.setOnRefreshListener { loadUrl(configuration.appLaunchUrl)}
+        swipeContainer.setOnRefreshListener {
+            clearCache()
+            loadUrl(configuration.appLaunchUrl)
+        }
 
         xWebView = findViewById<View>(R.id.activity_browser_webview_legacy) as XWalkView
         xWebView!!.visibility = View.VISIBLE
-        clearCache()
 
         xWebView!!.setResourceClient(object : XWalkResourceClient(xWebView) {
 
