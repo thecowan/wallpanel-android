@@ -33,6 +33,8 @@ import android.view.WindowManager
 import android.widget.Toast
 import com.thanksmister.iot.wallpanel.R
 import com.thanksmister.iot.wallpanel.network.WallPanelService
+import com.thanksmister.iot.wallpanel.network.WallPanelService.Companion.BROADCAST_ALERT_MESSAGE
+import com.thanksmister.iot.wallpanel.network.WallPanelService.Companion.BROADCAST_TOAST_MESSAGE
 import com.thanksmister.iot.wallpanel.persistence.Configuration
 import com.thanksmister.iot.wallpanel.utils.DialogUtils
 import dagger.android.support.DaggerAppCompatActivity
@@ -41,13 +43,11 @@ import javax.inject.Inject
 
 abstract class BrowserActivity : DaggerAppCompatActivity() {
 
-    //@Inject lateinit var dialogUtils: DialogUtils
+    @Inject lateinit var dialogUtils: DialogUtils
     @Inject lateinit var configuration: Configuration
 
     private var PERMISSIONS = arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE, android.Manifest.permission.READ_EXTERNAL_STORAGE)
-
-    val mOnScrollChangedListener: ViewTreeObserver.OnScrollChangedListener? = null
-
+    var mOnScrollChangedListener: ViewTreeObserver.OnScrollChangedListener? = null
     private var wallPanelService: Intent? = null
     private var decorView: View? = null
     var displayProgress = true
@@ -70,6 +70,14 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
             } else if (BROADCAST_ACTION_RELOAD_PAGE == intent.action) {
                 Timber.d("Browser page reloading.")
                 reload()
+            } else if (BROADCAST_TOAST_MESSAGE == intent.action) {
+                val message = intent.getStringExtra(BROADCAST_TOAST_MESSAGE)
+                Timber.d("Toast received message $message")
+                Toast.makeText(applicationContext, message, Toast.LENGTH_SHORT).show()
+            } else if (BROADCAST_ALERT_MESSAGE == intent.action) {
+                Timber.d("Alert received")
+                val message = intent.getStringExtra(BROADCAST_ALERT_MESSAGE)
+                dialogUtils.showAlertDialog(applicationContext, message)
             }
         }
     }
@@ -95,6 +103,8 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
         filter.addAction(BROADCAST_ACTION_JS_EXEC)
         filter.addAction(BROADCAST_ACTION_CLEAR_BROWSER_CACHE)
         filter.addAction(BROADCAST_ACTION_RELOAD_PAGE)
+        filter.addAction(BROADCAST_ALERT_MESSAGE)
+        filter.addAction(BROADCAST_TOAST_MESSAGE)
 
         val bm = LocalBroadcastManager.getInstance(this)
         bm.registerReceiver(mBroadcastReceiver, filter)

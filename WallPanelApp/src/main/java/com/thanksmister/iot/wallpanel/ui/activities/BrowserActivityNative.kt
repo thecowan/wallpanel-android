@@ -32,6 +32,7 @@ import android.webkit.WebView
 import android.widget.Toast
 import android.content.DialogInterface
 import android.support.v7.app.AlertDialog
+import android.view.ViewTreeObserver
 
 
 class BrowserActivityNative : BrowserActivity() {
@@ -138,22 +139,21 @@ class BrowserActivityNative : BrowserActivity() {
             false
         }
 
+        mOnScrollChangedListener = ViewTreeObserver.OnScrollChangedListener { swipeContainer?.isEnabled = mWebView!!.scrollY == 0 }
         configureWebSettings(configuration.browserUserAgent)
         loadUrl(configuration.appLaunchUrl)
     }
 
     override fun onStart() {
         super.onStart()
-        if(swipeContainer != null) {
-            swipeContainer.viewTreeObserver.addOnScrollChangedListener {
-                swipeContainer.isEnabled = mWebView!!.scrollY == 0
-            }
+        if(swipeContainer != null && mOnScrollChangedListener != null) {
+            swipeContainer.viewTreeObserver.addOnScrollChangedListener (mOnScrollChangedListener)
         }
     }
 
     override fun onStop() {
         super.onStop()
-        if(swipeContainer != null) {
+        if(swipeContainer != null && mOnScrollChangedListener != null) {
             swipeContainer.viewTreeObserver.removeOnScrollChangedListener(mOnScrollChangedListener)
         }
         if(mWebView != null) {

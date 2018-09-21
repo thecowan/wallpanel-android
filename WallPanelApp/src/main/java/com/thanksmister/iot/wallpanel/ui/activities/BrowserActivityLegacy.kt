@@ -39,6 +39,7 @@ import javax.inject.Inject
 import android.content.DialogInterface
 import android.net.http.SslError
 import android.support.v7.app.AlertDialog
+import android.view.ViewTreeObserver
 import android.webkit.SslErrorHandler
 import android.webkit.WebView
 import kotlinx.android.synthetic.main.activity_browser.*
@@ -111,22 +112,21 @@ class BrowserActivityLegacy : BrowserActivity() {
             false
         }
 
+        mOnScrollChangedListener = ViewTreeObserver.OnScrollChangedListener { swipeContainer?.isEnabled = xWebView!!.scrollY == 0 }
         configureWebSettings(configuration.browserUserAgent)
         loadUrl(configuration.appLaunchUrl)
     }
 
     override fun onStart() {
         super.onStart()
-        if(swipeContainer != null) {
-            swipeContainer.viewTreeObserver.addOnScrollChangedListener {
-                swipeContainer.isEnabled = xWebView!!.scrollY == 0
-            }
+        if(swipeContainer != null && mOnScrollChangedListener != null) {
+            swipeContainer.viewTreeObserver.addOnScrollChangedListener(mOnScrollChangedListener)
         }
     }
 
     override fun onStop() {
         super.onStop()
-        if(swipeContainer != null) {
+        if(swipeContainer != null && mOnScrollChangedListener != null) {
             swipeContainer.viewTreeObserver.removeOnScrollChangedListener(mOnScrollChangedListener)
         }
     }

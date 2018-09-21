@@ -91,12 +91,14 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
     private var httpServer: AsyncHttpServer? = null
     private val mBinder = WallPanelServiceBinder()
     private val motionClearHandler = Handler()
+    private val qrCodeClearHandler = Handler()
     private val faceClearHandler = Handler()
     private var textToSpeechModule: TextToSpeechModule? = null
     private var mqttModule: MQTTModule? = null
     private var connectionLiveData: ConnectionLiveData? = null
     private var hasNetwork = AtomicBoolean(true)
     private var motionDetected: Boolean = false
+    private var qrCodeRead: Boolean = false
     private var faceDetected: Boolean = false
     private val reconnectHandler = Handler()
     private var appLaunchUrl: String? = null
@@ -733,14 +735,25 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
     }
 
     private fun publishQrCode(data: String) {
-        Timber.d("publishQrCode")
-        val jdata = JSONObject()
-        try {
-            jdata.put(VALUE, data)
-        } catch (ex: JSONException) {
-            ex.printStackTrace()
+        if (!qrCodeRead) {
+            Timber.d("publishQrCode")
+            val jdata = JSONObject()
+            try {
+                jdata.put(VALUE, data)
+            } catch (ex: JSONException) {
+                ex.printStackTrace()
+            }
+            qrCodeRead = true
+            sendToastMessage(getString(R.string.toast_qr_code_read))
+            publishMessage(COMMAND_SENSOR_QR_CODE, jdata)
+            qrCodeClearHandler.postDelayed({ clearQrCodeRead() }, 5000)
         }
-        publishMessage(COMMAND_SENSOR_QR_CODE, jdata)
+    }
+
+    private fun clearQrCodeRead() {
+        if(qrCodeRead) {
+            qrCodeRead = false
+        }
     }
 
     private fun sendAlertMessage(message: String) {
@@ -798,10 +811,10 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
 
     private val cameraDetectorCallback = object : CameraCallback {
         override fun onDetectorError() {
-            Toast.makeText(this@WallPanelService, getString(R.string.error_missing_vision_lib), Toast.LENGTH_LONG).show()
+            sendToastMessage(getString(R.string.error_missing_vision_lib))
         }
         override fun onCameraError() {
-            Toast.makeText(this@WallPanelService, this@WallPanelService.getString(R.string.toast_camera_source_error), Toast.LENGTH_LONG).show()
+            sendToastMessage(getString(R.string.toast_camera_source_error))
         }
         override fun onMotionDetected() {
             Timber.i("Motion detected")
@@ -835,7 +848,6 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         }
         override fun onQRCode(data: String) {
             Timber.i("QR Code Received: $data")
-            Toast.makeText(this@WallPanelService, getString(R.string.toast_qr_code_read), Toast.LENGTH_SHORT).show()
             publishQrCode(data)
         }
     }
