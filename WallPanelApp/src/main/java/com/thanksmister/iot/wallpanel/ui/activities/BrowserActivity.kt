@@ -121,8 +121,6 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
 
         wallPanelService = Intent(this, WallPanelService::class.java)
         startService(wallPanelService)
-
-        requestPermissions()
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
@@ -162,28 +160,6 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
         return super.dispatchKeyEvent(event)
     }
 
-    private fun requestPermissions() {
-        Timber.d("requestCameraPermissions")
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if(!hasPermissions(this, PERMISSIONS)){
-                ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_REQUEST_ALL);
-            }
-        }
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
-        when (requestCode) {
-            PERMISSION_REQUEST_ALL -> {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(this, getString(R.string.toast_storage_granted), Toast.LENGTH_LONG).show()
-                } else {
-                    Toast.makeText(this, getString(R.string.toast_storage_denied), Toast.LENGTH_LONG).show()
-                }
-            }
-        }
-    }
-
     internal fun resetScreen() {
         Timber.d("resetScreen Called")
         val intent = Intent(WallPanelService.BROADCAST_EVENT_SCREEN_TOUCH)
@@ -199,17 +175,6 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
         val bm = LocalBroadcastManager.getInstance(applicationContext)
         bm.sendBroadcast(intent)
         complete()
-    }
-
-    private fun hasPermissions(context: Context?, permissions: Array<String>): Boolean {
-        if (context != null) {
-            for (permission in permissions) {
-                if (ActivityCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) {
-                    return false
-                }
-            }
-        }
-        return true
     }
 
     protected abstract fun configureWebSettings(userAgent: String)

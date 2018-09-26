@@ -190,5 +190,6 @@
     <string name="dialog_message_ssl_generic">SSL certificate error.</string>
     <string name="dialog_missing_webview_warning">This device does not have the WebView component installed, please install the component from the Google Play store.</string>
     <string name="error_missing_vision_lib">Missing appropriate libraries to process Face detection or Barcode reading. These features may not work on this device.</string>
+    <string name="toast_empty_url">Url is empty...</string>
 
 </resources>

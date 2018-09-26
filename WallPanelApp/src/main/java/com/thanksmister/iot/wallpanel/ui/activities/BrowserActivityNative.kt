@@ -70,7 +70,12 @@ class BrowserActivityNative : BrowserActivity() {
                     if(snackbar != null) {
                         snackbar!!.dismiss()
                     }
-                    pageLoadComplete(view.url)
+                    if(view.url != null) {
+                        pageLoadComplete(view.url)
+                    } else {
+                        Toast.makeText(this@BrowserActivityNative, getString(R.string.toast_empty_url), Toast.LENGTH_SHORT).show()
+                        complete()
+                    }
                     return
                 }
                 if(displayProgress) {

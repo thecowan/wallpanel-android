@@ -110,9 +110,10 @@ class SettingsActivity : DaggerAppCompatActivity(), SettingsFragment.OnSettingsF
 
     private fun requestCameraPermissions() {
         Timber.d("requestCameraPermissions")
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !configuration.cameraPermissionsShown) {
             Timber.d("requestCameraPermissions asking")
             if (PackageManager.PERMISSION_DENIED == ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA)) {
+                configuration.cameraPermissionsShown = true
                 ActivityCompat.requestPermissions(this,
                         arrayOf(Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE),
                         PERMISSIONS_REQUEST_CAMERA)
@@ -120,6 +121,7 @@ class SettingsActivity : DaggerAppCompatActivity(), SettingsFragment.OnSettingsF
                 checkWriteSettings()
             }
         } else {
+            configuration.cameraPermissionsShown = true
             checkWriteSettings()
         }
     }

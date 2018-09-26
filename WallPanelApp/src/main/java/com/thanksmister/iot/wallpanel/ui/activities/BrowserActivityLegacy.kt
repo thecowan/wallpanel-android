@@ -42,6 +42,7 @@ import android.support.v7.app.AlertDialog
 import android.view.ViewTreeObserver
 import android.webkit.SslErrorHandler
 import android.webkit.WebView
+import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_browser.*
 
 
@@ -84,10 +85,14 @@ class BrowserActivityLegacy : BrowserActivity() {
 
             override fun onProgressChanged(view: XWalkView, progressInPercent: Int) {
                 if (!displayProgress) return
-
                 if (progressInPercent == 100) {
                     snackbar.dismiss()
-                    pageLoadComplete(view.url)
+                    if(view.url != null) {
+                        pageLoadComplete(view.url)
+                    } else {
+                        Toast.makeText(this@BrowserActivityLegacy, getString(R.string.toast_empty_url), Toast.LENGTH_SHORT).show()
+                        complete()
+                    }
                 } else {
                     //val text = "Loading " + progressInPercent + "% " + view.url
                     val text = getString(R.string.text_loading_percent, progressInPercent.toString(), view.url)

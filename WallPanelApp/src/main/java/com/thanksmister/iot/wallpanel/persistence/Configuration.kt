@@ -39,6 +39,13 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
             sharedPreferences.edit().putBoolean(PREF_WRITE_SCREEN_PERMISSIONS, value).apply()
         }
 
+    var cameraPermissionsShown: Boolean
+        get() = sharedPreferences.getBoolean(PREF_CAMERA_PERMISSIONS, false)
+        set(value) {
+            sharedPreferences.edit().putBoolean(PREF_CAMERA_PERMISSIONS, value).apply()
+        }
+
+
     var appLaunchUrl: String
         get() = getStringPref(R.string.key_setting_app_launchurl,
                 R.string.default_setting_app_launchurl)
@@ -218,6 +225,7 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
     companion object {
         const val PREF_FIRST_TIME = "pref_first_time"
         const val PREF_WRITE_SCREEN_PERMISSIONS = "pref_write_screen_permissions"
+        const val PREF_CAMERA_PERMISSIONS = "pref_camera_permissions"
         const val PREF_BROWSER_LEGACY = "Legacy"
         const val PREF_BROWSER_NATIVE = "Native"
         const val PREF_BROWSER_AUTO = "Auto"
