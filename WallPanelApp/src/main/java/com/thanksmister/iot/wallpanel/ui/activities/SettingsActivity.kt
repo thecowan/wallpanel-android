@@ -96,14 +96,11 @@ class SettingsActivity : DaggerAppCompatActivity(), SettingsFragment.OnSettingsF
 
     public override fun onResume() {
         super.onResume()
-        Timber.d("onResume")
         requestCameraPermissions()
     }
 
     private fun requestCameraPermissions() {
-        Timber.d("requestCameraPermissions")
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !configuration.cameraPermissionsShown) {
-            Timber.d("requestCameraPermissions asking")
             if (PackageManager.PERMISSION_DENIED == ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA)
                     || PackageManager.PERMISSION_DENIED == ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE)) {
                 configuration.cameraPermissionsShown = true
@@ -148,9 +145,6 @@ class SettingsActivity : DaggerAppCompatActivity(), SettingsFragment.OnSettingsF
                             Toast.makeText(this, getString(R.string.toast_write_permissions_denied), Toast.LENGTH_LONG).show()
                         }.show()
             }
-        } else {
-            configuration.writeScreenPermissionsShown = true
-            Timber.d("checkWriteSettings ${configuration.writeScreenPermissionsShown}")
         }
     }
 
