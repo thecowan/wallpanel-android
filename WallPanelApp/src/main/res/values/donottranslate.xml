@@ -111,6 +111,9 @@
 
     <string name="key_setting_battery">setting_battery</string>
 
+    <string name="key_pref_browser_refresh">browser_refresh</string>
+    <string name="default_browser_refresh">true</string>
+
     <string-array name="settings_titles">
         <item>@string/title_settings</item>
         <item>@string/title_camera_settings</item>

@@ -31,6 +31,12 @@
             android:title="@string/title_setting_app_showactivity" />
 
         <SwitchPreference
+            android:defaultValue="@string/default_browser_refresh"
+            android:key="@string/key_pref_browser_refresh"
+            android:summary="@string/pref_browser_refresh_summary"
+            android:title="@string/pref_browser_refresh_title" />
+
+        <SwitchPreference
             android:defaultValue="@string/default_setting_app_preventsleep"
             android:key="@string/key_setting_app_preventsleep"
             android:title="@string/title_setting_app_preventsleep"

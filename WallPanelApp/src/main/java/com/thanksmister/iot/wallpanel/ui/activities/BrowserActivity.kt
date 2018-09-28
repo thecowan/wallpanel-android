@@ -46,7 +46,6 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
     @Inject lateinit var dialogUtils: DialogUtils
     @Inject lateinit var configuration: Configuration
 
-    private var PERMISSIONS = arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE, android.Manifest.permission.READ_EXTERNAL_STORAGE)
     var mOnScrollChangedListener: ViewTreeObserver.OnScrollChangedListener? = null
     private var wallPanelService: Intent? = null
     private var decorView: View? = null

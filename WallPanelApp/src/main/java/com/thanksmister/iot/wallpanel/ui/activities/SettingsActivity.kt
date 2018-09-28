@@ -73,12 +73,6 @@ class SettingsActivity : DaggerAppCompatActivity(), SettingsFragment.OnSettingsF
         lifecycle.addObserver(dialogUtils)
     }
 
-    /*override fun onBackPressed() {
-        Timber.d("onBackPressed")
-        super.onBackPressed()
-        this.finish()
-    }*/
-
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         Timber.d("onKeyDown")
         if (keyCode == KeyEvent.KEYCODE_BACK) {
@@ -89,8 +83,6 @@ class SettingsActivity : DaggerAppCompatActivity(), SettingsFragment.OnSettingsF
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, intent: Intent?) {
-        Timber.d("onActivityResult requestCode: $requestCode")
-        Timber.d("onActivityResult resultCode: $resultCode")
         if (requestCode == PERMISSIONS_REQUEST_WRITE_SETTINGS) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (Settings.System.canWrite(applicationContext)) {
@@ -112,7 +104,8 @@ class SettingsActivity : DaggerAppCompatActivity(), SettingsFragment.OnSettingsF
         Timber.d("requestCameraPermissions")
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !configuration.cameraPermissionsShown) {
             Timber.d("requestCameraPermissions asking")
-            if (PackageManager.PERMISSION_DENIED == ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA)) {
+            if (PackageManager.PERMISSION_DENIED == ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA)
+                    || PackageManager.PERMISSION_DENIED == ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE)) {
                 configuration.cameraPermissionsShown = true
                 ActivityCompat.requestPermissions(this,
                         arrayOf(Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE),
@@ -141,10 +134,8 @@ class SettingsActivity : DaggerAppCompatActivity(), SettingsFragment.OnSettingsF
     }
 
     private fun checkWriteSettings() {
-        Timber.d("checkWriteSettings")
         if (!configuration.writeScreenPermissionsShown && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if(Settings.System.canWrite(applicationContext)) {
-                configuration.writeScreenPermissionsShown = true
             } else if (!configuration.writeScreenPermissionsShown) {
                 // launch the dialog to provide permissions
                 configuration.writeScreenPermissionsShown = true
@@ -157,6 +148,9 @@ class SettingsActivity : DaggerAppCompatActivity(), SettingsFragment.OnSettingsF
                             Toast.makeText(this, getString(R.string.toast_write_permissions_denied), Toast.LENGTH_LONG).show()
                         }.show()
             }
+        } else {
+            configuration.writeScreenPermissionsShown = true
+            Timber.d("checkWriteSettings ${configuration.writeScreenPermissionsShown}")
         }
     }
 
@@ -197,7 +191,7 @@ class SettingsActivity : DaggerAppCompatActivity(), SettingsFragment.OnSettingsF
                     BrowserActivityLegacy::class.java
             }
         }
-        configuration.writeScreenPermissionsShown = false
+
         val intent = Intent(this@SettingsActivity, targetClass)
         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
         startActivity(intent)

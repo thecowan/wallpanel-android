@@ -19,6 +19,7 @@ package com.thanksmister.iot.wallpanel.ui.fragments
 import android.content.Context
 import android.os.Bundle
 import android.support.v14.preference.SwitchPreference
+import android.support.v7.preference.CheckBoxPreference
 import android.support.v7.preference.EditTextPreference
 import android.support.v7.preference.ListPreference
 import android.support.v7.preference.Preference
@@ -42,6 +43,7 @@ class SettingsFragment : BaseSettingsFragment() {
     private var sensorsPreference: Preference? = null
     private var aboutPreference: Preference? = null
     private var listener: OnSettingsFragmentListener? = null
+    private var browserRefreshPreference: SwitchPreference? = null
 
     interface OnSettingsFragmentListener {
         fun onFinish()
@@ -103,6 +105,7 @@ class SettingsFragment : BaseSettingsFragment() {
         browserActivityPreference = findPreference(getString(R.string.key_setting_app_showactivity)) as SwitchPreference
         openOnBootPreference = findPreference(getString(R.string.key_setting_android_startonboot)) as SwitchPreference
         browserTypePreference = findPreference(getString(R.string.key_setting_android_browsertype)) as ListPreference
+        browserRefreshPreference = findPreference(getString(R.string.key_pref_browser_refresh)) as SwitchPreference
 
         bindPreferenceSummaryToValue(dashboardPreference!!)
         bindPreferenceSummaryToValue(preventSleepPreference!!)

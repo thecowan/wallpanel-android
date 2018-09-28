@@ -50,9 +50,7 @@ class WelcomeActivity : DaggerAppCompatActivity() {
             finish()
         }
 
-        // TODO check permissions
         if (!configuration.isFirstTime) {
-            Timber.d("Starting Browser on Startup")
             startBrowserActivity()
         }
     }

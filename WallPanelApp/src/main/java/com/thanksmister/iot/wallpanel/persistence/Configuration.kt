@@ -45,7 +45,6 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
             sharedPreferences.edit().putBoolean(PREF_CAMERA_PERMISSIONS, value).apply()
         }
 
-
     var appLaunchUrl: String
         get() = getStringPref(R.string.key_setting_app_launchurl,
                 R.string.default_setting_app_launchurl)
@@ -190,6 +189,12 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
     val browserUserAgent: String
         get() = getStringPref(R.string.key_setting_browser_user_agent,
                 R.string.default_browser_user_agent)
+
+    var browserRefresh: Boolean
+        get() = getBoolPref(R.string.key_pref_browser_refresh, R.string.default_browser_refresh)
+        set(value) {
+            sharedPreferences.edit().putBoolean(context.getString(R.string.key_pref_browser_refresh), value).apply()
+        }
 
     val cameraFPS: Float
         get() = try {

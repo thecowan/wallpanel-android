@@ -67,16 +67,10 @@ class BrowserActivityLegacy : BrowserActivity() {
             return
         }
 
-        swipeContainer.setOnRefreshListener {
-            clearCache()
-            loadUrl(configuration.appLaunchUrl)
-        }
 
         xWebView = findViewById<View>(R.id.activity_browser_webview_legacy) as XWalkView
         xWebView!!.visibility = View.VISIBLE
-
         xWebView!!.setResourceClient(object : XWalkResourceClient(xWebView) {
-
             var snackbar: Snackbar
 
             init {
@@ -117,27 +111,36 @@ class BrowserActivityLegacy : BrowserActivity() {
             false
         }
 
-        mOnScrollChangedListener = ViewTreeObserver.OnScrollChangedListener { swipeContainer?.isEnabled = xWebView!!.scrollY == 0 }
+        if(configuration.browserRefresh) {
+            swipeContainer.setOnRefreshListener {
+                clearCache()
+                loadUrl(configuration.appLaunchUrl)
+            }
+            mOnScrollChangedListener = ViewTreeObserver.OnScrollChangedListener { swipeContainer?.isEnabled = xWebView!!.scrollY == 0 }
+        } else {
+            swipeContainer.isEnabled = false
+        }
+
         configureWebSettings(configuration.browserUserAgent)
         loadUrl(configuration.appLaunchUrl)
     }
 
     override fun onStart() {
         super.onStart()
-        if(swipeContainer != null && mOnScrollChangedListener != null) {
+        if(swipeContainer != null && mOnScrollChangedListener != null && configuration.browserRefresh) {
             swipeContainer.viewTreeObserver.addOnScrollChangedListener(mOnScrollChangedListener)
         }
     }
 
     override fun onStop() {
         super.onStop()
-        if(swipeContainer != null && mOnScrollChangedListener != null) {
+        if(swipeContainer != null && mOnScrollChangedListener != null && configuration.browserRefresh) {
             swipeContainer.viewTreeObserver.removeOnScrollChangedListener(mOnScrollChangedListener)
         }
     }
 
     override fun complete() {
-        if(swipeContainer != null && swipeContainer.isRefreshing) {
+        if(swipeContainer != null && swipeContainer.isRefreshing && configuration.browserRefresh) {
             swipeContainer.isRefreshing = false
         }
     }
