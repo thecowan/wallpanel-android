@@ -71,12 +71,10 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
                 reload()
             } else if (BROADCAST_TOAST_MESSAGE == intent.action) {
                 val message = intent.getStringExtra(BROADCAST_TOAST_MESSAGE)
-                Timber.d("Toast received message $message")
                 Toast.makeText(applicationContext, message, Toast.LENGTH_SHORT).show()
             } else if (BROADCAST_ALERT_MESSAGE == intent.action) {
-                Timber.d("Alert received")
                 val message = intent.getStringExtra(BROADCAST_ALERT_MESSAGE)
-                dialogUtils.showAlertDialog(applicationContext, message)
+                dialogUtils.showAlertDialog(this@BrowserActivity, message)
             }
         }
     }
@@ -95,8 +93,19 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
 
         decorView = window.decorView
 
-        //lifecycle.addObserver(dialogUtils)
+        if(configuration.cameraEnabled || configuration.hasCameraDetections()) {
+            window.setFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED, WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED)
+        }
 
+        if (configuration.appPreventSleep) {
+            window.addFlags( WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON )
+        } else {
+            window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
         val filter = IntentFilter()
         filter.addAction(BROADCAST_ACTION_LOAD_URL)
         filter.addAction(BROADCAST_ACTION_JS_EXEC)
@@ -104,22 +113,29 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
         filter.addAction(BROADCAST_ACTION_RELOAD_PAGE)
         filter.addAction(BROADCAST_ALERT_MESSAGE)
         filter.addAction(BROADCAST_TOAST_MESSAGE)
-
         val bm = LocalBroadcastManager.getInstance(this)
         bm.registerReceiver(mBroadcastReceiver, filter)
+    }
 
-        /*configureWebSettings(configuration.browserUserAgent)
-        loadUrl(configuration.appLaunchUrl)*/
+    override fun onPause() {
+        super.onPause()
+        val bm = LocalBroadcastManager.getInstance(this)
+        bm.unregisterReceiver(mBroadcastReceiver)
+    }
 
-        Timber.d("Prevent Sleep ${configuration.appPreventSleep}")
-        if (configuration.appPreventSleep) {
-            window.addFlags( WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON )
-        } else {
-            window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        }
-
+    override fun onStart() {
+        super.onStart()
         wallPanelService = Intent(this, WallPanelService::class.java)
-        startService(wallPanelService)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(wallPanelService)
+        } else {
+            startService(wallPanelService)
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        window.clearFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED)
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
@@ -188,7 +204,5 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
         const val BROADCAST_ACTION_JS_EXEC = "BROADCAST_ACTION_JS_EXEC"
         const val BROADCAST_ACTION_CLEAR_BROWSER_CACHE = "BROADCAST_ACTION_CLEAR_BROWSER_CACHE"
         const val BROADCAST_ACTION_RELOAD_PAGE = "BROADCAST_ACTION_RELOAD_PAGE"
-        const val PERMISSIONS_REQUEST_STORAGE = 301
-        const val PERMISSION_REQUEST_ALL = 301
     }
 }

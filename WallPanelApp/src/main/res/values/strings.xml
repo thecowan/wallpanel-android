@@ -193,5 +193,6 @@
     <string name="toast_empty_url">Url is empty…</string>
     <string name="pref_browser_refresh_summary">When active, allows you to pull down on the browser window to refresh the page.</string>
     <string name="pref_browser_refresh_title">Browser Refresh</string>
+    <string name="error_mqtt_exception">There was an error initializing the MQTT client, please check your settings.</string>
 
 </resources>

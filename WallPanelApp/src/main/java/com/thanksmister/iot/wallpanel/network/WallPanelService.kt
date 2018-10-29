@@ -320,18 +320,18 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
     }
 
     override fun onMQTTDisconnect() {
-        Timber.w("onMQTTDisconnect")
+        Timber.e("onMQTTDisconnect")
         if(hasNetwork()) {
-            Toast.makeText(this, getString(R.string.error_mqtt_connection), Toast.LENGTH_SHORT).show()
-            reconnectHandler.postDelayed(restartMqttRunnable, 3000)
+            sendAlertMessage(getString(R.string.error_mqtt_connection))
+            //reconnectHandler.postDelayed(restartMqttRunnable, 3000)
         }
     }
 
     override fun onMQTTException(message: String) {
-        Timber.w("onMQTTException: $message")
+        Timber.e("onMQTTException: $message")
         if(hasNetwork()) {
-            Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
-            reconnectHandler.postDelayed(restartMqttRunnable, 3000)
+            sendAlertMessage(getString(R.string.error_mqtt_exception))
+            //reconnectHandler.postDelayed(restartMqttRunnable, 3000)
         }
     }
 
@@ -613,6 +613,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
             partialWakeLock!!.release()
             partialWakeLock!!.acquire(SCREEN_WAKE_TIME)
         }
+        sendWakeScreen()
     }
 
     private fun changeScreenBrightness(brightness: Int) {
@@ -819,11 +820,9 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         override fun onMotionDetected() {
             Timber.i("Motion detected")
             if (configuration.cameraMotionWake) {
-                //configurePowerOptions()
                 switchScreenOn()
             }
             if (configuration.cameraMotionBright) {
-                //configurePowerOptions()
                 Timber.d("configuration.cameraMotionBright ${configuration.cameraMotionBright}")
                 switchScreenOn()
                 setBrightScreen(255)
