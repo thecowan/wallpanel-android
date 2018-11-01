@@ -29,7 +29,7 @@ repositories {
 def versionMajor = 0
 def versionMinor = 8
 def versionPatch = 4
-def versionBuild = 2 // bump for dog food builds, public betas, etc.
+def versionBuild = 3 // bump for dog food builds, public betas, etc.
 
 android {
     kapt {
@@ -37,7 +37,7 @@ android {
         correctErrorTypes = true
     }
     compileSdkVersion 27
-    buildToolsVersion "28.0.2"
+    buildToolsVersion '28.0.3'
     defaultConfig {
         applicationId "com.thanksmister.iot.wallpanel"
         minSdkVersion versions.min_sdk

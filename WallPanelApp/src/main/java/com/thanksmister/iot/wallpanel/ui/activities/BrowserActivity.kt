@@ -34,6 +34,7 @@ import android.widget.Toast
 import com.thanksmister.iot.wallpanel.R
 import com.thanksmister.iot.wallpanel.network.WallPanelService
 import com.thanksmister.iot.wallpanel.network.WallPanelService.Companion.BROADCAST_ALERT_MESSAGE
+import com.thanksmister.iot.wallpanel.network.WallPanelService.Companion.BROADCAST_CLEAR_ALERT_MESSAGE
 import com.thanksmister.iot.wallpanel.network.WallPanelService.Companion.BROADCAST_TOAST_MESSAGE
 import com.thanksmister.iot.wallpanel.persistence.Configuration
 import com.thanksmister.iot.wallpanel.utils.DialogUtils
@@ -75,6 +76,8 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
             } else if (BROADCAST_ALERT_MESSAGE == intent.action) {
                 val message = intent.getStringExtra(BROADCAST_ALERT_MESSAGE)
                 dialogUtils.showAlertDialog(this@BrowserActivity, message)
+            } else if (BROADCAST_CLEAR_ALERT_MESSAGE == intent.action) {
+                dialogUtils.clearDialogs()
             }
         }
     }
@@ -111,6 +114,7 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
         filter.addAction(BROADCAST_ACTION_JS_EXEC)
         filter.addAction(BROADCAST_ACTION_CLEAR_BROWSER_CACHE)
         filter.addAction(BROADCAST_ACTION_RELOAD_PAGE)
+        filter.addAction(BROADCAST_CLEAR_ALERT_MESSAGE)
         filter.addAction(BROADCAST_ALERT_MESSAGE)
         filter.addAction(BROADCAST_TOAST_MESSAGE)
         val bm = LocalBroadcastManager.getInstance(this)

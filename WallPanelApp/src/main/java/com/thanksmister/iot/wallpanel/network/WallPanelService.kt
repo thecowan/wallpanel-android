@@ -16,7 +16,6 @@
 
 package com.thanksmister.iot.wallpanel.network
 
-import android.annotation.SuppressLint
 import android.app.KeyguardManager
 import android.arch.lifecycle.LifecycleService
 import android.arch.lifecycle.Observer
@@ -28,7 +27,6 @@ import android.os.*
 import android.provider.Settings
 import android.support.v4.content.ContextCompat
 import android.support.v4.content.LocalBroadcastManager
-import android.widget.Toast
 import com.koushikdutta.async.AsyncServer
 import com.koushikdutta.async.ByteBufferList
 import com.koushikdutta.async.http.body.JSONObjectBody
@@ -103,6 +101,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
     private val reconnectHandler = Handler()
     private var appLaunchUrl: String? = null
     private var localBroadCastManager: LocalBroadcastManager? = null
+    private var mqttAlertMessageShown = false
 
     inner class WallPanelServiceBinder : Binder() {
         val service: WallPanelService
@@ -314,6 +313,10 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
 
     override fun onMQTTConnect() {
         Timber.w("onMQTTConnect")
+        if(mqttAlertMessageShown) {
+            clearAlertMessage() // clear any dialogs
+            mqttAlertMessageShown = false
+        }
         publishMessage(COMMAND_STATE, state.toString())
         clearFaceDetected()
         clearMotionDetected()
@@ -322,16 +325,22 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
     override fun onMQTTDisconnect() {
         Timber.e("onMQTTDisconnect")
         if(hasNetwork()) {
-            sendAlertMessage(getString(R.string.error_mqtt_connection))
-            //reconnectHandler.postDelayed(restartMqttRunnable, 3000)
+            if(!mqttAlertMessageShown) {
+                mqttAlertMessageShown = true
+                sendAlertMessage(getString(R.string.error_mqtt_connection))
+            }
+            reconnectHandler.postDelayed(restartMqttRunnable, 30000)
         }
     }
 
     override fun onMQTTException(message: String) {
         Timber.e("onMQTTException: $message")
         if(hasNetwork()) {
-            sendAlertMessage(getString(R.string.error_mqtt_exception))
-            //reconnectHandler.postDelayed(restartMqttRunnable, 3000)
+            if(!mqttAlertMessageShown) {
+                mqttAlertMessageShown = true
+                sendAlertMessage(getString(R.string.error_mqtt_exception))
+            }
+            reconnectHandler.postDelayed(restartMqttRunnable, 30000)
         }
     }
 
@@ -765,6 +774,13 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         bm.sendBroadcast(intent)
     }
 
+    private fun clearAlertMessage() {
+        Timber.d("clearAlertMessage")
+        val intent = Intent(BROADCAST_CLEAR_ALERT_MESSAGE)
+        val bm = LocalBroadcastManager.getInstance(applicationContext)
+        bm.sendBroadcast(intent)
+    }
+
     private fun sendWakeScreen() {
         Timber.d("sendWakeScreen")
         val intent = Intent(BROADCAST_SCREEN_WAKE)
@@ -857,6 +873,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         const val BROADCAST_EVENT_SCREEN_TOUCH = "BROADCAST_EVENT_SCREEN_TOUCH"
         const val SCREEN_WAKE_TIME = 30000L
         const val BROADCAST_ALERT_MESSAGE = "BROADCAST_ALERT_MESSAGE"
+        const val BROADCAST_CLEAR_ALERT_MESSAGE = "BROADCAST_CLEAR_ALERT_MESSAGE"
         const val BROADCAST_TOAST_MESSAGE = "BROADCAST_TOAST_MESSAGE"
         const val BROADCAST_SCREEN_WAKE = "BROADCAST_SCREEN_WAKE"
     }
