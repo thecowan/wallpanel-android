@@ -21,17 +21,14 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.support.v4.app.ActivityCompat
 import android.support.v4.content.LocalBroadcastManager
 import android.view.KeyEvent
 import android.view.View
 import android.view.ViewTreeObserver
 import android.view.WindowManager
 import android.widget.Toast
-import com.thanksmister.iot.wallpanel.R
 import com.thanksmister.iot.wallpanel.network.WallPanelService
 import com.thanksmister.iot.wallpanel.network.WallPanelService.Companion.BROADCAST_ALERT_MESSAGE
 import com.thanksmister.iot.wallpanel.network.WallPanelService.Companion.BROADCAST_CLEAR_ALERT_MESSAGE
@@ -70,13 +67,13 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
             } else if (BROADCAST_ACTION_RELOAD_PAGE == intent.action) {
                 Timber.d("Browser page reloading.")
                 reload()
-            } else if (BROADCAST_TOAST_MESSAGE == intent.action) {
+            } else if (BROADCAST_TOAST_MESSAGE == intent.action && !isFinishing) {
                 val message = intent.getStringExtra(BROADCAST_TOAST_MESSAGE)
                 Toast.makeText(applicationContext, message, Toast.LENGTH_SHORT).show()
-            } else if (BROADCAST_ALERT_MESSAGE == intent.action) {
+            } else if (BROADCAST_ALERT_MESSAGE == intent.action && !isFinishing) {
                 val message = intent.getStringExtra(BROADCAST_ALERT_MESSAGE)
                 dialogUtils.showAlertDialog(this@BrowserActivity, message)
-            } else if (BROADCAST_CLEAR_ALERT_MESSAGE == intent.action) {
+            } else if (BROADCAST_CLEAR_ALERT_MESSAGE == intent.action && !isFinishing) {
                 dialogUtils.clearDialogs()
             }
         }
@@ -96,7 +93,7 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
 
         decorView = window.decorView
 
-        if(configuration.cameraEnabled || configuration.hasCameraDetections()) {
+        if(configuration.cameraEnabled || configuration.hasCameraDetections() && Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) {
             window.setFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED, WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED)
         }
 
@@ -105,6 +102,8 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
         } else {
             window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         }
+
+        lifecycle.addObserver(dialogUtils)
     }
 
     override fun onResume() {

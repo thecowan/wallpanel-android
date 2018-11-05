@@ -60,6 +60,7 @@ import com.thanksmister.iot.wallpanel.utils.NotificationUtils
 import dagger.android.AndroidInjection
 import org.json.JSONException
 import org.json.JSONObject
+import timber.log.BuildConfig
 import timber.log.Timber
 import java.io.IOException
 import java.nio.ByteBuffer
@@ -102,6 +103,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
     private var appLaunchUrl: String? = null
     private var localBroadCastManager: LocalBroadcastManager? = null
     private var mqttAlertMessageShown = false
+    private var mqttConnected = false
 
     inner class WallPanelServiceBinder : Binder() {
         val service: WallPanelService
@@ -311,21 +313,23 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         }
     }
 
+    //Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1
     override fun onMQTTConnect() {
         Timber.w("onMQTTConnect")
-        if(mqttAlertMessageShown) {
+        if(!mqttConnected) {
             clearAlertMessage() // clear any dialogs
-            mqttAlertMessageShown = false
+            mqttConnected = true
         }
         publishMessage(COMMAND_STATE, state.toString())
         clearFaceDetected()
         clearMotionDetected()
     }
 
+    //Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1
     override fun onMQTTDisconnect() {
         Timber.e("onMQTTDisconnect")
         if(hasNetwork()) {
-            if(!mqttAlertMessageShown) {
+            if(!mqttAlertMessageShown && !mqttConnected) {
                 mqttAlertMessageShown = true
                 sendAlertMessage(getString(R.string.error_mqtt_connection))
             }
@@ -333,10 +337,11 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         }
     }
 
+    //Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1
     override fun onMQTTException(message: String) {
         Timber.e("onMQTTException: $message")
         if(hasNetwork()) {
-            if(!mqttAlertMessageShown) {
+            if(!mqttAlertMessageShown && !mqttConnected) {
                 mqttAlertMessageShown = true
                 sendAlertMessage(getString(R.string.error_mqtt_exception))
             }

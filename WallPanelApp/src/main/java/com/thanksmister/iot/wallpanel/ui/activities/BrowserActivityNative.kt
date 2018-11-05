@@ -21,18 +21,16 @@ import android.net.http.SslError
 import android.os.Build
 import android.os.Bundle
 import android.support.design.widget.Snackbar
+import android.support.v7.app.AlertDialog
 import android.text.TextUtils
 import android.view.MotionEvent
 import android.view.View
+import android.view.ViewTreeObserver
 import android.webkit.*
+import android.widget.Toast
 import com.thanksmister.iot.wallpanel.R
 import kotlinx.android.synthetic.main.activity_browser.*
 import timber.log.Timber
-import android.webkit.WebView
-import android.widget.Toast
-import android.content.DialogInterface
-import android.support.v7.app.AlertDialog
-import android.view.ViewTreeObserver
 
 
 class BrowserActivityNative : BrowserActivity() {
@@ -42,7 +40,7 @@ class BrowserActivityNative : BrowserActivity() {
     @SuppressLint("SetJavaScriptEnabled", "ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        Timber.i("BrowserActivityNative")
         try {
             setContentView(R.layout.activity_browser)
         } catch (e: Exception) {

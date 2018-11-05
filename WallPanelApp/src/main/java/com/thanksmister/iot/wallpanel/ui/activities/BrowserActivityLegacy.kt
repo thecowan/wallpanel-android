@@ -17,33 +17,20 @@
 package com.thanksmister.iot.wallpanel.ui.activities
 
 import android.annotation.SuppressLint
-import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.support.design.widget.Snackbar
-import android.support.v7.preference.PreferenceManager
+import android.support.v7.app.AlertDialog
 import android.text.TextUtils
-import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
-import android.webkit.WebSettings
+import android.view.ViewTreeObserver
+import android.widget.Toast
 import com.thanksmister.iot.wallpanel.R
-import com.thanksmister.iot.wallpanel.persistence.Configuration
-
+import kotlinx.android.synthetic.main.activity_browser.*
+import org.xwalk.core.XWalkCookieManager
 import org.xwalk.core.XWalkResourceClient
 import org.xwalk.core.XWalkView
-import org.xwalk.core.XWalkCookieManager
-
 import timber.log.Timber
-import javax.inject.Inject
-import android.content.DialogInterface
-import android.net.http.SslError
-import android.support.v7.app.AlertDialog
-import android.view.ViewTreeObserver
-import android.webkit.SslErrorHandler
-import android.webkit.WebView
-import android.widget.Toast
-import kotlinx.android.synthetic.main.activity_browser.*
 
 
 class BrowserActivityLegacy : BrowserActivity() {
@@ -54,6 +41,8 @@ class BrowserActivityLegacy : BrowserActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
+
+        Timber.i("BrowserActivityLegacy")
 
         try {
             setContentView(R.layout.activity_browser)

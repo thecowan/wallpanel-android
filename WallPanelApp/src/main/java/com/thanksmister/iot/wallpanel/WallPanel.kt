@@ -37,6 +37,9 @@ class WallPanel : DaggerApplication() {
         super.onCreate()
         if (BuildConfig.DEBUG) {
             Timber.plant(Timber.DebugTree())
+            Fabric.with(this, Crashlytics())
+            Fabric.with(this, Answers())
+            Timber.plant(CrashlyticsTree())
         } else {
             Fabric.with(this, Crashlytics())
             Fabric.with(this, Answers())
