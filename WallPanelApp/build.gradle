@@ -29,7 +29,7 @@ repositories {
 def versionMajor = 0
 def versionMinor = 8
 def versionPatch = 4
-def versionBuild = 4 // bump for dog food builds, public betas, etc.
+def versionBuild = 6 // bump for dog food builds, public betas, etc.
 
 android {
     kapt {
@@ -37,7 +37,7 @@ android {
         correctErrorTypes = true
     }
     compileSdkVersion 27
-    buildToolsVersion '28.0.3'
+    buildToolsVersion "28.0.3"
     defaultConfig {
         applicationId "com.thanksmister.iot.wallpanel"
         minSdkVersion versions.min_sdk
@@ -130,7 +130,6 @@ dependencies {
         exclude module: 'support-v4'
     }
 
-    implementation 'org.xwalk:xwalk_core_library:23.53.589.4'
     implementation 'com.koushikdutta.async:androidasync:2.1.9'
     implementation 'io.github.silvaren:easyrs:0.5.3'
 

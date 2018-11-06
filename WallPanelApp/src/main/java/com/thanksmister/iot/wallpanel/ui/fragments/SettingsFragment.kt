@@ -34,7 +34,7 @@ class SettingsFragment : BaseSettingsFragment() {
     private var openOnBootPreference: SwitchPreference? = null
     private var preventSleepPreference: SwitchPreference? = null
     private var browserActivityPreference: SwitchPreference? = null
-    private var browserTypePreference: ListPreference? = null
+
     private var browserHeaderPreference: EditTextPreference? = null
     private var dashboardPreference: EditTextPreference? = null
     private var cameraPreference: Preference? = null
@@ -104,14 +104,12 @@ class SettingsFragment : BaseSettingsFragment() {
         preventSleepPreference = findPreference(getString(R.string.key_setting_app_preventsleep)) as SwitchPreference
         browserActivityPreference = findPreference(getString(R.string.key_setting_app_showactivity)) as SwitchPreference
         openOnBootPreference = findPreference(getString(R.string.key_setting_android_startonboot)) as SwitchPreference
-        browserTypePreference = findPreference(getString(R.string.key_setting_android_browsertype)) as ListPreference
         browserRefreshPreference = findPreference(getString(R.string.key_pref_browser_refresh)) as SwitchPreference
 
         bindPreferenceSummaryToValue(dashboardPreference!!)
         bindPreferenceSummaryToValue(preventSleepPreference!!)
         bindPreferenceSummaryToValue(browserActivityPreference!!)
         bindPreferenceSummaryToValue(openOnBootPreference!!)
-        bindPreferenceSummaryToValue(browserTypePreference!!)
         bindPreferenceSummaryToValue(browserHeaderPreference!!)
 
         cameraPreference = findPreference("button_key_camera")

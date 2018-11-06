@@ -36,13 +36,6 @@
             android:scrollbars="none"
             android:visibility="gone" />
 
-        <org.xwalk.core.XWalkView
-            android:id="@+id/activity_browser_webview_legacy"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scrollbars="none"
-            android:visibility="gone" />
-
     </RelativeLayout>
 
 </android.support.v4.widget.SwipeRefreshLayout>

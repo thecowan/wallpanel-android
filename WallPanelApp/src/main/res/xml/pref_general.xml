@@ -48,13 +48,6 @@
             android:title="@string/title_setting_android_startonboot"
             android:summary="@string/pref_start_boot_summary"/>
 
-        <ListPreference
-            android:defaultValue="@string/default_setting_android_browsertype"
-            android:entries="@array/browser_type_names"
-            android:entryValues="@array/browser_type_values"
-            android:key="@string/key_setting_android_browsertype"
-            android:title="@string/title_setting_android_browsertype" />
-
         <EditTextPreference
             android:defaultValue="@string/default_browser_user_agent"
             android:summary="@string/pref_user_agent_summary"

@@ -44,9 +44,6 @@ internal abstract class AndroidBindingModule {
     internal abstract fun browserActivity(): BrowserActivity
 
     @ContributesAndroidInjector
-    internal abstract fun browserActivityLegacy(): BrowserActivityLegacy
-
-    @ContributesAndroidInjector
     internal abstract fun browserActivityNative(): BrowserActivityNative
 
     @ContributesAndroidInjector
