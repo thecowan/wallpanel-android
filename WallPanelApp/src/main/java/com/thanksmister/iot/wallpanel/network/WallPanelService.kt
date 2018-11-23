@@ -45,6 +45,7 @@ import com.thanksmister.iot.wallpanel.utils.MqttUtils.Companion.COMMAND_AUDIO
 import com.thanksmister.iot.wallpanel.utils.MqttUtils.Companion.COMMAND_BRIGHTNESS
 import com.thanksmister.iot.wallpanel.utils.MqttUtils.Companion.COMMAND_CLEAR_CACHE
 import com.thanksmister.iot.wallpanel.utils.MqttUtils.Companion.COMMAND_EVAL
+import com.thanksmister.iot.wallpanel.utils.MqttUtils.Companion.COMMAND_NOTIFICATION
 import com.thanksmister.iot.wallpanel.utils.MqttUtils.Companion.COMMAND_RELAUNCH
 import com.thanksmister.iot.wallpanel.utils.MqttUtils.Companion.COMMAND_RELOAD
 import com.thanksmister.iot.wallpanel.utils.MqttUtils.Companion.COMMAND_SENSOR
@@ -142,12 +143,12 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
 
         this.appLaunchUrl = configuration.appLaunchUrl
 
+        startForeground()
         configureMqtt()
         configurePowerOptions()
         startHttp()
         configureCamera()
         configureAudioPlayer()
-        startForeground()
         configureTextToSpeech()
         startSensors()
 
@@ -329,11 +330,11 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
     override fun onMQTTDisconnect() {
         Timber.e("onMQTTDisconnect")
         if(hasNetwork()) {
-            if(!mqttAlertMessageShown && !mqttConnected) {
+            if(!mqttAlertMessageShown && !mqttConnected && Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
                 mqttAlertMessageShown = true
                 sendAlertMessage(getString(R.string.error_mqtt_connection))
             }
-            reconnectHandler.postDelayed(restartMqttRunnable, 30000)
+            //reconnectHandler.postDelayed(restartMqttRunnable, 30000)
         }
     }
 
@@ -341,11 +342,11 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
     override fun onMQTTException(message: String) {
         Timber.e("onMQTTException: $message")
         if(hasNetwork()) {
-            if(!mqttAlertMessageShown && !mqttConnected) {
+            if(!mqttAlertMessageShown && !mqttConnected && Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
                 mqttAlertMessageShown = true
                 sendAlertMessage(getString(R.string.error_mqtt_exception))
             }
-            reconnectHandler.postDelayed(restartMqttRunnable, 30000)
+            //reconnectHandler.postDelayed(restartMqttRunnable, 30000)
         }
     }
 

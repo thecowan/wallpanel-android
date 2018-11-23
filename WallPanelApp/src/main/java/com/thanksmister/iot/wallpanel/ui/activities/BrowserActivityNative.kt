@@ -113,7 +113,6 @@ class BrowserActivityNative : BrowserActivity() {
             override fun onReceivedError(view: WebView, errorCode: Int, description: String, failingUrl: String) {
                 Toast.makeText(this@BrowserActivityNative, description, Toast.LENGTH_SHORT).show()
             }
-
             override fun onReceivedSslError(view: WebView, handler: SslErrorHandler?, error: SslError?) {
                 super.onReceivedSslError(view, handler, error)
                 val builder = AlertDialog.Builder(this@BrowserActivityNative)

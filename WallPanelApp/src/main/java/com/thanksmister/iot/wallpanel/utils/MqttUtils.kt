@@ -48,6 +48,7 @@ class MqttUtils {
         const val COMMAND_RELAUNCH = "relaunch"
         const val COMMAND_WAKE = "wake"
         const val COMMAND_BRIGHTNESS = "brightness"
+        const val COMMAND_NOTIFICATION = "notification"
         const val COMMAND_RELOAD = "reload"
         const val COMMAND_CLEAR_CACHE = "clearCache"
         const val COMMAND_EVAL = "eval"
