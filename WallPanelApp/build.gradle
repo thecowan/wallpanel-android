@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-android'
@@ -28,8 +27,8 @@ repositories {
 
 def versionMajor = 0
 def versionMinor = 8
-def versionPatch = 4
-def versionBuild = 8 // bump for dog food builds, public betas, etc.
+def versionPatch = 5
+def versionBuild = 0 // bump for dog food builds, public betas, etc.
 
 android {
     kapt {
