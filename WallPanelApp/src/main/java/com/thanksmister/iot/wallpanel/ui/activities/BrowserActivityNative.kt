@@ -38,6 +38,7 @@ import android.view.ViewTreeObserver
 class BrowserActivityNative : BrowserActivity() {
 
     private var mWebView: WebView? = null
+    private var certPermissionsShown = false
 
     @SuppressLint("SetJavaScriptEnabled", "ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -114,21 +115,25 @@ class BrowserActivityNative : BrowserActivity() {
                 Toast.makeText(this@BrowserActivityNative, description, Toast.LENGTH_SHORT).show()
             }
             override fun onReceivedSslError(view: WebView, handler: SslErrorHandler?, error: SslError?) {
-                val builder = AlertDialog.Builder(this@BrowserActivityNative)
-                var message = getString(R.string.dialog_message_ssl_generic)
-                when (error?.getPrimaryError()) {
-                    SslError.SSL_UNTRUSTED -> message = getString(R.string.dialog_message_ssl_untrusted)
-                    SslError.SSL_EXPIRED -> message = getString(R.string.dialog_message_ssl_expired)
-                    SslError.SSL_IDMISMATCH -> message = getString(R.string.dialog_message_ssl_mismatch)
-                    SslError.SSL_NOTYETVALID -> message = getString(R.string.dialog_message_ssl_not_yet_valid)
+                if(!certPermissionsShown) {
+                    val builder = AlertDialog.Builder(this@BrowserActivityNative)
+                    var message = getString(R.string.dialog_message_ssl_generic)
+                    when (error?.primaryError) {
+                        SslError.SSL_UNTRUSTED -> message = getString(R.string.dialog_message_ssl_untrusted)
+                        SslError.SSL_EXPIRED -> message = getString(R.string.dialog_message_ssl_expired)
+                        SslError.SSL_IDMISMATCH -> message = getString(R.string.dialog_message_ssl_mismatch)
+                        SslError.SSL_NOTYETVALID -> message = getString(R.string.dialog_message_ssl_not_yet_valid)
+                    }
+                    message += getString(R.string.dialog_message_ssl_continue)
+                    builder.setTitle(getString(R.string.dialog_title_ssl_error))
+                    builder.setMessage(message)
+                    builder.setPositiveButton(getString(R.string.button_continue), { dialog, which -> handler?.proceed() })
+                    builder.setNegativeButton(getString(R.string.button_cancel), { dialog, which -> handler?.cancel() })
+                    val dialog = builder.create()
+                    dialog.show()
+                } else {
+                    handler?.proceed()
                 }
-                message += getString(R.string.dialog_message_ssl_continue)
-                builder.setTitle(getString(R.string.dialog_title_ssl_error))
-                builder.setMessage(message)
-                builder.setPositiveButton(getString(R.string.button_continue), { dialog, which -> handler?.proceed() })
-                builder.setNegativeButton(getString(R.string.button_cancel), { dialog, which -> handler?.cancel() })
-                val dialog = builder.create()
-                dialog.show()
             }
         }
 
