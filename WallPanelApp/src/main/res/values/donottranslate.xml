@@ -114,6 +114,12 @@
     <string name="key_pref_browser_refresh">browser_refresh</string>
     <string name="default_browser_refresh">true</string>
 
+    <string name="key_inactivity_time">inactivity_time</string>
+    <string name="default_inactivity_time">300000</string>
+
+    <string name="key_screensaver">settings_screensaver</string>
+    <string name="default_screensaver">false</string>
+
     <string-array name="settings_titles">
         <item>@string/title_settings</item>
         <item>@string/title_camera_settings</item>

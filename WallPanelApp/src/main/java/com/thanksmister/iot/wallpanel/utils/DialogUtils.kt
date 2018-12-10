@@ -25,9 +25,11 @@ import android.content.ContextWrapper
 import android.content.DialogInterface
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
+import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
 import com.thanksmister.iot.wallpanel.R
+import com.thanksmister.iot.wallpanel.ui.views.ScreenSaverView
 import timber.log.Timber
 
 /**
@@ -35,6 +37,7 @@ import timber.log.Timber
  */
 class DialogUtils(base: Context?) : ContextWrapper(base), LifecycleObserver {
 
+    private var screenSaverDialog: Dialog? = null
     private var alertDialog: AlertDialog? = null
     private var dialog: Dialog? = null
 
@@ -42,6 +45,15 @@ class DialogUtils(base: Context?) : ContextWrapper(base), LifecycleObserver {
     fun clearDialogs() {
         hideAlertDialog()
         hideDialog()
+        hideScreenSaverDialog()
+    }
+
+    fun hideScreenSaverDialog() {
+        if (screenSaverDialog != null && screenSaverDialog!!.isShowing) {
+            screenSaverDialog!!.dismiss()
+            screenSaverDialog!!.window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON )
+            screenSaverDialog = null
+        }
     }
 
     private fun hideDialog() {
@@ -111,28 +123,25 @@ class DialogUtils(base: Context?) : ContextWrapper(base), LifecycleObserver {
                 .show()
     }
 
-    /*fun showCameraTestView(activity: AppCompatActivity, cameraId: Int, processingInterval: Long, motionDetection: Boolean,
-                           faceDetection: Boolean, qrCodeEnabled: Boolean, motionMinLuma: Int, motionLeniency: Int) {
+    /**
+     * Show the screen saver only if the alarm isn't triggered. This shouldn't be an issue
+     * with the alarm disabled because the disable time will be longer than this.
+     */
+    fun showScreenSaver(activity: AppCompatActivity, onClickListener: View.OnClickListener) {
+        if (screenSaverDialog != null && screenSaverDialog!!.isShowing) {
+            return
+        }
         clearDialogs() // clear any alert dialogs
         val inflater = activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-        val view = inflater.inflate(R.layout.dialog_camera_test, null, false)
-        val cameraTestView = view.findViewById<CameraTestView>(R.id.cameraTestView)
-        cameraTestView.init(cameraId, processingInterval, motionDetection ,faceDetection, qrCodeEnabled,
-                motionMinLuma, motionLeniency, object: CameraTestView.ViewListener{
-            override fun onClose() {
-                clearDialogs()
-            }
-        })
-        val displayRectangle = Rect()
-        val window = activity.window
-        window.decorView.getWindowVisibleDisplayFrame(displayRectangle)
-        //view.minimumWidth = (displayRectangle.width() * 0.9f).toInt()
-        view.minimumHeight = (displayRectangle.height() * 0.8f).toInt()
-        dialog = buildImmersiveDialog(activity, true, cameraTestView, false)
-        *//*if (dialog != null){
-            dialog!!.window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        }*//*
-    }*/
+        val view = inflater.inflate(R.layout.dialog_screen_saver, null, false)
+        val screenSaverView = view.findViewById<ScreenSaverView>(R.id.screenSaverView)
+        screenSaverView.setOnClickListener(onClickListener)
+        screenSaverView.init()
+        screenSaverDialog = buildImmersiveDialog(activity, true, screenSaverView, true)
+        if (screenSaverDialog != null){
+            screenSaverDialog!!.window.addFlags( WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON )
+        }
+    }
 
     // immersive dialogs without navigation
     // https://stackoverflow.com/questions/22794049/how-do-i-maintain-the-immersive-mode-in-dialogs

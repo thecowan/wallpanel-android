@@ -27,9 +27,13 @@ import android.view.*
 import androidx.navigation.Navigation
 import com.thanksmister.iot.wallpanel.R
 import com.thanksmister.iot.wallpanel.ui.activities.SettingsActivity
+import com.thanksmister.iot.wallpanel.utils.DateUtils
+import com.thanksmister.iot.wallpanel.utils.DateUtils.SECONDS_VALUE
 import dagger.android.support.AndroidSupportInjection
+import timber.log.Timber
 
 class SettingsFragment : BaseSettingsFragment() {
+
 
     private var openOnBootPreference: SwitchPreference? = null
     private var preventSleepPreference: SwitchPreference? = null
@@ -44,6 +48,8 @@ class SettingsFragment : BaseSettingsFragment() {
     private var aboutPreference: Preference? = null
     private var listener: OnSettingsFragmentListener? = null
     private var browserRefreshPreference: SwitchPreference? = null
+    private var clockSaverPreference: SwitchPreference? = null
+    private var inactivityPreference: ListPreference? = null
 
     interface OnSettingsFragmentListener {
         fun onFinish()
@@ -105,12 +111,16 @@ class SettingsFragment : BaseSettingsFragment() {
         browserActivityPreference = findPreference(getString(R.string.key_setting_app_showactivity)) as SwitchPreference
         openOnBootPreference = findPreference(getString(R.string.key_setting_android_startonboot)) as SwitchPreference
         browserRefreshPreference = findPreference(getString(R.string.key_pref_browser_refresh)) as SwitchPreference
+        clockSaverPreference = findPreference(getString(R.string.key_screensaver)) as SwitchPreference
+        inactivityPreference = findPreference(getString(R.string.key_inactivity_time)) as ListPreference
 
         bindPreferenceSummaryToValue(dashboardPreference!!)
         bindPreferenceSummaryToValue(preventSleepPreference!!)
         bindPreferenceSummaryToValue(browserActivityPreference!!)
         bindPreferenceSummaryToValue(openOnBootPreference!!)
         bindPreferenceSummaryToValue(browserHeaderPreference!!)
+        bindPreferenceSummaryToValue(clockSaverPreference!!)
+        bindPreferenceSummaryToValue(inactivityPreference!!)
 
         cameraPreference = findPreference("button_key_camera")
         mqttPreference = findPreference("button_key_mqtt")

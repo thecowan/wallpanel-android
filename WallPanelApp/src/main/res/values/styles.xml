@@ -174,4 +174,34 @@
         <item name="android:gravity">left|center_vertical</item>
     </style>
 
+    <style name="TextAppearance.Clock">
+        <item name="android:textSize">84sp</item>
+        <item name="android:textColor">@color/light_gray</item>
+    </style>
+
+    <style name="TextAppearance.Clock.Large">
+        <item name="android:textSize">96sp</item>
+    </style>
+
+    <style name="TextAppearance.Clock.XLarge">
+        <item name="android:textSize">124sp</item>
+    </style>
+
+    <style name="TextAppearance.Clock.Small">
+        <item name="android:textSize">72sp</item>
+    </style>
+
+    <style name="TextAppearance.Clock.XSmall">
+        <item name="android:textSize">48sp</item>
+    </style>
+
+    <style name="TextAppearance.Clock.XXSmall">
+        <item name="android:textSize">36sp</item>
+    </style>
+
+    <style name="TextAppearance.Clock.Temperature">
+        <item name="android:textSize">64sp</item>
+        <item name="android:textColor">@color/light_gray</item>
+    </style>
+
 </resources>

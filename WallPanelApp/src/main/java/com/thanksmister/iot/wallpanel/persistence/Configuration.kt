@@ -206,6 +206,12 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
     val testZoomLevel: Float
         get() = getStringPref(R.string.key_setting_test_zoomlevel, R.string.default_setting_test_zoomlevel).trim().toFloat()
 
+    val inactivityTime: Long
+        get() = getStringPref(R.string.key_inactivity_time, R.string.default_inactivity_time).trim().toLong()
+
+    val hasScreenSaver: Boolean
+        get() = getBoolPref(R.string.key_screensaver, R.string.default_screensaver)
+
     fun hasCameraDetections() : Boolean {
         return cameraEnabled && (cameraMotionEnabled || cameraQRCodeEnabled || cameraFaceEnabled || httpMJPEGEnabled)
     }

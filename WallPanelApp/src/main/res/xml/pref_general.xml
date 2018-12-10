@@ -36,11 +36,6 @@
             android:summary="@string/pref_browser_refresh_summary"
             android:title="@string/pref_browser_refresh_title" />
 
-        <SwitchPreference
-            android:defaultValue="@string/default_setting_app_preventsleep"
-            android:key="@string/key_setting_app_preventsleep"
-            android:title="@string/title_setting_app_preventsleep"
-            android:summary="@string/pref_prevent_sleep_summary"/>
 
         <SwitchPreference
             android:defaultValue="@string/default_setting_android_startonboot"
@@ -64,6 +59,28 @@
 
     </PreferenceCategory>
 
+    <PreferenceCategory android:title="@string/preference_title_screen_saver_settings">
+
+        <SwitchPreference
+            android:defaultValue="@string/default_setting_app_preventsleep"
+            android:key="@string/key_setting_app_preventsleep"
+            android:title="@string/title_setting_app_preventsleep"
+            android:summary="@string/pref_prevent_sleep_summary"/>
+
+        <SwitchPreference
+            android:defaultValue="@string/default_screensaver"
+            android:title="@string/preference_title_screen_saver"
+            android:summary="@string/preference_summary_screen_saver_settings"
+            android:key="@string/key_screensaver"/>
+
+        <ListPreference
+            android:key="@string/key_inactivity_time"
+            android:dependency="@string/key_screensaver"
+            android:title="@string/preference_title_inactivity"
+            android:entries="@array/inactivity_times"
+            android:entryValues="@array/inactivity_values"/>
+
+    </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/pref_additional_settings_title">
 

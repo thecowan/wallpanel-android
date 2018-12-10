@@ -195,4 +195,34 @@
     <string name="pref_browser_refresh_title">Browser Refresh</string>
     <string name="error_mqtt_exception">There was an error initializing the MQTT client, please check your settings.</string>
 
+    <string name="preference_title_screen_saver_settings">Screensaver</string>
+    <string name="preference_summary_screen_saver_settings">When active, uses a built-in clock screen saver.</string>
+    <string name="preference_title_screen_saver">Clock Screen Saver</string>
+
+    <string name="preference_title_inactivity">Start screen saver after…</string>
+    <string name="preference_summary_inactivity_seconds">After %1$s seconds of inactivity screen dims.</string>
+    <string name="preference_summary_inactivity_minutes">After %1$s minute(s) of inactivity screen dims.</string>
+
+    <string-array name="inactivity_times">
+        <item>15 seconds</item>
+        <item>30 seconds</item>
+        <item>1 minute</item>
+        <item>2 minutes</item>
+        <item>3 minutes</item>
+        <item>5 minutes</item>
+        <item>10 minutes</item>
+        <item>30 minutes</item>
+    </string-array>
+
+    <string-array name="inactivity_values">
+        <item>15000</item>
+        <item>30000</item>
+        <item>60000</item>
+        <item>120000</item>
+        <item>180000</item>
+        <item>300000</item>
+        <item>600000</item>
+        <item>1800000</item>
+    </string-array>
+
 </resources>

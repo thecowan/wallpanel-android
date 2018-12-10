@@ -17,12 +17,14 @@
 package com.thanksmister.iot.wallpanel.ui.activities
 
 import android.annotation.SuppressLint
+import android.app.Dialog
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
 import android.support.v4.content.LocalBroadcastManager
 import android.view.KeyEvent
 import android.view.View
@@ -32,6 +34,8 @@ import android.widget.Toast
 import com.thanksmister.iot.wallpanel.network.WallPanelService
 import com.thanksmister.iot.wallpanel.network.WallPanelService.Companion.BROADCAST_ALERT_MESSAGE
 import com.thanksmister.iot.wallpanel.network.WallPanelService.Companion.BROADCAST_CLEAR_ALERT_MESSAGE
+import com.thanksmister.iot.wallpanel.network.WallPanelService.Companion.BROADCAST_EVENT_SCREEN_TOUCH
+import com.thanksmister.iot.wallpanel.network.WallPanelService.Companion.BROADCAST_SCREEN_WAKE
 import com.thanksmister.iot.wallpanel.network.WallPanelService.Companion.BROADCAST_TOAST_MESSAGE
 import com.thanksmister.iot.wallpanel.persistence.Configuration
 import com.thanksmister.iot.wallpanel.utils.DialogUtils
@@ -47,6 +51,8 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
     var mOnScrollChangedListener: ViewTreeObserver.OnScrollChangedListener? = null
     private var wallPanelService: Intent? = null
     private var decorView: View? = null
+    private val inactivityHandler: Handler = Handler()
+    private var userPresent: Boolean = false
     var displayProgress = true
     var zoomLevel = 1.0f
 
@@ -57,24 +63,31 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
                 val url = intent.getStringExtra(BROADCAST_ACTION_LOAD_URL)
                 Timber.d("Browsing to $url")
                 loadUrl(url)
+                stopDisconnectTimer()
             } else if (BROADCAST_ACTION_JS_EXEC == intent.action) {
                 val js = intent.getStringExtra(BROADCAST_ACTION_JS_EXEC)
                 Timber.d("Executing javascript in current browser: $js")
+                stopDisconnectTimer()
                 evaluateJavascript(js)
             } else if (BROADCAST_ACTION_CLEAR_BROWSER_CACHE == intent.action) {
                 Timber.d("Clearing browser cache")
                 clearCache()
             } else if (BROADCAST_ACTION_RELOAD_PAGE == intent.action) {
                 Timber.d("Browser page reloading.")
+                stopDisconnectTimer()
                 reload()
             } else if (BROADCAST_TOAST_MESSAGE == intent.action && !isFinishing) {
                 val message = intent.getStringExtra(BROADCAST_TOAST_MESSAGE)
+                stopDisconnectTimer()
                 Toast.makeText(applicationContext, message, Toast.LENGTH_SHORT).show()
             } else if (BROADCAST_ALERT_MESSAGE == intent.action && !isFinishing) {
                 val message = intent.getStringExtra(BROADCAST_ALERT_MESSAGE)
+                stopDisconnectTimer()
                 dialogUtils.showAlertDialog(this@BrowserActivity, message)
             } else if (BROADCAST_CLEAR_ALERT_MESSAGE == intent.action && !isFinishing) {
                 dialogUtils.clearDialogs()
+            } else if (BROADCAST_SCREEN_WAKE == intent.action && !isFinishing) {
+                stopDisconnectTimer()
             }
         }
     }
@@ -104,6 +117,8 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
         }
 
         lifecycle.addObserver(dialogUtils)
+
+        onUserInteraction()
     }
 
     override fun onResume() {
@@ -116,6 +131,7 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
         filter.addAction(BROADCAST_CLEAR_ALERT_MESSAGE)
         filter.addAction(BROADCAST_ALERT_MESSAGE)
         filter.addAction(BROADCAST_TOAST_MESSAGE)
+        filter.addAction(BROADCAST_SCREEN_WAKE)
         val bm = LocalBroadcastManager.getInstance(this)
         bm.registerReceiver(mBroadcastReceiver, filter)
     }
@@ -138,7 +154,26 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        inactivityHandler.removeCallbacks(inactivityCallback)
         window.clearFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED)
+    }
+
+    override fun onUserInteraction() {
+        Timber.d("onUserInteraction")
+        onWindowFocusChanged(true)
+        userPresent = true
+        resetInactivityTimer()
+        val intent = Intent(BROADCAST_EVENT_SCREEN_TOUCH)
+        intent.putExtra(BROADCAST_EVENT_SCREEN_TOUCH, true)
+        val bm = LocalBroadcastManager.getInstance(applicationContext)
+        bm.sendBroadcast(intent)
+    }
+
+    private val inactivityCallback = Runnable {
+        Timber.d("inactivityCallback")
+        dialogUtils.clearDialogs()
+        userPresent = false
+        showScreenSaver()
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
@@ -193,6 +228,45 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
         val bm = LocalBroadcastManager.getInstance(applicationContext)
         bm.sendBroadcast(intent)
         complete()
+    }
+
+    private fun resetInactivityTimer() {
+        Timber.d("resetInactivityTimer ${configuration.inactivityTime}")
+        hideScreenSaver()
+        inactivityHandler.removeCallbacks(inactivityCallback)
+        inactivityHandler.postDelayed(inactivityCallback, configuration.inactivityTime)
+    }
+
+    fun stopDisconnectTimer() {
+        Timber.d("stopDisconnectTimer")
+        hideScreenSaver()
+        inactivityHandler.removeCallbacks(inactivityCallback)
+    }
+
+    open fun hideScreenSaver() {
+        Timber.d("hideScreenSaver")
+        dialogUtils.hideScreenSaverDialog()
+        window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+    }
+
+    /**
+     * Show the screen saver only if the alarm isn't triggered. This shouldn't be an issue
+     * with the alarm disabled because the disable time will be longer than this.
+     */
+    open fun showScreenSaver() {
+        Timber.d("showScreenSaver ${configuration.hasScreenSaver}")
+        if (configuration.hasScreenSaver && !isFinishing) {
+            inactivityHandler.removeCallbacks(inactivityCallback)
+            try {
+                dialogUtils.showScreenSaver(this@BrowserActivity,
+                        View.OnClickListener {
+                            dialogUtils.hideScreenSaverDialog()
+                            resetInactivityTimer()
+                        })
+            } catch (e: Exception) {
+                Timber.e(e.message)
+            }
+        }
     }
 
     protected abstract fun configureWebSettings(userAgent: String)
