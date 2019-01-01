@@ -36,7 +36,7 @@ temperature | unit, value | ```{"unit":"°C", "value":"24"}``` |
 
 *NOTE:* Sensor values are device specific. Not all devices will publish all sensor values.
 
-* Sensor values are constructued as JSON per the above table
+* Sensor values are constructed as JSON per the above table
 * For MQTT
   * WallPanel publishes all sensors to MQTT under ```[baseTopic]/sensor```
   * Each sensor publishes to a subtopic based on the type of sensor
@@ -77,7 +77,7 @@ sensor:
 ```
 
 ### Camera Motion, Face, and QR Codes Detections
-In additional to device sensor data publishing. The application can also publish states for Motion detection and Face detection, as well as the data from QR Codes derived from the device camera.  
+In additional to device sensor data publishing, the application can also publish states for Motion detection and Face detection, as well as the data from QR Codes derived from the device camera.  
 
 Detection | Keys | Example | Notes
 -|-|-|-
@@ -118,7 +118,7 @@ sensor:
 ```
 
 ### Application State Data
-The application canl also publish state data about the application such as the current dashboard url loaded or the screen state.
+The application can also publish state data about the application such as the current dashboard url loaded or the screen state.
 
 Key | Value | Example | Description
 -|-|-|-
