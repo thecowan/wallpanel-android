@@ -9,7 +9,7 @@ WallPanel is an Android application for Web Based Dashboards and Home Automation
 - Sensor data reporting for the device (temperature, light, pressure, battery).
 - Streaming MJPEG server support using the device camera.
 
-## Hardware & Softare 
+## Hardware & Software 
 
 - Android Device running Android OS 4.1 or greater.  Note: Android 4.0 devices use [WebView](https://developer.chrome.com/multidevice/webview/overview) to render webpages, The WebView shipped with Android 4.4 (KitKat) is based on the same code as Chrome for Android version 30. This WebView does not have full feature parity with Chrome for Android and is given the version number 30.0.0.0.  If you have issues with Android 4.0 devices, you may want to use the [legacy](https://github.com/thanksmister/wallpanel-android-legacy) version of the application. 
 
@@ -23,7 +23,7 @@ For issues, feature requests, comments or questions, use the [Github issues trac
 If MQTT is enabled in the settings and properly configured, the application can publish data and states for various device sensors, camera detections, and application states.
 
 ### Device Sensors
-The application will post device sensors data per the API description and Sensor Reading Frequency. Curerntly device sensors for Pressure, Temperature, Light, and Battery Level are published. 
+The application will post device sensors data per the API description and Sensor Reading Frequency. Currently device sensors for Pressure, Temperature, Light, and Battery Level are published. 
 
 #### Sensor Data
 Sensor | Keys | Example | Notes
@@ -36,7 +36,7 @@ temperature | unit, value | ```{"unit":"°C", "value":"24"}``` |
 
 *NOTE:* Sensor values are device specific. Not all devices will publish all sensor values.
 
-* Sensor values are constructued as JSON per the above table
+* Sensor values are constructed as JSON per the above table
 * For MQTT
   * WallPanel publishes all sensors to MQTT under ```[baseTopic]/sensor```
   * Each sensor publishes to a subtopic based on the type of sensor
@@ -77,7 +77,7 @@ sensor:
 ```
 
 ### Camera Motion, Face, and QR Codes Detections
-In additional to device sensor data publishing. The application can also publish states for Motion detection and Face detection, as well as the data from QR Codes derived from the device camera.  
+In additional to device sensor data publishing, the application can also publish states for Motion detection and Face detection, as well as the data from QR Codes derived from the device camera.  
 
 Detection | Keys | Example | Notes
 -|-|-|-
@@ -118,7 +118,7 @@ sensor:
 ```
 
 ### Application State Data
-The application canl also publish state data about the application such as the current dashboard url loaded or the screen state.
+The application can also publish state data about the application such as the current dashboard url loaded or the screen state.
 
 Key | Value | Example | Description
 -|-|-|-
@@ -135,18 +135,23 @@ screenOn | true/false | ```{"screenOn":true}``` | If the screen is currently on
 
 ## MJPEG Video Streaming
 
-Use the device camera as a live MJPEG stream. Just connect to the stream using the device IP address and end point. Be sure to turn on the camera streaming options in the settings and set the number of allowed streams and HTTP port number. Note that performance depends upon your device (older devices will be slow).
+Use the device camera as a live MJPEG stream. Just connect to the stream using the device IP address and end point. Be sure to turn on the camera streaming options found under ```HTTP Settings``` and set the number of allowed streams and HTTP port number. Note that performance will depend upon your device (i.e. older devices will be slow).
 
 #### Browser Example:
 
-```http://192.168.1.1:2971/camera/stream```
+```
+http://<the.device.ip.address>:2971/camera/stream
+// where <the.device.ip.address> represents the address that the device has been assigned on your network, 
+// for example something like 192.168.1.1
+```
+You will find the address under ```HTTP Settings > MJPEGStreaming```
 
 #### Home Assistant Example:
 
 ```YAML
 camera:
   - platform: mjpeg
-    mjpeg_url: http://192.168.1.1:2971/camera/stream
+    mjpeg_url: http://<the.device.ip.address>:2971/camera/stream
     name: WallPanel Camera
 ```
 
@@ -167,11 +172,11 @@ speak | data | ```{"speak": "Hello!"}``` | Uses the devices TTS to speak the mes
 brightness | data | ```{"brightness": 1}``` | Changes the screens brightness, value 1-255. 
 
 
-* The base topic value (default is "mywallpanel") should be unique to each device running the application unless you want all devices to receive the same command. The base topic and can be changed in the application settingssettings.
+* The base topic value (default is "mywallpanel") should be unique to each device running the application unless you want all devices to receive the same command. The base topic and can be changed in the applications ```MQTT settings```.
 * Commands are constructed via valid JSON. It is possible to string multiple commands together:
   * eg, ```{"clearCache":true, "relaunch":true}```
 * For REST
-  * POST the JSON to URL ```http://[mywallpanel]:2971/api/command```
+  * POST the JSON to URL ```http://<the.device.ip.address>:2971/api/command```
 * For MQTT
   * WallPanel subscribes to topic ```wallpanel/[baseTopic]/command```
     * Default Topic: ```wallpanel/mywallpanel/command```
