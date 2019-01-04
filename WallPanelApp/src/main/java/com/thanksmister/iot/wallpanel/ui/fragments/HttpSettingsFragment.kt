@@ -17,9 +17,13 @@
 package com.thanksmister.iot.wallpanel.ui.fragments
 
 import android.content.Context
+import android.content.Context.WIFI_SERVICE
+import android.net.wifi.WifiManager
 import android.os.Bundle
 import android.support.v14.preference.SwitchPreference
 import android.support.v7.preference.EditTextPreference
+import android.support.v7.preference.Preference
+import android.text.format.Formatter
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
@@ -28,6 +32,7 @@ import androidx.navigation.Navigation
 import com.thanksmister.iot.wallpanel.R
 import com.thanksmister.iot.wallpanel.ui.activities.SettingsActivity
 import dagger.android.support.AndroidSupportInjection
+
 
 class HttpSettingsFragment : BaseSettingsFragment() {
 
@@ -45,26 +50,32 @@ class HttpSettingsFragment : BaseSettingsFragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        if((activity as SettingsActivity).supportActionBar != null) {
-            (activity as SettingsActivity).supportActionBar!!.setDisplayHomeAsUpEnabled(true)
-            (activity as SettingsActivity).supportActionBar!!.setDisplayShowHomeEnabled(true)
-            (activity as SettingsActivity).supportActionBar!!.title = (getString(R.string.title_http_settings))
+
+        if (activity is SettingsActivity) {
+            val actionBar = (activity as SettingsActivity).supportActionBar
+            with(actionBar) {
+                this?.setDisplayHomeAsUpEnabled(true)
+                this?.setDisplayShowHomeEnabled(true)
+                this?.title = (getString(R.string.title_http_settings))
+            }
         }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
         super.onCreateOptionsMenu(menu, inflater)
-        inflater!!.inflate(R.menu.menu_help, menu)
+        inflater?.inflate(R.menu.menu_help, menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        val id = item.itemId
-        if (id == android.R.id.home) {
-            view?.let { Navigation.findNavController(it).navigate(R.id.settings_action) }
-            return true
-        } else if (id == R.id.action_help) {
-            showSupport()
-            return true
+        when (item.itemId) {
+            android.R.id.home -> {
+                view?.let { Navigation.findNavController(it).navigate(R.id.settings_action) }
+                return true
+            }
+            R.id.action_help -> {
+                showSupport()
+                return true
+            }
         }
         return super.onOptionsItemSelected(item)
     }
@@ -86,5 +97,11 @@ class HttpSettingsFragment : BaseSettingsFragment() {
         bindPreferenceSummaryToValue(httpMjpegPreference!!)
         bindPreferenceSummaryToValue(httpMjpegStreamsPreference!!)
         bindPreferenceSummaryToValue(httpPortPreference!!)
+
+        val wm = activity!!.applicationContext.getSystemService(WIFI_SERVICE) as WifiManager
+        val ip = Formatter.formatIpAddress(wm.connectionInfo.ipAddress)
+
+        val description = findPreference(getString(R.string.key_setting_directions)) as Preference
+        description.summary = getString(R.string.pref_mjpeg_streaming_description, ip )
     }
 }

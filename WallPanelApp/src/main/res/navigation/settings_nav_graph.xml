@@ -32,6 +32,9 @@
         <action android:id="@+id/motion_action" app:destination="@id/motion_fragment"/>
         <action android:id="@+id/face_action" app:destination="@id/face_fragment"/>
         <action android:id="@+id/qrcode_action" app:destination="@id/qrcode_fragment"/>
+        <action
+            android:id="@+id/action_camera_fragment_to_http_fragment"
+            app:destination="@id/http_fragment"/>
     </fragment>
 
     <fragment android:id="@+id/about_fragment"

@@ -46,12 +46,12 @@
 
     <PreferenceCategory android:title="@string/pref_mjpeg_streaming_title">
 
-        <EditTextPreference
+        <Preference
+            android:key="@string/key_setting_directions"
             android:textColor="@color/light_gray"
             android:textSize="12sp"
             android:selectable="false"
-            android:paddingTop="0dp"
-            android:summary="@string/pref_mjpeg_streaming_description"/>
+            android:paddingTop="0dp"/>
 
         <SwitchPreference
             android:defaultValue="@string/default_setting_http_mjpegenabled"
