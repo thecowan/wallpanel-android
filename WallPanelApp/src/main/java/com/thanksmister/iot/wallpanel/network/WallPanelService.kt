@@ -19,7 +19,10 @@ package com.thanksmister.iot.wallpanel.network
 import android.app.KeyguardManager
 import android.arch.lifecycle.LifecycleService
 import android.arch.lifecycle.Observer
-import android.content.*
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.media.MediaPlayer
 import android.net.wifi.WifiManager
@@ -43,25 +46,24 @@ import com.thanksmister.iot.wallpanel.ui.activities.BrowserActivity.Companion.BR
 import com.thanksmister.iot.wallpanel.utils.MqttUtils
 import com.thanksmister.iot.wallpanel.utils.MqttUtils.Companion.COMMAND_AUDIO
 import com.thanksmister.iot.wallpanel.utils.MqttUtils.Companion.COMMAND_BRIGHTNESS
+import com.thanksmister.iot.wallpanel.utils.MqttUtils.Companion.COMMAND_CAMERA_ON
 import com.thanksmister.iot.wallpanel.utils.MqttUtils.Companion.COMMAND_CLEAR_CACHE
 import com.thanksmister.iot.wallpanel.utils.MqttUtils.Companion.COMMAND_EVAL
-import com.thanksmister.iot.wallpanel.utils.MqttUtils.Companion.COMMAND_NOTIFICATION
 import com.thanksmister.iot.wallpanel.utils.MqttUtils.Companion.COMMAND_RELAUNCH
 import com.thanksmister.iot.wallpanel.utils.MqttUtils.Companion.COMMAND_RELOAD
 import com.thanksmister.iot.wallpanel.utils.MqttUtils.Companion.COMMAND_SENSOR
+import com.thanksmister.iot.wallpanel.utils.MqttUtils.Companion.COMMAND_SENSOR_FACE
+import com.thanksmister.iot.wallpanel.utils.MqttUtils.Companion.COMMAND_SENSOR_MOTION
+import com.thanksmister.iot.wallpanel.utils.MqttUtils.Companion.COMMAND_SENSOR_QR_CODE
 import com.thanksmister.iot.wallpanel.utils.MqttUtils.Companion.COMMAND_SPEAK
 import com.thanksmister.iot.wallpanel.utils.MqttUtils.Companion.COMMAND_STATE
 import com.thanksmister.iot.wallpanel.utils.MqttUtils.Companion.COMMAND_URL
 import com.thanksmister.iot.wallpanel.utils.MqttUtils.Companion.COMMAND_WAKE
-import com.thanksmister.iot.wallpanel.utils.MqttUtils.Companion.COMMAND_SENSOR_FACE
-import com.thanksmister.iot.wallpanel.utils.MqttUtils.Companion.COMMAND_SENSOR_MOTION
-import com.thanksmister.iot.wallpanel.utils.MqttUtils.Companion.COMMAND_SENSOR_QR_CODE
 import com.thanksmister.iot.wallpanel.utils.MqttUtils.Companion.VALUE
 import com.thanksmister.iot.wallpanel.utils.NotificationUtils
 import dagger.android.AndroidInjection
 import org.json.JSONException
 import org.json.JSONObject
-import timber.log.BuildConfig
 import timber.log.Timber
 import java.io.IOException
 import java.nio.ByteBuffer
@@ -122,7 +124,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
 
         //noinspection deprecation
-        partialWakeLock = if(Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
+        partialWakeLock = if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
             pm.newWakeLock(PowerManager.FULL_WAKE_LOCK or PowerManager.ACQUIRE_CAUSES_WAKEUP, "wallPanel:partialWakeLock")
         } else {
             pm.newWakeLock(PowerManager.FULL_WAKE_LOCK or PowerManager.ACQUIRE_CAUSES_WAKEUP or PowerManager.ON_AFTER_RELEASE, "wallPanel:partialWakeLock")
@@ -164,11 +166,11 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
 
     override fun onDestroy() {
         super.onDestroy()
-        if(mqttModule != null) {
+        if (mqttModule != null) {
             mqttModule?.pause()
             mqttModule = null
         }
-        if(localBroadCastManager != null) {
+        if (localBroadCastManager != null) {
             localBroadCastManager?.unregisterReceiver(mBroadcastReceiver)
         }
         cameraReader.stopCamera()
@@ -240,7 +242,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         // listen for network connectivity changes
         connectionLiveData = ConnectionLiveData(this)
         connectionLiveData?.observe(this, Observer { connected ->
-            if(connected!!) {
+            if (connected!!) {
                 handleNetworkConnect()
             } else {
                 handleNetworkDisconnect()
@@ -286,7 +288,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
 
     private fun stopPowerOptions() {
         Timber.i("Releasing Screen/WiFi Locks")
-        if(partialWakeLock != null && partialWakeLock!!.isHeld) {
+        if (partialWakeLock != null && partialWakeLock!!.isHeld) {
             partialWakeLock!!.release()
         }
         if (wifiLock != null && wifiLock!!.isHeld) {
@@ -309,7 +311,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
     private fun configureMqtt() {
         Timber.d("configureMqtt")
         if (mqttModule == null && mqttOptions.isValid) {
-            mqttModule = MQTTModule(this@WallPanelService.applicationContext, mqttOptions,this@WallPanelService)
+            mqttModule = MQTTModule(this@WallPanelService.applicationContext, mqttOptions, this@WallPanelService)
             lifecycle.addObserver(mqttModule!!)
         }
     }
@@ -317,7 +319,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
     //Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1
     override fun onMQTTConnect() {
         Timber.w("onMQTTConnect")
-        if(!mqttConnected) {
+        if (!mqttConnected) {
             clearAlertMessage() // clear any dialogs
             mqttConnected = true
         }
@@ -329,8 +331,8 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
     //Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1
     override fun onMQTTDisconnect() {
         Timber.e("onMQTTDisconnect")
-        if(hasNetwork()) {
-            if(!mqttAlertMessageShown && !mqttConnected && Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
+        if (hasNetwork()) {
+            if (!mqttAlertMessageShown && !mqttConnected && Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
                 mqttAlertMessageShown = true
                 sendAlertMessage(getString(R.string.error_mqtt_connection))
             }
@@ -341,8 +343,8 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
     //Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1
     override fun onMQTTException(message: String) {
         Timber.e("onMQTTException: $message")
-        if(hasNetwork()) {
-            if(!mqttAlertMessageShown && !mqttConnected && Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
+        if (hasNetwork()) {
+            if (!mqttAlertMessageShown && !mqttConnected && Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
                 mqttAlertMessageShown = true
                 sendAlertMessage(getString(R.string.error_mqtt_exception))
             }
@@ -357,7 +359,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
     }
 
     override fun onMQTTMessage(id: String, topic: String, payload: String) {
-        Timber.i("onMQTTMessage: $payload")
+        Timber.i("onMQTTMessage: $id, $topic, $payload")
         processCommand(payload)
     }
 
@@ -367,7 +369,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
 
     private fun publishMessage(command: String, message: String) {
         Timber.d("publishMessage $command message: $message")
-        if(mqttModule != null) {
+        if (mqttModule != null) {
             mqttModule!!.publish(command, message)
         }
     }
@@ -376,6 +378,8 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         Timber.d("configureCamera ${configuration.cameraEnabled}")
         if (configuration.cameraEnabled) {
             cameraReader.startCamera(cameraDetectorCallback, configuration)
+        } else {
+            cameraReader.stopCamera()
         }
     }
 
@@ -522,6 +526,12 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
     private fun processCommand(commandJson: JSONObject): Boolean {
         Timber.d("processCommand $commandJson")
         try {
+            if (commandJson.has(COMMAND_CAMERA_ON)) {
+                val cameraOn = commandJson.getBoolean(COMMAND_CAMERA_ON)
+                configuration.cameraEnabled = cameraOn
+                startHttp()
+                configureCamera()
+            }
             if (commandJson.has(COMMAND_URL)) {
                 browseUrl(commandJson.getString(COMMAND_URL))
             }
@@ -566,7 +576,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
     }
 
     private fun processCommand(command: String): Boolean {
-        Timber.d("processCommand Called")
+        Timber.d("processCommand Called -> $command")
         return try {
             processCommand(JSONObject(command))
         } catch (ex: JSONException) {
@@ -724,7 +734,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
 
     private fun clearMotionDetected() {
         Timber.d("Clearing motion detected status")
-        if(motionDetected) {
+        if (motionDetected) {
             motionDetected = false
             val data = JSONObject()
             try {
@@ -737,7 +747,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
     }
 
     private fun clearFaceDetected() {
-        if(faceDetected) {
+        if (faceDetected) {
             Timber.d("Clearing face detected status")
             val data = JSONObject()
             try {
@@ -767,7 +777,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
     }
 
     private fun clearQrCodeRead() {
-        if(qrCodeRead) {
+        if (qrCodeRead) {
             qrCodeRead = false
         }
     }
@@ -836,9 +846,11 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         override fun onDetectorError() {
             sendToastMessage(getString(R.string.error_missing_vision_lib))
         }
+
         override fun onCameraError() {
             sendToastMessage(getString(R.string.toast_camera_source_error))
         }
+
         override fun onMotionDetected() {
             Timber.i("Motion detected")
             if (configuration.cameraMotionWake) {
@@ -851,9 +863,11 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
             }
             publishMotionDetected()
         }
+
         override fun onTooDark() {
-           // Timber.i("Too dark for motion detection")
+            // Timber.i("Too dark for motion detection")
         }
+
         override fun onFaceDetected() {
             Timber.i("Face detected")
             Timber.d("configuration.cameraMotionBright ${configuration.cameraMotionBright}")
@@ -867,6 +881,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
             }
             publishFaceDetected()
         }
+
         override fun onQRCode(data: String) {
             Timber.i("QR Code Received: $data")
             publishQrCode(data)
