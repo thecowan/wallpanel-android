@@ -25,7 +25,7 @@ import org.eclipse.paho.client.mqttv3.MqttCallbackExtended
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions
 import timber.log.Timber
 import java.nio.charset.Charset
-import java.util.ArrayList
+import java.util.*
 
 /**
  * Just a utility class to work with the specific settings of the MQTT
@@ -45,6 +45,7 @@ class MqttUtils {
         const val STATE_BRIGHTNESS = "brightness"
         const val COMMAND_SENSOR = "sensor/"
         const val COMMAND_URL = "url"
+        const val COMMAND_CAMERA_ON = "cameraOn"
         const val COMMAND_RELAUNCH = "relaunch"
         const val COMMAND_WAKE = "wake"
         const val COMMAND_BRIGHTNESS = "brightness"
