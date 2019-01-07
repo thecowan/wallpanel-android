@@ -56,6 +56,7 @@
     <string name="title_setting_camera_faceenabled">Face Detection Enabled</string>
     <string name="title_setting_camera_facewake">Wakes Screen</string>
     <string name="title_setting_camera_qrcodeenabled">QR Code Reader Enabled</string>
+    <string name="title_setting_camera_streaming">Camera streaming</string>
     <string name="title_setting_http_restenabled">REST API</string>
     <string name="title_setting_http_port">HTTP Listening Port</string>
     <string name="title_setting_http_mjpegenabled">MJPEG Camera Streaming</string>
@@ -120,7 +121,7 @@
     <string name="pref_camera_bright_summary">Increases the screen brightness when motion or face detected.</string>
     <string name="pref_motion_leniency_description">The maximum tolerance of the difference between images. A lower tolerance means motion is more sensitive (1 – 20).</string>
     <string name="pref_motion_luma_description">Minimum brightness level to detect motion. No motion will be detected if brightness falls below this value (1 – 1000).</string>
-    <string name="pref_mjpeg_streaming_description">Use the device camera as a live MJPEG stream. Connect to the stream using the device IP address, HTTP Port, and end point: http://192.168.1.1:2971/camera/stream</string>
+    <string name="pref_mjpeg_streaming_description">Use the device camera as a live MJPEG stream. Connect to the stream using the device IP address, HTTP Port, and end point: http://%s:2971/camera/stream</string>
     <string name="pref_mjpeg_streaming_title">MJPEG Streaming</string>
     <string name="pref_http_description">Control the application over HTTP using REST API calls. To find out which commands work with, review the help documentation.</string>
     <string name="pref_launchurl_summary">Enter the fully qualified URL for your home automation dashboard or path to file on the local device (requires storage access permission).</string>
@@ -144,6 +145,7 @@
     <string name="pref_camera_test_button_title">Camera Test</string>
     <string name="pref_camera_title">Camera</string>
     <string name="pref_camera_brightness_title">Camera Activated Brightness</string>
+    <string name="pref_camera_streaming_title">Camera Streaming</string>
     <string name="toast_too_dark_motion">Too dark for motion detection</string>
     <string name="toast_motion_detected">Motion Detected!</string>
     <string name="toast_face_detected">Face Detected!</string>

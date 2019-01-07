@@ -54,6 +54,7 @@
     <string name="key_setting_http_mjpegenabled">setting_http_mjpegenabled</string>
     <string name="default_setting_http_restenabled">false</string>
     <string name="key_setting_http_port">setting_http_port</string>
+    <string name="key_setting_directions">setting_directions</string>
     <string name="default_setting_camera_qrcodeenabled">false</string>
     <string name="key_setting_http_restenabled">setting_http_enabled</string>
     <string name="default_setting_camera_facewake">false</string>

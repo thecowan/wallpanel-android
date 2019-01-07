@@ -51,6 +51,7 @@ class CameraSettingsFragment : BaseSettingsFragment() {
     private var motionBrightPreference: SwitchPreference? = null
     private var motionDimPreference: EditTextPreference? = null
     private var fpsPreference: EditTextPreference? = null
+    private var cameraStreaming: Preference? = null
 
     override fun onAttach(context: Context) {
         AndroidSupportInjection.inject(this)
@@ -61,26 +62,31 @@ class CameraSettingsFragment : BaseSettingsFragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         // Set title bar
-        if((activity as SettingsActivity).supportActionBar != null) {
-            (activity as SettingsActivity).supportActionBar!!.setDisplayHomeAsUpEnabled(true)
-            (activity as SettingsActivity).supportActionBar!!.setDisplayShowHomeEnabled(true)
-            (activity as SettingsActivity).supportActionBar!!.title = (getString(R.string.title_camera_settings))
+        if (activity is SettingsActivity) {
+            val actionBar = (activity as SettingsActivity).supportActionBar
+            with(actionBar) {
+                this?.setDisplayHomeAsUpEnabled(true)
+                this?.setDisplayShowHomeEnabled(true)
+                this?.title = (getString(R.string.title_camera_settings))
+            }
         }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
         super.onCreateOptionsMenu(menu, inflater)
-        inflater!!.inflate(R.menu.menu_help, menu)
+        inflater?.inflate(R.menu.menu_help, menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        val id = item.itemId
-        if (id == android.R.id.home) {
-            view?.let { Navigation.findNavController(it).navigate(R.id.settings_action) }
-            return true
-        } else if (id == R.id.action_help) {
-            showSupport()
-            return true
+        when (item.itemId) {
+            android.R.id.home -> {
+                view?.let { Navigation.findNavController(it).navigate(R.id.settings_action) }
+                return true
+            }
+            R.id.action_help -> {
+                showSupport()
+                return true
+            }
         }
         return super.onOptionsItemSelected(item)
     }
@@ -89,9 +95,7 @@ class CameraSettingsFragment : BaseSettingsFragment() {
         addPreferencesFromResource(R.xml.pref_camera)
     }
 
-    override fun onResume() {
-        super.onResume()
-    }
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
@@ -103,7 +107,7 @@ class CameraSettingsFragment : BaseSettingsFragment() {
         cameraPreference = findPreference(getString(R.string.key_setting_camera_enabled)) as SwitchPreference
 
         cameraListPreference = findPreference(getString(R.string.key_setting_camera_cameraid)) as ListPreference
-        cameraListPreference!!.setOnPreferenceChangeListener { preference, newValue ->
+        cameraListPreference?.setOnPreferenceChangeListener { preference, newValue ->
             if (preference is ListPreference) {
                 val index = preference.findIndexOfValue(newValue.toString())
                 preference.setSummary(
@@ -116,9 +120,9 @@ class CameraSettingsFragment : BaseSettingsFragment() {
                     Timber.d("Camera Id: " + configuration.cameraId)
                 }
             }
-            true;
+            true
         }
-        cameraListPreference!!.isEnabled = false
+        cameraListPreference?.isEnabled = false
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             if (ActivityCompat.checkSelfPermission(activity!!.applicationContext, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
@@ -149,23 +153,30 @@ class CameraSettingsFragment : BaseSettingsFragment() {
             }
         }
 
-        cameraTestPreference!!.onPreferenceClickListener = Preference.OnPreferenceClickListener { preference ->
+        cameraTestPreference?.onPreferenceClickListener = Preference.OnPreferenceClickListener { preference ->
             startCameraTest(preference.context)
             false
         }
 
-        motionDetectionPreference!!.onPreferenceClickListener = Preference.OnPreferenceClickListener { preference ->
+        motionDetectionPreference?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
             view.let { Navigation.findNavController(it).navigate(R.id.motion_action) }
             false
         }
 
-        faceDetectionPreference!!.onPreferenceClickListener = Preference.OnPreferenceClickListener { preference ->
+        faceDetectionPreference?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
             view.let { Navigation.findNavController(it).navigate(R.id.face_action) }
             false
         }
 
-        qrCodePreference!!.onPreferenceClickListener = Preference.OnPreferenceClickListener { preference ->
+        qrCodePreference?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
             view.let { Navigation.findNavController(it).navigate(R.id.qrcode_action) }
+            false
+        }
+
+        cameraStreaming = findPreference("button_key_camera_streaming")
+
+        cameraStreaming?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
+            view.let { Navigation.findNavController(it).navigate(R.id.action_camera_fragment_to_http_fragment) }
             false
         }
     }
