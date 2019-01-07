@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 LocalBuzz
+ * Copyright (c) 2019 ThanksMister LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,9 @@ class ScreenSaverView : RelativeLayout {
 
     private var timeHandler: Handler? = null
     private var saverContext: Context? = null
+    private var parentWidth: Int = 0
+    private var parentHeight: Int = 0
+
     val calendar: Calendar = Calendar.getInstance()
 
     private val timeRunnable = object : Runnable {
@@ -38,16 +41,23 @@ class ScreenSaverView : RelativeLayout {
             val date = Date()
             calendar.time = date
             val currentTimeString = DateUtils.formatDateTime(context, date.time, DateUtils.FORMAT_SHOW_TIME)
-            val offset = 60L - calendar.get(Calendar.SECOND)
-            Timber.d("currentTimeString $currentTimeString and ${date.seconds} and $offset")
-
             screenSaverClock.text = currentTimeString
-            screenSaverClockLayout.translationX = ((Math.random() * 50).toFloat()) - 25
-            screenSaverClockLayout.translationY = (Math.random() * 50).toFloat() - 25
+
+            val width = screenSaverClockLayout.width
+            val height = screenSaverClockLayout.height
+            parentWidth = screenSaverView.width
+            parentHeight = screenSaverView.height
+            if(width > 0 && height > 0) {
+                val newX = Random().nextInt(parentWidth - width - 25)
+                val newY = Random().nextInt(parentHeight - height - 25)
+                screenSaverClockLayout.x = newX.toFloat()
+                screenSaverClockLayout.y = newY.toFloat()
+            }
+
+            val offset = 60L - calendar.get(Calendar.SECOND)
             timeHandler?.postDelayed(this, TimeUnit.SECONDS.toMillis(offset))
         }
     }
-
 
     constructor(context: Context) : super(context) {
         saverContext = context
@@ -62,15 +72,20 @@ class ScreenSaverView : RelativeLayout {
         timeHandler?.removeCallbacks(timeRunnable)
     }
 
+    fun init() {
+
+    }
+
+    override fun onFinishInflate() {
+        super.onFinishInflate()
+        setClockViews()
+        timeHandler = Handler()
+        timeHandler?.postDelayed(timeRunnable, 10)
+    }
+
     // setup clock size based on screen and weather settings
     private fun setClockViews() {
         val initialRegular = screenSaverClock.textSize
         screenSaverClock.setTextSize(TypedValue.COMPLEX_UNIT_PX, initialRegular + 100)
-    }
-
-    fun init() {
-        setClockViews()
-        timeHandler = Handler()
-        timeHandler?.postDelayed(timeRunnable, 10)
     }
 }
