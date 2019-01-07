@@ -170,7 +170,7 @@ url | URL | ```{"url": "http://<url>"}``` | Browse to a new URL immediately
 wake | true | ```{"wake": true}``` | Wakes the screen if it is asleep
 speak | data | ```{"speak": "Hello!"}``` | Uses the devices TTS to speak the message
 brightness | data | ```{"brightness": 1}``` | Changes the screens brightness, value 1-255. 
-cameraOn | data | ```{"cameraOn": true}``` | Turns on/off camera streaming, requires camera to be enabled. 
+camera | data | ```{"camera": true}``` | Turns on/off camera streaming, requires camera to be enabled. 
 
 * The base topic value (default is "mywallpanel") should be unique to each device running the application unless you want all devices to receive the same command. The base topic and can be changed in the applications ```MQTT settings```.
 * Commands are constructed via valid JSON. It is possible to string multiple commands together:
