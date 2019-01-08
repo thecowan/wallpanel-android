@@ -281,6 +281,7 @@ constructor(private val context: Context) {
             cameraCallback!!.onCameraError()
             return
         }
+
         cameraOrientation = info.orientation
         val multiDetectorBuilder = MultiDetector.Builder()
         var detectorAdded = false
@@ -299,7 +300,7 @@ constructor(private val context: Context) {
                                 }
                             })
                             bitmapComplete = false
-                            byteArrayCreateTask!!.execute(stream.byteArray, stream.width, stream.height, cameraOrientation)
+                            byteArrayCreateTask!!.execute(stream.byteArray, stream.width, stream.height, cameraOrientation, configuration.cameraRotate)
                         }
                     }
                 }
@@ -418,24 +419,27 @@ constructor(private val context: Context) {
             val width = params[1] as Int
             val height = params[2] as Int
             val orientation = params[3] as Int
+            val rotation = params[4] as Float
 
             val windowService = contextRef.get()!!.getSystemService(Context.WINDOW_SERVICE) as WindowManager
             val currentRotation = windowService.defaultDisplay.rotation
             val nv21Bitmap = Nv21Image.nv21ToBitmap(renderScript, byteArray, width, height)
-
             var rotate = orientation
+
             when (currentRotation) {
                 Surface.ROTATION_90 -> {
-                    rotate += 90
+                    rotate -= 90
                 }
                 Surface.ROTATION_180 -> {
-                    rotate += 180
+                    rotate -= 180
                 }
                 Surface.ROTATION_270 -> {
-                    rotate += 270
+                    rotate -= 270
                 }
             }
+
             rotate %= 360
+            rotate += rotation.toInt()
 
             val matrix = Matrix()
             matrix.postRotate(rotate.toFloat())

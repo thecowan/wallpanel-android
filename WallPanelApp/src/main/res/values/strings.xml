@@ -205,6 +205,16 @@
     <string name="preference_summary_inactivity_seconds">After %1$s seconds of inactivity screen dims.</string>
     <string name="preference_summary_inactivity_minutes">After %1$s minute(s) of inactivity screen dims.</string>
 
+    <string name="preference_camera_flip_title">Rotate Camera</string>
+    <string name="preference_camera_flip_summary">Depending on your camera, you may need to rotate or flip the camera. Currently %1$s.</string>
+
+    <string-array name="flip_directions">
+        <item>None</item>
+        <item>Rotate Left</item>
+        <item>Rotate Right</item>
+        <item>Flip Vertical</item>
+    </string-array>
+
     <string-array name="inactivity_times">
         <item>15 seconds</item>
         <item>30 seconds</item>

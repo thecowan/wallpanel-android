@@ -46,7 +46,7 @@ import com.thanksmister.iot.wallpanel.ui.activities.BrowserActivity.Companion.BR
 import com.thanksmister.iot.wallpanel.utils.MqttUtils
 import com.thanksmister.iot.wallpanel.utils.MqttUtils.Companion.COMMAND_AUDIO
 import com.thanksmister.iot.wallpanel.utils.MqttUtils.Companion.COMMAND_BRIGHTNESS
-import com.thanksmister.iot.wallpanel.utils.MqttUtils.Companion.COMMAND_CAMERA_ON
+import com.thanksmister.iot.wallpanel.utils.MqttUtils.Companion.COMMAND_CAMERA
 import com.thanksmister.iot.wallpanel.utils.MqttUtils.Companion.COMMAND_CLEAR_CACHE
 import com.thanksmister.iot.wallpanel.utils.MqttUtils.Companion.COMMAND_EVAL
 import com.thanksmister.iot.wallpanel.utils.MqttUtils.Companion.COMMAND_RELAUNCH
@@ -62,6 +62,9 @@ import com.thanksmister.iot.wallpanel.utils.MqttUtils.Companion.COMMAND_WAKE
 import com.thanksmister.iot.wallpanel.utils.MqttUtils.Companion.VALUE
 import com.thanksmister.iot.wallpanel.utils.NotificationUtils
 import dagger.android.AndroidInjection
+import io.reactivex.Completable
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.disposables.Disposable
 import org.json.JSONException
 import org.json.JSONObject
 import timber.log.Timber
@@ -107,6 +110,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
     private var localBroadCastManager: LocalBroadcastManager? = null
     private var mqttAlertMessageShown = false
     private var mqttConnected = false
+    private var cameraDisposable = CompositeDisposable()
 
     inner class WallPanelServiceBinder : Binder() {
         val service: WallPanelService
@@ -148,8 +152,8 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         startForeground()
         configureMqtt()
         configurePowerOptions()
-        startHttp()
         configureCamera()
+        startHttp()
         configureAudioPlayer()
         configureTextToSpeech()
         startSensors()
@@ -414,52 +418,51 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
     }
 
     private fun startHttp() {
-        if (httpServer == null && (configuration.httpEnabled || configuration.httpMJPEGEnabled)) {
+        if (httpServer == null && configuration.httpEnabled) {
             Timber.d("startHttp")
             httpServer = AsyncHttpServer()
-            if (configuration.httpRestEnabled) {
-                httpServer!!.addAction("POST", "/api/command") { request, response ->
-                    var result = false
-                    if (request.body is JSONObjectBody) {
-                        Timber.i("POST Json Arrived (command)")
-                        result = processCommand((request.body as JSONObjectBody).get())
-                    } else if (request.body is StringBody) {
-                        Timber.i("POST String Arrived (command)")
-                        result = processCommand((request.body as StringBody).get())
-                    }
-                    val j = JSONObject()
-                    try {
-                        j.put("result", result)
-                    } catch (e: JSONException) {
-                        e.printStackTrace()
-                    }
-                    response.send(j)
-                }
-
-                httpServer!!.addAction("GET", "/api/state") { request, response ->
-                    Timber.i("GET Arrived (/api/state)")
-                    response.send(state)
-                }
-                Timber.i("Enabled REST Endpoints")
-            }
-
-            if (configuration.httpMJPEGEnabled) {
-                startMJPEG()
-                httpServer!!.addAction("GET", "/camera/stream") { _, response ->
-                    Timber.i("GET Arrived (/camera/stream)")
-                    startMJPEG(response)
-                }
-                Timber.i("Enabled MJPEG Endpoint")
-            }
-
             httpServer!!.addAction("*", "*") { request, response ->
                 Timber.i("Unhandled Request Arrived")
                 response.code(404)
                 response.send("")
             }
-
             httpServer!!.listen(AsyncServer.getDefault(), configuration.httpPort)
             Timber.i("Started HTTP server on " + configuration.httpPort)
+        }
+
+        if (httpServer != null && configuration.httpRestEnabled) {
+            httpServer!!.addAction("POST", "/api/command") { request, response ->
+                var result = false
+                if (request.body is JSONObjectBody) {
+                    Timber.i("POST Json Arrived (command)")
+                    result = processCommand((request.body as JSONObjectBody).get())
+                } else if (request.body is StringBody) {
+                    Timber.i("POST String Arrived (command)")
+                    result = processCommand((request.body as StringBody).get())
+                }
+                val j = JSONObject()
+                try {
+                    j.put("result", result)
+                } catch (e: JSONException) {
+                    e.printStackTrace()
+                }
+                response.send(j)
+            }
+
+            httpServer!!.addAction("GET", "/api/state") { request, response ->
+                Timber.i("GET Arrived (/api/state)")
+                response.send(state)
+            }
+            Timber.i("Enabled REST Endpoints")
+        }
+
+        if (httpServer != null && configuration.httpMJPEGEnabled) {
+            startMJPEG()
+            httpServer!!.addAction("GET", "/camera/stream") { _, response ->
+                Timber.i("GET Arrived (/camera/stream)")
+                startMJPEG(response)
+            }
+            Timber.i("Enabled MJPEG Endpoint")
         }
     }
 
@@ -476,7 +479,6 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         Timber.d("startMJPEG")
         cameraReader.getJpeg().observe(this, Observer { jpeg ->
             if (mJpegSockets.size > 0 && jpeg != null) {
-                Timber.d("mJpegSockets")
                 var i = 0
                 while (i < mJpegSockets.size) {
                     val s = mJpegSockets[i]
@@ -502,6 +504,10 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
     private fun stopMJPEG() {
         Timber.d("stopMJPEG Called")
         mJpegSockets.clear()
+        cameraReader.getJpeg().removeObservers(this)
+        if(httpServer != null) {
+            httpServer!!.removeAction("GET", "/camera/stream")
+        }
     }
 
     private fun startMJPEG(response: AsyncHttpServerResponse) {
@@ -526,11 +532,15 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
     private fun processCommand(commandJson: JSONObject): Boolean {
         Timber.d("processCommand $commandJson")
         try {
-            if (commandJson.has(COMMAND_CAMERA_ON)) {
-                val cameraOn = commandJson.getBoolean(COMMAND_CAMERA_ON)
-                configuration.cameraEnabled = cameraOn
-                startHttp()
-                configureCamera()
+            if (commandJson.has(COMMAND_CAMERA)) {
+                val camera = commandJson.getBoolean(COMMAND_CAMERA)
+                if(camera && !configuration.httpMJPEGEnabled) {
+                    configuration.setHttpMJPEGEnabled(true)
+                    startHttp()
+                } else if (!camera && configuration.httpMJPEGEnabled) {
+                    configuration.setHttpMJPEGEnabled(false)
+                    stopMJPEG()
+                }
             }
             if (commandJson.has(COMMAND_URL)) {
                 browseUrl(commandJson.getString(COMMAND_URL))

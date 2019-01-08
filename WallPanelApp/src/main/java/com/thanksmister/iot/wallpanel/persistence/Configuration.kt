@@ -45,6 +45,10 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
             sharedPreferences.edit().putBoolean(PREF_CAMERA_PERMISSIONS, value).apply()
         }
 
+    var cameraRotate: Float
+        get() = this.sharedPreferences.getString(PREF_CAMERA_ROTATE, "0f").toFloat()
+        set(value) = this.sharedPreferences.edit().putString(PREF_CAMERA_ROTATE, value.toString()).apply()
+
     var appLaunchUrl: String
         get() = getStringPref(R.string.key_setting_app_launchurl,
                 R.string.default_setting_app_launchurl)
@@ -130,6 +134,10 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
     val httpMJPEGEnabled: Boolean
         get() = getBoolPref(R.string.key_setting_http_mjpegenabled,
                 R.string.default_setting_http_mjpegenabled)
+
+    fun setHttpMJPEGEnabled(value: Boolean?) {
+        sharedPreferences.edit().putBoolean(context.getString(R.string.key_setting_http_mjpegenabled), value!!).apply()
+    }
 
     val httpMJPEGMaxStreams: Int
         get() = getStringPref(R.string.key_setting_http_mjpegmaxstreams, R.string.default_setting_http_mjpegmaxstreams).trim().toInt()
@@ -237,6 +245,7 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
         const val PREF_FIRST_TIME = "pref_first_time"
         const val PREF_WRITE_SCREEN_PERMISSIONS = "pref_write_screen_permissions"
         const val PREF_CAMERA_PERMISSIONS = "pref_camera_permissions"
+        const val PREF_CAMERA_ROTATE = "pref_camera_rotate"
         const val PREF_BROWSER_LEGACY = "Legacy"
         const val PREF_BROWSER_NATIVE = "Native"
         const val PREF_BROWSER_AUTO = "Auto"

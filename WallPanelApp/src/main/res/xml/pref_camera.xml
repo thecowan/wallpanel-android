@@ -43,6 +43,13 @@
             android:paddingTop="0dp"
             android:summary="@string/pref_camera_fps_summary"/>
 
+        <ListPreference
+            android:key="pref_camera_rotate"
+            android:title="@string/preference_camera_flip_title"
+            android:summary="@string/preference_camera_flip_summary"
+            android:entries="@array/flip_directions"
+            android:entryValues="@array/flip_values"/>
+
         <Preference
             android:icon="@drawable/ic_directions_run"
             android:key="button_key_motion_detection"

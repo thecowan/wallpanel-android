@@ -144,4 +144,11 @@
         <item>2.0</item>
     </string-array>
 
+    <string-array name="flip_values">
+        <item>0F</item>
+        <item>-90f</item>
+        <item>90f</item>
+        <item>-180f</item>
+    </string-array>
+
 </resources>

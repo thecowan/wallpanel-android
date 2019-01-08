@@ -34,6 +34,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.navigation.Navigation
 import com.thanksmister.iot.wallpanel.R
+import com.thanksmister.iot.wallpanel.persistence.Configuration
 import com.thanksmister.iot.wallpanel.ui.activities.LiveCameraActivity
 import com.thanksmister.iot.wallpanel.ui.activities.SettingsActivity
 import com.thanksmister.iot.wallpanel.utils.CameraUtils
@@ -52,6 +53,7 @@ class CameraSettingsFragment : BaseSettingsFragment() {
     private var motionDimPreference: EditTextPreference? = null
     private var fpsPreference: EditTextPreference? = null
     private var cameraStreaming: Preference? = null
+    private var rotatePreference: ListPreference? = null
 
     override fun onAttach(context: Context) {
         AndroidSupportInjection.inject(this)
@@ -95,8 +97,6 @@ class CameraSettingsFragment : BaseSettingsFragment() {
         addPreferencesFromResource(R.xml.pref_camera)
     }
 
-
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
         super.onViewCreated(view, savedInstanceState)
@@ -105,6 +105,28 @@ class CameraSettingsFragment : BaseSettingsFragment() {
         motionDimPreference = findPreference(getString(R.string.key_setting_camera_motionontime)) as EditTextPreference
         fpsPreference = findPreference(getString(R.string.key_setting_camera_fps)) as EditTextPreference
         cameraPreference = findPreference(getString(R.string.key_setting_camera_enabled)) as SwitchPreference
+
+        rotatePreference = findPreference(Configuration.PREF_CAMERA_ROTATE) as ListPreference
+        rotatePreference!!.setDefaultValue(configuration.cameraRotate)
+        rotatePreference!!.value = configuration.cameraRotate.toString()
+        if(configuration.cameraRotate == 0f) {
+            rotatePreference!!.setValueIndex(0)
+        } else if (configuration.cameraRotate == -90f) {
+            rotatePreference!!.setValueIndex(1)
+        } else if (configuration.cameraRotate == 90f) {
+            rotatePreference!!.setValueIndex(2)
+        } else if (configuration.cameraRotate == -180f) {
+            rotatePreference!!.setValueIndex(3)
+        }
+        rotatePreference?.setOnPreferenceChangeListener { preference, newValue ->
+            if (preference is ListPreference) {
+                val valueFloat = rotatePreference!!.value
+                val valueName = rotatePreference!!.entry.toString()
+                rotatePreference!!.summary = getString(R.string.preference_camera_flip_summary, valueName)
+                configuration.cameraRotate = valueFloat.toFloat()
+            }
+            true
+        }
 
         cameraListPreference = findPreference(getString(R.string.key_setting_camera_cameraid)) as ListPreference
         cameraListPreference?.setOnPreferenceChangeListener { preference, newValue ->
