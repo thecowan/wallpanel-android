@@ -110,19 +110,20 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
     private var localBroadCastManager: LocalBroadcastManager? = null
     private var mqttAlertMessageShown = false
     private var mqttConnected = false
-    private var cameraDisposable = CompositeDisposable()
-
     inner class WallPanelServiceBinder : Binder() {
         val service: WallPanelService
             get() = this@WallPanelService
     }
 
     override fun onCreate() {
+
         super.onCreate()
 
         Timber.d("onCreate")
 
         AndroidInjection.inject(this)
+
+        startForeground()
 
         // prepare the lock types we may use
         val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
@@ -149,7 +150,6 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
 
         this.appLaunchUrl = configuration.appLaunchUrl
 
-        startForeground()
         configureMqtt()
         configurePowerOptions()
         configureCamera()

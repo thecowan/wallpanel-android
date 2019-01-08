@@ -16,6 +16,7 @@
 
 package com.thanksmister.iot.wallpanel.ui.fragments
 
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -90,7 +91,11 @@ open class BaseSettingsFragment : PreferenceFragmentCompat(), SharedPreferences.
     }
 
     fun showSupport() {
-        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(AboutFragment.SUPPORT_URL)))
+        try {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(AboutFragment.SUPPORT_URL)))
+        } catch (e: ActivityNotFoundException) {
+            dialogUtils.showAlertDialog(activity!!, getString(R.string.error_no_web_browser))
+        }
     }
 
     /**
