@@ -109,11 +109,13 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
         if(configuration.cameraEnabled || configuration.hasCameraDetections() && Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) {
             window.setFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED, WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED)
         }
-
+        Timber.d("Prevent Sleep ${configuration.appPreventSleep}")
         if (configuration.appPreventSleep) {
-            window.addFlags( WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON )
+            window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON )
+            decorView?.keepScreenOn = true
         } else {
             window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+            decorView?.keepScreenOn = false
         }
 
         lifecycle.addObserver(dialogUtils)
