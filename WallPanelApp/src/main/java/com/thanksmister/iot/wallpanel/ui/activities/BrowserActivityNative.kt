@@ -112,7 +112,9 @@ class BrowserActivityNative : BrowserActivity() {
                 return true
             }
             override fun onReceivedError(view: WebView, errorCode: Int, description: String, failingUrl: String) {
-                Toast.makeText(this@BrowserActivityNative, description, Toast.LENGTH_SHORT).show()
+                if(!isFinishing) {
+                    Toast.makeText(this@BrowserActivityNative, description, Toast.LENGTH_SHORT).show()
+                }
             }
             override fun onReceivedSslError(view: WebView, handler: SslErrorHandler?, error: SslError?) {
                 if(!certPermissionsShown && !isFinishing) {

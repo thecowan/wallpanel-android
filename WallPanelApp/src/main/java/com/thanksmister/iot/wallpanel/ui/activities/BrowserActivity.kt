@@ -86,6 +86,7 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
                 dialogUtils.showAlertDialog(this@BrowserActivity, message)
             } else if (BROADCAST_CLEAR_ALERT_MESSAGE == intent.action && !isFinishing) {
                 dialogUtils.clearDialogs()
+                resetInactivityTimer()
             } else if (BROADCAST_SCREEN_WAKE == intent.action && !isFinishing) {
                 stopDisconnectTimer()
             }
@@ -241,8 +242,7 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
 
     fun stopDisconnectTimer() {
         Timber.d("stopDisconnectTimer")
-        hideScreenSaver()
-        inactivityHandler.removeCallbacks(inactivityCallback)
+        resetInactivityTimer()
     }
 
     open fun hideScreenSaver() {
