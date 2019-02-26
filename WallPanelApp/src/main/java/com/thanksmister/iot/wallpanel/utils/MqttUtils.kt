@@ -55,6 +55,7 @@ class MqttUtils {
         const val COMMAND_EVAL = "eval"
         const val COMMAND_AUDIO = "audio"
         const val COMMAND_SPEAK = "speak"
+        const val COMMAND_VOLUME = "volume"
 
         private val topicsList = ArrayList<String>()
 
