@@ -57,7 +57,7 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
     var zoomLevel = 1.0f
 
     // handler for received data from service
-    private val mBroadcastReceiver = object : BroadcastReceiver() {
+    private val mBroadcastReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             if (BROADCAST_ACTION_LOAD_URL == intent.action) {
                 val url = intent.getStringExtra(BROADCAST_ACTION_LOAD_URL)
