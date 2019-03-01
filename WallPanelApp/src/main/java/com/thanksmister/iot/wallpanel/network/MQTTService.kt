@@ -165,6 +165,21 @@ class MQTTService(private var context: Context, options: MQTTOptions,
         Timber.d("initializeMqttClient")
         try {
             mqttClient = MqttAndroidClient(context, mqttOptions?.brokerUrl, mqttOptions!!.getClientId())
+            mqttClient!!.setCallback(object : MqttCallbackExtended {
+                override fun connectComplete(reconnect: Boolean, serverURI: String?) {
+                    Timber.d("connect to broker completed, reconnected: $reconnect")
+                    if (mqttOptions != null) {
+                        subscribeToTopics(mqttOptions?.getStateTopics())
+                    }
+                }
+
+                override fun connectionLost(cause: Throwable?) {
+                    Timber.d("connection to broker lost")
+                }
+
+                override fun messageArrived(topic: String?, message: MqttMessage?) { }
+                override fun deliveryComplete(token: IMqttDeliveryToken?) { }
+            })
             val options = MqttConnectOptions()
             if (!TextUtils.isEmpty(mqttOptions!!.getUsername()) && !TextUtils.isEmpty(mqttOptions!!.getPassword())) {
                 options.userName = mqttOptions!!.getUsername()
@@ -188,9 +203,6 @@ class MQTTService(private var context: Context, options: MQTTOptions,
                             } catch (e: NullPointerException) {
                                 Timber.e(e.message)
                             }
-                        }
-                        if (mqttOptions != null) {
-                            subscribeToTopics(mqttOptions?.getStateTopics())
                         }
                         listener?.handleMqttConnected()
                     }
