@@ -22,12 +22,11 @@ buildscript {
         google()
         jcenter()
         maven { url "https://repo.eclipse.org/content/repositories/paho-snapshots/" }
-        maven { url "https://download.01.org/crosswalk/releases/crosswalk/android/maven2" }
         maven { url 'https://maven.fabric.io/public' }
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.2.1'
+        classpath 'com.android.tools.build:gradle:3.3.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath 'io.fabric.tools:gradle:1.+'
     }
@@ -38,7 +37,6 @@ allprojects {
         google()
         jcenter()
         maven { url "https://repo.eclipse.org/content/repositories/paho-snapshots/" }
-        maven { url "https://download.01.org/crosswalk/releases/crosswalk/android/maven2" }
         maven { url 'https://maven.fabric.io/public' }
         mavenCentral()
     }
@@ -53,7 +51,7 @@ def versions = [:]
 versions.lifecycle = "1.1.1"
 versions.support = "27.1.1"
 versions.kotlin = "1.2.20"
-versions.navigation = "1.0.0-alpha04"
+versions.navigation = "1.0.0-alpha07"
 versions.min_sdk = 16
 versions.target_sdk = 27
 versions.constraint_layout = "1.1.0"
