@@ -124,7 +124,7 @@ dependencies {
     kapt "com.google.dagger:dagger-android-processor:$versions.dagger"
 
     // MQTT
-    implementation 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.0'
+    implementation 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.1'
     implementation 'org.eclipse.paho:org.eclipse.paho.android.service:1.1.1', {
         exclude module: 'support-v4'
     }
