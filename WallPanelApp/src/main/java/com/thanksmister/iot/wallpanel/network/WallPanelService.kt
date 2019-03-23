@@ -58,6 +58,7 @@ import com.thanksmister.iot.wallpanel.utils.MqttUtils.Companion.COMMAND_SENSOR_Q
 import com.thanksmister.iot.wallpanel.utils.MqttUtils.Companion.COMMAND_SPEAK
 import com.thanksmister.iot.wallpanel.utils.MqttUtils.Companion.COMMAND_STATE
 import com.thanksmister.iot.wallpanel.utils.MqttUtils.Companion.COMMAND_URL
+import com.thanksmister.iot.wallpanel.utils.MqttUtils.Companion.COMMAND_VOLUME
 import com.thanksmister.iot.wallpanel.utils.MqttUtils.Companion.COMMAND_WAKE
 import com.thanksmister.iot.wallpanel.utils.MqttUtils.Companion.COMMAND_WAKETIME
 import com.thanksmister.iot.wallpanel.utils.MqttUtils.Companion.VALUE
@@ -585,6 +586,9 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
             if (commandJson.has(COMMAND_SPEAK)) {
                 speakMessage(commandJson.getString(COMMAND_SPEAK))
             }
+            if (commandJson.has(COMMAND_VOLUME)) {
+                setVolume((commandJson.getInt(COMMAND_VOLUME).toFloat() / 100))
+            }
         } catch (ex: JSONException) {
             Timber.e("Invalid JSON passed as a command: " + commandJson.toString())
             return false
@@ -634,6 +638,11 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
 
         Timber.d("audioPlayer: Buffering $audioUrl")
         audioPlayer!!.prepareAsync()
+    }
+
+    private fun setVolume(vol: Float) {
+        Timber.d("setVolume $vol")
+        audioPlayer!!.setVolume(vol, vol)
     }
 
     private fun speakMessage(message: String) {

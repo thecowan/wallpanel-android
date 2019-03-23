@@ -171,7 +171,8 @@ wake | true | ```{"wake": true, "wakeTime": 180}``` | Wakes the screen if it is 
 wake | false | ```{"wake": false}``` | Release screen wake (Note: screen will not turn off before Androids Display Timeout finished)
 speak | data | ```{"speak": "Hello!"}``` | Uses the devices TTS to speak the message
 brightness | data | ```{"brightness": 1}``` | Changes the screens brightness, value 1-255. 
-camera | data | ```{"camera": true}``` | Turns on/off camera streaming, requires camera to be enabled. 
+camera | data | ```{"camera": true}``` | Turns on/off camera streaming, requires camera to be enabled.
+volume | data | ```{"volume": 100}``` | Changes the audio volume, value 0-100 (in %. Does not effect TTS volume).
 
 * The base topic value (default is "mywallpanel") should be unique to each device running the application unless you want all devices to receive the same command. The base topic and can be changed in the applications ```MQTT settings```.
 * Commands are constructed via valid JSON. It is possible to string multiple commands together:
