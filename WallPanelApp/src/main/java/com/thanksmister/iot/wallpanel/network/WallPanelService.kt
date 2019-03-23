@@ -59,6 +59,7 @@ import com.thanksmister.iot.wallpanel.utils.MqttUtils.Companion.COMMAND_SPEAK
 import com.thanksmister.iot.wallpanel.utils.MqttUtils.Companion.COMMAND_STATE
 import com.thanksmister.iot.wallpanel.utils.MqttUtils.Companion.COMMAND_URL
 import com.thanksmister.iot.wallpanel.utils.MqttUtils.Companion.COMMAND_WAKE
+import com.thanksmister.iot.wallpanel.utils.MqttUtils.Companion.COMMAND_WAKETIME
 import com.thanksmister.iot.wallpanel.utils.MqttUtils.Companion.VALUE
 import com.thanksmister.iot.wallpanel.utils.NotificationUtils
 import dagger.android.AndroidInjection
@@ -552,7 +553,14 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
             }
             if (commandJson.has(COMMAND_WAKE)) {
                 if (commandJson.getBoolean(COMMAND_WAKE)) {
-                    switchScreenOn()
+                    val wakeTime = commandJson.optLong(COMMAND_WAKETIME, SCREEN_WAKE_TIME/1000) * 1000
+                    switchScreenOn(wakeTime)
+                }
+                else {
+                    if (partialWakeLock != null && partialWakeLock!!.isHeld) {
+                        Timber.d("Release wakelock")
+                        partialWakeLock!!.release()
+                    }
                 }
             }
             if (commandJson.has(COMMAND_BRIGHTNESS)) {
@@ -637,16 +645,20 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         }
     }
 
-    //@SuppressLint("WakelockTimeout")
     private fun switchScreenOn() {
-        Timber.d("switchScreenOn")
+        switchScreenOn(SCREEN_WAKE_TIME)
+    }
+
+    //@SuppressLint("WakelockTimeout")
+    private fun switchScreenOn(wakeTime: Long) {
+        Timber.d("switchScreenOn, waketime "+wakeTime)
         if (partialWakeLock != null && !partialWakeLock!!.isHeld) {
             Timber.d("partialWakeLock")
-            partialWakeLock!!.acquire(SCREEN_WAKE_TIME)
+            partialWakeLock!!.acquire(wakeTime)
         } else if (partialWakeLock != null && partialWakeLock!!.isHeld) {
             Timber.d("new partialWakeLock")
             partialWakeLock!!.release()
-            partialWakeLock!!.acquire(SCREEN_WAKE_TIME)
+            partialWakeLock!!.acquire(wakeTime)
         }
         sendWakeScreen()
     }

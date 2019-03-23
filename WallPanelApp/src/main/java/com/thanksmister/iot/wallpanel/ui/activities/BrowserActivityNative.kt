@@ -17,6 +17,7 @@
 package com.thanksmister.iot.wallpanel.ui.activities
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.net.http.SslError
 import android.os.Build
 import android.os.Bundle
@@ -32,13 +33,21 @@ import android.webkit.WebView
 import android.widget.Toast
 import android.content.DialogInterface
 import android.support.v7.app.AlertDialog
+import android.util.AttributeSet
 import android.view.ViewTreeObserver
+import android.view.animation.AlphaAnimation
+import android.view.animation.Animation
+import android.view.animation.Transformation
+import android.R.anim
+import android.graphics.Bitmap
+import android.view.WindowManager
 
 
 class BrowserActivityNative : BrowserActivity() {
 
     private var mWebView: WebView? = null
     private var certPermissionsShown = false
+    private var mFadeAnimation: FadeInOutAnimation? = null
 
     @SuppressLint("SetJavaScriptEnabled", "ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -106,8 +115,10 @@ class BrowserActivityNative : BrowserActivity() {
         }
 
         mWebView!!.webViewClient = object : WebViewClient() {
+            private var isRedirect = false
             //If you will not use this method url links are open in new browser not in webview
             override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
+                isRedirect = true
                 view.loadUrl(url)
                 return true
             }
@@ -136,6 +147,14 @@ class BrowserActivityNative : BrowserActivity() {
                 } else {
                     handler?.proceed()
                 }
+            }
+
+            override fun onPageFinished(view: WebView?, url: String?) {
+                if (isRedirect) {
+                    isRedirect = false
+                    return
+                }
+                runFadeAnimation(true)
             }
         }
 
@@ -170,9 +189,6 @@ class BrowserActivityNative : BrowserActivity() {
         if(swipeContainer != null && mOnScrollChangedListener != null && configuration.browserRefresh) {
             swipeContainer.viewTreeObserver.removeOnScrollChangedListener(mOnScrollChangedListener)
         }
-        if(mWebView != null) {
-            mWebView!!.webChromeClient = null
-        }
     }
 
     override fun complete() {
@@ -206,6 +222,7 @@ class BrowserActivityNative : BrowserActivity() {
 
     override fun loadUrl(url: String) {
         Timber.d("loadUrl $url")
+        runFadeAnimation(false)
         if (zoomLevel.toDouble() != 1.0) {
             mWebView!!.setInitialScale((zoomLevel * 100).toInt())
         }
@@ -226,6 +243,73 @@ class BrowserActivityNative : BrowserActivity() {
     }
 
     override fun reload() {
+        runFadeAnimation(false)
         mWebView!!.reload()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        mWebView!!.alpha = 0f
+        runFadeAnimation(true)
+    }
+
+    fun runFadeAnimation(fadeIn: Boolean) {
+        val fromAlpha: Float
+        val toAlpha: Float
+
+        if (mFadeAnimation != null && !mFadeAnimation!!.hasEnded()) {
+            fromAlpha = mFadeAnimation!!.getAlpha()
+            mFadeAnimation!!.cancel()
+        } else {
+            fromAlpha = mWebView!!.alpha
+        }
+        if (fadeIn) {
+            toAlpha = 1.0f
+        } else {
+            toAlpha = 0f
+        }
+        val animation = FadeInOutAnimation(fromAlpha, toAlpha)
+
+        mFadeAnimation = animation
+        mWebView?.startAnimation(animation)
+    }
+
+    inner class FadeInOutAnimation(fromAlpha: Float, toAlpha: Float) : AlphaAnimation(fromAlpha, toAlpha) {
+        private var mIsFadeIn: Boolean
+
+        init {
+            if (toAlpha == 1.0f) {
+                mIsFadeIn = true
+                duration = 2500
+            }
+            else {
+                mIsFadeIn = false
+                duration = 1000
+            }
+
+            setAnimationListener(object : AnimationListener{
+                override fun onAnimationStart(animation: Animation?) {
+                    // set non-transparent at start, else alpha animation would be applied on a transparent view -> no effect
+                    mWebView!!.alpha = 1.0f
+                }
+                override fun onAnimationEnd(animation: Animation?) {
+                    if (hasEnded()) {
+                        if (mIsFadeIn) {
+                            mWebView!!.alpha = 1.0f
+                        } else {
+                            mWebView!!.alpha = 0.0f
+                        }
+                    }
+                }
+                override fun onAnimationRepeat(animation: Animation?) { }
+            })
+        }
+
+        fun getAlpha(): Float {
+            val time = mWebView!!.drawingTime
+            val transformation = Transformation()
+            getTransformation(time, transformation)
+            return transformation.alpha
+        }
     }
 }

@@ -167,7 +167,8 @@ audio | URL | ```{"audio": "http://<url>"}``` | Play the audio specified by the 
 relaunch | true | ```{"relaunch": true}``` | Relaunches the dashboard from configured launchUrl
 reload | true | ```{"reload": true}``` | Reloads the current page immediately 
 url | URL | ```{"url": "http://<url>"}``` | Browse to a new URL immediately
-wake | true | ```{"wake": true}``` | Wakes the screen if it is asleep
+wake | true | ```{"wake": true, "wakeTime": 180}``` | Wakes the screen if it is asleep. Option wakeTime (in seconds) is optional, default is 30 sec. (Note: wakeTime cannot be shorter than Androids Display Timeout setting)
+wake | false | ```{"wake": false}``` | Release screen wake (Note: screen will not turn off before Androids Display Timeout finished)
 speak | data | ```{"speak": "Hello!"}``` | Uses the devices TTS to speak the message
 brightness | data | ```{"brightness": 1}``` | Changes the screens brightness, value 1-255. 
 camera | data | ```{"camera": true}``` | Turns on/off camera streaming, requires camera to be enabled. 
