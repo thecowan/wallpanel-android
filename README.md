@@ -220,4 +220,4 @@ mqtt.sensorFrequency | Int | The frequency to post sensor data in seconds, or 0 
 
 ## Credits
 
-WallPanel (Formerly HomeDash) is a fork from the [original WallPanel project](https://github.com/WallPanel-Project/wallpanel-android) developed by [quadportnick](https://github.com/quadportnick).
+WallPanel (Formerly HomeDash) is a fork from the [original WallPanel project](https://github.com/WallPanel-Project/wallpanel-android) developed by [quadportnick](https://github.com/quadportnick). Thanks to [allofmex](https://github.com/allofmex) for his contributions to the project. 
