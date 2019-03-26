@@ -17,30 +17,20 @@
 package com.thanksmister.iot.wallpanel.ui.activities
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.net.http.SslError
 import android.os.Build
 import android.os.Bundle
 import android.support.design.widget.Snackbar
+import android.support.v7.app.AlertDialog
 import android.text.TextUtils
 import android.view.MotionEvent
 import android.view.View
+import android.view.ViewTreeObserver
 import android.webkit.*
+import android.widget.Toast
 import com.thanksmister.iot.wallpanel.R
 import kotlinx.android.synthetic.main.activity_browser.*
 import timber.log.Timber
-import android.webkit.WebView
-import android.widget.Toast
-import android.content.DialogInterface
-import android.support.v7.app.AlertDialog
-import android.util.AttributeSet
-import android.view.ViewTreeObserver
-import android.view.animation.AlphaAnimation
-import android.view.animation.Animation
-import android.view.animation.Transformation
-import android.R.anim
-import android.graphics.Bitmap
-import android.view.WindowManager
 
 
 class BrowserActivityNative : BrowserActivity() {
@@ -241,9 +231,5 @@ class BrowserActivityNative : BrowserActivity() {
 
     override fun reload() {
         mWebView?.reload()
-    }
-
-    override fun onResume() {
-        super.onResume()
     }
 }
