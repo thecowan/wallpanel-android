@@ -47,7 +47,6 @@ class BrowserActivityNative : BrowserActivity() {
 
     private var mWebView: WebView? = null
     private var certPermissionsShown = false
-    private var mFadeAnimation: FadeInOutAnimation? = null
 
     @SuppressLint("SetJavaScriptEnabled", "ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -154,7 +153,6 @@ class BrowserActivityNative : BrowserActivity() {
                     isRedirect = false
                     return
                 }
-                runFadeAnimation(true)
             }
         }
 
@@ -222,7 +220,6 @@ class BrowserActivityNative : BrowserActivity() {
 
     override fun loadUrl(url: String) {
         Timber.d("loadUrl $url")
-        runFadeAnimation(false)
         if (zoomLevel.toDouble() != 1.0) {
             mWebView!!.setInitialScale((zoomLevel * 100).toInt())
         }
@@ -243,73 +240,10 @@ class BrowserActivityNative : BrowserActivity() {
     }
 
     override fun reload() {
-        runFadeAnimation(false)
-        mWebView!!.reload()
+        mWebView?.reload()
     }
 
     override fun onResume() {
         super.onResume()
-        mWebView!!.alpha = 0f
-        runFadeAnimation(true)
-    }
-
-    fun runFadeAnimation(fadeIn: Boolean) {
-        val fromAlpha: Float
-        val toAlpha: Float
-
-        if (mFadeAnimation != null && !mFadeAnimation!!.hasEnded()) {
-            fromAlpha = mFadeAnimation!!.getAlpha()
-            mFadeAnimation!!.cancel()
-        } else {
-            fromAlpha = mWebView!!.alpha
-        }
-        if (fadeIn) {
-            toAlpha = 1.0f
-        } else {
-            toAlpha = 0f
-        }
-        val animation = FadeInOutAnimation(fromAlpha, toAlpha)
-
-        mFadeAnimation = animation
-        mWebView?.startAnimation(animation)
-    }
-
-    inner class FadeInOutAnimation(fromAlpha: Float, toAlpha: Float) : AlphaAnimation(fromAlpha, toAlpha) {
-        private var mIsFadeIn: Boolean
-
-        init {
-            if (toAlpha == 1.0f) {
-                mIsFadeIn = true
-                duration = 2500
-            }
-            else {
-                mIsFadeIn = false
-                duration = 1000
-            }
-
-            setAnimationListener(object : AnimationListener{
-                override fun onAnimationStart(animation: Animation?) {
-                    // set non-transparent at start, else alpha animation would be applied on a transparent view -> no effect
-                    mWebView!!.alpha = 1.0f
-                }
-                override fun onAnimationEnd(animation: Animation?) {
-                    if (hasEnded()) {
-                        if (mIsFadeIn) {
-                            mWebView!!.alpha = 1.0f
-                        } else {
-                            mWebView!!.alpha = 0.0f
-                        }
-                    }
-                }
-                override fun onAnimationRepeat(animation: Animation?) { }
-            })
-        }
-
-        fun getAlpha(): Float {
-            val time = mWebView!!.drawingTime
-            val transformation = Transformation()
-            getTransformation(time, transformation)
-            return transformation.alpha
-        }
     }
 }
