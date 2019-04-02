@@ -123,7 +123,8 @@ The application can also publish state data about the application such as the cu
 Key | Value | Example | Description
 -|-|-|-
 currentUrl | URL String | ```{"currentUrl":"http://hasbian:8123/states"}``` | Current URL the Dashboard is displaying
-screenOn | true/false | ```{"screenOn":true, "brightness":100}``` | If the screen is currently on and its brightness value.
+screenOn | true/false | ```{"screenOn":true}``` | If the screen is currently on.
+brightness | true/false | ```{"brightness":100}``` | Current brightness value of the screen.
 
 * State values are presented together as a JSON block
   * eg, ```{"currentUrl":"http://hasbian:8123/states","screenOn":true}```
