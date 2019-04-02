@@ -121,6 +121,12 @@
     <string name="key_screensaver">settings_screensaver</string>
     <string name="default_screensaver">false</string>
 
+    <string name="key_setting_screen_brightness">setting_screen_brightness</string>
+    <string name="default_setting_screen_brightness">150</string>
+
+    <string name="key_setting_screensaver_brightness">setting_screensaver_brightness</string>
+    <string name="default_setting_screensaver_brightness">15</string>
+
     <string-array name="settings_titles">
         <item>@string/title_settings</item>
         <item>@string/title_camera_settings</item>

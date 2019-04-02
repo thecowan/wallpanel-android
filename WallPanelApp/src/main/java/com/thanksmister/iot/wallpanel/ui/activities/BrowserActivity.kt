@@ -25,6 +25,7 @@ import android.content.IntentFilter
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.provider.Settings
 import android.support.v4.content.LocalBroadcastManager
 import android.view.KeyEvent
 import android.view.View
@@ -39,6 +40,7 @@ import com.thanksmister.iot.wallpanel.network.WallPanelService.Companion.BROADCA
 import com.thanksmister.iot.wallpanel.network.WallPanelService.Companion.BROADCAST_TOAST_MESSAGE
 import com.thanksmister.iot.wallpanel.persistence.Configuration
 import com.thanksmister.iot.wallpanel.utils.DialogUtils
+import com.thanksmister.iot.wallpanel.utils.ScreenUtils
 import dagger.android.support.DaggerAppCompatActivity
 import timber.log.Timber
 import javax.inject.Inject
@@ -47,6 +49,10 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
 
     @Inject lateinit var dialogUtils: DialogUtils
     @Inject lateinit var configuration: Configuration
+
+    private val screenUtils by lazy {
+        ScreenUtils(this@BrowserActivity)
+    }
 
     var mOnScrollChangedListener: ViewTreeObserver.OnScrollChangedListener? = null
     private var wallPanelService: Intent? = null
@@ -153,6 +159,7 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
         } else {
             startService(wallPanelService)
         }
+        resetScreenBrightness(false)
     }
 
     override fun onDestroy() {
@@ -162,8 +169,8 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
     }
 
     override fun onUserInteraction() {
-        Timber.d("onUserInteraction")
         onWindowFocusChanged(true)
+        Timber.d("onUserInteraction")
         userPresent = true
         resetInactivityTimer()
         val intent = Intent(BROADCAST_EVENT_SCREEN_TOUCH)
@@ -212,8 +219,9 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
             startActivity(Intent(this@BrowserActivity, SettingsActivity::class.java))
             finish()
             return true
+        } else {
+            return super.dispatchKeyEvent(event)
         }
-        return super.dispatchKeyEvent(event)
     }
 
     internal fun resetScreen() {
@@ -234,7 +242,6 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
     }
 
     private fun resetInactivityTimer() {
-        Timber.d("resetInactivityTimer ${configuration.inactivityTime}")
         hideScreenSaver()
         inactivityHandler.removeCallbacks(inactivityCallback)
         inactivityHandler.postDelayed(inactivityCallback, configuration.inactivityTime)
@@ -249,6 +256,7 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
         Timber.d("hideScreenSaver")
         dialogUtils.hideScreenSaverDialog()
         window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        resetScreenBrightness(false)
     }
 
     /**
@@ -269,6 +277,11 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
                 Timber.e(e.message)
             }
         }
+        resetScreenBrightness(true)
+    }
+
+    open fun resetScreenBrightness(screenSaver: Boolean = false) {
+        screenUtils.resetScreenBrightness(screenSaver, configuration, isFinishing)
     }
 
     protected abstract fun configureWebSettings(userAgent: String)

@@ -208,6 +208,7 @@
     <string name="preference_camera_flip_title">Rotate Camera</string>
     <string name="preference_camera_flip_summary">Depending on your camera, you may need to rotate or flip the camera. Currently %1$s.</string>
     <string name="error_no_web_browser">You have no application to support opening web links.</string>
+    <string name="toast_connect_retry">Retrying to connect...</string>
 
     <string-array name="flip_directions">
         <item>None</item>

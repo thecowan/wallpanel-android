@@ -220,6 +220,18 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
     val hasScreenSaver: Boolean
         get() = getBoolPref(R.string.key_screensaver, R.string.default_screensaver)
 
+    var screenBrightness: Int
+        get() = sharedPreferences.getInt(context.getString(R.string.key_setting_screen_brightness), 150)
+        set(value) {
+            sharedPreferences.edit().putInt(context.getString(R.string.key_setting_screen_brightness), value).apply()
+        }
+
+    var screenScreenSaverBrightness: Int
+        get() = sharedPreferences.getInt(context.getString(R.string.key_setting_screensaver_brightness), 15)
+        set(value) {
+            sharedPreferences.edit().putInt(context.getString(R.string.key_setting_screensaver_brightness), value).apply()
+        }
+
     fun hasCameraDetections() : Boolean {
         return cameraEnabled && (cameraMotionEnabled || cameraQRCodeEnabled || cameraFaceEnabled || httpMJPEGEnabled)
     }
@@ -246,6 +258,7 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
         const val PREF_WRITE_SCREEN_PERMISSIONS = "pref_write_screen_permissions"
         const val PREF_CAMERA_PERMISSIONS = "pref_camera_permissions"
         const val PREF_CAMERA_ROTATE = "pref_camera_rotate"
+        const val PREF_BRIGHTNESS_FACTOR = .10
         const val PREF_BROWSER_LEGACY = "Legacy"
         const val PREF_BROWSER_NATIVE = "Native"
         const val PREF_BROWSER_AUTO = "Auto"

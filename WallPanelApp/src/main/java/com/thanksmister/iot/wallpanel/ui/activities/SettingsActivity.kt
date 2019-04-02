@@ -35,6 +35,7 @@ import com.thanksmister.iot.wallpanel.network.WallPanelService
 import com.thanksmister.iot.wallpanel.persistence.Configuration
 import com.thanksmister.iot.wallpanel.ui.fragments.SettingsFragment
 import com.thanksmister.iot.wallpanel.utils.DialogUtils
+import com.thanksmister.iot.wallpanel.utils.ScreenUtils
 import dagger.android.support.DaggerAppCompatActivity
 import timber.log.Timber
 import javax.inject.Inject
@@ -46,10 +47,12 @@ class SettingsActivity : DaggerAppCompatActivity(), SettingsFragment.OnSettingsF
     @Inject
     lateinit var dialogUtils: DialogUtils
 
+    private val screenUtils by lazy {
+        ScreenUtils(this@SettingsActivity)
+    }
+
     public override fun onCreate(savedInstance: Bundle?) {
-
         super.onCreate(savedInstance)
-
 
         setContentView(R.layout.activity_settings)
 
@@ -58,6 +61,14 @@ class SettingsActivity : DaggerAppCompatActivity(), SettingsFragment.OnSettingsF
         stopService(wallPanelService)
 
         lifecycle.addObserver(dialogUtils)
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (screenUtils.canWriteScreenSetting()) {
+                setBrightnessLevels()
+            }
+        } else {
+            setBrightnessLevels()
+        }
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
@@ -70,10 +81,12 @@ class SettingsActivity : DaggerAppCompatActivity(), SettingsFragment.OnSettingsF
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, intent: Intent?) {
+        super.onActivityResult(requestCode, resultCode, intent)
         if (requestCode == PERMISSIONS_REQUEST_WRITE_SETTINGS) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (Settings.System.canWrite(applicationContext)) {
                     Toast.makeText(this, getString(R.string.toast_write_permissions_granted), Toast.LENGTH_LONG).show()
+                    setBrightnessLevels()
                 } else {
                     Toast.makeText(this, getString(R.string.toast_write_permissions_denied), Toast.LENGTH_LONG).show()
                 }
@@ -84,6 +97,10 @@ class SettingsActivity : DaggerAppCompatActivity(), SettingsFragment.OnSettingsF
     public override fun onResume() {
         super.onResume()
         requestCameraPermissions()
+    }
+
+    private fun setBrightnessLevels() {
+        screenUtils.configureBrightnessLevels(configuration)
     }
 
     private fun requestCameraPermissions() {
@@ -119,8 +136,10 @@ class SettingsActivity : DaggerAppCompatActivity(), SettingsFragment.OnSettingsF
 
     private fun checkWriteSettings() {
         if (!configuration.writeScreenPermissionsShown && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (Settings.System.canWrite(applicationContext)) {
-            } else if (!configuration.writeScreenPermissionsShown) {
+            if (screenUtils.canWriteScreenSetting()) {
+                configuration.writeScreenPermissionsShown = true
+                setBrightnessLevels()
+            } else  {
                 // launch the dialog to provide permissions
                 configuration.writeScreenPermissionsShown = true
                 AlertDialog.Builder(this@SettingsActivity)

@@ -28,7 +28,7 @@ repositories {
 def versionMajor = 0
 def versionMinor = 8
 def versionPatch = 6
-def versionBuild = 1 // bump for dog food builds, public betas, etc.
+def versionBuild = 2 // bump for dog food builds, public betas, etc.
 
 android {
     kapt {
@@ -90,7 +90,7 @@ dependencies {
     implementation "com.android.support:preference-v14:$versions.support"
     implementation 'com.android.support.constraint:constraint-layout:1.1.2'
     implementation "com.android.support:support-vector-drawable:$versions.support"
-    implementation 'com.google.android.gms:play-services-vision:15.0.2'
+    implementation 'com.google.android.gms:play-services-vision:17.0.2'
 
     // Navigation
     implementation "android.arch.navigation:navigation-fragment:$versions.navigation"

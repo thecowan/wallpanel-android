@@ -47,7 +47,7 @@ class ScreenSaverView : RelativeLayout {
             val height = screenSaverClockLayout.height
             parentWidth = screenSaverView.width
             parentHeight = screenSaverView.height
-            if(width > 0 && height > 0) {
+            if(width > 0 && height > 0 && parentWidth > 0 && parentHeight > 0) {
                 val newX = Random().nextInt(parentWidth - width) + 25
                 val newY = Random().nextInt(parentHeight - height) + 25
                 screenSaverClockLayout.x = newX.toFloat()
