@@ -128,7 +128,7 @@ class CameraSettingsFragment : BaseSettingsFragment() {
             true
         }
 
-        cameraListPreference = findPreference(getString(R.string.key_setting_camera_cameraid)) as ListPreference
+        cameraListPreference = findPreference("key_setting_camera_camera_id") as ListPreference
         cameraListPreference?.setOnPreferenceChangeListener { preference, newValue ->
             if (preference is ListPreference) {
                 val index = preference.findIndexOfValue(newValue.toString())

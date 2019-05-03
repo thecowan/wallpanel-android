@@ -30,8 +30,10 @@ class ScreenUtils(base: Context) : ContextWrapper(base) {
         var brightness = 0
         try {
             brightness = Settings.System.getInt(contentResolver, Settings.System.SCREEN_BRIGHTNESS)
-            configuration.screenBrightness = brightness
-            configuration.screenScreenSaverBrightness = (brightness * Configuration.PREF_BRIGHTNESS_FACTOR).toInt()
+            if (brightness in 1..255) {
+                configuration.screenBrightness = brightness
+                configuration.screenScreenSaverBrightness = (brightness * Configuration.PREF_BRIGHTNESS_FACTOR).toInt()
+            }
         } catch (e: Exception) {
             e.printStackTrace()
         }

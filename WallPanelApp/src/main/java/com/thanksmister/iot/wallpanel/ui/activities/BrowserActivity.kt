@@ -93,6 +93,7 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
             } else if (BROADCAST_CLEAR_ALERT_MESSAGE == intent.action && !isFinishing) {
                 dialogUtils.clearDialogs()
                 resetInactivityTimer()
+                resetScreenBrightness(false)
             } else if (BROADCAST_SCREEN_WAKE == intent.action && !isFinishing) {
                 stopDisconnectTimer()
             }
@@ -171,12 +172,15 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
     override fun onUserInteraction() {
         onWindowFocusChanged(true)
         Timber.d("onUserInteraction")
-        userPresent = true
+        if(!userPresent) {
+            userPresent = true
+            resetScreenBrightness(false)
+            val intent = Intent(BROADCAST_EVENT_SCREEN_TOUCH)
+            intent.putExtra(BROADCAST_EVENT_SCREEN_TOUCH, true)
+            val bm = LocalBroadcastManager.getInstance(applicationContext)
+            bm.sendBroadcast(intent)
+        }
         resetInactivityTimer()
-        val intent = Intent(BROADCAST_EVENT_SCREEN_TOUCH)
-        intent.putExtra(BROADCAST_EVENT_SCREEN_TOUCH, true)
-        val bm = LocalBroadcastManager.getInstance(applicationContext)
-        bm.sendBroadcast(intent)
     }
 
     private val inactivityCallback = Runnable {
@@ -249,6 +253,10 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
 
     fun stopDisconnectTimer() {
         Timber.d("stopDisconnectTimer")
+        if(!userPresent) {
+            userPresent = true
+            resetScreenBrightness(false)
+        }
         resetInactivityTimer()
     }
 
@@ -256,7 +264,6 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
         Timber.d("hideScreenSaver")
         dialogUtils.hideScreenSaverDialog()
         window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        resetScreenBrightness(false)
     }
 
     /**
@@ -271,6 +278,7 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
                 dialogUtils.showScreenSaver(this@BrowserActivity,
                         View.OnClickListener {
                             dialogUtils.hideScreenSaverDialog()
+                            resetScreenBrightness(false)
                             resetInactivityTimer()
                         })
             } catch (e: Exception) {

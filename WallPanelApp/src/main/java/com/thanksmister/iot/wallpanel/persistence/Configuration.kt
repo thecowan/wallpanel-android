@@ -67,8 +67,7 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
         }
 
     var cameraId: Int
-        get() = getStringPref(R.string.key_setting_camera_cameraid,
-                R.string.default_setting_camera_cameraid).trim().toInt()
+        get() = sharedPreferences.getInt(context.getString(R.string.key_setting_camera_cameraid),0)
         set(value) {
             sharedPreferences.edit().putInt(context.getString(R.string.key_setting_camera_cameraid), value).apply()
         }

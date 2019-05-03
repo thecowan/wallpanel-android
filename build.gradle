@@ -26,7 +26,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.3.2'
+        classpath 'com.android.tools.build:gradle:3.4.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath 'io.fabric.tools:gradle:1.+'
     }
@@ -48,6 +48,7 @@ task clean(type: Delete) {
 
 ext.deps = [:]
 def versions = [:]
+versions.things = "1.0"
 versions.lifecycle = "1.1.1"
 versions.support = "27.1.1"
 versions.kotlin = "1.2.20"
