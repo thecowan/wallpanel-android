@@ -210,6 +210,11 @@
     <string name="error_no_web_browser">You have no application to support opening web links.</string>
     <string name="toast_connect_retry">Retrying to connect...</string>
 
+    <string name="shortcut_settings_disabled_message">Shortcut disabled. You can enable in App settings</string>
+    <string name="shortcut_settings_shortlabel">Settings</string>
+    <string name="shortcut_settings_longlabel">Open Wallpanel settings</string>
+    <string name="shortcut_settings_id">shortcutForSettings</string>
+
     <string-array name="flip_directions">
         <item>None</item>
         <item>Rotate Left</item>

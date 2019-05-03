@@ -21,7 +21,7 @@ import android.support.multidex.MultiDex
 import com.crashlytics.android.Crashlytics
 import com.crashlytics.android.answers.Answers
 import com.thanksmister.iot.wallpanel.di.DaggerApplicationComponent
-import com.thanksmister.iot.wallpanel.utils.CrashlyticsTree
+import com.thanksmister.iot.wallpanel.utils.LauncherShortcuts
 import dagger.android.AndroidInjector
 import dagger.android.support.DaggerApplication
 import io.fabric.sdk.android.Fabric
@@ -41,6 +41,7 @@ class WallPanel : DaggerApplication() {
             Fabric.with(this, Crashlytics())
             Fabric.with(this, Answers())
         }
+        LauncherShortcuts.createShortcuts(this)
     }
 
     override fun attachBaseContext(base: Context) {
