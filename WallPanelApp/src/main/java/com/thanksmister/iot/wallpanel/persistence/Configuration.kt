@@ -67,9 +67,9 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
         }
 
     var cameraId: Int
-        get() = sharedPreferences.getInt(context.getString(R.string.key_setting_camera_cameraid),0)
+        get() = this.sharedPreferences.getInt(context.getString(R.string.setting_camera_cameraid),0)
         set(value) {
-            sharedPreferences.edit().putInt(context.getString(R.string.key_setting_camera_cameraid), value).apply()
+            this.sharedPreferences.edit().putInt(context.getString(R.string.setting_camera_cameraid), value).apply()
         }
 
     var cameraMotionEnabled: Boolean
@@ -257,6 +257,7 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
         const val PREF_WRITE_SCREEN_PERMISSIONS = "pref_write_screen_permissions"
         const val PREF_CAMERA_PERMISSIONS = "pref_camera_permissions"
         const val PREF_CAMERA_ROTATE = "pref_camera_rotate"
+        const val PREF_CAMERA_ID = "pref_camera_id"
         const val PREF_BRIGHTNESS_FACTOR = .10
         const val PREF_BROWSER_LEGACY = "Legacy"
         const val PREF_BROWSER_NATIVE = "Native"

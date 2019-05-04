@@ -41,12 +41,10 @@ class LauncherShortcuts {
         }
 
         private fun settingsShortcut(context: Context, rank: Int): ShortcutInfo {
-            context.startActivity(Intent(context, SettingsActivity::class.java))
-
             return ShortcutInfo.Builder(context, context.getString(R.string.shortcut_settings_id))
                     .setShortLabel(context.getString(R.string.shortcut_settings_shortlabel))
                     .setLongLabel(context.getString(R.string.shortcut_settings_longlabel))
-                    .setIcon(Icon.createWithResource(context, R.drawable.ic_settings_cyan_48dp))
+                    .setIcon(Icon.createWithResource(context, R.drawable.ic_settings_cyan))
                     .setDisabledMessage(context.getString(R.string.shortcut_settings_disabled_message))
                     .setIntent(
                             Intent(context, SettingsActivity::class.java)

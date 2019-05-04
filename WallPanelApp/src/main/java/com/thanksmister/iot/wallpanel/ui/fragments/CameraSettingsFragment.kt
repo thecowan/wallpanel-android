@@ -35,6 +35,7 @@ import android.widget.Toast
 import androidx.navigation.Navigation
 import com.thanksmister.iot.wallpanel.R
 import com.thanksmister.iot.wallpanel.persistence.Configuration
+import com.thanksmister.iot.wallpanel.persistence.Configuration.Companion.PREF_CAMERA_ID
 import com.thanksmister.iot.wallpanel.ui.activities.LiveCameraActivity
 import com.thanksmister.iot.wallpanel.ui.activities.SettingsActivity
 import com.thanksmister.iot.wallpanel.utils.CameraUtils
@@ -54,6 +55,8 @@ class CameraSettingsFragment : BaseSettingsFragment() {
     private var fpsPreference: EditTextPreference? = null
     private var cameraStreaming: Preference? = null
     private var rotatePreference: ListPreference? = null
+
+    var cameraList = ArrayList<CameraUtils.Companion.CameraList>()
 
     override fun onAttach(context: Context) {
         AndroidSupportInjection.inject(this)
@@ -128,23 +131,20 @@ class CameraSettingsFragment : BaseSettingsFragment() {
             true
         }
 
-        cameraListPreference = findPreference("key_setting_camera_camera_id") as ListPreference
+        cameraListPreference = findPreference(getString(R.string.key_setting_camera_cameraid)) as ListPreference
         cameraListPreference?.setOnPreferenceChangeListener { preference, newValue ->
             if (preference is ListPreference) {
                 val index = preference.findIndexOfValue(newValue.toString())
-                preference.setSummary(
-                        if (index >= 0)
-                            preference.entries[index]
-                        else
-                            "")
+                preference.setSummary(if (index >= 0) preference.entries[index] else "")
+                Timber.d("Camera index: " + index)
                 if(index >= 0) {
-                    //configuration.cameraId = index
+                    val cameraListItem = cameraList[index]
+                    configuration.cameraId = cameraListItem.cameraId
                     Timber.d("Camera Id: " + configuration.cameraId)
                 }
             }
             true
         }
-        cameraListPreference?.isEnabled = false
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             if (ActivityCompat.checkSelfPermission(activity!!.applicationContext, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
@@ -155,7 +155,7 @@ class CameraSettingsFragment : BaseSettingsFragment() {
         }
 
         bindPreferenceSummaryToValue(cameraPreference!!)
-        bindPreferenceSummaryToValue(cameraListPreference!!);
+        //bindPreferenceSummaryToValue(cameraListPreference!!);
         bindPreferenceSummaryToValue(motionBrightPreference!!)
         bindPreferenceSummaryToValue(motionDimPreference!!)
         bindPreferenceSummaryToValue(fpsPreference!!)
@@ -206,13 +206,15 @@ class CameraSettingsFragment : BaseSettingsFragment() {
     private fun createCameraList() {
         Timber.d("createCameraList")
         try {
-            val cameraList = CameraUtils.getCameraList(activity!!)
-            cameraListPreference!!.entries = cameraList.toTypedArray<CharSequence>()
-            val vals = arrayOfNulls<CharSequence>(cameraList.size)
-            for (i in cameraList.indices) {
-                vals[i] = Integer.toString(i)
+            cameraList = CameraUtils.getCameraList(activity!!)
+            val cameraListEntries:ArrayList<CharSequence> = ArrayList()
+            val cameraListValues:ArrayList<CharSequence> = ArrayList()
+            for (item in cameraList) {
+                cameraListEntries.add(item.description)
+                cameraListValues.add(Integer.toString(item.cameraId))
             }
-            cameraListPreference?.entryValues = vals
+            cameraListPreference!!.entries = cameraListEntries.toTypedArray<CharSequence>()
+            cameraListPreference!!.entryValues = cameraListValues.toTypedArray<CharSequence>()
             val index = cameraListPreference!!.findIndexOfValue(configuration.cameraId.toString())
             cameraListPreference!!.summary = if (index >= 0)
                 cameraListPreference!!.entries[index]

@@ -78,7 +78,8 @@
     <string name="default_setting_camera_cameraid">0</string>
     <string name="key_setting_camera_motionenabled">setting_camera_motionenabled</string>
     <string name="default_setting_camera_enabled">false</string>
-    <string name="key_setting_camera_cameraid">setting_camera_cameraid</string>
+    <string name="setting_camera_cameraid">setting_camera_camera_id_value</string>
+    <string name="key_setting_camera_cameraid">key_setting_camera_cameraid</string>
     <string name="default_setting_app_showactivity">true</string>
     <string name="key_setting_camera_enabled">setting_camera_enabled</string>
     <string name="key_setting_app_showactivity">setting_app_showactivity</string>

@@ -24,8 +24,7 @@
             android:title="@string/title_setting_camera_enabled" />
 
         <ListPreference
-            android:defaultValue="@string/default_setting_camera_cameraid"
-            android:key="key_setting_camera_camera_id"
+            android:key="@string/key_setting_camera_cameraid"
             android:title="@string/title_setting_camera_cameraid"
             android:dependency="@string/key_setting_camera_enabled"/>
 

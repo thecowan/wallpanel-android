@@ -29,9 +29,18 @@ import java.util.ArrayList
 class CameraUtils {
 
     companion object {
+
+        open class CameraList {
+            var cameraId: Int = 0
+            var description: String = ""
+            var width:Int = 640
+            var height:Int = 480
+            var orientation:Int = 0
+        }
+
         @Throws(RuntimeException::class)
-        fun getCameraList(context: Context): ArrayList<String> {
-            val cameraList: ArrayList<String> = ArrayList()
+        fun getCameraList(context: Context): ArrayList<CameraList> {
+            val cameraList: ArrayList<CameraList> = ArrayList()
             for (i in 0 until Camera.getNumberOfCameras()) {
                 var description: String
                 val c = Camera.open(i)
@@ -56,7 +65,14 @@ class CameraUtils {
                         height)
                 c.stopPreview()
                 c.release()
-                cameraList.add(description)
+
+                val cameraListItem = CameraList()
+                cameraListItem.description = description
+                cameraListItem.cameraId = i
+                cameraListItem.width = width
+                cameraListItem.height = height
+                cameraListItem.orientation = info.orientation
+                cameraList.add(cameraListItem)
             }
             return cameraList
         }
