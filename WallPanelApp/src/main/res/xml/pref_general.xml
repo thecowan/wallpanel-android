@@ -25,29 +25,37 @@
             android:title="@string/title_setting_app_launchurl" />
 
         <SwitchPreference
-            android:defaultValue="@string/default_setting_app_showactivity"
-            android:key="@string/key_setting_app_showactivity"
-            android:summary="@string/pref_show_browser_activity_summary"
-            android:title="@string/title_setting_app_showactivity" />
-
-        <SwitchPreference
-            android:defaultValue="@string/default_browser_refresh"
-            android:key="@string/key_pref_browser_refresh"
-            android:summary="@string/pref_browser_refresh_summary"
-            android:title="@string/pref_browser_refresh_title" />
-
-
-        <SwitchPreference
             android:defaultValue="@string/default_setting_android_startonboot"
             android:key="@string/key_setting_android_startonboot"
             android:title="@string/title_setting_android_startonboot"
             android:summary="@string/pref_start_boot_summary"/>
 
+        <SwitchPreference
+            android:defaultValue="@string/default_gecko_enabled"
+            android:key="@string/key_setting_use_gecko"
+            android:summary="@string/pref_summary_gecko"
+            android:title="@string/pref_title_gecko" />
+
+        <SwitchPreference
+            android:defaultValue="@string/default_setting_app_showactivity"
+            android:key="@string/key_setting_app_showactivity"
+            android:summary="@string/pref_show_browser_activity_summary"
+            android:title="@string/title_setting_app_showactivity"
+            android:dependency="@string/default_gecko_enabled"/>
+
+        <SwitchPreference
+            android:defaultValue="@string/default_browser_refresh"
+            android:key="@string/key_pref_browser_refresh"
+            android:summary="@string/pref_browser_refresh_summary"
+            android:title="@string/pref_browser_refresh_title"
+            android:dependency="@string/default_gecko_enabled"/>
+
         <EditTextPreference
             android:defaultValue="@string/default_browser_user_agent"
             android:summary="@string/pref_user_agent_summary"
             android:key="@string/key_setting_browser_user_agent"
-            android:title="@string/pref_user_agent_title"/>
+            android:title="@string/pref_user_agent_title"
+            android:dependency="@string/default_gecko_enabled"/>
 
         <ListPreference
             android:defaultValue="@string/default_setting_test_zoomlevel"
@@ -55,7 +63,8 @@
             android:entryValues="@array/zoom_level_values"
             android:key="@string/key_setting_test_zoomlevel"
             android:summary="@string/pref_zoom_level_summary"
-            android:title="@string/title_setting_test_zoomlevel" />
+            android:title="@string/title_setting_test_zoomlevel"
+            android:dependency="@string/default_gecko_enabled"/>
 
     </PreferenceCategory>
 

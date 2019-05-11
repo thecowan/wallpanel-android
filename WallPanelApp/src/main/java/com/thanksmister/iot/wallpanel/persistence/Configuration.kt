@@ -60,6 +60,12 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
         get() = getBoolPref(R.string.key_setting_app_showactivity,
                 R.string.default_setting_app_showactivity)
 
+    var useGeckoBrowser: Boolean
+        get() = getBoolPref(R.string.key_setting_use_gecko, R.string.default_gecko_enabled)
+        set(value) {
+            sharedPreferences.edit().putBoolean(context.getString(R.string.key_setting_use_gecko), value).apply()
+        }
+
     var cameraEnabled: Boolean
         get() = getBoolPref(R.string.key_setting_camera_enabled, R.string.default_setting_camera_enabled)
         set(value) {
@@ -189,10 +195,6 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
         get() = getBoolPref(R.string.key_setting_sensors_enabled,
                 R.string.default_setting_sensors_value)
 
-    val androidBrowserType: String
-        get() = getStringPref(R.string.key_setting_android_browsertype,
-                R.string.default_setting_android_browsertype)
-
     val browserUserAgent: String
         get() = getStringPref(R.string.key_setting_browser_user_agent,
                 R.string.default_browser_user_agent)
@@ -259,7 +261,7 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
         const val PREF_CAMERA_ROTATE = "pref_camera_rotate"
         const val PREF_CAMERA_ID = "pref_camera_id"
         const val PREF_BRIGHTNESS_FACTOR = .10
-        const val PREF_BROWSER_LEGACY = "Legacy"
+        const val PREF_USE_GECKO = "pref_use_gecko"
         const val PREF_BROWSER_NATIVE = "Native"
         const val PREF_BROWSER_AUTO = "Auto"
     }

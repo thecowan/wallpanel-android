@@ -73,7 +73,6 @@ open class BaseSettingsFragment : PreferenceFragmentCompat(), SharedPreferences.
         preferenceScreen.sharedPreferences.unregisterOnSharedPreferenceChangeListener(this)
     }
 
-
     private val bindPreferenceSummaryToValueListener = Preference.OnPreferenceChangeListener { preference, value ->
         val stringValue = value.toString()
         if (preference is SwitchPreference) {

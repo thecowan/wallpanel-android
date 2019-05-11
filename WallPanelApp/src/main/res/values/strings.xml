@@ -214,6 +214,8 @@
     <string name="shortcut_settings_shortlabel">Settings</string>
     <string name="shortcut_settings_longlabel">Open Wallpanel settings</string>
     <string name="shortcut_settings_id">shortcutForSettings</string>
+    <string name="pref_summary_gecko">Use FireFox Gecko as the default browser (experimental).</string>
+    <string name="pref_title_gecko">Use FireFox Browser</string>
 
     <string-array name="flip_directions">
         <item>None</item>

@@ -48,6 +48,7 @@ class SettingsFragment : BaseSettingsFragment() {
     private var aboutPreference: Preference? = null
     private var listener: OnSettingsFragmentListener? = null
     private var browserRefreshPreference: SwitchPreference? = null
+    private var browserUseGecko: SwitchPreference? = null
     private var clockSaverPreference: SwitchPreference? = null
     private var inactivityPreference: ListPreference? = null
 
@@ -111,6 +112,7 @@ class SettingsFragment : BaseSettingsFragment() {
         browserActivityPreference = findPreference(getString(R.string.key_setting_app_showactivity)) as SwitchPreference
         openOnBootPreference = findPreference(getString(R.string.key_setting_android_startonboot)) as SwitchPreference
         browserRefreshPreference = findPreference(getString(R.string.key_pref_browser_refresh)) as SwitchPreference
+        browserUseGecko = findPreference(getString(R.string.key_setting_use_gecko)) as SwitchPreference
         clockSaverPreference = findPreference(getString(R.string.key_screensaver)) as SwitchPreference
         inactivityPreference = findPreference(getString(R.string.key_inactivity_time)) as ListPreference
 

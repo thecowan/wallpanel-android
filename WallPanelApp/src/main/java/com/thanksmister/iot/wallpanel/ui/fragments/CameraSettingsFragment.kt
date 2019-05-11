@@ -145,6 +145,7 @@ class CameraSettingsFragment : BaseSettingsFragment() {
             }
             true
         }
+        cameraListPreference?.isEnabled = false
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             if (ActivityCompat.checkSelfPermission(activity!!.applicationContext, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {

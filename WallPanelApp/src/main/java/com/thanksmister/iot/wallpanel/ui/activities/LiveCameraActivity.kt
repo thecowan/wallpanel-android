@@ -36,12 +36,12 @@ import dagger.android.support.DaggerAppCompatActivity
 import timber.log.Timber
 import javax.inject.Inject
 
-
 class LiveCameraActivity : DaggerAppCompatActivity() {
 
     @Inject lateinit var viewModelFactory: ViewModelProvider.Factory
     private lateinit var viewModel: DetectionViewModel
     @Inject lateinit var configuration: Configuration
+
     private var updateHandler: Handler? = null
     private var removeTextCountdown: Int = 0
     private val interval = 1000/15L
