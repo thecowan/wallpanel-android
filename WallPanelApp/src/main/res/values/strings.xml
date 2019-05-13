@@ -89,6 +89,9 @@
     <string name="toast_camera_permission_denied">Camera permission not granted.</string>
     <string name="dialog_write_permissions_title">Permissions Required</string>
     <string name="dialog_write_permissions_description">Do you want to grant permission to modify the system settings for screen brightness?</string>
+    <string name="pref_title_screen_brightness">Screen Brightness</string>
+    <string name="pref_description_screen_brightness">Give permission to the application to control the device\'s screen brightness. Update the device brightness, then click the button to save or update the value.</string>
+
     <string name="toast_write_permissions_denied">Write settings permission denied…</string>
     <string name="toast_write_permissions_granted">Write settings permission granted…</string>
     <string name="pref_http_settings_title">HTTP Settings</string>
@@ -113,6 +116,7 @@
     <string name="text_license_information">License information</string>
     <string name="text_github_code">GitHub code</string>
     <string name="pref_about_title">About</string>
+    <string name="pref_brightness_button">Capture Brightness</string>
     <string name="pref_sensor_list_summary">Below is a list of sensor data available on this device to be published as MQTT data.</string>
     <string name="pref_qr_code_summary">When active, will scan QR codes and publish the scanned code over MQTT.</string>
     <string name="pref_mqtt_settings_title">MQTT Settings</string>
@@ -197,18 +201,21 @@
     <string name="pref_browser_refresh_title">Browser Refresh</string>
     <string name="error_mqtt_exception">There was an error initializing the MQTT client, please check your settings.</string>
 
+    <string name="preference_title_screen">Display Settings</string>
     <string name="preference_title_screen_saver_settings">Screensaver</string>
     <string name="preference_summary_screen_saver_settings">When active, uses a built-in clock screen saver.</string>
     <string name="preference_title_screen_saver">Clock Screen Saver</string>
 
-    <string name="preference_title_inactivity">Start screen saver after…</string>
-    <string name="preference_summary_inactivity_seconds">After %1$s seconds of inactivity screen dims.</string>
-    <string name="preference_summary_inactivity_minutes">After %1$s minute(s) of inactivity screen dims.</string>
+    <string name="preference_title_inactivity">Start screensaver after…</string>
+    <string name="preference_title_screensaver_dim">Dim screen…</string>
+    <string name="preference_summary_inactivity_seconds">After %1$s seconds of inactivity screensaver is active.</string>
+    <string name="preference_summary_inactivity_minutes">After %1$s minute(s) of inactivity screensaver is active.</string>
+    <string name="preference_summary_dim_screensaver" formatted="false">By %1$s percent when screensaver is active (requires screen brightness permission).</string>
 
     <string name="preference_camera_flip_title">Rotate Camera</string>
     <string name="preference_camera_flip_summary">Depending on your camera, you may need to rotate or flip the camera. Currently %1$s.</string>
     <string name="error_no_web_browser">You have no application to support opening web links.</string>
-    <string name="toast_connect_retry">Retrying to connect...</string>
+    <string name="toast_connect_retry">Retrying to connect…</string>
 
     <string name="shortcut_settings_disabled_message">Shortcut disabled. You can enable in App settings</string>
     <string name="shortcut_settings_shortlabel">Settings</string>
@@ -216,6 +223,8 @@
     <string name="shortcut_settings_id">shortcutForSettings</string>
     <string name="pref_summary_gecko">Use FireFox Gecko as the default browser (experimental).</string>
     <string name="pref_title_gecko">Use FireFox Browser</string>
+    <string name="toast_screen_brightness_captured">Your screen brightness level has been saved!</string>
+    <string name="pref_button_brightness_summary">Click to update and save the current device brightness.</string>
 
     <string-array name="flip_directions">
         <item>None</item>
@@ -245,5 +254,6 @@
         <item>600000</item>
         <item>1800000</item>
     </string-array>
+
 
 </resources>

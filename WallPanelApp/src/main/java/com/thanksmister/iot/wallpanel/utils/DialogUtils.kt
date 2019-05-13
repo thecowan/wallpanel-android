@@ -48,12 +48,14 @@ class DialogUtils(base: Context?) : ContextWrapper(base), LifecycleObserver {
         hideScreenSaverDialog()
     }
 
-    fun hideScreenSaverDialog() {
+    fun hideScreenSaverDialog() : Boolean {
         if (screenSaverDialog != null && screenSaverDialog!!.isShowing) {
             screenSaverDialog!!.dismiss()
             screenSaverDialog!!.window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON )
             screenSaverDialog = null
+            return true
         }
+        return false
     }
 
     private fun hideDialog() {

@@ -35,7 +35,6 @@ import android.widget.Toast
 import androidx.navigation.Navigation
 import com.thanksmister.iot.wallpanel.R
 import com.thanksmister.iot.wallpanel.persistence.Configuration
-import com.thanksmister.iot.wallpanel.persistence.Configuration.Companion.PREF_CAMERA_ID
 import com.thanksmister.iot.wallpanel.ui.activities.LiveCameraActivity
 import com.thanksmister.iot.wallpanel.ui.activities.SettingsActivity
 import com.thanksmister.iot.wallpanel.utils.CameraUtils
@@ -50,8 +49,6 @@ class CameraSettingsFragment : BaseSettingsFragment() {
     private var motionDetectionPreference: Preference? = null
     private var cameraPreference: SwitchPreference? = null
     private var faceDetectionPreference: Preference? = null
-    private var motionBrightPreference: SwitchPreference? = null
-    private var motionDimPreference: EditTextPreference? = null
     private var fpsPreference: EditTextPreference? = null
     private var cameraStreaming: Preference? = null
     private var rotatePreference: ListPreference? = null
@@ -104,8 +101,6 @@ class CameraSettingsFragment : BaseSettingsFragment() {
 
         super.onViewCreated(view, savedInstanceState)
 
-        motionBrightPreference = findPreference(getString(R.string.key_setting_camera_motionbright)) as SwitchPreference
-        motionDimPreference = findPreference(getString(R.string.key_setting_camera_motionontime)) as EditTextPreference
         fpsPreference = findPreference(getString(R.string.key_setting_camera_fps)) as EditTextPreference
         cameraPreference = findPreference(getString(R.string.key_setting_camera_enabled)) as SwitchPreference
 
@@ -156,9 +151,6 @@ class CameraSettingsFragment : BaseSettingsFragment() {
         }
 
         bindPreferenceSummaryToValue(cameraPreference!!)
-        //bindPreferenceSummaryToValue(cameraListPreference!!);
-        bindPreferenceSummaryToValue(motionBrightPreference!!)
-        bindPreferenceSummaryToValue(motionDimPreference!!)
         bindPreferenceSummaryToValue(fpsPreference!!)
 
         motionDetectionPreference = findPreference("button_key_motion_detection")

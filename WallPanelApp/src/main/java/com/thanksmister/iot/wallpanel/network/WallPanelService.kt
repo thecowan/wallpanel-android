@@ -27,7 +27,6 @@ import android.content.pm.PackageManager
 import android.media.MediaPlayer
 import android.net.wifi.WifiManager
 import android.os.*
-import android.provider.Settings
 import android.support.v4.content.ContextCompat
 import android.support.v4.content.LocalBroadcastManager
 import com.koushikdutta.async.AsyncServer
@@ -84,10 +83,8 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
     lateinit var sensorReader: SensorReader
     @Inject
     lateinit var mqttOptions: MQTTOptions
-
-    private val screenUtils by lazy {
-        ScreenUtils(this@WallPanelService)
-    }
+    @Inject
+    lateinit var screenUtils: ScreenUtils
 
     private val mJpegSockets = ArrayList<AsyncHttpServerResponse>()
     private var partialWakeLock: PowerManager.WakeLock? = null
@@ -95,7 +92,6 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
     private var keyguardLock: KeyguardManager.KeyguardLock? = null
     private var audioPlayer: MediaPlayer? = null
     private var audioPlayerBusy: Boolean = false
-    private val brightTimer = Handler()
     private var timerActive = false
     private var httpServer: AsyncHttpServer? = null
     private val mBinder = WallPanelServiceBinder()
@@ -201,15 +197,6 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
             return Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH && powerManager.isInteractive || Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT_WATCH && powerManager.isScreenOn
         }
 
-    private val screenBrightness: Int
-        get() {
-            return try {
-                Settings.System.getInt(contentResolver, Settings.System.SCREEN_BRIGHTNESS)
-            } catch (e: Exception) {
-                0
-            }
-        }
-
     private val state: JSONObject
         get() {
             Timber.d("getState")
@@ -217,20 +204,12 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
             try {
                 state.put(MqttUtils.STATE_CURRENT_URL, appLaunchUrl)
                 state.put(MqttUtils.STATE_SCREEN_ON, isScreenOn)
-                state.put(MqttUtils.STATE_BRIGHTNESS, screenBrightness)
+                state.put(MqttUtils.STATE_BRIGHTNESS, screenUtils.getCurrentScreenBrightness())
             } catch (e: JSONException) {
                 e.printStackTrace()
             }
             return state
         }
-
-    /**
-     * Dim screen, most devices won't go below 5
-     */
-    private val dimScreen = Runnable {
-        changeScreenBrightness(configuration.screenBrightness)
-        timerActive = false
-    }
 
     private fun startForeground() {
         Timber.d("startForeground")
@@ -565,7 +544,6 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
                 // This will permanently change the screen brightness level
                 val brightness = commandJson.getInt(COMMAND_BRIGHTNESS)
                 changeScreenBrightness(brightness)
-                setBrightScreen(brightness)
             }
             if (commandJson.has(COMMAND_RELOAD)) {
                 if (commandJson.getBoolean(COMMAND_RELOAD)) {
@@ -674,21 +652,9 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
 
     private fun changeScreenBrightness(brightness: Int) {
         Timber.d("changeScreenBrightness $brightness")
-        if (screenBrightness != brightness) {
-           screenUtils.setScreenBrightness(brightness, configuration)
-        }
-    }
-
-    private fun setBrightScreen(brightness: Int) {
-        Timber.d("setBrightScreen $brightness")
-        if (configuration.cameraMotionOnTime > 0 && configuration.cameraMotionBright) {
-            if (!timerActive) {
-                timerActive = true
-                brightTimer.postDelayed(dimScreen, (configuration.cameraMotionOnTime * 1000).toLong())
-            } else {
-                brightTimer.removeCallbacks(dimScreen)
-                brightTimer.postDelayed(dimScreen, (configuration.cameraMotionOnTime * 1000).toLong())
-            }
+        if (configuration.screenBrightness != brightness && configuration.useScreenBrightness) {
+            screenUtils.updateScreenBrightness(brightness)
+            sendScreenBrightnessChange()
         }
     }
 
@@ -832,6 +798,13 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         bm.sendBroadcast(intent)
     }
 
+    private fun sendScreenBrightnessChange() {
+        Timber.d("sendWakeScreen")
+        val intent = Intent(BROADCAST_SCREEN_BRIGHTNESS_CHANGE)
+        val bm = LocalBroadcastManager.getInstance(applicationContext)
+        bm.sendBroadcast(intent)
+    }
+
     private fun sendToastMessage(message: String) {
         Timber.d("sendToastMessage")
         val intent = Intent(BROADCAST_TOAST_MESSAGE)
@@ -881,11 +854,6 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
             if (configuration.cameraMotionWake) {
                 switchScreenOn()
             }
-            if (configuration.cameraMotionBright) {
-                Timber.d("configuration.cameraMotionBright ${configuration.cameraMotionBright}")
-                switchScreenOn()
-                setBrightScreen(SCREEN_BRIGHT_VALUE)
-            }
             publishMotionDetected()
         }
 
@@ -900,10 +868,6 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
                 configurePowerOptions()
                 switchScreenOn()
             }
-            if (configuration.cameraMotionBright) {
-                configurePowerOptions()
-                setBrightScreen(SCREEN_BRIGHT_VALUE)
-            }
             publishFaceDetected()
         }
 
@@ -916,7 +880,6 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
     companion object {
 
         const val ONGOING_NOTIFICATION_ID = 1
-        const val SCREEN_BRIGHT_VALUE = 255
         const val BROADCAST_EVENT_URL_CHANGE = "BROADCAST_EVENT_URL_CHANGE"
         const val BROADCAST_EVENT_SCREEN_TOUCH = "BROADCAST_EVENT_SCREEN_TOUCH"
         const val SCREEN_WAKE_TIME = 30000L
@@ -924,5 +887,6 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         const val BROADCAST_CLEAR_ALERT_MESSAGE = "BROADCAST_CLEAR_ALERT_MESSAGE"
         const val BROADCAST_TOAST_MESSAGE = "BROADCAST_TOAST_MESSAGE"
         const val BROADCAST_SCREEN_WAKE = "BROADCAST_SCREEN_WAKE"
+        const val BROADCAST_SCREEN_BRIGHTNESS_CHANGE = "BROADCAST_SCREEN_BRIGHTNESS_CHANGE"
     }
 }

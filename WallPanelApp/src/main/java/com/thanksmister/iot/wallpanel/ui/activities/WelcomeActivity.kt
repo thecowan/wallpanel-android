@@ -46,7 +46,7 @@ class WelcomeActivity : DaggerAppCompatActivity() {
 
         findViewById<View>(R.id.welcomeSettingsButton).setOnClickListener {
             configuration.setFirstTime(false)
-            startActivity(Intent(this@WelcomeActivity, SettingsActivity::class.java))
+            startActivity(Intent(this@WelcomeActivity, BrowserActivityNative::class.java))
             finish()
         }
 
@@ -57,7 +57,7 @@ class WelcomeActivity : DaggerAppCompatActivity() {
 
     private fun startBrowserActivity() {
         Timber.i("startBrowserActivity Called")
-        val intent = Intent(this@WelcomeActivity,  BrowserActivityNative::class.java)
+        val intent = Intent(this@WelcomeActivity,  SettingsActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
         startActivity(intent)
         finish()

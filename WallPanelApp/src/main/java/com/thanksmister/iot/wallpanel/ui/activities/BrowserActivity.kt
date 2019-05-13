@@ -36,6 +36,7 @@ import com.thanksmister.iot.wallpanel.network.WallPanelService
 import com.thanksmister.iot.wallpanel.network.WallPanelService.Companion.BROADCAST_ALERT_MESSAGE
 import com.thanksmister.iot.wallpanel.network.WallPanelService.Companion.BROADCAST_CLEAR_ALERT_MESSAGE
 import com.thanksmister.iot.wallpanel.network.WallPanelService.Companion.BROADCAST_EVENT_SCREEN_TOUCH
+import com.thanksmister.iot.wallpanel.network.WallPanelService.Companion.BROADCAST_SCREEN_BRIGHTNESS_CHANGE
 import com.thanksmister.iot.wallpanel.network.WallPanelService.Companion.BROADCAST_SCREEN_WAKE
 import com.thanksmister.iot.wallpanel.network.WallPanelService.Companion.BROADCAST_TOAST_MESSAGE
 import com.thanksmister.iot.wallpanel.persistence.Configuration
@@ -49,10 +50,7 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
 
     @Inject lateinit var dialogUtils: DialogUtils
     @Inject lateinit var configuration: Configuration
-
-    private val screenUtils by lazy {
-        ScreenUtils(this@BrowserActivity)
-    }
+    @Inject lateinit var screenUtils: ScreenUtils
 
     var mOnScrollChangedListener: ViewTreeObserver.OnScrollChangedListener? = null
     private var wallPanelService: Intent? = null
@@ -96,6 +94,8 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
                 resetScreenBrightness(false)
             } else if (BROADCAST_SCREEN_WAKE == intent.action && !isFinishing) {
                 stopDisconnectTimer()
+            } else if (BROADCAST_ACTION_RELOAD_PAGE == intent.action && !isFinishing) {
+                hideScreenSaver()
             }
         }
     }
@@ -138,6 +138,7 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
         filter.addAction(BROADCAST_ACTION_JS_EXEC)
         filter.addAction(BROADCAST_ACTION_CLEAR_BROWSER_CACHE)
         filter.addAction(BROADCAST_ACTION_RELOAD_PAGE)
+        filter.addAction(BROADCAST_SCREEN_BRIGHTNESS_CHANGE)
         filter.addAction(BROADCAST_CLEAR_ALERT_MESSAGE)
         filter.addAction(BROADCAST_ALERT_MESSAGE)
         filter.addAction(BROADCAST_TOAST_MESSAGE)
@@ -262,8 +263,11 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
 
     open fun hideScreenSaver() {
         Timber.d("hideScreenSaver")
-        dialogUtils.hideScreenSaverDialog()
+        val isScreenSaver = dialogUtils.hideScreenSaverDialog()
         window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        if(isScreenSaver) {
+            resetScreenBrightness(false)
+        }
     }
 
     /**
@@ -289,7 +293,7 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
     }
 
     open fun resetScreenBrightness(screenSaver: Boolean = false) {
-        screenUtils.resetScreenBrightness(screenSaver, configuration, isFinishing)
+        screenUtils.resetScreenBrightness(screenSaver)
     }
 
     protected abstract fun configureWebSettings(userAgent: String)

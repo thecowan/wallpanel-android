@@ -20,6 +20,8 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import com.thanksmister.iot.wallpanel.R
+import timber.log.Timber
+import java.lang.ClassCastException
 import javax.inject.Inject
 
 class Configuration @Inject
@@ -215,8 +217,17 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
     val testZoomLevel: Float
         get() = getStringPref(R.string.key_setting_test_zoomlevel, R.string.default_setting_test_zoomlevel).trim().toFloat()
 
-    val inactivityTime: Long
-        get() = getStringPref(R.string.key_inactivity_time, R.string.default_inactivity_time).trim().toLong()
+    var inactivityTime: Long
+        get() = sharedPreferences.getLong(context.getString(R.string.key_screensaver_inactivity_time), 30000)
+        set(value) {
+            sharedPreferences.edit().putLong(context.getString(R.string.key_screensaver_inactivity_time), value).apply()
+        }
+
+    var screenSaverDimValue: Int
+        get() = sharedPreferences.getInt(context.getString(R.string.key_screensaver_dim_value), 25)
+        set(value) {
+            sharedPreferences.edit().putInt(context.getString(R.string.key_screensaver_dim_value), value).apply()
+        }
 
     val hasScreenSaver: Boolean
         get() = getBoolPref(R.string.key_screensaver, R.string.default_screensaver)
@@ -228,10 +239,14 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
         }
 
     var screenScreenSaverBrightness: Int
-        get() = sharedPreferences.getInt(context.getString(R.string.key_setting_screensaver_brightness), 15)
+        get() = sharedPreferences.getInt(context.getString(R.string.key_setting_screensaver_brightness), 0)
         set(value) {
             sharedPreferences.edit().putInt(context.getString(R.string.key_setting_screensaver_brightness), value).apply()
         }
+
+    var useScreenBrightness: Boolean
+        get() = this.sharedPreferences.getBoolean(PREF_SCREEN_BRIGHTNESS, false)
+        set(value) = this.sharedPreferences.edit().putBoolean(PREF_SCREEN_BRIGHTNESS, value).apply()
 
     fun hasCameraDetections() : Boolean {
         return cameraEnabled && (cameraMotionEnabled || cameraQRCodeEnabled || cameraFaceEnabled || httpMJPEGEnabled)
@@ -259,10 +274,8 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
         const val PREF_WRITE_SCREEN_PERMISSIONS = "pref_write_screen_permissions"
         const val PREF_CAMERA_PERMISSIONS = "pref_camera_permissions"
         const val PREF_CAMERA_ROTATE = "pref_camera_rotate"
-        const val PREF_CAMERA_ID = "pref_camera_id"
-        const val PREF_BRIGHTNESS_FACTOR = .10
-        const val PREF_USE_GECKO = "pref_use_gecko"
-        const val PREF_BROWSER_NATIVE = "Native"
-        const val PREF_BROWSER_AUTO = "Auto"
+        const val PREF_SCREEN_BRIGHTNESS = "pref_use_screen_brightness"
+        const val PREF_SCREEN_INACTIVITY_TIME = "pref_screensaver_inactivity_time"
+        const val PREF_SCREENSAVER_DIM_VALUE = "pref_screensaver_dim_value"
     }
 }

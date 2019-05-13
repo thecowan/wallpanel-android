@@ -47,10 +47,6 @@ class SettingsActivity : DaggerAppCompatActivity(), SettingsFragment.OnSettingsF
     @Inject
     lateinit var dialogUtils: DialogUtils
 
-    private val screenUtils by lazy {
-        ScreenUtils(this@SettingsActivity)
-    }
-
     public override fun onCreate(savedInstance: Bundle?) {
         super.onCreate(savedInstance)
 
@@ -61,14 +57,6 @@ class SettingsActivity : DaggerAppCompatActivity(), SettingsFragment.OnSettingsF
         stopService(wallPanelService)
 
         lifecycle.addObserver(dialogUtils)
-
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (screenUtils.canWriteScreenSetting()) {
-                setBrightnessLevels()
-            }
-        } else {
-            setBrightnessLevels()
-        }
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
@@ -80,27 +68,9 @@ class SettingsActivity : DaggerAppCompatActivity(), SettingsFragment.OnSettingsF
         return super.onKeyDown(keyCode, event)
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, intent: Intent?) {
-        super.onActivityResult(requestCode, resultCode, intent)
-        if (requestCode == PERMISSIONS_REQUEST_WRITE_SETTINGS) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                if (Settings.System.canWrite(applicationContext)) {
-                    Toast.makeText(this, getString(R.string.toast_write_permissions_granted), Toast.LENGTH_LONG).show()
-                    setBrightnessLevels()
-                } else {
-                    Toast.makeText(this, getString(R.string.toast_write_permissions_denied), Toast.LENGTH_LONG).show()
-                }
-            }
-        }
-    }
-
     public override fun onResume() {
         super.onResume()
         requestCameraPermissions()
-    }
-
-    private fun setBrightnessLevels() {
-        screenUtils.configureBrightnessLevels(configuration)
     }
 
     private fun requestCameraPermissions() {
@@ -111,12 +81,9 @@ class SettingsActivity : DaggerAppCompatActivity(), SettingsFragment.OnSettingsF
                 ActivityCompat.requestPermissions(this,
                         arrayOf(Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE),
                         PERMISSIONS_REQUEST_CAMERA)
-            } else {
-                checkWriteSettings()
             }
         } else {
             configuration.cameraPermissionsShown = true
-            checkWriteSettings()
         }
     }
 
@@ -129,35 +96,8 @@ class SettingsActivity : DaggerAppCompatActivity(), SettingsFragment.OnSettingsF
                 } else {
                     Toast.makeText(this, R.string.toast_camera_permission_denied, Toast.LENGTH_LONG).show()
                 }
-                checkWriteSettings() // now check if we have write settings
             }
         }
-    }
-
-    private fun checkWriteSettings() {
-        if (!configuration.writeScreenPermissionsShown && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (screenUtils.canWriteScreenSetting()) {
-                configuration.writeScreenPermissionsShown = true
-                setBrightnessLevels()
-            } else  {
-                // launch the dialog to provide permissions
-                configuration.writeScreenPermissionsShown = true
-                AlertDialog.Builder(this@SettingsActivity)
-                        .setMessage(getString(R.string.dialog_write_permissions_description))
-                        .setPositiveButton(android.R.string.ok) { _, _ ->
-                            launchWriteSettings()
-                        }
-                        .setNegativeButton(android.R.string.cancel) { _, _ ->
-                            Toast.makeText(this, getString(R.string.toast_write_permissions_denied), Toast.LENGTH_LONG).show()
-                        }.show()
-            }
-        }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.M)
-    private fun launchWriteSettings() {
-        val intent = Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS, Uri.parse("package:$packageName"))
-        startActivityForResult(intent, 200)
     }
 
     override fun onFinish() {

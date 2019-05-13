@@ -30,6 +30,7 @@ import com.thanksmister.iot.wallpanel.modules.SensorReader;
 import com.thanksmister.iot.wallpanel.network.MQTTOptions;
 import com.thanksmister.iot.wallpanel.persistence.Configuration;
 import com.thanksmister.iot.wallpanel.utils.DialogUtils;
+import com.thanksmister.iot.wallpanel.utils.ScreenUtils;
 
 import javax.inject.Singleton;
 
@@ -83,5 +84,10 @@ class ActivityModule {
     @Provides
     static MQTTOptions provideMQTTOptions(Configuration configuration) {
         return new MQTTOptions(configuration);
+    }
+
+    @Provides
+    static ScreenUtils screenUtils(Application application, Configuration configuration) {
+        return new ScreenUtils(application, configuration);
     }
 }

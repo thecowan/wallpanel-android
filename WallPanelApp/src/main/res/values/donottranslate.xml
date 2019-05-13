@@ -118,8 +118,10 @@
     <string name="key_pref_browser_refresh">browser_refresh</string>
     <string name="default_browser_refresh">true</string>
 
-    <string name="key_inactivity_time">inactivity_time</string>
-    <string name="default_inactivity_time">300000</string>
+    <string name="key_screensaver_inactivity_time">screensaver_inactivity_time</string>
+
+    <string name="key_screensaver_dim_value">screensaver_dim_value</string>
+    <string name="default_screensaver_dim_value">15</string>
 
     <string name="key_screensaver">settings_screensaver</string>
     <string name="default_screensaver">false</string>
@@ -158,6 +160,31 @@
         <item>-90f</item>
         <item>90f</item>
         <item>-180f</item>
+    </string-array>
+
+
+    <string-array name="dim_title">
+        <item>0%</item>
+        <item>10%</item>
+        <item>15%</item>
+        <item>25%</item>
+        <item>30%</item>
+        <item>40%</item>
+        <item>50%</item>
+        <item>75%</item>
+        <item>90%</item>
+    </string-array>
+
+    <string-array name="dim_values">
+        <item>0</item>
+        <item>10</item>
+        <item>15</item>
+        <item>25</item>
+        <item>30</item>
+        <item>40</item>
+        <item>50</item>
+        <item>75</item>
+        <item>90</item>
     </string-array>
 
 </resources>

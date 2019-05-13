@@ -17,23 +17,40 @@
 package com.thanksmister.iot.wallpanel.ui.fragments
 
 import android.content.Context
+import android.content.Intent
+import android.content.SharedPreferences
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
+import android.support.annotation.RequiresApi
 import android.support.v14.preference.SwitchPreference
+import android.support.v7.app.AlertDialog
 import android.support.v7.preference.CheckBoxPreference
 import android.support.v7.preference.EditTextPreference
 import android.support.v7.preference.ListPreference
 import android.support.v7.preference.Preference
 import android.view.*
+import android.widget.Toast
 import androidx.navigation.Navigation
 import com.thanksmister.iot.wallpanel.R
+import com.thanksmister.iot.wallpanel.persistence.Configuration
+import com.thanksmister.iot.wallpanel.persistence.Configuration.Companion.PREF_SCREENSAVER_DIM_VALUE
+import com.thanksmister.iot.wallpanel.persistence.Configuration.Companion.PREF_SCREEN_BRIGHTNESS
+import com.thanksmister.iot.wallpanel.persistence.Configuration.Companion.PREF_SCREEN_INACTIVITY_TIME
 import com.thanksmister.iot.wallpanel.ui.activities.SettingsActivity
+import com.thanksmister.iot.wallpanel.ui.activities.SettingsActivity.Companion.PERMISSIONS_REQUEST_WRITE_SETTINGS
 import com.thanksmister.iot.wallpanel.utils.DateUtils
 import com.thanksmister.iot.wallpanel.utils.DateUtils.SECONDS_VALUE
+import com.thanksmister.iot.wallpanel.utils.ScreenUtils
 import dagger.android.support.AndroidSupportInjection
 import timber.log.Timber
+import javax.inject.Inject
 
 class SettingsFragment : BaseSettingsFragment() {
 
+    @Inject
+    lateinit var screenUtils: ScreenUtils
 
     private var openOnBootPreference: SwitchPreference? = null
     private var preventSleepPreference: SwitchPreference? = null
@@ -46,11 +63,13 @@ class SettingsFragment : BaseSettingsFragment() {
     private var httpPreference: Preference? = null
     private var sensorsPreference: Preference? = null
     private var aboutPreference: Preference? = null
+    private var brightnessPreference: Preference? = null
     private var listener: OnSettingsFragmentListener? = null
     private var browserRefreshPreference: SwitchPreference? = null
-    private var browserUseGecko: SwitchPreference? = null
     private var clockSaverPreference: SwitchPreference? = null
     private var inactivityPreference: ListPreference? = null
+    private var screenBrightness: SwitchPreference? = null
+    private var dimPreference: ListPreference? = null
 
     interface OnSettingsFragmentListener {
         fun onFinish()
@@ -78,6 +97,23 @@ class SettingsFragment : BaseSettingsFragment() {
             (activity as SettingsActivity).supportActionBar!!.setDisplayHomeAsUpEnabled(false)
             (activity as SettingsActivity).supportActionBar!!.setDisplayShowHomeEnabled(false)
             (activity as SettingsActivity).supportActionBar!!.title = (getString(R.string.title_settings))
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, intent: Intent?) {
+        super.onActivityResult(requestCode, resultCode, intent)
+        if (requestCode == PERMISSIONS_REQUEST_WRITE_SETTINGS) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (Settings.System.canWrite(requireActivity().applicationContext)) {
+                    Toast.makeText(requireActivity(), getString(R.string.toast_write_permissions_granted), Toast.LENGTH_LONG).show()
+                    screenBrightness?.isChecked = true
+                    configuration.useScreenBrightness = true
+                } else {
+                    Toast.makeText(requireActivity(), getString(R.string.toast_write_permissions_denied), Toast.LENGTH_LONG).show()
+                    configuration.useScreenBrightness = false
+                }
+            }
+            screenUtils.setScreenBrightnessLevels()
         }
     }
 
@@ -112,9 +148,10 @@ class SettingsFragment : BaseSettingsFragment() {
         browserActivityPreference = findPreference(getString(R.string.key_setting_app_showactivity)) as SwitchPreference
         openOnBootPreference = findPreference(getString(R.string.key_setting_android_startonboot)) as SwitchPreference
         browserRefreshPreference = findPreference(getString(R.string.key_pref_browser_refresh)) as SwitchPreference
-        browserUseGecko = findPreference(getString(R.string.key_setting_use_gecko)) as SwitchPreference
         clockSaverPreference = findPreference(getString(R.string.key_screensaver)) as SwitchPreference
-        inactivityPreference = findPreference(getString(R.string.key_inactivity_time)) as ListPreference
+        inactivityPreference = findPreference(PREF_SCREEN_INACTIVITY_TIME) as ListPreference
+        dimPreference = findPreference(PREF_SCREENSAVER_DIM_VALUE) as ListPreference
+        screenBrightness = findPreference(PREF_SCREEN_BRIGHTNESS) as SwitchPreference
 
         bindPreferenceSummaryToValue(dashboardPreference!!)
         bindPreferenceSummaryToValue(preventSleepPreference!!)
@@ -122,13 +159,28 @@ class SettingsFragment : BaseSettingsFragment() {
         bindPreferenceSummaryToValue(openOnBootPreference!!)
         bindPreferenceSummaryToValue(browserHeaderPreference!!)
         bindPreferenceSummaryToValue(clockSaverPreference!!)
-        bindPreferenceSummaryToValue(inactivityPreference!!)
+
+        inactivityPreference?.setDefaultValue(configuration.inactivityTime)
+        inactivityPreference?.value = configuration.inactivityTime.toString()
+
+        if (configuration.inactivityTime < SECONDS_VALUE) {
+            inactivityPreference?.summary = getString(R.string.preference_summary_inactivity_seconds,
+                    DateUtils.convertInactivityTime(configuration.inactivityTime))
+        } else {
+            inactivityPreference?.summary = getString(R.string.preference_summary_inactivity_minutes,
+                    DateUtils.convertInactivityTime(configuration.inactivityTime))
+        }
+
+        dimPreference?.setDefaultValue(configuration.screenSaverDimValue)
+        dimPreference?.value = configuration.screenSaverDimValue.toString()
+        dimPreference?.summary = getString(R.string.preference_summary_dim_screensaver, configuration.screenSaverDimValue.toString())
 
         cameraPreference = findPreference("button_key_camera")
         mqttPreference = findPreference("button_key_mqtt")
         httpPreference = findPreference("button_key_http")
         sensorsPreference = findPreference("button_key_sensors")
         aboutPreference = findPreference("button_key_about")
+        brightnessPreference = findPreference("button_key_brightness")
 
         cameraPreference!!.onPreferenceClickListener = Preference.OnPreferenceClickListener { preference ->
             view.let { Navigation.findNavController(it).navigate(R.id.camera_action) }
@@ -154,8 +206,71 @@ class SettingsFragment : BaseSettingsFragment() {
             view.let { Navigation.findNavController(it).navigate(R.id.about_action) }
             false
         }
+
+        brightnessPreference!!.onPreferenceClickListener = Preference.OnPreferenceClickListener { preference ->
+            screenUtils.setScreenBrightnessLevels()
+            Toast.makeText(requireContext(), getString(R.string.toast_screen_brightness_captured), Toast.LENGTH_SHORT).show()
+            false
+        }
     }
 
-    companion object {
+    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
+        when (key) {
+            PREF_SCREEN_BRIGHTNESS -> {
+                val useBright = screenBrightness!!.isChecked
+                configuration.useScreenBrightness = useBright
+                if(useBright) {
+                    checkWriteSettings()
+                } else {
+                    screenUtils.restoreDeviceBrightnessControl()
+                }
+            }
+            PREF_SCREEN_INACTIVITY_TIME -> {
+                val inactivity = inactivityPreference?.value!!.toLong()
+                configuration.inactivityTime = inactivity
+                if (inactivity < SECONDS_VALUE) {
+                    inactivityPreference?.summary = getString(R.string.preference_summary_inactivity_seconds, DateUtils.convertInactivityTime(inactivity))
+                } else {
+                    inactivityPreference?.summary = getString(R.string.preference_summary_inactivity_minutes, DateUtils.convertInactivityTime(inactivity))
+                }
+            }
+            PREF_SCREENSAVER_DIM_VALUE -> {
+                val dim = dimPreference?.value!!.toInt()
+                configuration.screenSaverDimValue = dim
+                screenUtils.setScreenBrightnessLevels()
+                dimPreference?.summary = getString(R.string.preference_summary_dim_screensaver, dim.toString())
+            }
+        }
+    }
+
+    private fun checkWriteSettings() {
+        Timber.d("checkWriteSettings")
+        if (!configuration.writeScreenPermissionsShown && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (Settings.System.canWrite(requireActivity().applicationContext)) {
+                screenUtils.setScreenBrightnessLevels()
+                Toast.makeText(requireContext(), getString(R.string.toast_screen_brightness_captured), Toast.LENGTH_SHORT).show()
+            } else if (!configuration.writeScreenPermissionsShown) {
+                // launch the dialog to provide permissions
+                configuration.writeScreenPermissionsShown = true
+                AlertDialog.Builder(requireActivity())
+                        .setMessage(getString(R.string.dialog_write_permissions_description))
+                        .setPositiveButton(android.R.string.ok) { _, _ ->
+                            launchWriteSettings()
+                        }
+                        .setNegativeButton(android.R.string.cancel) { _, _ ->
+                            Toast.makeText(requireActivity(), getString(R.string.toast_write_permissions_denied), Toast.LENGTH_LONG).show()
+                        }.show()
+            }
+        } else if (configuration.useScreenBrightness) {
+            // rewrite the screen brightness levels until we have a slider in placeß
+            screenUtils.setScreenBrightnessLevels()
+            Toast.makeText(requireContext(), getString(R.string.toast_screen_brightness_captured), Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.M)
+    private fun launchWriteSettings() {
+        val intent = Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS, Uri.parse("package:${requireActivity().applicationContext.packageName}"))
+        startActivityForResult(intent, 200)
     }
 }
