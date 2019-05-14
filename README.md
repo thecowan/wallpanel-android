@@ -8,6 +8,7 @@ WallPanel is an Android application for Web Based Dashboards and Home Automation
 - MQTT or HTTP commands to remotely control device and application (url, brightness, wake, etc.).
 - Sensor data reporting for the device (temperature, light, pressure, battery).
 - Streaming MJPEG server support using the device camera.
+- Screensaver feature that can be dismissed with motion or face detection,
 
 ## Hardware & Software 
 
