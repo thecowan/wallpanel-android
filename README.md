@@ -193,30 +193,20 @@ Example format for the message topic and payload:
 
 ```{"topic":"wallpanel/mywallpanel/command", "payload":"{'speak':'Hello!'}"}```
 
-<!-- ## Default Appication Configuration
-Key | Value | Behavior | Default
--|-|-|-
-app.deviceId | String | The unique identifier for this WallPanel device | mywallpanel
-app.preventSleep | true/false | Prevents the screen from turning off | false
-app.launchUrl | URL | The URL the Dashboard launches at | Tutorial Webpage 
-app.showActivity | true/false | On-screen indication of browser activity | true
-camera.cameraId | int | The camera ID to attach to | 0
-camera.motionEnabled | true/false | If the device camera is used for motion detection | false
-camera.motionCheckInterval | int | The interval the camera is polled for motion in milliseconds | 500
-camera.motionLeniency | int | The leniency on changes in pictures between polls | 20
-camera.motionMinLuma | int | The minimum light needed to perform motion detection | 1000
-camera.motionWake | true/false | If motion activity should wake the device | true
-PLANNED: camera.webcamEnabled | true/false | If the device camera is used as a webcam | false
-http.enabled | true/false | Switch for REST(HTTP) being enabled | false
-http.port | int | The port to listen on for REST(HTTP) | 2971
-mqtt.enabled | true/false | Switch for MQTT being enabled | false 
-mqtt.serverName | String | The hostname/IP of the MQTT server | mqtt 
-mqtt.serverPort | Int | The port number for TCP MQTT | 1883 
-mqtt.baseTopic | String | The root topic WallPanel will pub/sub under | wallpanel/{app.deviceId}/ 
-mqtt.clientId | String | The client ID to connect to MQTT with | {app.deviceId}  
-mqtt.username | String | The username to connect to MQTT with (or blank) |  
-mqtt.password | String | The password to connect to MQTT with (or blank) | 
-mqtt.sensorFrequency | Int | The frequency to post sensor data in seconds, or 0 to never post | 0 -->
+### Screensaver and Brigthness control
+On some older devices, there is not screensaver such as Daydream that automatically dims the screen.  Therefore the application provides a screensaver feature (currently a clock animation).  This feature along with the screen brightness option, allows the screen to dim when the screensaver is active.  With the Camera and Motion feature, the device can be automatically awaken when motion is detected.  Optionally, you can send an MQTT command to wake the screen or just touch the screen to deactive the screensaver. 
+
+There is setting to dim screen a set percentage when the screensaver is active, this requires the screen brightness setting be enabled. When set to a value above 0%, the screen will dim by the percent value set when the screensaver is active. So if the setting is 75%, the screen will dim to a vlaue that is 75% of the default device brightness levels.
+
+Using the screen brightness option requires some extra permissions.  This is because controlling the devices screen brightness is considered a dangerous permission by Google and so users have to manually turn this on.  When you first select the screen brightness option, you will be taken to the setting on your device to enable the permission.  The screen brightness feature behaves in the following manner: 
+
+- There is a general brightness setting that must be enabled (and permissions given) in order for the application to manually set the device brightness.  If at any time you revoke the permissions in the device settings for the application to control the brightness, this option will be disabled. 
+
+- The brightness mode can be disabled in the settings, returning the device back to its automatic brightness control. If brightness is disabled the application will no longer be able to change the devices brightness level including via MQTT commands. 
+
+- Brightness level is read at the time brightness control is enabled and permissions granted. However, there is also a new capture button in the settings to manually capture the devices current brightness level. To use this, first go into the app settings, then adjust your devices brightness level, then press the capture button to save the new brightness level.  The application will then use this brightness level to set the device brighntess level.   
+
+- If you have brightness enabled, you can at any time manually set a new brightness level using the MQTT commands (see commands section above).  The device will then use the new stting as the default brightness level of the deivice. 
 
 
 ## Credits
