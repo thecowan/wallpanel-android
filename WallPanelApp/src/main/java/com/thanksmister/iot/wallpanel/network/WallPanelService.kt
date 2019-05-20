@@ -836,6 +836,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
 
     private val sensorCallback = object : SensorCallback {
         override fun publishSensorData(sensorName: String, sensorData: JSONObject) {
+            publishApplicationState()
             publishMessage(COMMAND_SENSOR + sensorName, sensorData)
         }
     }

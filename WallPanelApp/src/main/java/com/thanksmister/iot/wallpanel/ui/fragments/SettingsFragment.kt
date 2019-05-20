@@ -105,15 +105,17 @@ class SettingsFragment : BaseSettingsFragment() {
         if (requestCode == PERMISSIONS_REQUEST_WRITE_SETTINGS) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (Settings.System.canWrite(requireActivity().applicationContext)) {
-                    Toast.makeText(requireActivity(), getString(R.string.toast_write_permissions_granted), Toast.LENGTH_LONG).show()
+                    //Toast.makeText(requireActivity(), getString(R.string.toast_write_permissions_granted), Toast.LENGTH_LONG).show()
                     screenBrightness?.isChecked = true
                     configuration.useScreenBrightness = true
+                    Toast.makeText(requireContext(), getString(R.string.toast_screen_brightness_captured), Toast.LENGTH_SHORT).show()
+                    screenUtils.setScreenBrightnessLevels()
                 } else {
                     Toast.makeText(requireActivity(), getString(R.string.toast_write_permissions_denied), Toast.LENGTH_LONG).show()
                     configuration.useScreenBrightness = false
+                    screenBrightness?.isChecked = false
                 }
             }
-            screenUtils.setScreenBrightnessLevels()
         }
     }
 
@@ -262,7 +264,7 @@ class SettingsFragment : BaseSettingsFragment() {
                         }.show()
             }
         } else if (configuration.useScreenBrightness) {
-            // rewrite the screen brightness levels until we have a slider in placeß
+            // rewrite the screen brightness levels until we have a slider in place
             screenUtils.setScreenBrightnessLevels()
             Toast.makeText(requireContext(), getString(R.string.toast_screen_brightness_captured), Toast.LENGTH_SHORT).show()
         }
