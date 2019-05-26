@@ -153,7 +153,7 @@ class MQTTService(private var context: Context, options: MQTTOptions,
         try {
             mqttOptions?.let {mqttOptions ->
                 mqttClient = MqttAndroidClient(context, mqttOptions.brokerUrl, mqttOptions.getClientId(), MemoryPersistence())
-                mqttClient!!.setCallback(object : MqttCallbackExtended {
+                mqttClient?.setCallback(object : MqttCallbackExtended {
                     override fun connectComplete(reconnect: Boolean, serverURI: String?) {
                         subscribeToTopics(mqttOptions.getStateTopics())
                     }
@@ -171,20 +171,14 @@ class MQTTService(private var context: Context, options: MQTTOptions,
                 }
 
                 try {
-                    mqttClient!!.connect(options, null, object : IMqttActionListener {
+                    mqttClient?.connect(options, null, object : IMqttActionListener {
                         override fun onSuccess(asyncActionToken: IMqttToken) {
                             val disconnectedBufferOptions = DisconnectedBufferOptions()
                             disconnectedBufferOptions.isBufferEnabled = true
                             disconnectedBufferOptions.bufferSize = 100
                             disconnectedBufferOptions.isPersistBuffer = false
                             disconnectedBufferOptions.isDeleteOldestMessages = false
-                            if (mqttClient != null) {
-                                try {
-                                    mqttClient!!.setBufferOpts(disconnectedBufferOptions)
-                                } catch (e: NullPointerException) {
-                                    Timber.e(e.message)
-                                }
-                            }
+                            mqttClient?.setBufferOpts(disconnectedBufferOptions)
                             listener?.handleMqttConnected()
                         }
 

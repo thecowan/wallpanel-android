@@ -184,35 +184,37 @@ class SettingsFragment : BaseSettingsFragment() {
         aboutPreference = findPreference("button_key_about")
         brightnessPreference = findPreference("button_key_brightness")
 
-        cameraPreference!!.onPreferenceClickListener = Preference.OnPreferenceClickListener { preference ->
-            view.let { Navigation.findNavController(it).navigate(R.id.camera_action) }
-            false
-        }
 
-        mqttPreference!!.onPreferenceClickListener = Preference.OnPreferenceClickListener { preference ->
-            view.let { Navigation.findNavController(it).navigate(R.id.mqtt_action) }
-            false
-        }
+        try {
+            cameraPreference!!.onPreferenceClickListener = Preference.OnPreferenceClickListener { preference ->
+                view.let { Navigation.findNavController(it).navigate(R.id.camera_action) }
+                false
+            }
+            mqttPreference!!.onPreferenceClickListener = Preference.OnPreferenceClickListener { preference ->
+                view.let { Navigation.findNavController(it).navigate(R.id.mqtt_action) }
+                false
+            }
+            httpPreference!!.onPreferenceClickListener = Preference.OnPreferenceClickListener { preference ->
+                view.let { Navigation.findNavController(it).navigate(R.id.http_action) }
+                false
+            }
+            sensorsPreference!!.onPreferenceClickListener = Preference.OnPreferenceClickListener { preference ->
+                view.let { Navigation.findNavController(it).navigate(R.id.sensors_action) }
+                false
+            }
 
-        httpPreference!!.onPreferenceClickListener = Preference.OnPreferenceClickListener { preference ->
-            view.let { Navigation.findNavController(it).navigate(R.id.http_action) }
-            false
-        }
+            aboutPreference!!.onPreferenceClickListener = Preference.OnPreferenceClickListener { preference ->
+                view.let { Navigation.findNavController(it).navigate(R.id.about_action) }
+                false
+            }
 
-        sensorsPreference!!.onPreferenceClickListener = Preference.OnPreferenceClickListener { preference ->
-            view.let { Navigation.findNavController(it).navigate(R.id.sensors_action) }
-            false
-        }
-
-        aboutPreference!!.onPreferenceClickListener = Preference.OnPreferenceClickListener { preference ->
-            view.let { Navigation.findNavController(it).navigate(R.id.about_action) }
-            false
-        }
-
-        brightnessPreference!!.onPreferenceClickListener = Preference.OnPreferenceClickListener { preference ->
-            screenUtils.setScreenBrightnessLevels()
-            Toast.makeText(requireContext(), getString(R.string.toast_screen_brightness_captured), Toast.LENGTH_SHORT).show()
-            false
+            brightnessPreference!!.onPreferenceClickListener = Preference.OnPreferenceClickListener { preference ->
+                screenUtils.setScreenBrightnessLevels()
+                Toast.makeText(requireContext(), getString(R.string.toast_screen_brightness_captured), Toast.LENGTH_SHORT).show()
+                false
+            }
+        }  catch (e: IllegalArgumentException) {
+            Timber.d(e.message)
         }
     }
 
