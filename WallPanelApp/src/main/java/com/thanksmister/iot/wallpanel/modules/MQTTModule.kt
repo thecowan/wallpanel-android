@@ -81,7 +81,7 @@ class MQTTModule (base: Context?, var mqttOptions: MQTTOptions, private val list
         }
     }
 
-    fun resetMQttOptions(mqttOptions: MQTTOptions) {
+    /*fun resetMQttOptions(mqttOptions: MQTTOptions) {
         this.mqttOptions = mqttOptions
         if (mqttService != null) {
             try {
@@ -91,7 +91,7 @@ class MQTTModule (base: Context?, var mqttOptions: MQTTOptions, private val list
                 Timber.e("Could not create MQTTPublisher: " + t.message)
             }
         }
-    }
+    }*/
 
     override fun subscriptionMessage(id: String, topic: String, payload: String) {
         Timber.d("topic: " + topic)

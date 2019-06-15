@@ -19,6 +19,8 @@ package com.thanksmister.iot.wallpanel.network
 import android.R.id.message
 import android.content.Context
 import android.text.TextUtils
+import com.crashlytics.android.Crashlytics
+import com.thanksmister.iot.wallpanel.BuildConfig
 import com.thanksmister.iot.wallpanel.R
 import com.thanksmister.iot.wallpanel.utils.MqttUtils
 import com.thanksmister.iot.wallpanel.utils.StringUtils
@@ -109,9 +111,7 @@ class MQTTService(private var context: Context, options: MQTTOptions,
                 sendMessage(mqttOptions?.getBaseTopic() + command, mqttMessage)
             }
         } catch (e: MqttException) {
-            if (listener != null) {
-                listener!!.handleMqttException("Exception while subscribing: " + e.message)
-            }
+            listener?.handleMqttException("Exception while subscribing to topics")
         }
 
     }
@@ -180,62 +180,68 @@ class MQTTService(private var context: Context, options: MQTTOptions,
                             disconnectedBufferOptions.isDeleteOldestMessages = false
                             mqttClient?.setBufferOpts(disconnectedBufferOptions)
                             listener?.handleMqttConnected()
+                            mReady.set(true)
                         }
-
-                        override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
-                            mqttOptions.let {
-                                Timber.e("Failed to connect to: " + it.brokerUrl + " exception: " + exception)
-                                listener?.handleMqttException(context.getString(R.string.error_mqtt_subscription))
-                            }
+                        override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
+                            Timber.e("Failed to connect to: " + mqttOptions.brokerUrl + " exception: " + exception)
+                            listener?.handleMqttException(context.getString(R.string.error_mqtt_subscription))
+                            mReady.set(false)
                         }
                     })
                 } catch (e: NullPointerException) {
                     Timber.e(e, e.message)
-                    e.printStackTrace()
+                    mReady.set(false)
                 } catch (e: MqttException) {
-                    listener?.handleMqttException("" + e.message)
+                    mReady.set(false)
+                    listener?.handleMqttException("Error initialize MQTT client")
                 }
-                mReady.set(true)
             }
-
         } catch (e: IllegalArgumentException) {
             e.printStackTrace()
         } catch (e: NullPointerException) {
             e.printStackTrace()
         } catch (e: Exception) {
             e.printStackTrace()
-            listener?.handleMqttException("" + e.message)
+            listener?.handleMqttException("Error setting up MQTT client")
         }
     }
 
     @Throws(MqttException::class)
     private fun sendMessage(mqttTopic: String?, mqttMessage: MqttMessage) {
         Timber.d("sendMessage")
-        if (isReady && mqttClient != null && mqttClient!!.isConnected) {
-            try {
-                mqttClient?.publish(mqttTopic, mqttMessage)
-                Timber.d("Command Topic: $mqttTopic Payload: $message")
-            } catch (e: NullPointerException) {
-                Timber.e(e.message)
-            } catch (e: MqttException) {
-                Timber.e("Error Sending Command: " + e.message)
-                e.printStackTrace()
-                listener?.handleMqttException(context.getString(R.string.error_mqtt_subscription))
+        try {
+            mqttClient?.let {
+                if (isReady && it.isConnected) {
+                    it.publish(mqttTopic, mqttMessage)
+                    Timber.d("Command Topic: $mqttTopic Payload: $message")
+                }
             }
+        } catch (e: NullPointerException) {
+            Timber.e(e.message)
+        } catch (e: MqttException) {
+            Timber.e("Error Sending Command: " + e.message)
+            listener?.handleMqttException(context.getString(R.string.error_mqtt_subscription))
         }
     }
 
     private fun subscribeToTopics(topicFilters: Array<String>?) {
         Timber.d("Subscribe to Topics: " + StringUtils.convertArrayToString(topicFilters))
         try {
-            if (isReady && mqttClient != null) {
-                mqttClient?.subscribe(topicFilters, MqttUtils.getQos(topicFilters!!.size),
-                        MqttUtils.getMqttMessageListeners(topicFilters.size, listener))
+            mqttClient?.let {
+                if(it.isConnected && isReady) {
+                    it.subscribe(topicFilters, MqttUtils.getQos(topicFilters!!.size),
+                            MqttUtils.getMqttMessageListeners(topicFilters.size, listener))
+                }
             }
         } catch (e: NullPointerException) {
-            Timber.e(e.message)
+            if(!BuildConfig.DEBUG) {
+                Crashlytics.logException(e)
+            }
         } catch (e: MqttException) {
-            listener?.handleMqttException("Exception while subscribing: " + e.message)
+            if(!BuildConfig.DEBUG) {
+                Crashlytics.logException(e)
+            }
+            listener?.handleMqttException("Exception while subscribing to topics.")
         }
     }
 

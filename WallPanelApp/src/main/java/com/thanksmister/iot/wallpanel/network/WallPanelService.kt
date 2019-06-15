@@ -331,7 +331,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         if (hasNetwork()) {
             if (!mqttAlertMessageShown && !mqttConnected && Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
                 mqttAlertMessageShown = true
-                sendAlertMessage(getString(R.string.error_mqtt_exception))
+                sendAlertMessage(message)
                 reconnectHandler.postDelayed(restartMqttRunnable, 180000)
             }
         }
@@ -353,9 +353,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
     }
 
     private fun publishMessage(command: String, message: String) {
-        if (mqttModule != null) {
-            mqttModule!!.publish(command, message)
-        }
+        mqttModule?.publish(command, message)
     }
 
     private fun configureCamera() {
@@ -375,12 +373,12 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
 
     private fun configureAudioPlayer() {
         audioPlayer = MediaPlayer()
-        audioPlayer!!.setOnPreparedListener { audioPlayer ->
+        audioPlayer?.setOnPreparedListener { audioPlayer ->
             Timber.d("audioPlayer: File buffered, playing it now")
             audioPlayerBusy = false
             audioPlayer.start()
         }
-        audioPlayer!!.setOnCompletionListener { audioPlayer ->
+        audioPlayer?.setOnCompletionListener { audioPlayer ->
             Timber.d("audioPlayer: Cleanup")
             if (audioPlayer.isPlaying) {  // should never happen, just in case
                 audioPlayer.stop()
@@ -388,7 +386,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
             audioPlayer.reset()
             audioPlayerBusy = false
         }
-        audioPlayer!!.setOnErrorListener { audioPlayer, i, i1 ->
+        audioPlayer?.setOnErrorListener { audioPlayer, i, i1 ->
             Timber.d("audioPlayer: Error playing file")
             audioPlayerBusy = false
             false
@@ -399,17 +397,17 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         if (httpServer == null && configuration.httpEnabled) {
             Timber.d("startHttp")
             httpServer = AsyncHttpServer()
-            httpServer!!.addAction("*", "*") { request, response ->
+            httpServer?.addAction("*", "*") { request, response ->
                 Timber.i("Unhandled Request Arrived")
                 response.code(404)
                 response.send("")
             }
-            httpServer!!.listen(AsyncServer.getDefault(), configuration.httpPort)
+            httpServer?.listen(AsyncServer.getDefault(), configuration.httpPort)
             Timber.i("Started HTTP server on " + configuration.httpPort)
         }
 
         if (httpServer != null && configuration.httpRestEnabled) {
-            httpServer!!.addAction("POST", "/api/command") { request, response ->
+            httpServer?.addAction("POST", "/api/command") { request, response ->
                 var result = false
                 if (request.body is JSONObjectBody) {
                     Timber.i("POST Json Arrived (command)")
@@ -427,7 +425,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
                 response.send(j)
             }
 
-            httpServer!!.addAction("GET", "/api/state") { request, response ->
+            httpServer?.addAction("GET", "/api/state") { request, response ->
                 Timber.i("GET Arrived (/api/state)")
                 response.send(state)
             }
@@ -436,7 +434,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
 
         if (httpServer != null && configuration.httpMJPEGEnabled) {
             startMJPEG()
-            httpServer!!.addAction("GET", "/camera/stream") { _, response ->
+            httpServer?.addAction("GET", "/camera/stream") { _, response ->
                 Timber.i("GET Arrived (/camera/stream)")
                 startMJPEG(response)
             }
@@ -446,9 +444,9 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
 
     private fun stopHttp() {
         Timber.d("stopHttp")
-        if (httpServer != null) {
+        httpServer?.let {
             stopMJPEG()
-            httpServer!!.stop()
+            it.stop()
             httpServer = null
         }
     }
@@ -483,9 +481,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         Timber.d("stopMJPEG Called")
         mJpegSockets.clear()
         cameraReader.getJpeg().removeObservers(this)
-        if(httpServer != null) {
-            httpServer!!.removeAction("GET", "/camera/stream")
-        }
+        httpServer?.removeAction("GET", "/camera/stream")
     }
 
     private fun startMJPEG(response: AsyncHttpServerResponse) {
@@ -624,7 +620,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
     }
 
     private fun speakMessage(message: String) {
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             if (textToSpeechModule != null) {
                 Timber.d("speakMessage $message")
                 textToSpeechModule!!.speakText(message)
