@@ -93,7 +93,7 @@ class BrowserActivityNative : BrowserActivity() {
                 }
             }
             override fun onJsAlert(view: WebView, url: String, message: String, result: JsResult): Boolean {
-                if(view.context != null) {
+                if(view.context != null && !isFinishing) {
                     AlertDialog.Builder(this@BrowserActivityNative)
                             .setMessage(message)
                             .setPositiveButton(android.R.string.ok, null)
