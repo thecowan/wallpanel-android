@@ -131,8 +131,12 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
         get() = httpRestEnabled || httpMJPEGEnabled
 
     val httpPort: Int
-        get() = getStringPref(R.string.key_setting_http_port,
-                R.string.default_setting_http_port).trim().toInt()
+        get() =
+            try {
+                getStringPref(R.string.key_setting_http_port, R.string.default_setting_http_port).trim().toInt()
+            } catch (e: NumberFormatException) {
+                context.getString(R.string.default_setting_http_port).toInt()
+            }
 
     val httpRestEnabled: Boolean
         get() = getBoolPref(R.string.key_setting_http_restenabled,

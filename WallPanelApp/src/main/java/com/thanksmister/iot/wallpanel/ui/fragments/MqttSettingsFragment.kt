@@ -18,8 +18,8 @@ package com.thanksmister.iot.wallpanel.ui.fragments
 
 import android.content.Context
 import android.os.Bundle
-import android.support.v14.preference.SwitchPreference
-import android.support.v7.preference.EditTextPreference
+import androidx.preference.SwitchPreference
+import androidx.preference.EditTextPreference
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem

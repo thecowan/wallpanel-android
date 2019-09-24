@@ -22,11 +22,11 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.support.v14.preference.SwitchPreference
-import android.support.v4.app.ActivityCompat
-import android.support.v7.preference.EditTextPreference
-import android.support.v7.preference.ListPreference
-import android.support.v7.preference.Preference
+import androidx.preference.SwitchPreference
+import androidx.core.app.ActivityCompat
+import androidx.preference.EditTextPreference
+import androidx.preference.ListPreference
+import androidx.preference.Preference
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem

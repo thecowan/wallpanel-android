@@ -40,7 +40,7 @@
                     android:layout_height="144dp"
                     android:src="@drawable/ic_mister"/>
             
-            <android.support.v4.widget.Space
+            <androidx.legacy.widget.Space
                     android:layout_width="match_parent"
                     android:layout_height="16dp"/>
             

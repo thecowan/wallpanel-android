@@ -175,13 +175,18 @@ class MQTTService(private var context: Context, options: MQTTOptions,
                             disconnectedBufferOptions.bufferSize = 100
                             disconnectedBufferOptions.isPersistBuffer = false
                             disconnectedBufferOptions.isDeleteOldestMessages = false
-                            mqttClient?.setBufferOpts(disconnectedBufferOptions)
-                            listener?.handleMqttConnected()
-                            mReady.set(true)
+                            try {
+                                mqttClient?.setBufferOpts(disconnectedBufferOptions)
+                                listener?.handleMqttConnected()
+                                mReady.set(true)
+                            } catch (e: NullPointerException) {
+                                listener?.handleMqttException("Error establishing MQTT Client, was null at the time of initialization.")
+                                mReady.set(false)
+                            }
                         }
                         override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
-                            Timber.e("Failed to connect to: " + mqttOptions.brokerUrl + " exception: " + exception)
-                            listener?.handleMqttException("Error establishing MQTT connection to MQTT broker with address ${mqttOptions?.brokerUrl}.")
+                            //Timber.e("Failed to connect to: " + mqttOptions.brokerUrl + " exception: " + exception)
+                            listener?.handleMqttException("Error establishing MQTT connection to MQTT broker with address ${mqttOptions.brokerUrl}.")
                             mReady.set(false)
                         }
                     })

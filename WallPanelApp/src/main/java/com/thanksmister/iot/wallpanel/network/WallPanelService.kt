@@ -17,8 +17,8 @@
 package com.thanksmister.iot.wallpanel.network
 
 import android.app.KeyguardManager
-import android.arch.lifecycle.LifecycleService
-import android.arch.lifecycle.Observer
+import androidx.lifecycle.LifecycleService
+import androidx.lifecycle.Observer
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -27,8 +27,8 @@ import android.content.pm.PackageManager
 import android.media.MediaPlayer
 import android.net.wifi.WifiManager
 import android.os.*
-import android.support.v4.content.ContextCompat
-import android.support.v4.content.LocalBroadcastManager
+import androidx.core.content.ContextCompat
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.koushikdutta.async.AsyncServer
 import com.koushikdutta.async.ByteBufferList
 import com.koushikdutta.async.http.body.JSONObjectBody

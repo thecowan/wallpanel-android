@@ -17,12 +17,12 @@
 package com.thanksmister.iot.wallpanel.ui.activities
 
 import android.Manifest
-import android.arch.lifecycle.ViewModelProvider
-import android.arch.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProviders
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Handler
-import android.support.v4.app.ActivityCompat
+import androidx.core.app.ActivityCompat
 import android.view.Gravity
 import android.view.MenuItem
 import android.view.WindowManager

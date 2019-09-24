@@ -16,7 +16,7 @@
 
 package com.thanksmister.iot.wallpanel.di
 
-import android.arch.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProvider
 import com.thanksmister.iot.wallpanel.di.DaggerViewModelFactory
 import dagger.Binds
 import dagger.Module

@@ -18,7 +18,7 @@ package com.thanksmister.iot.wallpanel.ui.fragments
 
 import android.content.Context
 import android.os.Bundle
-import android.support.v14.preference.SwitchPreference
+import androidx.preference.SwitchPreference
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem

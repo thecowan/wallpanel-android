@@ -16,15 +16,15 @@
 
 package com.thanksmister.iot.wallpanel.modules
 
-import android.arch.lifecycle.Lifecycle
-import android.arch.lifecycle.LifecycleObserver
-import android.arch.lifecycle.OnLifecycleEvent
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.OnLifecycleEvent
 import android.content.Context
 import android.content.ContextWrapper
 import android.os.Build
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
-import android.support.annotation.RequiresApi
+import androidx.annotation.RequiresApi
 import com.thanksmister.iot.wallpanel.persistence.Configuration
 import timber.log.BuildConfig
 import timber.log.Timber

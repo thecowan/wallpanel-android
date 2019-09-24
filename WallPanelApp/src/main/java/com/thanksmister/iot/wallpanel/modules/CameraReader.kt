@@ -17,8 +17,8 @@
 package com.thanksmister.iot.wallpanel.modules
 
 import android.annotation.SuppressLint
-import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.MutableLiveData
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import android.content.Context
 import android.graphics.*
 import android.hardware.Camera
@@ -39,7 +39,7 @@ import java.io.ByteArrayOutputStream
 import java.lang.ref.WeakReference
 import javax.inject.Inject
 import android.graphics.Bitmap
-import android.support.v8.renderscript.RenderScript
+import androidx.renderscript.RenderScript
 import com.google.android.gms.vision.CameraSource.CAMERA_FACING_BACK
 import com.google.android.gms.vision.CameraSource.CAMERA_FACING_FRONT
 import java.io.IOException

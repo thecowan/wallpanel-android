@@ -16,7 +16,7 @@
 
 package com.thanksmister.iot.wallpanel.di
 
-import android.arch.lifecycle.ViewModel
+import androidx.lifecycle.ViewModel
 import com.thanksmister.iot.wallpanel.BootUpReceiver
 import com.thanksmister.iot.wallpanel.ui.*
 import com.thanksmister.iot.wallpanel.ui.activities.*

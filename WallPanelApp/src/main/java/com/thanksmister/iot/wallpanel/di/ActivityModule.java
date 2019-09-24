@@ -22,7 +22,7 @@ import android.content.SharedPreferences;
 
 import android.content.res.Resources;
 import android.location.LocationManager;
-import android.support.v7.preference.PreferenceManager;
+import androidx.preference.PreferenceManager;
 import android.view.LayoutInflater;
 
 import com.thanksmister.iot.wallpanel.modules.CameraReader;

@@ -19,7 +19,7 @@ package com.thanksmister.iot.wallpanel
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.support.v7.preference.PreferenceManager
+import androidx.preference.PreferenceManager
 import com.thanksmister.iot.wallpanel.ui.activities.WelcomeActivity
 
 class BootUpReceiver : BroadcastReceiver() {

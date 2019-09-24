@@ -45,9 +45,11 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
+        android:usesCleartextTraffic="true"
         android:name="com.thanksmister.iot.wallpanel.WallPanel"
         tools:ignore="GoogleAppIndexingWarning"
-        android:fullBackupContent="true">
+        android:fullBackupContent="true"
+        tools:targetApi="m">
 
         <activity
             android:name="com.thanksmister.iot.wallpanel.ui.activities.WelcomeActivity"
