@@ -52,9 +52,9 @@ class MotionSettingsFragment : BaseSettingsFragment() {
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
-        inflater!!.inflate(R.menu.menu_help, menu)
+        inflater.inflate(R.menu.menu_help, menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

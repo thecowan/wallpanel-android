@@ -40,6 +40,7 @@ import java.lang.ref.WeakReference
 import javax.inject.Inject
 import android.graphics.Bitmap
 import androidx.renderscript.RenderScript
+//import android.support.v8.renderscript.RenderScript
 import com.google.android.gms.vision.CameraSource.CAMERA_FACING_BACK
 import com.google.android.gms.vision.CameraSource.CAMERA_FACING_FRONT
 import java.io.IOException

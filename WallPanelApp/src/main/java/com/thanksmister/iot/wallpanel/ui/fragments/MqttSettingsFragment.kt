@@ -18,12 +18,9 @@ package com.thanksmister.iot.wallpanel.ui.fragments
 
 import android.content.Context
 import android.os.Bundle
+import android.view.*
 import androidx.preference.SwitchPreference
 import androidx.preference.EditTextPreference
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
-import android.view.View
 import androidx.navigation.Navigation
 import com.thanksmister.iot.wallpanel.R
 import com.thanksmister.iot.wallpanel.ui.activities.SettingsActivity
@@ -54,9 +51,9 @@ class MqttSettingsFragment : BaseSettingsFragment() {
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
-        inflater!!.inflate(R.menu.menu_help, menu)
+        inflater.inflate(R.menu.menu_help, menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
