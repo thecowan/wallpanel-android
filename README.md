@@ -17,6 +17,12 @@ WallPanel is an Android application for Web Based Dashboards and Home Automation
 ## Quick Start
 You can either side load the application to your device from the release section or install the application from the [Google Play store](https://play.google.com/store/apps/details?id=com.thanksmister.iot.wallpanel). The application will open to the welcome page with a link to update the settings. Go to settings, and setup the link to your web page or home automation platform. You may also update additional settings for Motion, Face Detection, and for publishing device sensor data. 
 
+## Building the Application 
+
+
+## Limitations
+Android devices use WebView to render webpages, This WebView does not have full feature parity with Chrome for Android and therefore pages that render in Chrome may not render nicely in Wall Panel. For example, WebView that shipped with Android 4.4 (KitKat) devices is based on the same code as Chrome for Android version 30. This WebView does not have full feature parity with Chrome for Android and is given the version number 30.0.0.0.  If you find that you cannot render a webpage, it is most likely that the version of WebView on your device does not support the CSS/HTML of that page.  You have little recourse but to update the webpage, as there is nothing to be done to the WebView to make it compatible with your code. 
+
 ## Support
 For issues, feature requests, comments or questions, use the [Github issues tracker](https://github.com/thanksmister/wallpanel-android/issues).
 
@@ -213,3 +219,4 @@ Using the screen brightness option requires some extra permissions.  This is bec
 ## Credits
 
 WallPanel (Formerly HomeDash) is a fork from the [original WallPanel project](https://github.com/WallPanel-Project/wallpanel-android) developed by [quadportnick](https://github.com/quadportnick). Thanks to [allofmex](https://github.com/allofmex) for his contributions to the project. 
+
