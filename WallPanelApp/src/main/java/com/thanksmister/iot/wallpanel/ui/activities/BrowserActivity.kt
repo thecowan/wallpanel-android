@@ -288,8 +288,9 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
             } catch (e: Exception) {
                 Timber.e(e.message)
             }
+            resetScreenBrightness(true)
         }
-        resetScreenBrightness(true)
+
     }
 
     open fun resetScreenBrightness(screenSaver: Boolean = false) {
