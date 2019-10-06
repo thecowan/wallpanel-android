@@ -15,7 +15,7 @@ WallPanel is an Android application for Web Based Dashboards and Home Automation
 
 - Android Device running Android OS 4.4 or greater.  Note: The WebView shipped with Android 4.4 (KitKat) is based on the same code as Chrome for Android version 30. This WebView does not have full feature parity with Chrome for Android and is given the version number 30.0.0.0.  
 
-***If you have need support for older Android 4.0 devices, you may want to use the [legacy](https://github.com/thanksmister/wallpanel-android-legacy) version of the application. 
+*** If you have need support for older Android 4.0 devices (those below Android 4.4), you want to use the [legacy](https://github.com/thanksmister/wallpanel-android-legacy) version of the application. Alternatively you can download an APK from the release section prior to release v0.8.8-beta.6 *** 
 
 ## Quick Start
 You can either side load the application to your device from the release section or install the application from the [Google Play store](https://play.google.com/store/apps/details?id=com.thanksmister.iot.wallpanel). The application will open to the welcome page with a link to update the settings. Go to settings, and setup the link to your web page or home automation platform. You may also update additional settings for Motion, Face Detection, and for publishing device sensor data. 
