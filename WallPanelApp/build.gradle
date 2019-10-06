@@ -29,7 +29,7 @@ repositories {
 def versionMajor = 0
 def versionMinor = 8
 def versionPatch = 8
-def versionBuild = 5 // bump for dog food builds, public betas, etc.
+def versionBuild = 6 // bump for dog food builds, public betas, etc.
 
 android {
     kapt {
@@ -45,11 +45,9 @@ android {
         versionCode versionMajor * 10000 + versionMinor * 1000 + versionPatch * 100 + versionBuild
         versionName "${versionMajor}.${versionMinor}.${versionPatch}.${versionBuild}"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        renderscriptTargetApi 16
-        renderscriptSupportModeEnabled true
         multiDexEnabled true
         ndk.abiFilters 'armeabi-v7a','arm64-v8a','x86','x86_64'
-        renderscriptTargetApi 21
+        renderscriptTargetApi 19
         renderscriptSupportModeEnabled true
     }
     buildTypes {
@@ -131,13 +129,12 @@ dependencies {
     kapt "com.google.dagger:dagger-android-processor:$versions.dagger"
 
     // MQTT
-    implementation 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.0'
+    implementation 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.2'
     implementation 'org.eclipse.paho:org.eclipse.paho.android.service:1.1.1', {
         exclude module: 'support-v4'
     }
 
     implementation 'com.koushikdutta.async:androidasync:2.1.9'
-    implementation 'io.github.silvaren:easyrs:0.5.3'
 
     // Logging
     implementation 'com.jakewharton.timber:timber:4.5.1'

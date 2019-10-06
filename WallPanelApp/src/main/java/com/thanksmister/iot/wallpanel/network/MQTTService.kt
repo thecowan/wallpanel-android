@@ -150,6 +150,7 @@ class MQTTService(private var context: Context, options: MQTTOptions,
         try {
             mqttOptions?.let {mqttOptions ->
                 mqttClient = MqttAndroidClient(context, mqttOptions.brokerUrl, mqttOptions.getClientId(), MemoryPersistence())
+
                 mqttClient?.setCallback(object : MqttCallbackExtended {
                     override fun connectComplete(reconnect: Boolean, serverURI: String?) {
                         subscribeToTopics(mqttOptions.getStateTopics())

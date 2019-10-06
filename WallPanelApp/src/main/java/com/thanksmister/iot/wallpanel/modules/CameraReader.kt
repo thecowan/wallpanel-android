@@ -33,17 +33,16 @@ import com.google.android.gms.vision.face.FaceDetector
 import com.google.android.gms.vision.face.LargestFaceFocusingProcessor
 import com.thanksmister.iot.wallpanel.persistence.Configuration
 import com.thanksmister.iot.wallpanel.ui.views.CameraSourcePreview
-import io.github.silvaren.easyrs.tools.Nv21Image
+
 import timber.log.Timber
 import java.io.ByteArrayOutputStream
 import java.lang.ref.WeakReference
 import javax.inject.Inject
 import android.graphics.Bitmap
-import androidx.renderscript.RenderScript
-//import android.support.v8.renderscript.RenderScript
 import com.google.android.gms.vision.CameraSource.CAMERA_FACING_BACK
 import com.google.android.gms.vision.CameraSource.CAMERA_FACING_FRONT
 import java.io.IOException
+import androidx.renderscript.*
 
 class CameraReader @Inject
 constructor(private val context: Context) {
@@ -424,7 +423,7 @@ constructor(private val context: Context) {
 
             val windowService = contextRef.get()!!.getSystemService(Context.WINDOW_SERVICE) as WindowManager
             val currentRotation = windowService.defaultDisplay.rotation
-            val nv21Bitmap = Nv21Image.nv21ToBitmap(renderScript, byteArray, width, height)
+            val nv21Bitmap = nv21ToBitmap(renderScript, byteArray, width, height)
             var rotate = orientation
 
             when (currentRotation) {
@@ -459,6 +458,27 @@ constructor(private val context: Context) {
                 return
             }
             onCompleteListener.onComplete(result)
+        }
+
+        private fun nv21ToBitmap(rs: RenderScript, yuvByteArray: ByteArray, width: Int, height: Int): Bitmap {
+
+            val yuvToRgbIntrinsic = ScriptIntrinsicYuvToRGB.create(rs, Element.U8_4(rs))
+
+            val yuvType = Type.Builder(rs, Element.U8(rs)).setX(yuvByteArray.size)
+            val allocationIn = Allocation.createTyped(rs, yuvType.create(), Allocation.USAGE_SCRIPT)
+
+            val rgbaType = Type.Builder(rs, Element.RGBA_8888(rs)).setX(width).setY(height)
+            val allocationOut = Allocation.createTyped(rs, rgbaType.create(), Allocation.USAGE_SCRIPT)
+
+            allocationIn.copyFrom(yuvByteArray)
+
+            yuvToRgbIntrinsic.setInput(allocationIn)
+            yuvToRgbIntrinsic.forEach(allocationOut)
+
+            val bmpout = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+            allocationOut.copyTo(bmpout)
+
+            return bmpout
         }
     }
 
