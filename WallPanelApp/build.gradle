@@ -21,15 +21,10 @@ apply plugin: 'kotlin-kapt'
 apply plugin: 'io.fabric'
 apply plugin: 'com.google.gms.google-services'
 
-repositories {
-    maven { url 'https://maven.fabric.io/public' }
-    mavenCentral()
-}
-
 def versionMajor = 0
 def versionMinor = 8
 def versionPatch = 8
-def versionBuild = 6 // bump for dog food builds, public betas, etc.
+def versionBuild = 7 // bump for dog food builds, public betas, etc.
 
 android {
     kapt {
@@ -47,8 +42,6 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
         ndk.abiFilters 'armeabi-v7a','arm64-v8a','x86','x86_64'
-        renderscriptTargetApi 19
-        renderscriptSupportModeEnabled true
     }
     buildTypes {
         release {

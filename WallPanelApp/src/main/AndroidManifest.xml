@@ -38,6 +38,7 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
+
     <application
         android:allowBackup="true"
         android:largeHeap="true"
@@ -45,11 +46,11 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        android:usesCleartextTraffic="true"
+        android:hardwareAccelerated="true"
         android:name="com.thanksmister.iot.wallpanel.WallPanel"
         tools:ignore="GoogleAppIndexingWarning"
-        android:fullBackupContent="true"
-        tools:targetApi="m">
+        android:fullBackupContent="true">
+
 
         <activity
             android:name="com.thanksmister.iot.wallpanel.ui.activities.WelcomeActivity"
@@ -77,6 +78,7 @@
         </activity>
         <activity
             android:name="com.thanksmister.iot.wallpanel.ui.activities.BrowserActivityNative"
+            android:hardwareAccelerated="false"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_browser"
             android:theme="@style/AppThemeFullScreen">
@@ -107,10 +109,6 @@
 
         <meta-data android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version"/>
-
-        <meta-data
-            android:name="io.fabric.ApiKey"
-            android:value="d328872540a331f2245f3d7b842d06bbb7ac1c60" />
 
     </application>
 

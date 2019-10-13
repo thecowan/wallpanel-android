@@ -77,8 +77,9 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
 
     @Inject
     lateinit var configuration: Configuration
-    @Inject
-    lateinit var cameraReader: CameraReader
+
+    private var cameraReader: CameraReader? = null
+
     @Inject
     lateinit var sensorReader: SensorReader
     @Inject
@@ -92,7 +93,6 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
     private var keyguardLock: KeyguardManager.KeyguardLock? = null
     private var audioPlayer: MediaPlayer? = null
     private var audioPlayerBusy: Boolean = false
-    private var timerActive = false
     private var httpServer: AsyncHttpServer? = null
     private val mBinder = WallPanelServiceBinder()
     private val motionClearHandler = Handler()
@@ -112,6 +112,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
     private var localBroadCastManager: LocalBroadcastManager? = null
     private var mqttAlertMessageShown = false
     private var mqttConnected = false
+
     inner class WallPanelServiceBinder : Binder() {
         val service: WallPanelService
             get() = this@WallPanelService
@@ -179,7 +180,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         if (localBroadCastManager != null) {
             localBroadCastManager?.unregisterReceiver(mBroadcastReceiver)
         }
-        cameraReader.stopCamera()
+        cameraReader?.stopCamera()
         sensorReader.stopReadings()
         stopHttp()
         stopPowerOptions()
@@ -216,15 +217,9 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
 
         // make a continuously running notification
         val notificationUtils = NotificationUtils(applicationContext, application.resources)
-        val notification = notificationUtils.createNotification(getString(R.string.wallpanel_service_notification_title),
-                getString(R.string.wallpanel_service_notification_message))
-        if (notification != null) {
-            startForeground(ONGOING_NOTIFICATION_ID, notification)
-        }
+        val notification = notificationUtils.createNotification(getString(R.string.wallpanel_service_notification_title), getString(R.string.wallpanel_service_notification_message))
+        startForeground(ONGOING_NOTIFICATION_ID, notification)
 
-        if (notification != null) {
-            startForeground(ONGOING_NOTIFICATION_ID, notification)
-        }
         // listen for network connectivity changes
         connectionLiveData = ConnectionLiveData(this)
         connectionLiveData?.observe(this, Observer { connected ->
@@ -265,7 +260,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
             wifiLock!!.acquire()
         }
         try {
-            keyguardLock!!.disableKeyguard()
+            keyguardLock?.disableKeyguard()
         } catch (ex: Exception) {
             Timber.i("Disabling keyguard didn't work")
             ex.printStackTrace()
@@ -357,16 +352,17 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
     }
 
     private fun configureCamera() {
-        if (configuration.cameraEnabled) {
-            cameraReader.startCamera(cameraDetectorCallback, configuration)
+        if (configuration.cameraEnabled && cameraReader == null) {
+            cameraReader = CameraReader(this.applicationContext)
+            cameraReader?.startCamera(cameraDetectorCallback, configuration)
         } else {
-            cameraReader.stopCamera()
+            cameraReader?.stopCamera()
         }
     }
 
     private fun configureTextToSpeech() {
         if (textToSpeechModule == null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            textToSpeechModule = TextToSpeechModule(this)
+            textToSpeechModule = TextToSpeechModule(this.applicationContext)
             lifecycle.addObserver(textToSpeechModule!!)
         }
     }
@@ -453,34 +449,36 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
 
     private fun startMJPEG() {
         Timber.d("startMJPEG")
-        cameraReader.getJpeg().observe(this, Observer { jpeg ->
-            if (mJpegSockets.size > 0 && jpeg != null) {
-                var i = 0
-                while (i < mJpegSockets.size) {
-                    val s = mJpegSockets[i]
-                    val bb = ByteBufferList()
-                    if (s.isOpen) {
-                        bb.recycle()
-                        bb.add(ByteBuffer.wrap("--jpgboundary\r\nContent-Type: image/jpeg\r\n".toByteArray()))
-                        bb.add(ByteBuffer.wrap(("Content-Length: " + jpeg.size + "\r\n\r\n").toByteArray()))
-                        bb.add(ByteBuffer.wrap(jpeg))
-                        bb.add(ByteBuffer.wrap("\r\n".toByteArray()))
-                        s.write(bb)
-                    } else {
-                        mJpegSockets.removeAt(i)
-                        i--
-                        Timber.i("MJPEG Session Count is " + mJpegSockets.size)
+        cameraReader?.let {
+            it.getJpeg().observe(this, Observer { jpeg ->
+                if (mJpegSockets.size > 0 && jpeg != null) {
+                    var i = 0
+                    while (i < mJpegSockets.size) {
+                        val s = mJpegSockets[i]
+                        val bb = ByteBufferList()
+                        if (s.isOpen) {
+                            bb.recycle()
+                            bb.add(ByteBuffer.wrap("--jpgboundary\r\nContent-Type: image/jpeg\r\n".toByteArray()))
+                            bb.add(ByteBuffer.wrap(("Content-Length: " + jpeg.size + "\r\n\r\n").toByteArray()))
+                            bb.add(ByteBuffer.wrap(jpeg))
+                            bb.add(ByteBuffer.wrap("\r\n".toByteArray()))
+                            s.write(bb)
+                        } else {
+                            mJpegSockets.removeAt(i)
+                            i--
+                            Timber.i("MJPEG Session Count is " + mJpegSockets.size)
+                        }
+                        i++
                     }
-                    i++
                 }
-            }
-        })
+            })
+        }
     }
 
     private fun stopMJPEG() {
         Timber.d("stopMJPEG Called")
+        cameraReader?.getJpeg()?.removeObservers(this)
         mJpegSockets.clear()
-        cameraReader.getJpeg().removeObservers(this)
         httpServer?.removeAction("GET", "/camera/stream")
     }
 
@@ -875,7 +873,6 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
     }
 
     companion object {
-
         const val ONGOING_NOTIFICATION_ID = 1
         const val BROADCAST_EVENT_URL_CHANGE = "BROADCAST_EVENT_URL_CHANGE"
         const val BROADCAST_EVENT_SCREEN_TOUCH = "BROADCAST_EVENT_SCREEN_TOUCH"

@@ -58,16 +58,17 @@ class BrowserActivityNative : BrowserActivity() {
                 clearCache()
                 loadUrl(configuration.appLaunchUrl)
             }
-            mOnScrollChangedListener = ViewTreeObserver.OnScrollChangedListener { swipeContainer?.isEnabled = mWebView!!.scrollY == 0 }
+            mOnScrollChangedListener = ViewTreeObserver.OnScrollChangedListener { swipeContainer?.isEnabled = mWebView?.scrollY == 0 }
         } else {
             swipeContainer.isEnabled = false
         }
 
         mWebView = findViewById<View>(R.id.activity_browser_webview_native) as WebView
-        mWebView!!.visibility = View.VISIBLE
+        mWebView?.visibility = View.VISIBLE
+        mWebView?.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 
         // Force links and redirects to open in the WebView instead of in a browser
-        mWebView!!.webChromeClient = object : WebChromeClient() {
+        mWebView?.webChromeClient = object : WebChromeClient() {
             var snackbar: Snackbar? = null
             override fun onProgressChanged(view: WebView, newProgress: Int) {
                 if (newProgress == 100 ) {
@@ -103,50 +104,50 @@ class BrowserActivityNative : BrowserActivity() {
             }
         }
 
-        mWebView!!.webViewClient = object : WebViewClient() {
-            private var isRedirect = false
-            //If you will not use this method url links are open in new browser not in webview
-            override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
-                isRedirect = true
-                view.loadUrl(url)
-                return true
-            }
-            override fun onReceivedError(view: WebView, errorCode: Int, description: String, failingUrl: String) {
-                if(!isFinishing) {
-                    Toast.makeText(this@BrowserActivityNative, description, Toast.LENGTH_SHORT).show()
+        mWebView?.webViewClient = object : WebViewClient() {
+                private var isRedirect = false
+                //If you will not use this method url links are open in new browser not in webview
+                override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
+                    isRedirect = true
+                    view.loadUrl(url)
+                    return true
                 }
-            }
-            override fun onReceivedSslError(view: WebView, handler: SslErrorHandler?, error: SslError?) {
-                if(!certPermissionsShown && !isFinishing) {
-                    val builder = AlertDialog.Builder(this@BrowserActivityNative)
-                    var message = getString(R.string.dialog_message_ssl_generic)
-                    when (error?.primaryError) {
-                        SslError.SSL_UNTRUSTED -> message = getString(R.string.dialog_message_ssl_untrusted)
-                        SslError.SSL_EXPIRED -> message = getString(R.string.dialog_message_ssl_expired)
-                        SslError.SSL_IDMISMATCH -> message = getString(R.string.dialog_message_ssl_mismatch)
-                        SslError.SSL_NOTYETVALID -> message = getString(R.string.dialog_message_ssl_not_yet_valid)
+                override fun onReceivedError(view: WebView, errorCode: Int, description: String, failingUrl: String) {
+                    if(!isFinishing) {
+                        Toast.makeText(this@BrowserActivityNative, description, Toast.LENGTH_SHORT).show()
                     }
-                    message += getString(R.string.dialog_message_ssl_continue)
-                    builder.setTitle(getString(R.string.dialog_title_ssl_error))
-                    builder.setMessage(message)
-                    builder.setPositiveButton(getString(R.string.button_continue), { dialog, which -> handler?.proceed() })
-                    builder.setNegativeButton(getString(R.string.button_cancel), { dialog, which -> handler?.cancel() })
-                    val dialog = builder.create()
-                    dialog.show()
-                } else {
-                    handler?.proceed()
+                }
+                override fun onReceivedSslError(view: WebView, handler: SslErrorHandler?, error: SslError?) {
+                    if(!certPermissionsShown && !isFinishing) {
+                        val builder = AlertDialog.Builder(this@BrowserActivityNative)
+                        var message = getString(R.string.dialog_message_ssl_generic)
+                        when (error?.primaryError) {
+                            SslError.SSL_UNTRUSTED -> message = getString(R.string.dialog_message_ssl_untrusted)
+                            SslError.SSL_EXPIRED -> message = getString(R.string.dialog_message_ssl_expired)
+                            SslError.SSL_IDMISMATCH -> message = getString(R.string.dialog_message_ssl_mismatch)
+                            SslError.SSL_NOTYETVALID -> message = getString(R.string.dialog_message_ssl_not_yet_valid)
+                        }
+                        message += getString(R.string.dialog_message_ssl_continue)
+                        builder.setTitle(getString(R.string.dialog_title_ssl_error))
+                        builder.setMessage(message)
+                        builder.setPositiveButton(getString(R.string.button_continue), { dialog, which -> handler?.proceed() })
+                        builder.setNegativeButton(getString(R.string.button_cancel), { dialog, which -> handler?.cancel() })
+                        val dialog = builder.create()
+                        dialog.show()
+                    } else {
+                        handler?.proceed()
+                    }
+                }
+
+                override fun onPageFinished(view: WebView?, url: String?) {
+                    if (isRedirect) {
+                        isRedirect = false
+                        return
+                    }
                 }
             }
 
-            override fun onPageFinished(view: WebView?, url: String?) {
-                if (isRedirect) {
-                    isRedirect = false
-                    return
-                }
-            }
-        }
-
-        mWebView!!.setOnTouchListener { v, event ->
+        mWebView?.setOnTouchListener { v, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
                     resetScreen()
@@ -187,43 +188,43 @@ class BrowserActivityNative : BrowserActivity() {
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun configureWebSettings(userAgent: String) {
-        val webSettings = mWebView!!.settings
-        webSettings.javaScriptEnabled = true
-        webSettings.domStorageEnabled = true
-        webSettings.databaseEnabled = true
-        webSettings.javaScriptCanOpenWindowsAutomatically = true
-        webSettings.setAppCacheEnabled(true)
-        webSettings.allowFileAccess = true;
-        webSettings.allowFileAccessFromFileURLs = true;
-        webSettings.allowContentAccess = true;
+        val webSettings = mWebView?.settings
+        webSettings?.javaScriptEnabled = true
+        webSettings?.domStorageEnabled = true
+        webSettings?.databaseEnabled = true
+        webSettings?.javaScriptCanOpenWindowsAutomatically = true
+        webSettings?.setAppCacheEnabled(true)
+        webSettings?.allowFileAccess = true;
+        webSettings?.allowFileAccessFromFileURLs = true;
+        webSettings?.allowContentAccess = true;
 
         if(!TextUtils.isEmpty(userAgent)) {
-            webSettings.userAgentString = userAgent
+            webSettings?.userAgentString = userAgent
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            webSettings.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+            webSettings?.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
         }
 
-        Timber.d(webSettings.userAgentString)
+        Timber.d(webSettings?.userAgentString)
     }
 
     override fun loadUrl(url: String) {
         Timber.d("loadUrl $url")
         if (zoomLevel.toDouble() != 1.0) {
-            mWebView!!.setInitialScale((zoomLevel * 100).toInt())
+            mWebView?.setInitialScale((zoomLevel * 100).toInt())
         }
         mWebView?.loadUrl(url)
     }
 
     override fun evaluateJavascript(js: String) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            mWebView!!.evaluateJavascript(js, null)
+            mWebView?.evaluateJavascript(js, null)
         }
     }
 
     override fun clearCache() {
-        mWebView!!.clearCache(true)
+        mWebView?.clearCache(true)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             CookieManager.getInstance().removeAllCookies(null)
         }
