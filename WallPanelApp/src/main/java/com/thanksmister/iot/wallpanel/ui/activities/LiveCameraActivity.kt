@@ -20,6 +20,7 @@ import android.Manifest
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import androidx.core.app.ActivityCompat
@@ -74,7 +75,9 @@ class LiveCameraActivity : DaggerAppCompatActivity() {
             supportActionBar!!.title = getString(R.string.title_camera_test)
         }
 
-        window.setFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED, WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED)
+        if(Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) {
+            window.setFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED, WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED)
+        }
         preview = findViewById<CameraSourcePreview>(R.id.imageView_preview)
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(DetectionViewModel::class.java)
 

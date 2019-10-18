@@ -142,16 +142,50 @@
     </string-array>
 
     <string-array name="zoom_level_names">
+        <item>"0%"</item>
+        <item>"10%"</item>
+        <item>"20%"</item>
+        <item>"30%"</item>
+        <item>"40%"</item>
         <item>"50%"</item>
+        <item>"60%"</item>
+        <item>"70%"</item>
+        <item>"80%"</item>
+        <item>"90%"</item>
         <item>"100%"</item>
+        <item>"110%"</item>
+        <item>"120%"</item>
+        <item>"130%"</item>
+        <item>"140%"</item>
         <item>"150%"</item>
+        <item>"160%"</item>
+        <item>"170%"</item>
+        <item>"180%"</item>
+        <item>"190%"</item>
         <item>"200%"</item>
     </string-array>
 
     <string-array name="zoom_level_values">
+        <item>0</item>
+        <item>0.1</item>
+        <item>0.2</item>
+        <item>0.3</item>
+        <item>0.4</item>
         <item>0.5</item>
+        <item>0.6</item>
+        <item>0.7</item>
+        <item>0.8</item>
+        <item>0.9</item>
         <item>1.0</item>
+        <item>1.1</item>
+        <item>1.2</item>
+        <item>1.3</item>
+        <item>1.4</item>
         <item>1.5</item>
+        <item>1.6</item>
+        <item>1.7</item>
+        <item>1.8</item>
+        <item>1.9</item>
         <item>2.0</item>
     </string-array>
 

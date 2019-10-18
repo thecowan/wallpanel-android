@@ -194,9 +194,12 @@ class BrowserActivityNative : BrowserActivity() {
         webSettings?.databaseEnabled = true
         webSettings?.javaScriptCanOpenWindowsAutomatically = true
         webSettings?.setAppCacheEnabled(true)
-        webSettings?.allowFileAccess = true;
-        webSettings?.allowFileAccessFromFileURLs = true;
-        webSettings?.allowContentAccess = true;
+        webSettings?.allowFileAccess = true
+        webSettings?.allowFileAccessFromFileURLs = true
+        webSettings?.allowContentAccess = true
+        webSettings?.setSupportZoom(true)
+        webSettings?.loadWithOverviewMode = true;
+        webSettings?.useWideViewPort = true;
 
         if(!TextUtils.isEmpty(userAgent)) {
             webSettings?.userAgentString = userAgent
@@ -211,8 +214,9 @@ class BrowserActivityNative : BrowserActivity() {
 
     override fun loadUrl(url: String) {
         Timber.d("loadUrl $url")
-        if (zoomLevel.toDouble() != 1.0) {
-            mWebView?.setInitialScale((zoomLevel * 100).toInt())
+        if (zoomLevel != 0.0f) {
+            val zoomPercent = (zoomLevel * 100).toInt()
+            mWebView?.setInitialScale(zoomPercent)
         }
         mWebView?.loadUrl(url)
     }
