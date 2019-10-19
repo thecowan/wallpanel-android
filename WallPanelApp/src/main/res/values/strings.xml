@@ -103,6 +103,9 @@
     <string name="menu_title_help">Help</string>
     <string name="menu_title_dashboard">Dashboard</string>
 
+    <string name="title_hardware_acceleration">Hardware Acceleration</string>
+    <string name="summary_hardware_acceleration">Works on some devices to speed webpage and camera rendering.</string>
+
     <string name="mail_to_subject_text">WallPanel Feedback</string>
     <string name="mail_subject_text">Send Feedback:</string>
 

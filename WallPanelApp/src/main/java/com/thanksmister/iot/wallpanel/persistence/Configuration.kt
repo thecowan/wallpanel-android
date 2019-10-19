@@ -201,6 +201,10 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
         get() = getBoolPref(R.string.key_setting_sensors_enabled,
                 R.string.default_setting_sensors_value)
 
+    val hardwareAccelerated: Boolean
+        get() = getBoolPref(R.string.key_hadware_accelerated_enabled,
+                R.string.default_hardware_accelerated_value)
+
     val browserUserAgent: String
         get() = getStringPref(R.string.key_setting_browser_user_agent,
                 R.string.default_browser_user_agent)

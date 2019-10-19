@@ -34,7 +34,9 @@
     <string name="key_settings_sensors_pressure">setting_sensors_pressure</string>
     <string name="key_settings_sensors_humidity">setting_sensors_humidity</string>
     <string name="key_setting_sensors_enabled">setting_sensors_enabled</string>
+    <string name="key_hadware_accelerated_enabled">hadware_accelerated_enabled</string>
     <string name="default_setting_sensors_value">false</string>
+    <string name="default_hardware_accelerated_value">true</string>
     <string name="key_setting_mqtt_basetopic">setting_mqtt_basetopic</string>
     <string name="key_setting_mqtt_serverport">setting_mqtt_serverport</string>
     <string name="default_setting_mqtt_serverport">1883</string>

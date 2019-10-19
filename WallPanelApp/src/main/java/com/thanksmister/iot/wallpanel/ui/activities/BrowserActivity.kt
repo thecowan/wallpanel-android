@@ -114,7 +114,7 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
 
         decorView = window.decorView
 
-        if(Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) {
+        if(configuration.hardwareAccelerated && Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) {
             window.setFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED, WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED)
         }
         Timber.d("Prevent Sleep ${configuration.appPreventSleep}")

@@ -56,6 +56,12 @@
             android:summary="@string/pref_zoom_level_summary"
             android:title="@string/title_setting_test_zoomlevel"/>
 
+        <SwitchPreference
+            android:defaultValue="@string/default_hardware_accelerated_value"
+            android:key="@string/key_hadware_accelerated_enabled"
+            android:title="@string/title_hardware_acceleration"
+            android:summary="@string/summary_hardware_acceleration"/>
+
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/preference_title_screen">
