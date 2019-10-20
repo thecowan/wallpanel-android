@@ -162,6 +162,14 @@ class BrowserActivityNative : BrowserActivity() {
             false
         }
 
+        if (configuration.hardwareAccelerated && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            // chromium, enable hardware acceleration
+            mWebView?.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+        } else  {
+            // older android version, disable hardware acceleration
+            mWebView?.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+        }
+
         configureWebSettings(configuration.browserUserAgent)
         loadUrl(configuration.appLaunchUrl)
     }
