@@ -77,6 +77,9 @@ class MQTTService(private var context: Context, options: MQTTOptions,
             if (it.isConnected) {
                 it.disconnect(0)
             }
+            mqttClient = null
+            listener = null
+            mqttOptions = null
         }
         mReady.set(false)
     }
@@ -84,28 +87,33 @@ class MQTTService(private var context: Context, options: MQTTOptions,
     override fun publish(command: String, payload: String) {
         try {
             if (isReady) {
-                if (mqttClient != null && !mqttClient!!.isConnected) {
-                    // if for some reason the mqtt client has disconnected, we should try to connect
-                    // it again.
-                    try {
-                        initializeMqttClient()
-                    } catch (e: MqttException) {
-                        listener?.handleMqttException("Could not initialize MQTT")
-                    } catch (e: IOException) {
-                        listener?.handleMqttException("Could not initialize MQTT")
-                    } catch (e: GeneralSecurityException) {
-                        listener?.handleMqttException("Could not initialize MQTT")
+                mqttClient?.let {
+                    if (!it.isConnected) {
+                        // if for some reason the mqtt client has disconnected, we should try to connect
+                        // it again.
+                        try {
+                            initializeMqttClient()
+                        } catch (e: MqttException) {
+                            if (listener != null) {
+                                listener!!.handleMqttException("Could not initialize MQTT: " + e.message)
+                            }
+                        } catch (e: IOException) {
+                            if (listener != null) {
+                                listener!!.handleMqttException("Could not initialize MQTT: " + e.message)
+                            }
+                        } catch (e: GeneralSecurityException) {
+                            if (listener != null) {
+                                listener!!.handleMqttException("Could not initialize MQTT: " + e.message)
+                            }
+                        }
                     }
                 }
-                // TODO append the "command" part
-                Timber.d("Publishing: $payload")
-                Timber.d("Base Topic: ${mqttOptions?.getBaseTopic()}")
-                Timber.d("Command Topic: $command")
-                Timber.d("Payload: $payload")
                 val mqttMessage = MqttMessage()
                 mqttMessage.payload = payload.toByteArray()
-                mqttMessage.isRetained = SHOULD_RETAIN
-                sendMessage(mqttOptions?.getBaseTopic() + command, mqttMessage)
+                mqttOptions?.let {
+                    mqttMessage.isRetained = SHOULD_RETAIN
+                    sendMessage(mqttOptions?.getBaseTopic() + command, mqttMessage)
+                }
             }
         } catch (e: MqttException) {
             listener?.handleMqttException("Exception while publishing command $command and it's payload to the MQTT broker.")
@@ -130,10 +138,14 @@ class MQTTService(private var context: Context, options: MQTTOptions,
             Timber.i("Broker: " + mqttOptions?.brokerUrl)
             Timber.i("Subscribed to state topics: " + StringUtils.convertArrayToString(mqttOptions!!.getStateTopics()))
             Timber.i("Publishing to base topic: " + mqttOptions!!.getBaseTopic())
-            if (mqttOptions!!.isValid) {
-                initializeMqttClient()
-            } else {
-                listener?.handleMqttDisconnected()
+            mqttOptions?.let {
+                if (it.isValid) {
+                    initializeMqttClient()
+                } else {
+                    if (listener != null) {
+                        listener!!.handleMqttDisconnected()
+                    }
+                }
             }
         } catch (e: MqttException) {
             listener?.handleMqttException(context.getString(R.string.error_mqtt_connection))
@@ -148,11 +160,11 @@ class MQTTService(private var context: Context, options: MQTTOptions,
     private fun initializeMqttClient() {
         Timber.d("initializeMqttClient")
         try {
-            mqttOptions?.let {mqttOptions ->
+            mqttOptions?.let { mqttOptions ->
                 mqttClient = MqttAndroidClient(context, mqttOptions.brokerUrl, mqttOptions.getClientId(), MemoryPersistence())
-
                 mqttClient?.setCallback(object : MqttCallbackExtended {
                     override fun connectComplete(reconnect: Boolean, serverURI: String?) {
+                        Timber.d("connect to broker completed, reconnected: $reconnect")
                         subscribeToTopics(mqttOptions.getStateTopics())
                     }
                     override fun connectionLost(cause: Throwable?) {}
@@ -168,6 +180,12 @@ class MQTTService(private var context: Context, options: MQTTOptions,
                     options.password = mqttOptions.getPassword().toCharArray()
                 }
 
+                val isConnected = mqttClient?.isConnected?:false
+                if(isConnected) {
+                    mReady.set(true)
+                    return
+                }
+
                 try {
                     mqttClient?.connect(options, null, object : IMqttActionListener {
                         override fun onSuccess(asyncActionToken: IMqttToken) {
@@ -176,28 +194,30 @@ class MQTTService(private var context: Context, options: MQTTOptions,
                             disconnectedBufferOptions.bufferSize = 100
                             disconnectedBufferOptions.isPersistBuffer = false
                             disconnectedBufferOptions.isDeleteOldestMessages = false
-                            try {
-                                mqttClient?.setBufferOpts(disconnectedBufferOptions)
-                                listener?.handleMqttConnected()
-                                mReady.set(true)
-                            } catch (e: NullPointerException) {
-                                listener?.handleMqttException("Error establishing MQTT Client, was null at the time of initialization.")
-                                mReady.set(false)
-                            }
+                            mqttClient?.setBufferOpts(disconnectedBufferOptions)
+                            listener?.handleMqttConnected()
+                            mReady.set(true)
                         }
                         override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
-                            //Timber.e("Failed to connect to: " + mqttOptions.brokerUrl + " exception: " + exception)
-                            listener?.handleMqttException("Error establishing MQTT connection to MQTT broker with address ${mqttOptions.brokerUrl}.")
-                            mReady.set(false)
+                            if(exception is MqttException) {
+                                if(exception.reasonCode == 32100 || exception.reasonCode == 32110) {
+                                    listener?.handleMqttConnected()
+                                    mReady.set(true)
+                                    return // we have a connection established or is establishing
+                                }
+                            }
+                            mqttOptions.let {
+                                Timber.e("Failed to connect to: " + it.brokerUrl + " exception: " + exception)
+                                listener?.handleMqttException("Error establishing MQTT connection to MQTT broker with address ${mqttOptions.brokerUrl}.")
+                            }
                         }
                     })
                 } catch (e: NullPointerException) {
                     Timber.e(e, e.message)
-                    mReady.set(false)
                 } catch (e: MqttException) {
-                    mReady.set(false)
-                    listener?.handleMqttException("Error establishing MQTT connection to MQTT broker with address ${mqttOptions?.brokerUrl}.")
+                    listener?.handleMqttException("" + e.message)
                 }
+
             }
         } catch (e: IllegalArgumentException) {
             e.printStackTrace()
@@ -205,51 +225,51 @@ class MQTTService(private var context: Context, options: MQTTOptions,
             e.printStackTrace()
         } catch (e: Exception) {
             e.printStackTrace()
-            listener?.handleMqttException("Error establishing MQTT connection to MQTT broker with address ${mqttOptions?.brokerUrl}.")
+            listener?.handleMqttException("" + e.message)
         }
     }
 
     @Throws(MqttException::class)
     private fun sendMessage(mqttTopic: String?, mqttMessage: MqttMessage) {
         Timber.d("sendMessage")
-        try {
-            mqttClient?.let {
-                if (isReady && it.isConnected) {
+        mqttClient?.let {
+            if (isReady && it.isConnected) {
+                try {
                     it.publish(mqttTopic, mqttMessage)
                     Timber.d("Command Topic: $mqttTopic Payload: $message")
+                } catch (e: NullPointerException) {
+                    Timber.e(e.message)
+                } catch (e: MqttException) {
+                    Timber.e("Error Sending Command: " + e.message)
+                    e.printStackTrace()
+                    listener?.handleMqttException("Couldn't send message to the MQTT broker for topic $mqttTopic, check the MQTT client settings or your connection to the broker.")
+
                 }
             }
-        } catch (e: NullPointerException) {
-            Timber.e(e.message)
-        } catch (e: MqttException) {
-            Timber.e("Error Sending Command: " + e.message)
-            listener?.handleMqttException("Couldn't send message to the MQTT broker for topic $mqttTopic, check the MQTT client settings or your connection to the broker.")
         }
     }
 
     private fun subscribeToTopics(topicFilters: Array<String>?) {
-        Timber.d("Subscribe to Topics: " + StringUtils.convertArrayToString(topicFilters))
-        try {
+        topicFilters?.let {
+            Timber.d("Subscribe to Topics: " + StringUtils.convertArrayToString(topicFilters))
             mqttClient?.let {
-                if(it.isConnected && isReady) {
-                    it.subscribe(topicFilters, MqttUtils.getQos(topicFilters!!.size),
-                            MqttUtils.getMqttMessageListeners(topicFilters.size, listener))
+                if (isReady) {
+                    try {
+                        it.subscribe(topicFilters, MqttUtils.getQos(topicFilters.size), MqttUtils.getMqttMessageListeners(topicFilters.size, listener))
+                    } catch (e: NullPointerException) {
+                        e.printStackTrace()
+                        Timber.e(e.message)
+                    } catch (e: MqttException) {
+                        e.printStackTrace()
+                        listener?.handleMqttException("Exception while subscribing: " + e.message)
+                    }
                 }
             }
-        } catch (e: NullPointerException) {
-            if(!BuildConfig.DEBUG) {
-                Crashlytics.logException(e)
-            }
-        } catch (e: MqttException) {
-            if(!BuildConfig.DEBUG) {
-                Crashlytics.logException(e)
-            }
-            listener?.handleMqttException("Exception while subscribing to topics [${topicFilters.toString()}], the connection to the MQTT broker could have been disconnected.")
         }
     }
 
     companion object {
-        // TODO make this optional
         private val SHOULD_RETAIN = false
+        private val MQTT_QOS = 0
     }
 }

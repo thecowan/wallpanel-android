@@ -33,9 +33,6 @@ class MQTTModule (base: Context?, var mqttOptions: MQTTOptions, private val list
 
     private var mqttService: MQTTService? = null
 
-    init {
-    }
-
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
     private fun start() {
         Timber.d("start")
@@ -46,15 +43,22 @@ class MQTTModule (base: Context?, var mqttOptions: MQTTOptions, private val list
                 // TODO should we loop back and try again?
                 Timber.e("Could not create MQTTPublisher: " + t.message)
             }
+        } else {
+            try {
+                mqttService?.reconfigure(applicationContext, mqttOptions, this)
+            } catch (t: Throwable) {
+                // TODO should we loop back and try again?
+                Timber.e("Could not create MQTTPublisher: " + t.message)
+            }
         }
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     private fun stop() {
         Timber.d("stop")
-        if (mqttService != null) {
+        mqttService?.let {
             try {
-                mqttService!!.close()
+                it.close()
             } catch (e: MqttException) {
                 e.printStackTrace()
             }
@@ -76,22 +80,8 @@ class MQTTModule (base: Context?, var mqttOptions: MQTTOptions, private val list
     fun publish(command: String, message : String) {
         Timber.d("command: " + command)
         Timber.d("message: " + message)
-        if(mqttService != null) {
-            mqttService!!.publish(command, message)
-        }
+         mqttService?.publish(command, message)
     }
-
-    /*fun resetMQttOptions(mqttOptions: MQTTOptions) {
-        this.mqttOptions = mqttOptions
-        if (mqttService != null) {
-            try {
-                mqttService!!.reconfigure(applicationContext, mqttOptions, this)
-            } catch (t: Throwable) {
-                // TODO should we loop back and try again?
-                Timber.e("Could not create MQTTPublisher: " + t.message)
-            }
-        }
-    }*/
 
     override fun subscriptionMessage(id: String, topic: String, payload: String) {
         Timber.d("topic: " + topic)

@@ -21,10 +21,16 @@ apply plugin: 'kotlin-kapt'
 apply plugin: 'io.fabric'
 apply plugin: 'com.google.gms.google-services'
 
+repositories {
+    mavenCentral()
+    maven { url 'https://maven.fabric.io/public' }
+}
+
+
 def versionMajor = 0
 def versionMinor = 8
 def versionPatch = 9
-def versionBuild = 1 // bump for dog food builds, public betas, etc.
+def versionBuild = 3 // bump for dog food builds, public betas, etc.
 
 android {
     kapt {
@@ -138,6 +144,10 @@ dependencies {
 
     // (Recommended) Add Analytics
     implementation 'com.crashlytics.sdk.android:crashlytics:2.10.1'
+
+    compile('com.crashlytics.sdk.android:crashlytics:2.10.1@aar') {
+        transitive = true;
+    }
 }
 
 configurations.all {
