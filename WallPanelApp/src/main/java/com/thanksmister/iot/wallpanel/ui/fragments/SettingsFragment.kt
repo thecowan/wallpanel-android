@@ -23,18 +23,19 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
+import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.preference.SwitchPreference
 import androidx.appcompat.app.AlertDialog
-import androidx.preference.CheckBoxPreference
+import androidx.navigation.Navigation
 import androidx.preference.EditTextPreference
 import androidx.preference.ListPreference
 import androidx.preference.Preference
-import android.view.*
-import android.widget.Toast
-import androidx.navigation.Navigation
+import androidx.preference.SwitchPreference
 import com.thanksmister.iot.wallpanel.R
-import com.thanksmister.iot.wallpanel.persistence.Configuration
 import com.thanksmister.iot.wallpanel.persistence.Configuration.Companion.PREF_SCREENSAVER_DIM_VALUE
 import com.thanksmister.iot.wallpanel.persistence.Configuration.Companion.PREF_SCREEN_BRIGHTNESS
 import com.thanksmister.iot.wallpanel.persistence.Configuration.Companion.PREF_SCREEN_INACTIVITY_TIME
@@ -68,6 +69,7 @@ class SettingsFragment : BaseSettingsFragment() {
     private var listener: OnSettingsFragmentListener? = null
     private var browserRefreshPreference: SwitchPreference? = null
     private var clockSaverPreference: SwitchPreference? = null
+    private var clockSaverWallpaperPreference: SwitchPreference? = null
     private var inactivityPreference: ListPreference? = null
     private var screenBrightness: SwitchPreference? = null
     private var dimPreference: ListPreference? = null
@@ -153,6 +155,7 @@ class SettingsFragment : BaseSettingsFragment() {
         hadwareAcceleration = findPreference(getString(R.string.key_hadware_accelerated_enabled)) as SwitchPreference
         browserRefreshPreference = findPreference(getString(R.string.key_pref_browser_refresh)) as SwitchPreference
         clockSaverPreference = findPreference(getString(R.string.key_screensaver)) as SwitchPreference
+        clockSaverWallpaperPreference = findPreference(getString(R.string.key_screensaver_wallpaper)) as SwitchPreference
         inactivityPreference = findPreference(PREF_SCREEN_INACTIVITY_TIME) as ListPreference
         dimPreference = findPreference(PREF_SCREENSAVER_DIM_VALUE) as ListPreference
         screenBrightness = findPreference(PREF_SCREEN_BRIGHTNESS) as SwitchPreference
@@ -164,6 +167,7 @@ class SettingsFragment : BaseSettingsFragment() {
         bindPreferenceSummaryToValue(hadwareAcceleration!!)
         bindPreferenceSummaryToValue(browserHeaderPreference!!)
         bindPreferenceSummaryToValue(clockSaverPreference!!)
+        bindPreferenceSummaryToValue(clockSaverWallpaperPreference!!)
 
         inactivityPreference?.setDefaultValue(configuration.inactivityTime)
         inactivityPreference?.value = configuration.inactivityTime.toString()

@@ -17,17 +17,17 @@
 package com.thanksmister.iot.wallpanel.utils
 
 import android.app.Dialog
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.OnLifecycleEvent
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.DialogInterface
-import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.OnLifecycleEvent
 import com.thanksmister.iot.wallpanel.R
 import com.thanksmister.iot.wallpanel.ui.views.ScreenSaverView
 import timber.log.Timber
@@ -129,7 +129,7 @@ class DialogUtils(base: Context?) : ContextWrapper(base), LifecycleObserver {
      * Show the screen saver only if the alarm isn't triggered. This shouldn't be an issue
      * with the alarm disabled because the disable time will be longer than this.
      */
-    fun showScreenSaver(activity: AppCompatActivity, onClickListener: View.OnClickListener) {
+    fun showScreenSaver(activity: AppCompatActivity, onClickListener: View.OnClickListener, hasWallpaper: Boolean) {
         if (screenSaverDialog != null && screenSaverDialog!!.isShowing) {
             return
         }
@@ -138,7 +138,7 @@ class DialogUtils(base: Context?) : ContextWrapper(base), LifecycleObserver {
         val view = inflater.inflate(R.layout.dialog_screen_saver, null, false)
         val screenSaverView = view.findViewById<ScreenSaverView>(R.id.screenSaverView)
         screenSaverView.setOnClickListener(onClickListener)
-        screenSaverView.init()
+        screenSaverView.init(hasWallpaper)
         screenSaverDialog = buildImmersiveDialog(activity, true, screenSaverView, true)
         if (screenSaverDialog != null){
             screenSaverDialog!!.window.addFlags( WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON )
