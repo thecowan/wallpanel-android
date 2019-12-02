@@ -20,8 +20,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import com.thanksmister.iot.wallpanel.R
-import timber.log.Timber
-import java.lang.ClassCastException
 import javax.inject.Inject
 
 class Configuration @Inject
@@ -239,6 +237,9 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
 
     val hasScreenSaver: Boolean
         get() = getBoolPref(R.string.key_screensaver, R.string.default_screensaver)
+
+    val hasScreenSaverWallpaper: Boolean
+        get() = getBoolPref(R.string.key_screensaver_wallpaper, R.string.default_screensaver_wallpaper)
 
     var screenBrightness: Int
         get() = sharedPreferences.getInt(context.getString(R.string.key_setting_screen_brightness), 150)

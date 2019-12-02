@@ -145,9 +145,12 @@ dependencies {
     // (Recommended) Add Analytics
     implementation 'com.crashlytics.sdk.android:crashlytics:2.10.1'
 
-    compile('com.crashlytics.sdk.android:crashlytics:2.10.1@aar') {
+    implementation('com.crashlytics.sdk.android:crashlytics:2.10.1@aar') {
         transitive = true;
     }
+
+    // Image loading
+    implementation 'com.squareup.picasso:picasso:2.71828'
 }
 
 configurations.all {

@@ -128,6 +128,9 @@
     <string name="key_screensaver">settings_screensaver</string>
     <string name="default_screensaver">false</string>
 
+    <string name="key_screensaver_wallpaper">settings_screensaver_wallpaper</string>
+    <string name="default_screensaver_wallpaper">false</string>
+
     <string name="key_setting_screen_brightness">setting_screen_brightness</string>
     <string name="default_setting_screen_brightness">150</string>
 

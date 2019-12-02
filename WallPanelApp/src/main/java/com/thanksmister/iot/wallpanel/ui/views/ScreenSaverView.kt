@@ -22,11 +22,14 @@ import android.text.format.DateUtils
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.widget.RelativeLayout
+import com.squareup.picasso.MemoryPolicy
+import com.squareup.picasso.NetworkPolicy
+import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.dialog_screen_saver.view.*
 import timber.log.Timber
-import java.lang.IllegalArgumentException
 import java.util.*
 import java.util.concurrent.TimeUnit
+
 
 class ScreenSaverView : RelativeLayout {
 
@@ -34,6 +37,7 @@ class ScreenSaverView : RelativeLayout {
     private var saverContext: Context? = null
     private var parentWidth: Int = 0
     private var parentHeight: Int = 0
+    private var showWallpaper: Boolean = false
 
     val calendar: Calendar = Calendar.getInstance()
 
@@ -42,19 +46,24 @@ class ScreenSaverView : RelativeLayout {
             val date = Date()
             calendar.time = date
             val currentTimeString = DateUtils.formatDateTime(context, date.time, DateUtils.FORMAT_SHOW_TIME)
+            val currentDayString = DateUtils.formatDateTime(context, date.time, DateUtils.FORMAT_SHOW_WEEKDAY or DateUtils.FORMAT_SHOW_DATE)
             screenSaverClock.text = currentTimeString
+            screenSaverDay.text = currentDayString
+
 
             val width = screenSaverClockLayout.width
             val height = screenSaverClockLayout.height
+
             parentWidth = screenSaverView.width
             parentHeight = screenSaverView.height
+
             try {
                 if (width > 0 && height > 0 && parentWidth > 0 && parentHeight > 0) {
-                    if(parentHeight - width > 0) {
+                    if (parentHeight - width > 0) {
                         val newX = Random().nextInt(parentWidth - width)
                         screenSaverClockLayout.x = newX.toFloat()
                     }
-                    if(parentHeight - height > 0) {
+                    if (parentHeight - height > 0) {
                         val newY = Random().nextInt(parentHeight - height)
                         screenSaverClockLayout.y = newY.toFloat()
                     }
@@ -81,8 +90,11 @@ class ScreenSaverView : RelativeLayout {
         timeHandler?.removeCallbacks(timeRunnable)
     }
 
-    fun init() {
-
+    fun init(hasWallpaper: Boolean) {
+        showWallpaper = hasWallpaper
+        if (showWallpaper) {
+            setScreenSaverView()
+        }
     }
 
     override fun onFinishInflate() {
@@ -96,5 +108,18 @@ class ScreenSaverView : RelativeLayout {
     private fun setClockViews() {
         val initialRegular = screenSaverClock.textSize
         screenSaverClock.setTextSize(TypedValue.COMPLEX_UNIT_PX, initialRegular + 100)
+    }
+
+    private fun setScreenSaverView() {
+        // Picasso will cache url, in order to get a new wallpaper, we do not need to use a cache
+        Picasso.get()
+                .load(String.format(UNSPLASHIT_URL, screenSaverView.width, screenSaverView.height))
+                .memoryPolicy(MemoryPolicy.NO_CACHE)
+                .networkPolicy(NetworkPolicy.NO_CACHE)
+                .into(screenSaverImageLayout)
+    }
+
+    companion object {
+        const val UNSPLASHIT_URL = "https://unsplash.it/%s/%s?random"
     }
 }

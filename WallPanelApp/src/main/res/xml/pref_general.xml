@@ -90,6 +90,12 @@
             android:summary="@string/preference_summary_screen_saver_settings"
             android:key="@string/key_screensaver"/>
 
+        <SwitchPreference
+            android:defaultValue="@string/default_screensaver_wallpaper"
+            android:title="@string/preference_title_screen_saver_wallpaper"
+            android:summary="@string/preference_summary_screen_saver_settings_wallpaper"
+            android:key="@string/key_screensaver_wallpaper" />
+
         <ListPreference
             android:key="pref_screensaver_inactivity_time"
             android:dependency="@string/key_screensaver"

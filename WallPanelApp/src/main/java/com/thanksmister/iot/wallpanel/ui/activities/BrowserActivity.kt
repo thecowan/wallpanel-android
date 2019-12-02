@@ -17,7 +17,6 @@
 package com.thanksmister.iot.wallpanel.ui.activities
 
 import android.annotation.SuppressLint
-import android.app.Dialog
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -25,13 +24,12 @@ import android.content.IntentFilter
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
-import android.provider.Settings
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import android.view.KeyEvent
 import android.view.View
 import android.view.ViewTreeObserver
 import android.view.WindowManager
 import android.widget.Toast
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.thanksmister.iot.wallpanel.network.WallPanelService
 import com.thanksmister.iot.wallpanel.network.WallPanelService.Companion.BROADCAST_ALERT_MESSAGE
 import com.thanksmister.iot.wallpanel.network.WallPanelService.Companion.BROADCAST_CLEAR_ALERT_MESSAGE
@@ -280,7 +278,8 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
                             dialogUtils.hideScreenSaverDialog()
                             resetScreenBrightness(false)
                             resetInactivityTimer()
-                        })
+                        },
+                        configuration.hasScreenSaverWallpaper)
             } catch (e: Exception) {
                 Timber.e(e.message)
             }
