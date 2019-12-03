@@ -98,14 +98,12 @@
 
         <ListPreference
             android:key="pref_screensaver_inactivity_time"
-            android:dependency="@string/key_screensaver"
             android:title="@string/preference_title_inactivity"
             android:entries="@array/inactivity_times"
             android:entryValues="@array/inactivity_values"/>
 
         <ListPreference
             android:key="pref_screensaver_dim_value"
-            android:dependency="@string/key_screensaver"
             android:title="@string/preference_title_screensaver_dim"
             android:entries="@array/dim_title"
             android:entryValues="@array/dim_values"/>

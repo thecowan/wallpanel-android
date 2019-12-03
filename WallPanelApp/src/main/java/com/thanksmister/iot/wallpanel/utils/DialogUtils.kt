@@ -129,7 +129,7 @@ class DialogUtils(base: Context?) : ContextWrapper(base), LifecycleObserver {
      * Show the screen saver only if the alarm isn't triggered. This shouldn't be an issue
      * with the alarm disabled because the disable time will be longer than this.
      */
-    fun showScreenSaver(activity: AppCompatActivity, onClickListener: View.OnClickListener, hasWallpaper: Boolean) {
+    fun showScreenSaver(activity: AppCompatActivity, onClickListener: View.OnClickListener, hasWallpaper: Boolean, hasClock: Boolean) {
         if (screenSaverDialog != null && screenSaverDialog!!.isShowing) {
             return
         }
@@ -138,10 +138,10 @@ class DialogUtils(base: Context?) : ContextWrapper(base), LifecycleObserver {
         val view = inflater.inflate(R.layout.dialog_screen_saver, null, false)
         val screenSaverView = view.findViewById<ScreenSaverView>(R.id.screenSaverView)
         screenSaverView.setOnClickListener(onClickListener)
-        screenSaverView.init(hasWallpaper)
+        screenSaverView.init(hasWallpaper, hasClock)
         screenSaverDialog = buildImmersiveDialog(activity, true, screenSaverView, true)
         if (screenSaverDialog != null){
-            screenSaverDialog!!.window.addFlags( WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON )
+            screenSaverDialog?.window?.addFlags( WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON )
         }
     }
 

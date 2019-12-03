@@ -21,6 +21,7 @@ import android.os.Handler
 import android.text.format.DateUtils
 import android.util.AttributeSet
 import android.util.TypedValue
+import android.view.View
 import android.widget.RelativeLayout
 import com.squareup.picasso.MemoryPolicy
 import com.squareup.picasso.NetworkPolicy
@@ -30,14 +31,15 @@ import timber.log.Timber
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-
 class ScreenSaverView : RelativeLayout {
 
     private var timeHandler: Handler? = null
+    private var wallPaperHandler: Handler? = null
     private var saverContext: Context? = null
     private var parentWidth: Int = 0
     private var parentHeight: Int = 0
     private var showWallpaper: Boolean = false
+    private var showClock: Boolean = false
 
     val calendar: Calendar = Calendar.getInstance()
 
@@ -49,7 +51,6 @@ class ScreenSaverView : RelativeLayout {
             val currentDayString = DateUtils.formatDateTime(context, date.time, DateUtils.FORMAT_SHOW_WEEKDAY or DateUtils.FORMAT_SHOW_DATE)
             screenSaverClock.text = currentTimeString
             screenSaverDay.text = currentDayString
-
 
             val width = screenSaverClockLayout.width
             val height = screenSaverClockLayout.height
@@ -77,6 +78,14 @@ class ScreenSaverView : RelativeLayout {
         }
     }
 
+    // TODO we could set a timer here to reload the image at set interval
+    private val wallPaperRunnable = object : Runnable {
+        override fun run() {
+            setScreenSaverView()
+            //wallPaperHandler?.postDelayed(this, TimeUnit.SECONDS.toMillis(900L))
+        }
+    }
+
     constructor(context: Context) : super(context) {
         saverContext = context
     }
@@ -90,18 +99,26 @@ class ScreenSaverView : RelativeLayout {
         timeHandler?.removeCallbacks(timeRunnable)
     }
 
-    fun init(hasWallpaper: Boolean) {
+    fun init(hasWallpaper: Boolean, hasClock: Boolean) {
         showWallpaper = hasWallpaper
+        showClock = hasClock
+        if(showClock) {
+            setClockViews()
+            timeHandler = Handler()
+            timeHandler?.postDelayed(timeRunnable, 10)
+        } else {
+            screenSaverClockLayout.visibility = View.INVISIBLE
+        }
         if (showWallpaper) {
-            setScreenSaverView()
+            wallPaperHandler = Handler()
+            wallPaperHandler?.postDelayed(wallPaperRunnable, 10)
+        } else {
+            screenSaverImageLayout.visibility  = View.INVISIBLE
         }
     }
 
     override fun onFinishInflate() {
         super.onFinishInflate()
-        setClockViews()
-        timeHandler = Handler()
-        timeHandler?.postDelayed(timeRunnable, 10)
     }
 
     // setup clock size based on screen and weather settings
@@ -110,16 +127,16 @@ class ScreenSaverView : RelativeLayout {
         screenSaverClock.setTextSize(TypedValue.COMPLEX_UNIT_PX, initialRegular + 100)
     }
 
+    // Picasso will cache url, in order to get a new wallpaper, we do not need to use a cache
     private fun setScreenSaverView() {
-        // Picasso will cache url, in order to get a new wallpaper, we do not need to use a cache
         Picasso.get()
-                .load(String.format(UNSPLASHIT_URL, screenSaverView.width, screenSaverView.height))
+                .load(String.format(UNSPLASH_IT_URL, screenSaverView.width, screenSaverView.height))
                 .memoryPolicy(MemoryPolicy.NO_CACHE)
                 .networkPolicy(NetworkPolicy.NO_CACHE)
                 .into(screenSaverImageLayout)
     }
 
     companion object {
-        const val UNSPLASHIT_URL = "https://unsplash.it/%s/%s?random"
+        const val UNSPLASH_IT_URL = "https://unsplash.it/%s/%s?random"
     }
 }

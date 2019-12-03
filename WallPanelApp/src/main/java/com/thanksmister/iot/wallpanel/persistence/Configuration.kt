@@ -235,7 +235,7 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
             sharedPreferences.edit().putInt(context.getString(R.string.key_screensaver_dim_value), value).apply()
         }
 
-    val hasScreenSaver: Boolean
+    val hasClockScreenSaver: Boolean
         get() = getBoolPref(R.string.key_screensaver, R.string.default_screensaver)
 
     val hasScreenSaverWallpaper: Boolean

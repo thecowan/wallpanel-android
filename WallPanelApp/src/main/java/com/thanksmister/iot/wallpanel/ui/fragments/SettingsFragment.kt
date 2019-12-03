@@ -69,7 +69,7 @@ class SettingsFragment : BaseSettingsFragment() {
     private var listener: OnSettingsFragmentListener? = null
     private var browserRefreshPreference: SwitchPreference? = null
     private var clockSaverPreference: SwitchPreference? = null
-    private var clockSaverWallpaperPreference: SwitchPreference? = null
+    private var walllpaperSaverPreference: SwitchPreference? = null
     private var inactivityPreference: ListPreference? = null
     private var screenBrightness: SwitchPreference? = null
     private var dimPreference: ListPreference? = null
@@ -155,7 +155,7 @@ class SettingsFragment : BaseSettingsFragment() {
         hadwareAcceleration = findPreference(getString(R.string.key_hadware_accelerated_enabled)) as SwitchPreference
         browserRefreshPreference = findPreference(getString(R.string.key_pref_browser_refresh)) as SwitchPreference
         clockSaverPreference = findPreference(getString(R.string.key_screensaver)) as SwitchPreference
-        clockSaverWallpaperPreference = findPreference(getString(R.string.key_screensaver_wallpaper)) as SwitchPreference
+        walllpaperSaverPreference = findPreference(getString(R.string.key_screensaver_wallpaper)) as SwitchPreference
         inactivityPreference = findPreference(PREF_SCREEN_INACTIVITY_TIME) as ListPreference
         dimPreference = findPreference(PREF_SCREENSAVER_DIM_VALUE) as ListPreference
         screenBrightness = findPreference(PREF_SCREEN_BRIGHTNESS) as SwitchPreference
@@ -167,7 +167,7 @@ class SettingsFragment : BaseSettingsFragment() {
         bindPreferenceSummaryToValue(hadwareAcceleration!!)
         bindPreferenceSummaryToValue(browserHeaderPreference!!)
         bindPreferenceSummaryToValue(clockSaverPreference!!)
-        bindPreferenceSummaryToValue(clockSaverWallpaperPreference!!)
+        bindPreferenceSummaryToValue(walllpaperSaverPreference!!)
 
         inactivityPreference?.setDefaultValue(configuration.inactivityTime)
         inactivityPreference?.value = configuration.inactivityTime.toString()
