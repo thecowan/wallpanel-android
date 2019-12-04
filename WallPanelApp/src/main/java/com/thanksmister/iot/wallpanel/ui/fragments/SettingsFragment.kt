@@ -147,18 +147,18 @@ class SettingsFragment : BaseSettingsFragment() {
 
         super.onViewCreated(view, savedInstanceState)
 
-        dashboardPreference = findPreference(getString(R.string.key_setting_app_launchurl)) as EditTextPreference
-        browserHeaderPreference = findPreference(getString(R.string.key_setting_browser_user_agent)) as EditTextPreference
-        preventSleepPreference = findPreference(getString(R.string.key_setting_app_preventsleep)) as SwitchPreference
-        browserActivityPreference = findPreference(getString(R.string.key_setting_app_showactivity)) as SwitchPreference
-        openOnBootPreference = findPreference(getString(R.string.key_setting_android_startonboot)) as SwitchPreference
-        hadwareAcceleration = findPreference(getString(R.string.key_hadware_accelerated_enabled)) as SwitchPreference
-        browserRefreshPreference = findPreference(getString(R.string.key_pref_browser_refresh)) as SwitchPreference
-        clockSaverPreference = findPreference(getString(R.string.key_screensaver)) as SwitchPreference
-        walllpaperSaverPreference = findPreference(getString(R.string.key_screensaver_wallpaper)) as SwitchPreference
-        inactivityPreference = findPreference(PREF_SCREEN_INACTIVITY_TIME) as ListPreference
-        dimPreference = findPreference(PREF_SCREENSAVER_DIM_VALUE) as ListPreference
-        screenBrightness = findPreference(PREF_SCREEN_BRIGHTNESS) as SwitchPreference
+        dashboardPreference = findPreference<EditTextPreference>(getString(R.string.key_setting_app_launchurl)) as EditTextPreference
+        browserHeaderPreference = findPreference<EditTextPreference>(getString(R.string.key_setting_browser_user_agent)) as EditTextPreference
+        preventSleepPreference = findPreference<SwitchPreference>(getString(R.string.key_setting_app_preventsleep)) as SwitchPreference
+        browserActivityPreference = findPreference<SwitchPreference>(getString(R.string.key_setting_app_showactivity)) as SwitchPreference
+        openOnBootPreference = findPreference<SwitchPreference>(getString(R.string.key_setting_android_startonboot)) as SwitchPreference
+        hadwareAcceleration = findPreference<SwitchPreference>(getString(R.string.key_hadware_accelerated_enabled)) as SwitchPreference
+        browserRefreshPreference = findPreference<SwitchPreference>(getString(R.string.key_pref_browser_refresh)) as SwitchPreference
+        clockSaverPreference = findPreference<SwitchPreference>(getString(R.string.key_screensaver)) as SwitchPreference
+        walllpaperSaverPreference = findPreference<SwitchPreference>(getString(R.string.key_screensaver_wallpaper)) as SwitchPreference
+        inactivityPreference = findPreference<ListPreference>(PREF_SCREEN_INACTIVITY_TIME) as ListPreference
+        dimPreference = findPreference<ListPreference>(PREF_SCREENSAVER_DIM_VALUE) as ListPreference
+        screenBrightness = findPreference<SwitchPreference>(PREF_SCREEN_BRIGHTNESS) as SwitchPreference
 
         bindPreferenceSummaryToValue(dashboardPreference!!)
         bindPreferenceSummaryToValue(preventSleepPreference!!)

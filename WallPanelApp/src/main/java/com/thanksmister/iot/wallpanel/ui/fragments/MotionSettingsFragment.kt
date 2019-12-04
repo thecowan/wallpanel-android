@@ -77,11 +77,11 @@ class MotionSettingsFragment : BaseSettingsFragment() {
 
         super.onViewCreated(view, savedInstanceState)
 
-        motionDetectionPreference = findPreference(getString(R.string.key_setting_camera_motionenabled)) as SwitchPreference
-        motionWakePreference = findPreference(getString(R.string.key_setting_camera_motionwake)) as SwitchPreference
-        motionLeniencyPreference = findPreference(getString(R.string.key_setting_camera_motionleniency)) as EditTextPreference
-        motionLumaPreference = findPreference(getString(R.string.key_setting_camera_motionminluma)) as EditTextPreference
-        motionClearPreference = findPreference(getString(R.string.key_setting_motion_clear)) as EditTextPreference
+        motionDetectionPreference = findPreference<SwitchPreference>(getString(R.string.key_setting_camera_motionenabled)) as SwitchPreference
+        motionWakePreference = findPreference<SwitchPreference>(getString(R.string.key_setting_camera_motionwake)) as SwitchPreference
+        motionLeniencyPreference = findPreference<EditTextPreference>(getString(R.string.key_setting_camera_motionleniency)) as EditTextPreference
+        motionLumaPreference = findPreference<EditTextPreference>(getString(R.string.key_setting_camera_motionminluma)) as EditTextPreference
+        motionClearPreference = findPreference<EditTextPreference>(getString(R.string.key_setting_motion_clear)) as EditTextPreference
 
         bindPreferenceSummaryToValue(motionDetectionPreference!!)
         bindPreferenceSummaryToValue(motionWakePreference!!)

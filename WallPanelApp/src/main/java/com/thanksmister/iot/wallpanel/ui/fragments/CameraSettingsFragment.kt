@@ -101,10 +101,10 @@ class CameraSettingsFragment : BaseSettingsFragment() {
 
         super.onViewCreated(view, savedInstanceState)
 
-        fpsPreference = findPreference(getString(R.string.key_setting_camera_fps)) as EditTextPreference
-        cameraPreference = findPreference(getString(R.string.key_setting_camera_enabled)) as SwitchPreference
+        fpsPreference = findPreference<EditTextPreference>(getString(R.string.key_setting_camera_fps)) as EditTextPreference
+        cameraPreference = findPreference<SwitchPreference>(getString(R.string.key_setting_camera_enabled)) as SwitchPreference
 
-        rotatePreference = findPreference(Configuration.PREF_CAMERA_ROTATE) as ListPreference
+        rotatePreference = findPreference<ListPreference>(Configuration.PREF_CAMERA_ROTATE) as ListPreference
         rotatePreference!!.setDefaultValue(configuration.cameraRotate)
         rotatePreference!!.value = configuration.cameraRotate.toString()
         if(configuration.cameraRotate == 0f) {
@@ -126,7 +126,7 @@ class CameraSettingsFragment : BaseSettingsFragment() {
             true
         }
 
-        cameraListPreference = findPreference(getString(R.string.key_setting_camera_cameraid)) as ListPreference
+        cameraListPreference = findPreference<ListPreference>(getString(R.string.key_setting_camera_cameraid)) as ListPreference
         cameraListPreference?.setOnPreferenceChangeListener { preference, newValue ->
             if (preference is ListPreference) {
                 val index = preference.findIndexOfValue(newValue.toString())
