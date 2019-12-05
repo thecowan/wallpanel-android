@@ -75,7 +75,12 @@ open class BaseSettingsFragment : PreferenceFragmentCompat(), SharedPreferences.
                         preference.entries[index]
                     else null)
         } else {
-            preference.summary = stringValue
+            if (preference.key.equals(getString(R.string.key_setting_mqtt_password))) {
+                // mask password in settings list
+                preference.summary = stringValue.replace(Regex("."), "*");
+            } else {
+                preference.summary = stringValue
+            }
         }
         true
     }

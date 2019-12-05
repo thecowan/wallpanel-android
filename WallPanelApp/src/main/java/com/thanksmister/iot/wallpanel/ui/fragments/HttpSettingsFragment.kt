@@ -88,10 +88,10 @@ class HttpSettingsFragment : BaseSettingsFragment() {
 
         super.onViewCreated(view, savedInstanceState)
 
-        httpRestPreference = findPreference(getString(R.string.key_setting_http_restenabled)) as SwitchPreference
-        httpMjpegPreference = findPreference(getString(R.string.key_setting_http_mjpegenabled)) as SwitchPreference
-        httpMjpegStreamsPreference = findPreference(getString(R.string.key_setting_http_mjpegmaxstreams)) as EditTextPreference
-        httpPortPreference = findPreference(getString(R.string.key_setting_http_port)) as EditTextPreference
+        httpRestPreference = findPreference<SwitchPreference>(getString(R.string.key_setting_http_restenabled)) as SwitchPreference
+        httpMjpegPreference = findPreference<SwitchPreference>(getString(R.string.key_setting_http_mjpegenabled)) as SwitchPreference
+        httpMjpegStreamsPreference = findPreference<EditTextPreference>(getString(R.string.key_setting_http_mjpegmaxstreams)) as EditTextPreference
+        httpPortPreference = findPreference<EditTextPreference>(getString(R.string.key_setting_http_port)) as EditTextPreference
 
         bindPreferenceSummaryToValue(httpRestPreference!!)
         bindPreferenceSummaryToValue(httpMjpegPreference!!)
@@ -101,7 +101,7 @@ class HttpSettingsFragment : BaseSettingsFragment() {
         val wm = activity!!.applicationContext.getSystemService(WIFI_SERVICE) as WifiManager
         val ip = Formatter.formatIpAddress(wm.connectionInfo.ipAddress)
 
-        val description = findPreference(getString(R.string.key_setting_directions)) as Preference
+        val description = findPreference<Preference>(getString(R.string.key_setting_directions)) as Preference
         description.summary = getString(R.string.pref_mjpeg_streaming_description, ip )
     }
 }

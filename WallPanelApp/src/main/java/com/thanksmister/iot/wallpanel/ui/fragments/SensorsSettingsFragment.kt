@@ -77,18 +77,18 @@ class SensorsSettingsFragment : BaseSettingsFragment() {
 
         super.onViewCreated(view, savedInstanceState)
 
-        sensorsPreference = findPreference(getString(R.string.key_setting_sensors_enabled)) as SwitchPreference
-        mqttPublishFrequency = findPreference(getString(R.string.key_setting_mqtt_sensorfrequency)) as EditTextPreference
+        sensorsPreference = findPreference<SwitchPreference>(getString(R.string.key_setting_sensors_enabled)) as SwitchPreference
+        mqttPublishFrequency = findPreference<EditTextPreference>(getString(R.string.key_setting_mqtt_sensorfrequency)) as EditTextPreference
 
         bindPreferenceSummaryToValue(sensorsPreference!!)
         bindPreferenceSummaryToValue(mqttPublishFrequency!!)
 
         val mSensorManager = activity!!.getSystemService(Context.SENSOR_SERVICE) as SensorManager
-        setSensorPreferenceSummary(findPreference(getString(R.string.key_settings_sensors_temperature)), mSensorManager.getSensorList(Sensor.TYPE_AMBIENT_TEMPERATURE));
-        setSensorPreferenceSummary(findPreference(getString(R.string.key_settings_sensors_light)), mSensorManager.getSensorList(Sensor.TYPE_LIGHT));
-        setSensorPreferenceSummary(findPreference(getString(R.string.key_settings_sensors_magneticField)), mSensorManager.getSensorList(Sensor.TYPE_MAGNETIC_FIELD));
-        setSensorPreferenceSummary(findPreference(getString(R.string.key_settings_sensors_pressure)), mSensorManager.getSensorList(Sensor.TYPE_PRESSURE));
-        setSensorPreferenceSummary(findPreference(getString(R.string.key_settings_sensors_humidity)), mSensorManager.getSensorList(Sensor.TYPE_RELATIVE_HUMIDITY));
+        setSensorPreferenceSummary(findPreference<Preference>(getString(R.string.key_settings_sensors_temperature)) as Preference, mSensorManager.getSensorList(Sensor.TYPE_AMBIENT_TEMPERATURE));
+        setSensorPreferenceSummary(findPreference<Preference>(getString(R.string.key_settings_sensors_light)) as Preference, mSensorManager.getSensorList(Sensor.TYPE_LIGHT));
+        setSensorPreferenceSummary(findPreference<Preference>(getString(R.string.key_settings_sensors_magneticField)) as Preference, mSensorManager.getSensorList(Sensor.TYPE_MAGNETIC_FIELD));
+        setSensorPreferenceSummary(findPreference<Preference>(getString(R.string.key_settings_sensors_pressure)) as Preference, mSensorManager.getSensorList(Sensor.TYPE_PRESSURE));
+        setSensorPreferenceSummary(findPreference<Preference>(getString(R.string.key_settings_sensors_humidity)) as Preference, mSensorManager.getSensorList(Sensor.TYPE_RELATIVE_HUMIDITY));
     }
 
     private fun setSensorPreferenceSummary(preference: Preference, sensorList: List<Sensor>) {

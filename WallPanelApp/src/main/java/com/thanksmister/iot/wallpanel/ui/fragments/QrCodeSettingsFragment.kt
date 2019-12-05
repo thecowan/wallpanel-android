@@ -72,7 +72,7 @@ class QrCodeSettingsFragment : BaseSettingsFragment() {
 
         super.onViewCreated(view, savedInstanceState)
 
-        qrCodePreference = findPreference(getString(R.string.key_setting_camera_qrcodeenabled)) as SwitchPreference
+        qrCodePreference = findPreference<SwitchPreference>(getString(R.string.key_setting_camera_qrcodeenabled)) as SwitchPreference
 
         bindPreferenceSummaryToValue(qrCodePreference!!)
     }

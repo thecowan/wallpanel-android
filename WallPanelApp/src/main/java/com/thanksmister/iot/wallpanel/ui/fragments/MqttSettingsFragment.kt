@@ -18,6 +18,7 @@ package com.thanksmister.iot.wallpanel.ui.fragments
 
 import android.content.Context
 import android.os.Bundle
+import android.text.InputType
 import android.view.*
 import androidx.preference.SwitchPreference
 import androidx.preference.EditTextPreference
@@ -76,13 +77,18 @@ class MqttSettingsFragment : BaseSettingsFragment() {
 
         super.onViewCreated(view, savedInstanceState)
 
-        mqttPreference = findPreference(getString(R.string.key_setting_mqtt_enabled)) as SwitchPreference
-        mqttBrokerAddress = findPreference(getString(R.string.key_setting_mqtt_servername)) as EditTextPreference
-        mqttBrokerPort = findPreference(getString(R.string.key_setting_mqtt_serverport)) as EditTextPreference
-        mqttClientId = findPreference(getString(R.string.key_setting_mqtt_clientid)) as EditTextPreference
-        mqttBaseTopic = findPreference(getString(R.string.key_setting_mqtt_basetopic)) as EditTextPreference
-        mqttUsername = findPreference(getString(R.string.key_setting_mqtt_username)) as EditTextPreference
-        mqttPassword = findPreference(getString(R.string.key_setting_mqtt_password)) as EditTextPreference
+        mqttPreference = findPreference<SwitchPreference>(getString(R.string.key_setting_mqtt_enabled)) as SwitchPreference
+        mqttBrokerAddress = findPreference<EditTextPreference>(getString(R.string.key_setting_mqtt_servername)) as EditTextPreference
+        mqttBrokerPort = findPreference<EditTextPreference>(getString(R.string.key_setting_mqtt_serverport)) as EditTextPreference
+        mqttClientId = findPreference<EditTextPreference>(getString(R.string.key_setting_mqtt_clientid)) as EditTextPreference
+        mqttBaseTopic = findPreference<EditTextPreference>(getString(R.string.key_setting_mqtt_basetopic)) as EditTextPreference
+        mqttUsername = findPreference<EditTextPreference>(getString(R.string.key_setting_mqtt_username)) as EditTextPreference
+        mqttPassword = findPreference<EditTextPreference>(getString(R.string.key_setting_mqtt_password)) as EditTextPreference
+
+        mqttPassword?.setOnBindEditTextListener {editText ->
+            // mask password in edit dialog
+            editText.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+        }
 
         bindPreferenceSummaryToValue(mqttPreference!!)
         bindPreferenceSummaryToValue(mqttBrokerAddress!!)

@@ -78,8 +78,8 @@ class FaceSettingsFragment : BaseSettingsFragment() {
 
         super.onViewCreated(view, savedInstanceState)
 
-        motionDetectionPreference = findPreference(getString(R.string.key_setting_camera_faceenabled)) as SwitchPreference
-        motionDetectionPreference2 = findPreference(getString(R.string.key_setting_camera_facewake)) as SwitchPreference
+        motionDetectionPreference = findPreference<SwitchPreference>(getString(R.string.key_setting_camera_faceenabled)) as SwitchPreference
+        motionDetectionPreference2 = findPreference<SwitchPreference>(getString(R.string.key_setting_camera_facewake)) as SwitchPreference
 
         bindPreferenceSummaryToValue(motionDetectionPreference!!)
         bindPreferenceSummaryToValue(motionDetectionPreference2!!)
