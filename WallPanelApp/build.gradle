@@ -79,9 +79,6 @@ android {
             versionName "${versionMajor}.${versionMinor}.${versionPatch} Build ${versionBuild}"
         }
     }
-    compileOptions {
-        sourceCompatibility = 1.8
-    }
 }
 
 dependencies {
