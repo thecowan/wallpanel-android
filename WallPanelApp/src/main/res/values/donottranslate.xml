@@ -96,6 +96,8 @@
     <string name="key_setting_app_deviceid">setting_app_deviceid</string>
     <string name="default_setting_test_zoomlevel">1.0</string>
     <string name="key_camera_test">camera_test</string>
+    <string name="key_setting_ignore_ssl_errors">setting_ignore_ssl_errors</string>
+    <string name="default_setting_ignore_ssl_errors">false</string>
 
     <string name="key_setting_tts_enabled">setting_tts_enabled</string>
     <string name="default_setting_tss_enabled">false</string>

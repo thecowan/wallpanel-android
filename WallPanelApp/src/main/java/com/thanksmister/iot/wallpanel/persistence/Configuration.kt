@@ -257,6 +257,10 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
         get() = this.sharedPreferences.getBoolean(PREF_SCREEN_BRIGHTNESS, false)
         set(value) = this.sharedPreferences.edit().putBoolean(PREF_SCREEN_BRIGHTNESS, value).apply()
 
+    val ignoreSSLErrors: Boolean
+        get() = getBoolPref(R.string.key_setting_ignore_ssl_errors,
+                R.string.default_setting_ignore_ssl_errors)
+
     fun hasCameraDetections() : Boolean {
         return cameraEnabled && (cameraMotionEnabled || cameraQRCodeEnabled || cameraFaceEnabled || httpMJPEGEnabled)
     }

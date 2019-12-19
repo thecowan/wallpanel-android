@@ -57,6 +57,7 @@ class SettingsFragment : BaseSettingsFragment() {
     private var hadwareAcceleration: SwitchPreference? = null
     private var preventSleepPreference: SwitchPreference? = null
     private var browserActivityPreference: SwitchPreference? = null
+    private var ignoreSSLErrorsPreference: SwitchPreference? = null
 
     private var browserHeaderPreference: EditTextPreference? = null
     private var dashboardPreference: EditTextPreference? = null
@@ -159,6 +160,7 @@ class SettingsFragment : BaseSettingsFragment() {
         inactivityPreference = findPreference<ListPreference>(PREF_SCREEN_INACTIVITY_TIME) as ListPreference
         dimPreference = findPreference<ListPreference>(PREF_SCREENSAVER_DIM_VALUE) as ListPreference
         screenBrightness = findPreference<SwitchPreference>(PREF_SCREEN_BRIGHTNESS) as SwitchPreference
+        ignoreSSLErrorsPreference = findPreference<SwitchPreference>(getString(R.string.key_setting_ignore_ssl_errors)) as SwitchPreference
 
         bindPreferenceSummaryToValue(dashboardPreference!!)
         bindPreferenceSummaryToValue(preventSleepPreference!!)
@@ -168,6 +170,7 @@ class SettingsFragment : BaseSettingsFragment() {
         bindPreferenceSummaryToValue(browserHeaderPreference!!)
         bindPreferenceSummaryToValue(clockSaverPreference!!)
         bindPreferenceSummaryToValue(walllpaperSaverPreference!!)
+        bindPreferenceSummaryToValue(ignoreSSLErrorsPreference!!)
 
         inactivityPreference?.setDefaultValue(configuration.inactivityTime)
         inactivityPreference?.value = configuration.inactivityTime.toString()
