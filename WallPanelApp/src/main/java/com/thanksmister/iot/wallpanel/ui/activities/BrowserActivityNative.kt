@@ -118,7 +118,7 @@ class BrowserActivityNative : BrowserActivity() {
                     }
                 }
                 override fun onReceivedSslError(view: WebView, handler: SslErrorHandler?, error: SslError?) {
-                    if(!certPermissionsShown && !isFinishing) {
+                    if(!certPermissionsShown && !isFinishing && !configuration.ignoreSSLErrors) {
                         val builder = AlertDialog.Builder(this@BrowserActivityNative)
                         var message = getString(R.string.dialog_message_ssl_generic)
                         when (error?.primaryError) {
