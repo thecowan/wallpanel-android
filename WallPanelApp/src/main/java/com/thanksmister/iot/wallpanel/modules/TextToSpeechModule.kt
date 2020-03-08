@@ -54,7 +54,6 @@ class TextToSpeechModule( base: Context?) : ContextWrapper(base),
 
     override fun onInit(status: Int) {
         if (status == TextToSpeech.SUCCESS && textToSpeech != null) {
-            textToSpeech?.language = Locale.getDefault()
             textToSpeech?.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
                 override fun onError(p0: String?) {
                     Timber.e(p0)
