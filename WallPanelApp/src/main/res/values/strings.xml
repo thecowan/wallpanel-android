@@ -79,6 +79,7 @@
     <string name="title_setting_sensors_magneticField">Magnetic Field</string>
     <string name="title_setting_sensors_pressure">Pressure</string>
     <string name="title_setting_sensors_humidity">Humidity</string>
+    <string name="title_setting_ignore_ssl_errors">Ignore SSL Errors</string>
 
     <string name="text_seconds">%1$s seconds</string>
     <string name="title_camera_test">Camera Test</string>
@@ -164,6 +165,7 @@
     <string name="preference_tts_voice">TTS Voice</string>
     <string name="preference_tts">TTS Notifications</string>
     <string name="preference_summary_tts">Use Text-To-Speech to speak the payload value of an MQTT message.</string>
+    <string name="pref_ignore_ssl_errors_summary">Do not show a warning in case of a SSL error.</string>
 
     <string name="error_mqtt_connection">The MQTT client connection wasn\'t established or was closed unexpectedly. Will try to reconnect.</string>
     <string name="error_mqtt_subscription">Couldn\'t subscribe to the MQTT topics, check the MQTT broker settings or your connection.</string>

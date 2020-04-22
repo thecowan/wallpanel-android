@@ -27,6 +27,12 @@ To build the application locally, checkout the code from Github and load the pro
 implementation 'com.google.firebase:firebase-core:17.2.0'
 implementation 'com.google.firebase:firebase-analytics:17.2.0'
 ```
+Remove this if you are building the application for devices that do not support Google Services.
+
+```
+apply plugin: 'com.google.gms.google-services'
+```
+
 The project should compile normally.
 
 ## Limitations

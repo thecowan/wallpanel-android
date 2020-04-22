@@ -20,23 +20,46 @@ import android.annotation.SuppressLint
 import android.net.http.SslError
 import android.os.Build
 import android.os.Bundle
-import com.google.android.material.snackbar.Snackbar
-import androidx.appcompat.app.AlertDialog
+import android.os.Handler
 import android.text.TextUtils
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewTreeObserver
 import android.webkit.*
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
+import com.google.android.material.snackbar.Snackbar
 import com.thanksmister.iot.wallpanel.R
 import kotlinx.android.synthetic.main.activity_browser.*
 import timber.log.Timber
+import java.util.Calendar
+import java.util.concurrent.TimeUnit
 
 
 class BrowserActivityNative : BrowserActivity() {
 
     private var mWebView: WebView? = null
     private var certPermissionsShown = false
+    private var playlistHandler: Handler? = null
+
+    val calendar: Calendar = Calendar.getInstance()
+
+    // To save current index
+    private var playlistIndex = 0
+
+    private val playlistRunnable = object : Runnable {
+        override fun run() {
+            // TODO: allow users to set their own value in settings
+            val offset = 60L - calendar.get(Calendar.SECOND)
+            val urls: List<String> = configuration.appLaunchUrl.lines()
+
+            loadUrl(urls[playlistIndex])
+
+            // Avoid IndexOutOfBound
+            playlistIndex = (playlistIndex + 1) % urls.size
+            playlistHandler?.postDelayed(this, TimeUnit.SECONDS.toMillis(offset))
+        }
+    }
 
     @SuppressLint("SetJavaScriptEnabled", "ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -118,7 +141,7 @@ class BrowserActivityNative : BrowserActivity() {
                     }
                 }
                 override fun onReceivedSslError(view: WebView, handler: SslErrorHandler?, error: SslError?) {
-                    if(!certPermissionsShown && !isFinishing) {
+                    if(!certPermissionsShown && !isFinishing && !configuration.ignoreSSLErrors) {
                         val builder = AlertDialog.Builder(this@BrowserActivityNative)
                         var message = getString(R.string.dialog_message_ssl_generic)
                         when (error?.primaryError) {
@@ -171,7 +194,12 @@ class BrowserActivityNative : BrowserActivity() {
         }
 
         configureWebSettings(configuration.browserUserAgent)
-        loadUrl(configuration.appLaunchUrl)
+
+        if (1.equals(configuration.appLaunchUrl.lines().size)) {
+            loadUrl(configuration.appLaunchUrl)
+        } else {
+            startPlaylist()
+        }
     }
 
     override fun onStart() {
@@ -244,5 +272,10 @@ class BrowserActivityNative : BrowserActivity() {
 
     override fun reload() {
         mWebView?.reload()
+    }
+
+    private fun startPlaylist() {
+        playlistHandler = Handler()
+        playlistHandler?.postDelayed(playlistRunnable, 10)
     }
 }

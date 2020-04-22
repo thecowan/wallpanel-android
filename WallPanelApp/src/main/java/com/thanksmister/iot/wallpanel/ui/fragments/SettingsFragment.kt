@@ -57,6 +57,8 @@ class SettingsFragment : BaseSettingsFragment() {
     private var hadwareAcceleration: SwitchPreference? = null
     private var preventSleepPreference: SwitchPreference? = null
     private var browserActivityPreference: SwitchPreference? = null
+    private var ignoreSSLErrorsPreference: SwitchPreference? = null
+
     private var browserHeaderPreference: EditTextPreference? = null
     private var dashboardPreference: EditTextPreference? = null
     private var cameraPreference: Preference? = null
@@ -107,6 +109,7 @@ class SettingsFragment : BaseSettingsFragment() {
         if (requestCode == PERMISSIONS_REQUEST_WRITE_SETTINGS) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (Settings.System.canWrite(requireActivity().applicationContext)) {
+                    //Toast.makeText(requireActivity(), getString(R.string.toast_write_permissions_granted), Toast.LENGTH_LONG).show()
                     screenBrightness?.isChecked = true
                     configuration.useScreenBrightness = true
                     Toast.makeText(requireContext(), getString(R.string.toast_screen_brightness_captured), Toast.LENGTH_SHORT).show()
@@ -157,6 +160,7 @@ class SettingsFragment : BaseSettingsFragment() {
         inactivityPreference = findPreference<ListPreference>(PREF_SCREEN_INACTIVITY_TIME) as ListPreference
         dimPreference = findPreference<ListPreference>(PREF_SCREENSAVER_DIM_VALUE) as ListPreference
         screenBrightness = findPreference<SwitchPreference>(PREF_SCREEN_BRIGHTNESS) as SwitchPreference
+        ignoreSSLErrorsPreference = findPreference<SwitchPreference>(getString(R.string.key_setting_ignore_ssl_errors)) as SwitchPreference
 
         bindPreferenceSummaryToValue(dashboardPreference!!)
         bindPreferenceSummaryToValue(preventSleepPreference!!)
@@ -166,6 +170,7 @@ class SettingsFragment : BaseSettingsFragment() {
         bindPreferenceSummaryToValue(browserHeaderPreference!!)
         bindPreferenceSummaryToValue(clockSaverPreference!!)
         bindPreferenceSummaryToValue(walllpaperSaverPreference!!)
+        bindPreferenceSummaryToValue(ignoreSSLErrorsPreference!!)
 
         inactivityPreference?.setDefaultValue(configuration.inactivityTime)
         inactivityPreference?.value = configuration.inactivityTime.toString()
