@@ -24,10 +24,15 @@ You can either side load the application to your device from the release section
 To build the application locally, checkout the code from Github and load the project into Android Studio with Android API 27 or higher.  You will need to remove the Firebase dependency in the build.gradle file, this is not required.  Remove the following dependencies:
 
 ```
-apply plugin: 'com.google.gms.google-services'
 implementation 'com.google.firebase:firebase-core:17.2.0'
 implementation 'com.google.firebase:firebase-analytics:17.2.0'
 ```
+Remove this if you are building the application for devices that do not support Google Services.
+
+```
+apply plugin: 'com.google.gms.google-services'
+```
+
 The project should compile normally.
 
 ## Limitations
