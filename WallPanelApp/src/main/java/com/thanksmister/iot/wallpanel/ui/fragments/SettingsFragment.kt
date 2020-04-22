@@ -57,7 +57,6 @@ class SettingsFragment : BaseSettingsFragment() {
     private var hadwareAcceleration: SwitchPreference? = null
     private var preventSleepPreference: SwitchPreference? = null
     private var browserActivityPreference: SwitchPreference? = null
-
     private var browserHeaderPreference: EditTextPreference? = null
     private var dashboardPreference: EditTextPreference? = null
     private var cameraPreference: Preference? = null
@@ -108,7 +107,6 @@ class SettingsFragment : BaseSettingsFragment() {
         if (requestCode == PERMISSIONS_REQUEST_WRITE_SETTINGS) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (Settings.System.canWrite(requireActivity().applicationContext)) {
-                    //Toast.makeText(requireActivity(), getString(R.string.toast_write_permissions_granted), Toast.LENGTH_LONG).show()
                     screenBrightness?.isChecked = true
                     configuration.useScreenBrightness = true
                     Toast.makeText(requireContext(), getString(R.string.toast_screen_brightness_captured), Toast.LENGTH_SHORT).show()

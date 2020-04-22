@@ -16,6 +16,7 @@
 
 package com.thanksmister.iot.wallpanel.network
 
+import android.app.Activity
 import android.app.KeyguardManager
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.Observer
@@ -38,6 +39,7 @@ import com.koushikdutta.async.http.server.AsyncHttpServerResponse
 import com.thanksmister.iot.wallpanel.R
 import com.thanksmister.iot.wallpanel.modules.*
 import com.thanksmister.iot.wallpanel.persistence.Configuration
+import com.thanksmister.iot.wallpanel.ui.activities.BrowserActivity
 import com.thanksmister.iot.wallpanel.ui.activities.BrowserActivity.Companion.BROADCAST_ACTION_CLEAR_BROWSER_CACHE
 import com.thanksmister.iot.wallpanel.ui.activities.BrowserActivity.Companion.BROADCAST_ACTION_JS_EXEC
 import com.thanksmister.iot.wallpanel.ui.activities.BrowserActivity.Companion.BROADCAST_ACTION_LOAD_URL
