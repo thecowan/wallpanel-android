@@ -137,6 +137,6 @@ class ScreenSaverView : RelativeLayout {
     }
 
     companion object {
-        const val UNSPLASH_IT_URL = "https://unsplash.it/%s/%s?random"
+        const val UNSPLASH_IT_URL = "http://unsplash.it/%s/%s?random"
     }
 }
