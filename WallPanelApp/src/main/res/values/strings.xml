@@ -120,7 +120,7 @@
     <string name="text_license_information">License information</string>
     <string name="text_github_code">GitHub code</string>
     <string name="pref_about_title">About</string>
-    <string name="pref_brightness_button">Capture Brightness</string>
+    <string name="pref_brightness_button">Capture Current Brightness Value</string>
     <string name="pref_sensor_list_summary">Below is a list of sensor data available on this device to be published as MQTT data.</string>
     <string name="pref_qr_code_summary">When active, will scan QR codes and publish the scanned code over MQTT.</string>
     <string name="pref_mqtt_settings_title">MQTT Settings</string>
@@ -231,7 +231,7 @@
     <string name="pref_summary_gecko">Use FireFox Gecko as the default browser (experimental).</string>
     <string name="pref_title_gecko">Use FireFox Browser</string>
     <string name="toast_screen_brightness_captured">Your screen brightness level has been saved!</string>
-    <string name="pref_button_brightness_summary">Click to update and save the current device brightness.</string>
+    <string name="pref_button_brightness_summary">Click to update and save the currently set device brightness as the value to return to after dimming.</string>
 
     <string-array name="flip_directions">
         <item>None</item>
