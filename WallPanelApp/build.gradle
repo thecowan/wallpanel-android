@@ -29,8 +29,8 @@ repositories {
 
 def versionMajor = 0
 def versionMinor = 9
-def versionPatch = 1
-def versionBuild = 0 // bump for dog food builds, public betas, etc.
+def versionPatch = 2
+def versionBuild = 1 // bump for dog food builds, public betas, etc.
 
 android {
     kapt {

@@ -154,12 +154,10 @@ constructor(context: Context, private val configuration: Configuration): Context
     private fun canWriteScreenSetting(): Boolean {
         Timber.d("canWriteScreenSetting")
         var hasPermission = true
-
         // Check for permisions if >= Android 6
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             hasPermission = Settings.System.canWrite(applicationContext)
         }
-
         return hasPermission
     }
 }
