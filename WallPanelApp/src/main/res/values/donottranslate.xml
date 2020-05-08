@@ -214,6 +214,7 @@
         <item>50%</item>
         <item>75%</item>
         <item>90%</item>
+        <item>99%</item>
     </string-array>
 
     <string-array name="dim_values">
@@ -226,6 +227,7 @@
         <item>50</item>
         <item>75</item>
         <item>90</item>
+        <item>99</item>
     </string-array>
 
 </resources>
