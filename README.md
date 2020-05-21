@@ -1,5 +1,8 @@
 # WallPanel
-WallPanel is an Android application for Web Based Dashboards and Home Automation Platforms.
+WallPanel is an Android application for Web Based Dashboards and Home Automation Platforms. 
+
+## Support
+For issues, feature requests, comments or questions, use the [Github issues tracker](https://github.com/thanksmister/wallpanel-android/issues). You can also join the [ThanksMister Community] (https://community.thanksmister.com/) to ask questions or share any helpful information about this project. 
 
 ## Features
 - Web Based Dashboards and Home Automation Platforms support.
@@ -37,9 +40,6 @@ The project should compile normally.
 
 ## Limitations
 Android devices use WebView to render webpages, This WebView does not have full feature parity with Chrome for Android and therefore pages that render in Chrome may not render nicely in Wall Panel. For example, WebView that shipped with Android 4.4 (KitKat) devices is based on the same code as Chrome for Android version 30. This WebView does not have full feature parity with Chrome for Android and is given the version number 30.0.0.0.  If you find that you cannot render a webpage, it is most likely that the version of WebView on your device does not support the CSS/HTML of that page.  You have little recourse but to update the webpage, as there is nothing to be done to the WebView to make it compatible with your code. 
-
-## Support
-For issues, feature requests, comments or questions, use the [Github issues tracker](https://github.com/thanksmister/wallpanel-android/issues).
 
 ## MQTT Sensor and State Data
 If MQTT is enabled in the settings and properly configured, the application can publish data and states for various device sensors, camera detections, and application states.
