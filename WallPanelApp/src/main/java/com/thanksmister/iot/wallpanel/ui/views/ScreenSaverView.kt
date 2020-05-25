@@ -78,11 +78,9 @@ class ScreenSaverView : RelativeLayout {
         }
     }
 
-    // TODO we could set a timer here to reload the image at set interval
     private val wallPaperRunnable = object : Runnable {
         override fun run() {
             setScreenSaverView()
-            //wallPaperHandler?.postDelayed(this, TimeUnit.SECONDS.toMillis(900L))
         }
     }
 
@@ -111,7 +109,9 @@ class ScreenSaverView : RelativeLayout {
         }
         if (showWallpaper) {
             wallPaperHandler = Handler()
+            wallPaperHandler?.removeCallbacks(wallPaperRunnable)
             wallPaperHandler?.postDelayed(wallPaperRunnable, 10)
+            wallPaperHandler?.postDelayed(wallPaperRunnable, TimeUnit.SECONDS.toMillis(900L))
         } else {
             screenSaverImageLayout.visibility  = View.INVISIBLE
         }
