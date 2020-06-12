@@ -89,7 +89,7 @@
     <string name="key_setting_use_gecko">setting_use_gecko</string>
     <string name="default_setting_app_preventsleep">false</string>
     <string name="key_setting_app_launchurl">setting_app_launchurl</string>
-    <string name="default_setting_app_launchurl">https://thanksmister.com/wallpanel-android/</string>
+    <string name="default_setting_app_launchurl">https://thanksmister.github.io/wallpanel-android/</string>
     <string name="default_setting_app_deviceid">mywallpanel</string>
     <string name="key_setting_app_preventsleep">setting_app_preventsleep</string>
     <string name="key_settings_first_timed">setting_app_first_time</string>
