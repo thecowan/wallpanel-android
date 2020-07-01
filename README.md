@@ -67,9 +67,9 @@ temperature | unit, value | ```{"unit":"°C", "value":"24"}``` |
 
 * Sensor values are constructed as JSON per the above table
 * For MQTT
-  * WallPanel publishes all sensors to MQTT under ```[baseTopic]/sensor```
+  * WallPanel publishes all sensors to MQTT under ```[baseTopic]sensor```
   * Each sensor publishes to a subtopic based on the type of sensor
-    * Example: ```wallpanel/mywallpanel/sensor/battery```
+    * Example: basetopic: ```wallpanel/mywallpanel/``` battery sensor data is published to: ```wallpanel/mywallpanel/sensor/battery```
     
 #### Home Assistant Examples
 ```YAML
@@ -160,7 +160,7 @@ brightness | true/false | ```{"brightness":100}``` | Current brightness value of
 * For REST
   * GET the JSON from URL ```http://[mywallpanel]:2971/api/state```
 * For MQTT
-  * WallPanel publishes state to topic ```[baseTopic]/state```
+  * WallPanel publishes state to topic ```[baseTopic]state```
     * Default Topic: ```wallpanel/mywallpanel/state```
 
 ## MJPEG Video Streaming
