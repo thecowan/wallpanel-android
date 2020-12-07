@@ -233,6 +233,10 @@
     <string name="toast_screen_brightness_captured">Your screen brightness level has been saved!</string>
     <string name="pref_button_brightness_summary">Click to update and save the currently set device brightness as the value to return to after dimming.</string>
 
+    <string name="preference_summary_image_rotation">Time in minutes between image refresh. Currently %1$s.</string>
+    <string name="preference_title_image_rotation">Image Rotation Interval</string>
+
+
     <string-array name="flip_directions">
         <item>None</item>
         <item>Rotate Left</item>

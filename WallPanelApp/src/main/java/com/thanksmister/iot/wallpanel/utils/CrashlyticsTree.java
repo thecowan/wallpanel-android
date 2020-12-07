@@ -18,7 +18,6 @@ package com.thanksmister.iot.wallpanel.utils;
 
 import android.util.Log;
 
-import com.crashlytics.android.Crashlytics;
 import com.thanksmister.iot.wallpanel.BuildConfig;
 
 import timber.log.Timber;
@@ -85,9 +84,9 @@ public class CrashlyticsTree extends Timber.Tree {
         if (priority == Log.ERROR) {
             try {
                 if (tag != null && tag.length() > 0) {
-                    Crashlytics.log(priority, tag, String.format(message, tag));
+                    //Crashlytics.log(priority, tag, String.format(message, tag));
                 } else {
-                    Crashlytics.log(priority, tag, message);
+                    //Crashlytics.log(priority, tag, message);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -98,9 +97,9 @@ public class CrashlyticsTree extends Timber.Tree {
     private void logMessage(int priority, String message, Object... args) {
         try {
             if (args.length > 0 && priority == Log.ERROR) {
-                Crashlytics.logException(new Throwable(String.format(message, args)));
+                //Crashlytics.logException(new Throwable(String.format(message, args)));
             } else if (priority == Log.ERROR) {
-                    Crashlytics.logException(new Throwable(message));
+                   //Crashlytics.logException(new Throwable(message));
             }
         } catch (Exception e) {
             e.printStackTrace();

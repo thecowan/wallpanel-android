@@ -278,7 +278,7 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
                             resetScreenBrightness(false)
                             resetInactivityTimer()
                         },
-                        configuration.hasScreenSaverWallpaper, configuration.hasClockScreenSaver )
+                        configuration.hasScreenSaverWallpaper, configuration.hasClockScreenSaver, configuration.imageRotation.toLong())
             } catch (e: Exception) {
                 Timber.e(e.message)
             }

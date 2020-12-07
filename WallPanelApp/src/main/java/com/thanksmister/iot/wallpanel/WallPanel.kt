@@ -18,13 +18,10 @@ package com.thanksmister.iot.wallpanel
 
 import android.content.Context
 import androidx.multidex.MultiDex
-import com.crashlytics.android.Crashlytics
-import com.crashlytics.android.answers.Answers
 import com.thanksmister.iot.wallpanel.di.DaggerApplicationComponent
 import com.thanksmister.iot.wallpanel.utils.LauncherShortcuts
 import dagger.android.AndroidInjector
 import dagger.android.support.DaggerApplication
-import io.fabric.sdk.android.Fabric
 import timber.log.Timber
 
 class WallPanel : DaggerApplication() {
@@ -37,9 +34,6 @@ class WallPanel : DaggerApplication() {
         super.onCreate()
         if (BuildConfig.DEBUG) {
             Timber.plant(Timber.DebugTree())
-        } else {
-            Fabric.with(this, Crashlytics())
-            Fabric.with(this, Answers())
         }
         LauncherShortcuts.createShortcuts(this)
     }

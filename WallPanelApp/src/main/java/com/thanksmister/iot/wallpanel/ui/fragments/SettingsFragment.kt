@@ -74,6 +74,7 @@ class SettingsFragment : BaseSettingsFragment() {
     private var inactivityPreference: ListPreference? = null
     private var screenBrightness: SwitchPreference? = null
     private var dimPreference: ListPreference? = null
+    private var rotationPreference: EditTextPreference? = null
 
     interface OnSettingsFragmentListener {
         fun onFinish()
@@ -194,6 +195,11 @@ class SettingsFragment : BaseSettingsFragment() {
         aboutPreference = findPreference("button_key_about")
         brightnessPreference = findPreference("button_key_brightness")
 
+        rotationPreference = findPreference("pref_settings_image_rotation")
+        rotationPreference?.text = configuration.imageRotation.toString()
+        rotationPreference?.summary = getString(R.string.preference_summary_image_rotation, configuration.imageRotation.toString())
+        rotationPreference?.setDefaultValue(configuration.imageRotation.toString())
+
 
         try {
             cameraPreference!!.onPreferenceClickListener = Preference.OnPreferenceClickListener { preference ->
@@ -253,6 +259,13 @@ class SettingsFragment : BaseSettingsFragment() {
                 configuration.screenSaverDimValue = dim
                 screenUtils.setScreenBrightnessLevels()
                 dimPreference?.summary = getString(R.string.preference_summary_dim_screensaver, dim.toString())
+            }
+            "pref_settings_image_rotation"-> {
+                rotationPreference?.text?.let {
+                    val rotation = Integer.valueOf(it)
+                    configuration.imageRotation = rotation
+                    rotationPreference?.summary = getString(R.string.preference_summary_image_rotation, rotation.toString())
+                }
             }
         }
     }

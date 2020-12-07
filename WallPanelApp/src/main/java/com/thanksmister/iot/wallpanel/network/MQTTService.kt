@@ -19,8 +19,6 @@ package com.thanksmister.iot.wallpanel.network
 import android.R.id.message
 import android.content.Context
 import android.text.TextUtils
-import com.crashlytics.android.Crashlytics
-import com.thanksmister.iot.wallpanel.BuildConfig
 import com.thanksmister.iot.wallpanel.R
 import com.thanksmister.iot.wallpanel.utils.MqttUtils
 import com.thanksmister.iot.wallpanel.utils.StringUtils
@@ -194,7 +192,13 @@ class MQTTService(private var context: Context, options: MQTTOptions,
                             disconnectedBufferOptions.bufferSize = 100
                             disconnectedBufferOptions.isPersistBuffer = false
                             disconnectedBufferOptions.isDeleteOldestMessages = false
-                            mqttClient?.setBufferOpts(disconnectedBufferOptions)
+                            mqttClient?.let {
+                                try {
+                                    it.setBufferOpts(disconnectedBufferOptions)
+                                } catch (e: NullPointerException) {
+                                    Timber.e(e.message)
+                                }
+                            }
                             listener?.handleMqttConnected()
                             mReady.set(true)
                         }

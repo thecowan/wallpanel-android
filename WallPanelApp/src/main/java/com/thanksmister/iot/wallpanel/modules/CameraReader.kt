@@ -335,29 +335,32 @@ constructor(private val context: Context) {
         }
 
         if(configuration.cameraEnabled && configuration.cameraFaceEnabled) {
-            faceDetector = FaceDetector.Builder(context)
-                    .setProminentFaceOnly(true)
-                    .setTrackingEnabled(false)
-                    .setMode(FaceDetector.FAST_MODE)
-                    .setClassificationType(FaceDetector.NO_CLASSIFICATIONS)
-                    .setLandmarkType(FaceDetector.NO_LANDMARKS)
-                    .build()
+            try {
+                faceDetector = FaceDetector.Builder(context)
+                        .setProminentFaceOnly(true)
+                        .setTrackingEnabled(false)
+                        .setMode(FaceDetector.FAST_MODE)
+                        .setClassificationType(FaceDetector.NO_CLASSIFICATIONS)
+                        .setLandmarkType(FaceDetector.NO_LANDMARKS)
+                        .build()
 
-            faceDetectorProcessor = LargestFaceFocusingProcessor(faceDetector, object : Tracker<Face>() {
-                override fun onUpdate(detections: Detector.Detections<Face>, face: Face) {
-                    super.onUpdate(detections, face)
-                    if (detections.detectedItems.size() > 0) {
-                        if (cameraCallback != null && configuration.cameraFaceEnabled) {
-                            Timber.d("faceDetected")
-                            cameraCallback!!.onFaceDetected()
+                faceDetectorProcessor = LargestFaceFocusingProcessor(faceDetector, object : Tracker<Face>() {
+                    override fun onUpdate(detections: Detector.Detections<Face>, face: Face) {
+                        super.onUpdate(detections, face)
+                        if (detections.detectedItems.size() > 0) {
+                            if (cameraCallback != null && configuration.cameraFaceEnabled) {
+                                Timber.d("faceDetected")
+                                cameraCallback!!.onFaceDetected()
+                            }
                         }
                     }
-                }
-            })
-
-            faceDetector!!.setProcessor(faceDetectorProcessor)
-            multiDetectorBuilder.add(faceDetector)
-            detectorAdded = true
+                })
+                faceDetector!!.setProcessor(faceDetectorProcessor)
+                multiDetectorBuilder.add(faceDetector)
+                detectorAdded = true
+            } catch (e: Exception) {
+                Timber.e(e)
+            }
         }
 
         if(configuration.cameraEnabled && configuration.cameraQRCodeEnabled) {

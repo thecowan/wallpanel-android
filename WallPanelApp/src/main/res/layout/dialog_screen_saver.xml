@@ -9,11 +9,12 @@
     android:background="@color/screen_saver_black">
 
     <ImageView
+        android:contentDescription="Unsplash"
         android:id="@+id/screenSaverImageLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center"
-        android:scaleType="centerCrop" />
+        tools:ignore="HardcodedText" />
 
     <LinearLayout
         android:id="@+id/screenSaverClockLayout"

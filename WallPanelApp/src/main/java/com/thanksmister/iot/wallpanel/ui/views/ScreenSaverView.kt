@@ -17,15 +17,19 @@
 package com.thanksmister.iot.wallpanel.ui.views
 
 import android.content.Context
+import android.content.res.Configuration
 import android.os.Handler
 import android.text.format.DateUtils
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.View
 import android.widget.RelativeLayout
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.squareup.picasso.MemoryPolicy
 import com.squareup.picasso.NetworkPolicy
 import com.squareup.picasso.Picasso
+import com.thanksmister.iot.wallpanel.R
 import kotlinx.android.synthetic.main.dialog_screen_saver.view.*
 import timber.log.Timber
 import java.util.*
@@ -40,6 +44,7 @@ class ScreenSaverView : RelativeLayout {
     private var parentHeight: Int = 0
     private var showWallpaper: Boolean = false
     private var showClock: Boolean = false
+    private var rotationInterval = 900L
 
     val calendar: Calendar = Calendar.getInstance()
 
@@ -78,11 +83,10 @@ class ScreenSaverView : RelativeLayout {
         }
     }
 
-    // reload image every 15 minutes
     private val wallPaperRunnable = object : Runnable {
         override fun run() {
             setScreenSaverView()
-            wallPaperHandler?.postDelayed(this, TimeUnit.SECONDS.toMillis(900L))
+            wallPaperHandler?.postDelayed(this, TimeUnit.MINUTES.toMillis(rotationInterval))
         }
     }
 
@@ -100,7 +104,8 @@ class ScreenSaverView : RelativeLayout {
         wallPaperHandler?.removeCallbacks(wallPaperRunnable)
     }
 
-    fun init(hasWallpaper: Boolean, hasClock: Boolean) {
+    fun init(hasWallpaper: Boolean, hasClock: Boolean, rotationInterval: Long) {
+        this.rotationInterval = rotationInterval
         showWallpaper = hasWallpaper
         showClock = hasClock
         if(showClock) {
@@ -118,23 +123,25 @@ class ScreenSaverView : RelativeLayout {
         }
     }
 
-    override fun onFinishInflate() {
-        super.onFinishInflate()
-    }
-
     // setup clock size based on screen and weather settings
     private fun setClockViews() {
         val initialRegular = screenSaverClock.textSize
         screenSaverClock.setTextSize(TypedValue.COMPLEX_UNIT_PX, initialRegular + 100)
     }
 
-    // Picasso will cache url, in order to get a new wallpaper, we do not need to use a cache
     private fun setScreenSaverView() {
-        Picasso.get()
+        Glide.with(this.context)
+                .load(String.format(UNSPLASH_IT_URL, screenSaverView.width, screenSaverView.height))
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
+                .centerCrop()
+                .skipMemoryCache(true)
+                .into(screenSaverImageLayout);
+
+       /* Picasso.get()
                 .load(String.format(UNSPLASH_IT_URL, screenSaverView.width, screenSaverView.height))
                 .memoryPolicy(MemoryPolicy.NO_CACHE)
                 .networkPolicy(NetworkPolicy.NO_CACHE)
-                .into(screenSaverImageLayout)
+                .into(screenSaverImageLayout)*/
     }
 
     companion object {

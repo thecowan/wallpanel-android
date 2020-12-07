@@ -235,6 +235,10 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
             sharedPreferences.edit().putInt(context.getString(R.string.key_screensaver_dim_value), value).apply()
         }
 
+    var imageRotation: Int
+        get() = sharedPreferences.getInt(PREF_IMAGE_ROTATION, ROTATE_TIME_IN_MINUTES)
+        set(value) = this.sharedPreferences.edit().putInt(PREF_IMAGE_ROTATION, value).apply()
+
     val hasClockScreenSaver: Boolean
         get() = getBoolPref(R.string.key_screensaver, R.string.default_screensaver)
 
@@ -290,5 +294,7 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
         const val PREF_SCREEN_BRIGHTNESS = "pref_use_screen_brightness"
         const val PREF_SCREEN_INACTIVITY_TIME = "pref_screensaver_inactivity_time"
         const val PREF_SCREENSAVER_DIM_VALUE = "pref_screensaver_dim_value"
+        private val ROTATE_TIME_IN_MINUTES = 15
+        const val PREF_IMAGE_ROTATION = "pref_image_rotation"
     }
 }
