@@ -1,5 +1,12 @@
 # WallPanel
-WallPanel is an Android application for Web Based Dashboards and Home Automation Platforms. 
+WallPanel is an Android application for Web Based Dashboards and Home Automation Platforms. You can either side load the application to your Android device from the [release section](https://github.com/thanksmister/wallpanel-android/releases) or install the application from  [Google Play](https://play.google.com/store/apps/details?id=com.thanksmister.iot.wallpanel). 
+
+If you use WallPanel, please use my [community page](https://community.thanksmister.com/) to post some screenshots of your setup, I would love to see them.  Also, if you want to sponser this project or any of my other open source projects, please become a Sponser using the button at the tope of this page, thanks!
+
+## Screenshots
+![wall1](https://user-images.githubusercontent.com/142340/85577620-c9862d80-b60f-11ea-9c8e-8d0ab878c96e.png)
+![wall2](https://user-images.githubusercontent.com/142340/85577633-cbe88780-b60f-11ea-98c5-e50f4f124def.png)
+![wall3](https://user-images.githubusercontent.com/142340/85577640-cd19b480-b60f-11ea-8c04-14fdde2ba053.png)
 
 ## Support
 For issues, feature requests, comments or questions, use the [Github issues tracker](https://github.com/thanksmister/wallpanel-android/issues). You can also join the [ThanksMister Community](https://community.thanksmister.com/) to ask questions or share any helpful information about this project. 
@@ -21,7 +28,7 @@ For issues, feature requests, comments or questions, use the [Github issues trac
 *** If you have need support for older Android 4.0 devices (those below Android 4.4), you want to use the [legacy](https://github.com/thanksmister/wallpanel-android-legacy) version of the application. Alternatively you can download an APK from the release section prior to release v0.8.8-beta.6 *** 
 
 ## Quick Start
-You can either side load the application to your device from the release section or install the application from the [Google Play store](https://play.google.com/store/apps/details?id=com.thanksmister.iot.wallpanel). The application will open to the welcome page with a link to update the settings. Go to settings, and setup the link to your web page or home automation platform. You may also update additional settings for Motion, Face Detection, and for publishing device sensor data. 
+You can either side load the application to your device from the [release section](https://github.com/thanksmister/wallpanel-android/releases)  or install the application from [Google Play](https://play.google.com/store/apps/details?id=com.thanksmister.iot.wallpanel). The application will open to the welcome page with a link to update the settings. Go to settings, and setup the link to your web page or home automation platform. You may also update additional settings for Motion, Face Detection, and for publishing device sensor data. 
 
 ## Building the Application 
 To build the application locally, checkout the code from Github and load the project into Android Studio with Android API 27 or higher.  You will need to remove the Firebase dependency in the build.gradle file, this is not required.  Remove the following dependencies:
@@ -60,9 +67,9 @@ temperature | unit, value | ```{"unit":"°C", "value":"24"}``` |
 
 * Sensor values are constructed as JSON per the above table
 * For MQTT
-  * WallPanel publishes all sensors to MQTT under ```[baseTopic]/sensor```
+  * WallPanel publishes all sensors to MQTT under ```[baseTopic]sensor```
   * Each sensor publishes to a subtopic based on the type of sensor
-    * Example: ```wallpanel/mywallpanel/sensor/battery```
+    * Example: basetopic: ```wallpanel/mywallpanel/``` battery sensor data is published to: ```wallpanel/mywallpanel/sensor/battery```
     
 #### Home Assistant Examples
 ```YAML
@@ -153,7 +160,7 @@ brightness | true/false | ```{"brightness":100}``` | Current brightness value of
 * For REST
   * GET the JSON from URL ```http://[mywallpanel]:2971/api/state```
 * For MQTT
-  * WallPanel publishes state to topic ```[baseTopic]/state```
+  * WallPanel publishes state to topic ```[baseTopic]state```
     * Default Topic: ```wallpanel/mywallpanel/state```
 
 ## MJPEG Video Streaming
