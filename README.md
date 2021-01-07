@@ -1,5 +1,5 @@
 # WallPanel
-WallPanel is an Android application for Web Based Dashboards and Home Automation Platforms. You can either side load the application to your Android device from the [release section](https://github.com/thanksmister/wallpanel-android/releases) or install the application from  [Google Play](https://play.google.com/store/apps/details?id=com.thanksmister.iot.wallpanel). 
+WallPanel is an Android application for Web Based Dashboards and Home Automation Platforms. You can either side load the application to your Android device from the [release section](https://github.com/thanksmister/wallpanel-android/releases), install the application from  [Google Play](https://play.google.com/store/apps/details?id=com.thanksmister.iot.wallpanel) or search for WallPanel in the Amazon Appstore. 
 
 If you use WallPanel, please use my [community page](https://community.thanksmister.com/) to post some screenshots of your setup, I would love to see them.  Also, if you want to sponser this project or any of my other open source projects, please become a Sponser using the button at the tope of this page, thanks!
 
@@ -9,7 +9,7 @@ If you use WallPanel, please use my [community page](https://community.thanksmis
 ![wall3](https://user-images.githubusercontent.com/142340/85577640-cd19b480-b60f-11ea-8c04-14fdde2ba053.png)
 
 ## Support
-For issues, feature requests, comments or questions, use the [Github issues tracker](https://github.com/thanksmister/wallpanel-android/issues). You can also join the [ThanksMister Community](https://community.thanksmister.com/) to ask questions or share any helpful information about this project. 
+For issues, feature requests, use the [Github issues tracker](https://github.com/thanksmister/wallpanel-android/issues). Join the [ThanksMister Discord](https://community.thanksmister.com/) to ask questions or share any helpful information about this project. 
 
 ## Features
 - Web Based Dashboards and Home Automation Platforms support.
