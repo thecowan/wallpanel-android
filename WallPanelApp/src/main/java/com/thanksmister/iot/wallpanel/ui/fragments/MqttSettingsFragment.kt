@@ -36,6 +36,8 @@ class MqttSettingsFragment : BaseSettingsFragment() {
     private var mqttBaseTopic: EditTextPreference? = null
     private var mqttUsername: EditTextPreference? = null
     private var mqttPassword: EditTextPreference? = null
+    private var mqttHomeAssistantDiscovery: SwitchPreference? = null
+    private var mqttHomeAssitantName: EditTextPreference? = null
 
     override fun onAttach(context: Context) {
         AndroidSupportInjection.inject(this)
@@ -84,6 +86,8 @@ class MqttSettingsFragment : BaseSettingsFragment() {
         mqttBaseTopic = findPreference<EditTextPreference>(getString(R.string.key_setting_mqtt_basetopic)) as EditTextPreference
         mqttUsername = findPreference<EditTextPreference>(getString(R.string.key_setting_mqtt_username)) as EditTextPreference
         mqttPassword = findPreference<EditTextPreference>(getString(R.string.key_setting_mqtt_password)) as EditTextPreference
+        mqttHomeAssistantDiscovery = findPreference<SwitchPreference>(getString(R.string.key_setting_mqtt_home_assistant_discovery)) as SwitchPreference
+        mqttHomeAssitantName = findPreference<EditTextPreference>(getString(R.string.key_setting_mqtt_home_assistant_name)) as EditTextPreference
 
         mqttPassword?.setOnBindEditTextListener {editText ->
             // mask password in edit dialog
@@ -97,5 +101,7 @@ class MqttSettingsFragment : BaseSettingsFragment() {
         bindPreferenceSummaryToValue(mqttBaseTopic!!)
         bindPreferenceSummaryToValue(mqttUsername!!)
         bindPreferenceSummaryToValue(mqttPassword!!)
+        bindPreferenceSummaryToValue(mqttHomeAssistantDiscovery!!)
+        bindPreferenceSummaryToValue(mqttHomeAssitantName!!)
     }
 }

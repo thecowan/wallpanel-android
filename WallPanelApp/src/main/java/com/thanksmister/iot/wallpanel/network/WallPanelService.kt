@@ -28,6 +28,7 @@ import android.content.pm.PackageManager
 import android.media.MediaPlayer
 import android.net.wifi.WifiManager
 import android.os.*
+import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.koushikdutta.async.AsyncServer
@@ -313,7 +314,6 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         if (mqttModule == null && mqttOptions.isValid) {
             mqttModule = MQTTModule(this@WallPanelService.applicationContext, mqttOptions, this@WallPanelService)
             lifecycle.addObserver(mqttModule!!)
-            publishMessage(COMMAND_STATE, state.toString())
         }
     }
 
@@ -325,6 +325,9 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         }
         clearFaceDetected()
         clearMotionDetected()
+        if(configuration.mqttHomeAssistantDiscovery) {
+            publishHomeAssistantDiscovery()
+        }
         mqttConnected = true
         mqttInitConnection.set(false)
     }
@@ -364,6 +367,10 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
 
     private fun publishMessage(command: String, message: String) {
         mqttModule?.publish(command, message)
+    }
+
+    private fun publishMessageEx(topic: String, message: String, retain: Boolean) {
+        mqttModule?.publishEx(topic, message, retain)
     }
 
     private fun configureCamera() {
@@ -731,7 +738,98 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
             }
             faceDetected = true
             publishMessage(COMMAND_SENSOR_FACE, data)
-            faceClearHandler.postDelayed({ clearFaceDetected() }, 1000)
+
+        }
+        faceClearHandler.removeCallbacksAndMessages(null)
+        faceClearHandler.postDelayed( { clearFaceDetected() }, 3000)
+    }
+
+    private fun getDeviceDiscoveryDef() : JSONObject {
+        val deviceJson = JSONObject()
+        deviceJson.put("identifiers", "wallpanel_${configuration.mqttClientId}")
+        deviceJson.put("name", configuration.mqttHomeAssistantName)
+        deviceJson.put("manufacturer", Build.MANUFACTURER)
+        deviceJson.put("model", Build.MODEL)
+        return deviceJson
+    }
+
+    private fun getSensorDiscoveryDef(displayName: String, stateTopic: String, deviceClass: String?, unit: String?, sensorId: String) : JSONObject {
+        var discoveryDef = JSONObject()
+        discoveryDef.put("name", "${configuration.mqttHomeAssistantName} ${displayName}")
+        discoveryDef.put("state_topic", "${configuration.mqttBaseTopic}${stateTopic}")
+        if(unit != null) {
+            discoveryDef.put("unit_of_measurement", unit)
+        }
+        discoveryDef.put("value_template", "{{ value_json.value | float }}")
+        if(deviceClass != null) {
+            discoveryDef.put("device_class", deviceClass)
+        }
+        discoveryDef.put("unique_id", "wallpanel_${configuration.mqttClientId}_${sensorId}")
+        discoveryDef.put("device", getDeviceDiscoveryDef())
+
+        return discoveryDef
+    }
+
+    private fun getBinarySensorDiscoveryDef(displayName: String, stateTopic: String, fieldName: String, deviceClass: String, sensorId: String) : JSONObject {
+        var discoveryDef = JSONObject()
+        discoveryDef.put("name", "${configuration.mqttHomeAssistantName} ${displayName}")
+        discoveryDef.put("state_topic", "${configuration.mqttBaseTopic}${stateTopic}")
+        discoveryDef.put("payload_on", true)
+        discoveryDef.put("payload_off", false)
+        discoveryDef.put("value_template", "{{ value_json.${fieldName} }}")
+        discoveryDef.put("device_class", deviceClass)
+        discoveryDef.put("unique_id", "wallpanel_${configuration.mqttClientId}_${sensorId}")
+        discoveryDef.put("device", getDeviceDiscoveryDef())
+
+        return discoveryDef
+    }
+
+    private fun publishHomeAssistantDiscovery() {
+        Timber.d("publishHomeAssistantDiscovery")
+
+        if(configuration.sensorsEnabled) {
+
+            val batteryDiscovery = getSensorDiscoveryDef("Battery Level", "sensor/battery", "battery", "%", "battery")
+            publishMessageEx("homeassistant/sensor/${configuration.mqttClientId}/battery/config", batteryDiscovery.toString(), true)
+
+            val usbPluggedDiscovery = getBinarySensorDiscoveryDef("USB Plugged", "sensor/battery", "usbPlugged", "power", "usbPlugged")
+            publishMessageEx("homeassistant/binary_sensor/${configuration.mqttClientId}/usbPlugged/config", usbPluggedDiscovery.toString(), true)
+
+            //val acPluggedDiscovery = getBinarySensorDiscoveryDef("AC Plugged", "sensor/battery", "acPlugged", "power", "acPlugged")
+            //publishMessageEx("homeassistant/binary_sensor/${configuration.mqttClientId}/acPlugged/config", acPluggedDiscovery.toString(), true)
+
+            val chargeDiscovery = getBinarySensorDiscoveryDef("Charging", "sensor/battery", "charging", "battery_charging", "charging")
+            publishMessageEx("homeassistant/binary_sensor/${configuration.mqttClientId}/charging/config", chargeDiscovery.toString(), true)
+
+            val sensors = sensorReader.getSensors()
+            for(sensor in sensors) {
+                if(sensor.sensorType != null) {
+                    val sensorDiscoveryDef = getSensorDiscoveryDef(sensor.sensorType!!.capitalize(), "sensor/${sensor.sensorType!!}", sensor.deviceClass, sensor.unit, sensor.sensorType!! )
+                    publishMessageEx("homeassistant/sensor/${configuration.mqttClientId}/${sensor.sensorType!!}/config", sensorDiscoveryDef.toString(), true)
+                }
+            }
+
+        }
+        else {
+            publishMessageEx( "homeassistant/sensor/${configuration.mqttClientId}/battery/config", "", false)
+            publishMessageEx( "homeassistant/binary_sensor/${configuration.mqttClientId}/usbPlugged/config", "", false)
+            //publishMessageEx( "homeassistant/binary_sensor/${configuration.mqttClientId}/acPlugged/config", "", false)
+            publishMessageEx( "homeassistant/binary_sensor/${configuration.mqttClientId}/charging/config", "", false)
+            val sensors = sensorReader.getSensors()
+            for(sensor in sensors) {
+                if(sensor.sensorType != null) {
+                    publishMessageEx("homeassistant/sensor/${configuration.mqttClientId}/${sensor.sensorType!!}/config", "", false)
+                }
+            }
+
+        }
+
+        if(configuration.cameraFaceEnabled) {
+            val faceDiscovery = getBinarySensorDiscoveryDef("Face Detected", "sensor/face", "value", "occupancy", "face")
+            publishMessageEx("homeassistant/binary_sensor/${configuration.mqttClientId}/face/config", faceDiscovery.toString(), true)
+        }
+        else {
+            publishMessageEx("homeassistant/binary_sensor/${configuration.mqttClientId}/face/config", "", false)
         }
     }
 

@@ -19,6 +19,7 @@ package com.thanksmister.iot.wallpanel.network
 import android.R.id.message
 import android.content.Context
 import android.text.TextUtils
+import com.thanksmister.iot.wallpanel.BuildConfig
 import com.thanksmister.iot.wallpanel.R
 import com.thanksmister.iot.wallpanel.utils.MqttUtils
 import com.thanksmister.iot.wallpanel.utils.StringUtils
@@ -82,7 +83,7 @@ class MQTTService(private var context: Context, options: MQTTOptions,
         mReady.set(false)
     }
 
-    override fun publish(command: String, payload: String) {
+    override fun publishEx(topic: String, payload: String, retain: Boolean) {
         try {
             if (isReady) {
                 mqttClient?.let {
@@ -109,14 +110,17 @@ class MQTTService(private var context: Context, options: MQTTOptions,
                 val mqttMessage = MqttMessage()
                 mqttMessage.payload = payload.toByteArray()
                 mqttOptions?.let {
-                    mqttMessage.isRetained = SHOULD_RETAIN
-                    sendMessage(mqttOptions?.getBaseTopic() + command, mqttMessage)
+                    mqttMessage.isRetained = retain
+                    sendMessage(topic, mqttMessage)
                 }
             }
         } catch (e: MqttException) {
-            listener?.handleMqttException("Exception while publishing command $command and it's payload to the MQTT broker.")
+            listener?.handleMqttException("Exception while publishing command $topic and it's payload to the MQTT broker.")
         }
+    }
 
+    override fun publish(command: String, payload: String) {
+        publishEx(mqttOptions?.getBaseTopic() + command, payload, SHOULD_RETAIN)
     }
 
     /**
@@ -199,14 +203,14 @@ class MQTTService(private var context: Context, options: MQTTOptions,
                                     Timber.e(e.message)
                                 }
                             }
-                            listener?.handleMqttConnected()
                             mReady.set(true)
+                            listener?.handleMqttConnected()
                         }
                         override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
                             if(exception is MqttException) {
                                 if(exception.reasonCode == 32100 || exception.reasonCode == 32110) {
-                                    listener?.handleMqttConnected()
                                     mReady.set(true)
+                                    listener?.handleMqttConnected()
                                     return // we have a connection established or is establishing
                                 }
                             }

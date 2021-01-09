@@ -83,6 +83,13 @@ class MQTTModule (base: Context?, var mqttOptions: MQTTOptions, private val list
          mqttService?.publish(command, message)
     }
 
+    fun publishEx(topic: String, message : String, retain: Boolean) {
+        Timber.d("command: " + topic)
+        Timber.d("message: " + message)
+        Timber.d("retain: $retain")
+        mqttService?.publishEx(topic, message, retain)
+    }
+
     override fun subscriptionMessage(id: String, topic: String, payload: String) {
         Timber.d("topic: " + topic)
         listener.onMQTTMessage(id, topic, payload)

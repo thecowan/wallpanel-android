@@ -32,6 +32,8 @@ import timber.log.Timber
 import java.util.*
 import javax.inject.Inject
 
+data class SensorInfo(val sensorType: String?, val unit: String?, val deviceClass: String?)
+
 class SensorReader @Inject
 constructor(private val context: Context){
 
@@ -61,6 +63,10 @@ constructor(private val context: Context){
             if (getSensorName(s.type) != null)
                 mSensorList.add(s)
         }
+    }
+
+    fun getSensors(): List<SensorInfo> {
+        return mSensorList.map { s -> SensorInfo(getSensorName(s.type), getSensorUnit(s.type), getSensorDeviceClass(s.type)) }
     }
 
     fun startReadings(freqSeconds: Int, callback: SensorCallback) {
@@ -105,6 +111,19 @@ constructor(private val context: Context){
             Sensor.TYPE_MAGNETIC_FIELD -> return UNIT_UT
             Sensor.TYPE_PRESSURE -> return UNIT_HPA
             Sensor.TYPE_RELATIVE_HUMIDITY -> return UNIT_PERCENTAGE
+        }
+        return null
+    }
+
+    /**
+     * Map to Home Assistant device class for sensors
+     */
+    private fun getSensorDeviceClass(sensorType: Int): String? {
+        when(sensorType) {
+            Sensor.TYPE_AMBIENT_TEMPERATURE -> return "temperature"
+            Sensor.TYPE_LIGHT -> return "illuminance"
+            Sensor.TYPE_PRESSURE -> return "pressure"
+            Sensor.TYPE_RELATIVE_HUMIDITY -> return "humidity"
         }
         return null
     }
@@ -180,6 +199,7 @@ constructor(private val context: Context){
 
         publishSensorData(BATTERY, data)
     }
+
 
     companion object {
         const val BATTERY: String = "battery"

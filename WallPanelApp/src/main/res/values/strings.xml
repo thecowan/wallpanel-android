@@ -69,6 +69,8 @@
     <string name="title_setting_mqtt_username">Username (Optional)</string>
     <string name="title_setting_mqtt_password">Password (Optional)</string>
     <string name="title_setting_mqtt_sensorfrequency">Publish Frequency (in seconds)</string>
+    <string name="title_setting_mqtt_home_assistant_discovery">Enable Discovery in Home Assistant</string>
+    <string name="title_setting_mqtt_home_assistant_name">Device Name in Home Assistant</string>
     <string name="title_setting_android_startonboot">Open On Device Boot</string>
     <string name="title_setting_android_browsertype">Specify Browser Engine</string>
     <string name="default_setting_android_browsertype">Auto</string>

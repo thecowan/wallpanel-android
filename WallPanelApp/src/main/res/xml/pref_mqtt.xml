@@ -72,16 +72,27 @@
             android:selectAllOnFocus="true"
             android:singleLine="true"
             android:title="@string/title_setting_mqtt_password" />
+        <SwitchPreference
+            android:defaultValue="@string/default_setting_mqtt_home_assistant_discovery"
+            android:key="@string/key_setting_mqtt_home_assistant_discovery"
+            android:title="@string/title_setting_mqtt_home_assistant_discovery" />
+        <EditTextPreference
+            android:defaultValue="@string/default_setting_mqtt_home_assistant_name"
+            android:dependency="@string/key_setting_mqtt_home_assistant_discovery"
+            android:key="@string/key_setting_mqtt_home_assistant_name"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="@string/title_setting_mqtt_home_assistant_name" />
 
     </PreferenceCategory>
 
-  <!--  <PreferenceCategory android:title="@string/pref_mqtt_settings_category">
+    <!--  <PreferenceCategory android:title="@string/pref_mqtt_settings_category">
 
-        <SwitchPreference
-            android:key="@string/key_pref_module_tss"
-            android:summary="@string/preference_summary_tts"
-            android:title="@string/preference_tts"/>
+          <SwitchPreference
+              android:key="@string/key_pref_module_tss"
+              android:summary="@string/preference_summary_tts"
+              android:title="@string/preference_tts"/>
 
-    </PreferenceCategory>-->
+      </PreferenceCategory>-->
 
 </PreferenceScreen>
