@@ -71,6 +71,13 @@ class MQTTService(private var context: Context, options: MQTTOptions,
     @Throws(MqttException::class)
     override fun close() {
         Timber.d("close")
+
+        if(mqttOptions != null) {
+            val offlineMessage = MqttMessage(OFFLINE.toByteArray())
+            offlineMessage.isRetained = true
+            sendMessage("${mqttOptions!!.getBaseTopic()}${CONNECTION}", offlineMessage)
+        }
+
         mqttClient?.let {
             it.setCallback(null)
             if (it.isConnected) {
@@ -168,6 +175,10 @@ class MQTTService(private var context: Context, options: MQTTOptions,
                     override fun connectComplete(reconnect: Boolean, serverURI: String?) {
                         Timber.d("connect to broker completed, reconnected: $reconnect")
                         subscribeToTopics(mqttOptions.getStateTopics())
+
+                        val onlineMessage = MqttMessage(ONLINE.toByteArray())
+                        onlineMessage.isRetained = true
+                        sendMessage("${mqttOptions.getBaseTopic()}${CONNECTION}", onlineMessage)
                     }
                     override fun connectionLost(cause: Throwable?) {}
                     override fun messageArrived(topic: String?, message: MqttMessage?) { }
@@ -177,6 +188,7 @@ class MQTTService(private var context: Context, options: MQTTOptions,
                 val options = MqttConnectOptions()
                 options.isAutomaticReconnect = true
                 options.isCleanSession = false
+                options.setWill("${mqttOptions.getBaseTopic()}${CONNECTION}", OFFLINE.toByteArray(), 0, true)
                 if (!TextUtils.isEmpty(mqttOptions.getUsername()) && !TextUtils.isEmpty(mqttOptions.getPassword())) {
                     options.userName = mqttOptions.getUsername()
                     options.password = mqttOptions.getPassword().toCharArray()
@@ -279,5 +291,8 @@ class MQTTService(private var context: Context, options: MQTTOptions,
     companion object {
         private val SHOULD_RETAIN = false
         private val MQTT_QOS = 0
+        private val ONLINE = "online"
+        private val OFFLINE = "offline"
+        private val CONNECTION = "connection"
     }
 }

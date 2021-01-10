@@ -325,6 +325,11 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         }
         clearFaceDetected()
         clearMotionDetected()
+        publishApplicationState()
+        if (configuration.sensorsEnabled) {
+            sensorReader.refreshSensors()
+        }
+
         if(configuration.mqttHomeAssistantDiscovery) {
             publishHomeAssistantDiscovery()
         }
@@ -746,9 +751,9 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
 
     private fun getDeviceDiscoveryDef() : JSONObject {
         val deviceJson = JSONObject()
-        deviceJson.put("identifiers", "wallpanel_${configuration.mqttClientId}")
+        deviceJson.put("identifiers", listOf("wallpanel_${configuration.mqttClientId}"))
         deviceJson.put("name", configuration.mqttHomeAssistantName)
-        deviceJson.put("manufacturer", Build.MANUFACTURER)
+        deviceJson.put("manufacturer", Build.MANUFACTURER.toLowerCase().capitalize())
         deviceJson.put("model", Build.MODEL)
         return deviceJson
     }
@@ -766,6 +771,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         }
         discoveryDef.put("unique_id", "wallpanel_${configuration.mqttClientId}_${sensorId}")
         discoveryDef.put("device", getDeviceDiscoveryDef())
+        discoveryDef.put("availability_topic", "${configuration.mqttBaseTopic}connection")
 
         return discoveryDef
     }
@@ -780,6 +786,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         discoveryDef.put("device_class", deviceClass)
         discoveryDef.put("unique_id", "wallpanel_${configuration.mqttClientId}_${sensorId}")
         discoveryDef.put("device", getDeviceDiscoveryDef())
+        discoveryDef.put("availability_topic", "${configuration.mqttBaseTopic}connection")
 
         return discoveryDef
     }
@@ -825,12 +832,32 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         }
 
         if(configuration.cameraFaceEnabled) {
-            val faceDiscovery = getBinarySensorDiscoveryDef("Face Detected", "sensor/face", "value", "occupancy", "face")
+            val faceDiscovery = getBinarySensorDiscoveryDef("Face Detected", COMMAND_SENSOR_FACE, "value", "occupancy", "face")
             publishMessageEx("homeassistant/binary_sensor/${configuration.mqttClientId}/face/config", faceDiscovery.toString(), true)
         }
         else {
             publishMessageEx("homeassistant/binary_sensor/${configuration.mqttClientId}/face/config", "", false)
         }
+
+        if(configuration.cameraMotionEnabled) {
+            val motionDiscovery = getBinarySensorDiscoveryDef("Motion Detected", COMMAND_SENSOR_MOTION, "value", "motion", "motion")
+            publishMessageEx("homeassistant/binary_sensor/${configuration.mqttClientId}/motion/config", motionDiscovery.toString(), true)
+        }
+        else {
+            publishMessageEx("homeassistant/binary_sensor/${configuration.mqttClientId}/motion/config", "", false)
+        }
+
+        if(configuration.cameraQRCodeEnabled) {
+            val qrDiscovery = JSONObject()
+            qrDiscovery.put("topic", "${configuration.mqttBaseTopic}${COMMAND_SENSOR_QR_CODE}")
+            qrDiscovery.put("value_template", "{{ value_json.value }}")
+            qrDiscovery.put("device", getDeviceDiscoveryDef())
+            publishMessageEx("homeassistant/tag/${configuration.mqttClientId}/qr/config", qrDiscovery.toString(), true)
+        }
+        else {
+            publishMessageEx("homeassistant/tag/${configuration.mqttClientId}/qr/config", "", false)
+        }
+
     }
 
     private fun clearMotionDetected() {

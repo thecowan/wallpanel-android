@@ -79,6 +79,12 @@ constructor(private val context: Context){
         }
     }
 
+    fun refreshSensors() {
+        batteryHandler.post(batteryHandlerRunnable)
+        stopSensorReading()
+        startSensorReadings()
+    }
+
     fun stopReadings() {
         Timber.d("stopReadings")
         batteryHandler.removeCallbacksAndMessages(batteryHandlerRunnable)
