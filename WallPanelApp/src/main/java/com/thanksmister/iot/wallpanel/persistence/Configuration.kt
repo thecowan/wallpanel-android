@@ -239,6 +239,9 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
         get() = sharedPreferences.getInt(PREF_IMAGE_ROTATION, ROTATE_TIME_IN_MINUTES)
         set(value) = this.sharedPreferences.edit().putInt(PREF_IMAGE_ROTATION, value).apply()
 
+    val hasBlankScreenSaver: Boolean
+        get() = getBoolPref(R.string.key_screensaver_blank, R.string.default_screensaver_blank)
+
     val hasClockScreenSaver: Boolean
         get() = getBoolPref(R.string.key_screensaver, R.string.default_screensaver)
 

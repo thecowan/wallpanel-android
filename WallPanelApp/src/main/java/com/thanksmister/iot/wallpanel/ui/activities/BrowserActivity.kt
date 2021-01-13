@@ -269,7 +269,7 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
      * with the alarm disabled because the disable time will be longer than this.
      */
     open fun showScreenSaver() {
-        if ((configuration.hasClockScreenSaver || configuration.hasScreenSaverWallpaper) && !isFinishing) {
+        if ((configuration.hasBlankScreenSaver || configuration.hasClockScreenSaver || configuration.hasScreenSaverWallpaper) && !isFinishing) {
             inactivityHandler.removeCallbacks(inactivityCallback)
             try {
                 dialogUtils.showScreenSaver(this@BrowserActivity,

@@ -91,6 +91,12 @@
             android:summary="@string/pref_button_brightness_summary"/>
 
         <SwitchPreference
+            android:defaultValue="@string/default_screensaver_blank"
+            android:title="@string/preference_title_screen_saver_blank"
+            android:summary="@string/preference_summary_screen_saver_settings_blank"
+            android:key="@string/key_screensaver_blank"/>
+
+        <SwitchPreference
             android:defaultValue="@string/default_screensaver"
             android:title="@string/preference_title_screen_saver"
             android:summary="@string/preference_summary_screen_saver_settings"
