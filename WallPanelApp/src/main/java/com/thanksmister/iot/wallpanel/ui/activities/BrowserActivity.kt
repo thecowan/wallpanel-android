@@ -143,6 +143,8 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
         filter.addAction(BROADCAST_SCREEN_WAKE)
         val bm = LocalBroadcastManager.getInstance(this)
         bm.registerReceiver(mBroadcastReceiver, filter)
+
+        resetInactivityTimer()
     }
 
     override fun onPause() {
@@ -278,7 +280,7 @@ abstract class BrowserActivity : DaggerAppCompatActivity() {
                             resetScreenBrightness(false)
                             resetInactivityTimer()
                         },
-                        configuration.hasScreenSaverWallpaper, configuration.hasClockScreenSaver, configuration.imageRotation.toLong())
+                        configuration.hasScreenSaverWallpaper, configuration.hasClockScreenSaver, configuration.imageRotation.toLong(), configuration.appPreventSleep)
             } catch (e: Exception) {
                 Timber.e(e.message)
             }

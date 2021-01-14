@@ -132,7 +132,8 @@ class DialogUtils(base: Context?) : ContextWrapper(base), LifecycleObserver {
     fun showScreenSaver(activity: AppCompatActivity, onClickListener: View.OnClickListener,
                         hasWallpaper: Boolean,
                         hasClock: Boolean,
-                        rotationInterval: Long) {
+                        rotationInterval: Long,
+                        preventSleep: Boolean) {
         if (screenSaverDialog != null && screenSaverDialog!!.isShowing) {
             return
         }
@@ -143,7 +144,7 @@ class DialogUtils(base: Context?) : ContextWrapper(base), LifecycleObserver {
         screenSaverView.setOnClickListener(onClickListener)
         screenSaverView.init(hasWallpaper, hasClock, rotationInterval)
         screenSaverDialog = buildImmersiveDialog(activity, true, screenSaverView, true)
-        if (screenSaverDialog != null){
+        if (screenSaverDialog != null && preventSleep){
             screenSaverDialog?.window?.addFlags( WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON )
         }
     }
