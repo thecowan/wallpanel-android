@@ -52,12 +52,12 @@ class BrowserActivityNative : BrowserActivity() {
             // TODO: allow users to set their own value in settings
             val offset = 60L - calendar.get(Calendar.SECOND)
             val urls: List<String> = configuration.appLaunchUrl.lines()
-
-            loadUrl(urls[playlistIndex])
-
             // Avoid IndexOutOfBound
             playlistIndex = (playlistIndex + 1) % urls.size
-            playlistHandler?.postDelayed(this, TimeUnit.SECONDS.toMillis(offset))
+            if(urls.isNotEmpty() && urls.size >= playlistIndex) {
+                loadUrl(urls[playlistIndex])
+                playlistHandler?.postDelayed(this, TimeUnit.SECONDS.toMillis(offset))
+            }
         }
     }
 
