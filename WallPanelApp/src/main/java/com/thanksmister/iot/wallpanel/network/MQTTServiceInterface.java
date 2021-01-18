@@ -24,9 +24,7 @@ public interface MQTTServiceInterface {
 
     boolean isReady();
 
-    void publish(String command, String payload);
-
-    void publishEx(String topic, String payload, boolean retain);
+    void publish(String topic, String payload, boolean retain);
 
     void reconfigure(Context context, MQTTOptions options, MQTTService.MqttManagerListener listener);
     

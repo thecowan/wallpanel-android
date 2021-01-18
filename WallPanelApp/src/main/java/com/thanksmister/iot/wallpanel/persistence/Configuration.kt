@@ -169,7 +169,7 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
 
     val mqttBaseTopic: String
         get() = getStringPref(R.string.key_setting_mqtt_basetopic,
-                R.string.default_setting_mqtt_basetopic).trimEnd('/') + "/"
+                R.string.default_setting_mqtt_basetopic)
 
     val mqttClientId: String
         get() = getStringPref(R.string.key_setting_mqtt_clientid,
@@ -187,10 +187,13 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
         get() = getStringPref(R.string.key_setting_mqtt_sensorfrequency,
                 R.string.default_setting_mqtt_sensorfrequency).trim().toInt()
 
-    val mqttHomeAssistantDiscovery: Boolean
+    val mqttDiscovery: Boolean
         get() = getBoolPref(R.string.key_setting_mqtt_home_assistant_discovery,  R.string.default_setting_mqtt_home_assistant_discovery)
 
-    val mqttHomeAssistantName: String
+    val mqttDiscoveryTopic: String
+        get() = getStringPref(R.string.key_setting_mqtt_home_assistant_topic, R.string.default_setting_mqtt_home_assistant_topic)
+
+    val mqttDiscoveryDeviceName: String
         get() = getStringPref(R.string.key_setting_mqtt_home_assistant_name, R.string.default_setting_mqtt_home_assistant_name)
 
     val androidStartOnBoot: Boolean

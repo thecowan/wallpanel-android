@@ -72,13 +72,14 @@ class MQTTService(private var context: Context, options: MQTTOptions,
     override fun close() {
         Timber.d("close")
 
-        if(mqttOptions != null) {
-            val offlineMessage = MqttMessage(OFFLINE.toByteArray())
-            offlineMessage.isRetained = true
-            sendMessage("${mqttOptions!!.getBaseTopic()}${CONNECTION}", offlineMessage)
-        }
-
         mqttClient?.let {
+
+            mqttOptions?.let {
+                val offlineMessage = MqttMessage(OFFLINE.toByteArray())
+                offlineMessage.isRetained = true
+                sendMessage("${it.getBaseTopic()}${CONNECTION}", offlineMessage)
+            }
+
             it.setCallback(null)
             if (it.isConnected) {
                 it.disconnect(0)
@@ -90,7 +91,7 @@ class MQTTService(private var context: Context, options: MQTTOptions,
         mReady.set(false)
     }
 
-    override fun publishEx(topic: String, payload: String, retain: Boolean) {
+    override fun publish(topic: String, payload: String, retain: Boolean) {
         try {
             if (isReady) {
                 mqttClient?.let {
@@ -124,10 +125,6 @@ class MQTTService(private var context: Context, options: MQTTOptions,
         } catch (e: MqttException) {
             listener?.handleMqttException("Exception while publishing command $topic and it's payload to the MQTT broker.")
         }
-    }
-
-    override fun publish(command: String, payload: String) {
-        publishEx(mqttOptions?.getBaseTopic() + command, payload, SHOULD_RETAIN)
     }
 
     /**

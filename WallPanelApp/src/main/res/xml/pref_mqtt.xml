@@ -77,6 +77,13 @@
             android:key="@string/key_setting_mqtt_home_assistant_discovery"
             android:title="@string/title_setting_mqtt_home_assistant_discovery" />
         <EditTextPreference
+            android:defaultValue="@string/default_setting_mqtt_home_assistant_topic"
+            android:dependency="@string/key_setting_mqtt_home_assistant_discovery"
+            android:key="@string/key_setting_mqtt_home_assistant_topic"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="@string/title_setting_mqtt_home_assistant_topic" />
+        <EditTextPreference
             android:defaultValue="@string/default_setting_mqtt_home_assistant_name"
             android:dependency="@string/key_setting_mqtt_home_assistant_discovery"
             android:key="@string/key_setting_mqtt_home_assistant_name"

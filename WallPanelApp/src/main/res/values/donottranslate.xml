@@ -44,11 +44,12 @@
     <string name="default_setting_mqtt_servername">192.168.1.1</string>
     <string name="key_setting_mqtt_enabled">setting_mqtt_enabled</string>
     <string name="key_setting_mqtt_home_assistant_discovery">setting_mqtt_home_assistant_discovery</string>
+    <string name="key_setting_mqtt_home_assistant_topic">setting_mqtt_home_assistant_topic</string>
     <string name="key_setting_mqtt_home_assistant_name">setting_mqtt_home_assistant_name</string>
     <string name="key_setting_mqtt_tls_enabled">setting_mqtt_tls_enabled</string>
     <string name="default_setting_mqtt_enabled">false</string>
     <string name="default_setting_mqtt_home_assistant_discovery">false</string>
-    <string name="default_setting_mqtt_home_assistant_name">My Wall Panel</string>
+    <string name="default_setting_mqtt_home_assistant_topic">homeassistant</string>
     <string name="default_setting_mqtt_tts_enabled">false</string>
     <string name="default_setting_mqtt_basetopic">wallpanel/mywallpanel/</string>
     <string name="key_setting_mqtt_clientid">setting_mqtt_clientid</string>
