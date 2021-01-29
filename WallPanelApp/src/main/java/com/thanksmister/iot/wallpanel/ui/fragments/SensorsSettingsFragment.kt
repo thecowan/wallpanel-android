@@ -83,7 +83,7 @@ class SensorsSettingsFragment : BaseSettingsFragment() {
         bindPreferenceSummaryToValue(sensorsPreference!!)
         bindPreferenceSummaryToValue(mqttPublishFrequency!!)
 
-        val mSensorManager = activity!!.getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        val mSensorManager = requireActivity().getSystemService(Context.SENSOR_SERVICE) as SensorManager
         setSensorPreferenceSummary(findPreference<Preference>(getString(R.string.key_settings_sensors_temperature)) as Preference, mSensorManager.getSensorList(Sensor.TYPE_AMBIENT_TEMPERATURE));
         setSensorPreferenceSummary(findPreference<Preference>(getString(R.string.key_settings_sensors_light)) as Preference, mSensorManager.getSensorList(Sensor.TYPE_LIGHT));
         setSensorPreferenceSummary(findPreference<Preference>(getString(R.string.key_settings_sensors_magneticField)) as Preference, mSensorManager.getSensorList(Sensor.TYPE_MAGNETIC_FIELD));

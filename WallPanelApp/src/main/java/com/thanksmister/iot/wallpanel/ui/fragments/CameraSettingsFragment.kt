@@ -143,7 +143,7 @@ class CameraSettingsFragment : BaseSettingsFragment() {
         cameraListPreference?.isEnabled = false
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            if (ActivityCompat.checkSelfPermission(activity!!.applicationContext, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.checkSelfPermission(requireActivity().applicationContext, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
                 createCameraList()
             }
         } else {
@@ -159,10 +159,10 @@ class CameraSettingsFragment : BaseSettingsFragment() {
         cameraTestPreference = findPreference("button_key_camera_test")
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && activity != null) {
-            if (ActivityCompat.checkSelfPermission(activity!!, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.checkSelfPermission(requireActivity(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
                 configuration.cameraEnabled = false
                 if(activity != null) {
-                    dialogUtils.showAlertDialog(activity!!, getString(R.string.dialog_no_camera_permissions))
+                    dialogUtils.showAlertDialog(requireActivity(), getString(R.string.dialog_no_camera_permissions))
                 }
                 return
             }
@@ -199,7 +199,7 @@ class CameraSettingsFragment : BaseSettingsFragment() {
     private fun createCameraList() {
         Timber.d("createCameraList")
         try {
-            cameraList = CameraUtils.getCameraList(activity!!)
+            cameraList = CameraUtils.getCameraList(requireActivity())
             val cameraListEntries:ArrayList<CharSequence> = ArrayList()
             val cameraListValues:ArrayList<CharSequence> = ArrayList()
             for (item in cameraList) {
@@ -218,7 +218,7 @@ class CameraSettingsFragment : BaseSettingsFragment() {
             Timber.e(e.message)
             cameraListPreference!!.isEnabled = false
             if(activity != null) {
-                Toast.makeText(activity!!, getString(R.string.toast_camera_source_error), Toast.LENGTH_LONG).show()
+                Toast.makeText(requireActivity(), getString(R.string.toast_camera_source_error), Toast.LENGTH_LONG).show()
             }
         }
     }

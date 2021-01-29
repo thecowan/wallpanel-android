@@ -98,7 +98,7 @@ class HttpSettingsFragment : BaseSettingsFragment() {
         bindPreferenceSummaryToValue(httpMjpegStreamsPreference!!)
         bindPreferenceSummaryToValue(httpPortPreference!!)
 
-        val wm = activity!!.applicationContext.getSystemService(WIFI_SERVICE) as WifiManager
+        val wm = requireActivity().applicationContext.getSystemService(WIFI_SERVICE) as WifiManager
         val ip = Formatter.formatIpAddress(wm.connectionInfo.ipAddress)
 
         val description = findPreference<Preference>(getString(R.string.key_setting_directions)) as Preference

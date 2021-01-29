@@ -25,6 +25,7 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
 import androidx.navigation.Navigation
 import com.thanksmister.iot.wallpanel.R
 import com.thanksmister.iot.wallpanel.ui.activities.SettingsActivity
@@ -93,7 +94,13 @@ class FaceSettingsFragment : BaseSettingsFragment() {
         when (key) {
             getString(R.string.key_setting_camera_facesize)-> {
                 faceSizePreference?.text?.let {
-                    faceSizePreference?.summary = getString(R.string.preference_summary_camera_facesize, it)
+                    val faceSize = it.toIntOrNull()
+                    if(faceSize != null && faceSize >= 0 && faceSize <= 100) {
+                        faceSizePreference?.summary = getString(R.string.preference_summary_camera_facesize, faceSize.toString())
+                        configuration.cameraFaceSize = faceSize
+                    } else {
+                        Toast.makeText(requireContext(), getString(R.string.tost_error_face_size), Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
         }

@@ -87,9 +87,9 @@ class MqttSettingsFragment : BaseSettingsFragment() {
         mqttBaseTopic = findPreference<EditTextPreference>(getString(R.string.key_setting_mqtt_basetopic)) as EditTextPreference
         mqttUsername = findPreference<EditTextPreference>(getString(R.string.key_setting_mqtt_username)) as EditTextPreference
         mqttPassword = findPreference<EditTextPreference>(getString(R.string.key_setting_mqtt_password)) as EditTextPreference
-        mqttDiscovery = findPreference<SwitchPreference>(getString(R.string.key_setting_mqtt_home_assistant_discovery)) as SwitchPreference
-        mqttDiscoveryTopic = findPreference<EditTextPreference>(getString(R.string.key_setting_mqtt_home_assistant_topic)) as EditTextPreference
-        mqttDiscoveryDeviceName = findPreference<EditTextPreference>(getString(R.string.key_setting_mqtt_home_assistant_name)) as EditTextPreference
+        mqttDiscovery = findPreference<SwitchPreference>(getString(R.string.key_setting_mqtt_discovery)) as SwitchPreference
+        mqttDiscoveryTopic = findPreference<EditTextPreference>(getString(R.string.key_setting_mqtt_discovery_topic)) as EditTextPreference
+        mqttDiscoveryDeviceName = findPreference<EditTextPreference>(getString(R.string.key_setting_mqtt_discovery_name)) as EditTextPreference
 
         mqttPassword?.setOnBindEditTextListener {editText ->
             // mask password in edit dialog

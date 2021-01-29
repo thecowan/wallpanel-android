@@ -68,38 +68,42 @@
             android:defaultValue="@string/default_setting_mqtt_password"
             android:dependency="@string/key_setting_mqtt_enabled"
             android:key="@string/key_setting_mqtt_password"
-            android:password="true"
             android:selectAllOnFocus="true"
             android:singleLine="true"
             android:title="@string/title_setting_mqtt_password" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/pref_category_mqtt_discovery">
+
         <SwitchPreference
             android:defaultValue="@string/default_setting_mqtt_home_assistant_discovery"
-            android:key="@string/key_setting_mqtt_home_assistant_discovery"
-            android:title="@string/title_setting_mqtt_home_assistant_discovery" />
+            android:key="@string/key_setting_mqtt_discovery"
+            android:title="@string/title_setting_mqtt_discovery" />
+
         <EditTextPreference
-            android:defaultValue="@string/default_setting_mqtt_home_assistant_topic"
-            android:dependency="@string/key_setting_mqtt_home_assistant_discovery"
-            android:key="@string/key_setting_mqtt_home_assistant_topic"
+            android:defaultValue="@string/default_setting_mqtt_discovery_topic"
+            android:dependency="@string/key_setting_mqtt_discovery"
+            android:key="@string/key_setting_mqtt_discovery_topic"
             android:selectAllOnFocus="true"
             android:singleLine="true"
             android:title="@string/title_setting_mqtt_home_assistant_topic" />
+
         <EditTextPreference
             android:defaultValue="@string/default_setting_mqtt_home_assistant_name"
-            android:dependency="@string/key_setting_mqtt_home_assistant_discovery"
-            android:key="@string/key_setting_mqtt_home_assistant_name"
+            android:dependency="@string/key_setting_mqtt_discovery"
+            android:key="@string/key_setting_mqtt_discovery_name"
             android:selectAllOnFocus="true"
             android:singleLine="true"
             android:title="@string/title_setting_mqtt_home_assistant_name" />
 
+        <EditTextPreference
+            android:textColor="@color/light_gray"
+            android:textSize="12sp"
+            android:selectable="false"
+            android:paddingTop="0dp"
+            android:summary="@string/pref_description_mqtt_discovery"/>
+
     </PreferenceCategory>
-
-    <!--  <PreferenceCategory android:title="@string/pref_mqtt_settings_category">
-
-          <SwitchPreference
-              android:key="@string/key_pref_module_tss"
-              android:summary="@string/preference_summary_tts"
-              android:title="@string/preference_tts"/>
-
-      </PreferenceCategory>-->
 
 </PreferenceScreen>

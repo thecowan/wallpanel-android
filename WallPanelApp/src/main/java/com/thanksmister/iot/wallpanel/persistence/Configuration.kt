@@ -114,9 +114,12 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
         get() = getBoolPref(R.string.key_setting_camera_facewake,
                 R.string.default_setting_camera_facewake)
 
-    val cameraFaceSize: Int
-        get() = getStringPref(R.string.key_setting_camera_facesize,
-                R.string.default_setting_camera_facesize).trim().toInt()
+
+    var cameraFaceSize: Int
+        get() = sharedPreferences.getInt(context.getString(R.string.key_setting_camera_facesize), context.getString(R.string.default_setting_camera_facesize).toInt())
+        set(value) {
+            sharedPreferences.edit().putInt(context.getString(R.string.key_setting_camera_facesize), value).apply()
+        }
 
     val cameraFaceRotation: Boolean
         get() = getBoolPref(R.string.key_setting_camera_facerotation,
@@ -196,13 +199,13 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
                 R.string.default_setting_mqtt_sensorfrequency).trim().toInt()
 
     val mqttDiscovery: Boolean
-        get() = getBoolPref(R.string.key_setting_mqtt_home_assistant_discovery,  R.string.default_setting_mqtt_home_assistant_discovery)
+        get() = getBoolPref(R.string.key_setting_mqtt_discovery,  R.string.default_setting_mqtt_home_assistant_discovery)
 
     val mqttDiscoveryTopic: String
-        get() = getStringPref(R.string.key_setting_mqtt_home_assistant_topic, R.string.default_setting_mqtt_home_assistant_topic)
+        get() = getStringPref(R.string.key_setting_mqtt_discovery_topic, R.string.default_setting_mqtt_discovery_topic)
 
     val mqttDiscoveryDeviceName: String
-        get() = getStringPref(R.string.key_setting_mqtt_home_assistant_name, R.string.default_setting_mqtt_home_assistant_name)
+        get() = getStringPref(R.string.key_setting_mqtt_discovery_name, R.string.default_setting_mqtt_home_assistant_name)
 
     val androidStartOnBoot: Boolean
         get() = getBoolPref(R.string.key_setting_android_startonboot,
