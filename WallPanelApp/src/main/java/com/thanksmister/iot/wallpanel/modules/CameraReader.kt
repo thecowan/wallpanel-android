@@ -341,13 +341,17 @@ constructor(private val context: Context) {
                         .setTrackingEnabled(false)
                         .setMode(FaceDetector.FAST_MODE)
                         .setClassificationType(FaceDetector.NO_CLASSIFICATIONS)
-                        .setLandmarkType(FaceDetector.NO_LANDMARKS)
+                        .setLandmarkType(FaceDetector.ALL_LANDMARKS)
                         .build()
 
                 faceDetectorProcessor = LargestFaceFocusingProcessor(faceDetector, object : Tracker<Face>() {
                     override fun onUpdate(detections: Detector.Detections<Face>, face: Face) {
                         super.onUpdate(detections, face)
-                        if (detections.detectedItems.size() > 0) {
+
+                        var faceSize = face.width / detections.frameMetadata.width * 100 > configuration.cameraFaceSize;
+                        var faceRotation = if (configuration.cameraFaceRotation) face.eulerY > -12 && face.eulerY < 12 else true;
+
+                        if (detections.detectedItems.size() > 0 && faceSize && faceRotation) {
                             if (cameraCallback != null && configuration.cameraFaceEnabled) {
                                 Timber.d("faceDetected")
                                 cameraCallback!!.onFaceDetected()

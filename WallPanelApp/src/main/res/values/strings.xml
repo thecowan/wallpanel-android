@@ -238,6 +238,11 @@
     <string name="preference_summary_image_rotation">Time in minutes between image refresh. Currently %1$s.</string>
     <string name="preference_title_image_rotation">Image Rotation Interval</string>
 
+    <string name="preference_title_camera_facesize">Minimum Face Size</string>
+    <string name="preference_summary_camera_facesize">A face will be detected only if it takes more than %1$s\%% of the image.</string>
+
+    <string name="preference_title_camera_facerotation">Check Face Rotation</string>
+    <string name="preference_summary_camera_facerotation">A face will be detected only if it looks straight to the camera.</string>
 
     <string-array name="flip_directions">
         <item>None</item>

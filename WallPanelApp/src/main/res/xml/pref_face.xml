@@ -31,6 +31,19 @@
             android:summary="@string/pref_face_wake_summary"
             android:dependency="@string/key_setting_camera_faceenabled"/>
 
+        <EditTextPreference
+            android:inputType="number"
+            android:key="@string/key_setting_camera_facesize"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="@string/preference_title_camera_facesize"/>
+
+        <SwitchPreference
+            android:defaultValue="@string/default_setting_camera_facerotation"
+            android:key="@string/key_setting_camera_facerotation"
+            android:title="@string/preference_title_camera_facerotation"
+            android:summary="@string/preference_summary_camera_facerotation"
+            android:dependency="@string/key_setting_camera_faceenabled"/>
     </PreferenceCategory>
 
 </PreferenceScreen>

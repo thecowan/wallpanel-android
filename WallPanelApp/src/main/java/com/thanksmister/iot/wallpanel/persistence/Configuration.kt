@@ -114,6 +114,14 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
         get() = getBoolPref(R.string.key_setting_camera_facewake,
                 R.string.default_setting_camera_facewake)
 
+    val cameraFaceSize: Int
+        get() = getStringPref(R.string.key_setting_camera_facesize,
+                R.string.default_setting_camera_facesize).trim().toInt()
+
+    val cameraFaceRotation: Boolean
+        get() = getBoolPref(R.string.key_setting_camera_facerotation,
+                R.string.default_setting_camera_facerotation)
+
     var cameraQRCodeEnabled: Boolean
         get() = getBoolPref(R.string.key_setting_camera_qrcodeenabled,
                 R.string.default_setting_camera_qrcodeenabled)
