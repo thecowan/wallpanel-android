@@ -20,10 +20,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.preference.SwitchPreference
-import androidx.preference.CheckBoxPreference
 import androidx.preference.EditTextPreference
-import androidx.preference.ListPreference
-import androidx.preference.Preference
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
@@ -35,8 +32,10 @@ import dagger.android.support.AndroidSupportInjection
 
 class FaceSettingsFragment : BaseSettingsFragment() {
 
-    private var motionDetectionPreference: SwitchPreference? = null
-    private var motionDetectionPreference2: SwitchPreference? = null
+    private var faceDetectionPreference: SwitchPreference? = null
+    private var faceWakePreference: SwitchPreference? = null
+    private var faceSizePreference: EditTextPreference? = null
+    private var faceRotationPreference: SwitchPreference? = null
 
     override fun onAttach(context: Context) {
         AndroidSupportInjection.inject(this)
@@ -78,10 +77,25 @@ class FaceSettingsFragment : BaseSettingsFragment() {
 
         super.onViewCreated(view, savedInstanceState)
 
-        motionDetectionPreference = findPreference<SwitchPreference>(getString(R.string.key_setting_camera_faceenabled)) as SwitchPreference
-        motionDetectionPreference2 = findPreference<SwitchPreference>(getString(R.string.key_setting_camera_facewake)) as SwitchPreference
+        faceDetectionPreference = findPreference<SwitchPreference>(getString(R.string.key_setting_camera_faceenabled)) as SwitchPreference
+        faceWakePreference = findPreference<SwitchPreference>(getString(R.string.key_setting_camera_facewake)) as SwitchPreference
+        faceSizePreference = findPreference<EditTextPreference>(getString(R.string.key_setting_camera_facesize)) as EditTextPreference
+        faceRotationPreference = findPreference<SwitchPreference>(getString(R.string.key_setting_camera_facerotation)) as SwitchPreference
 
-        bindPreferenceSummaryToValue(motionDetectionPreference!!)
-        bindPreferenceSummaryToValue(motionDetectionPreference2!!)
+        bindPreferenceSummaryToValue(faceDetectionPreference!!)
+        bindPreferenceSummaryToValue(faceWakePreference!!)
+        bindPreferenceSummaryToValue(faceRotationPreference!!)
+
+        faceSizePreference?.summary = getString(R.string.preference_summary_camera_facesize, configuration.cameraFaceSize.toString())
+    }
+
+    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
+        when (key) {
+            getString(R.string.key_setting_camera_facesize)-> {
+                faceSizePreference?.text?.let {
+                    faceSizePreference?.summary = getString(R.string.preference_summary_camera_facesize, it)
+                }
+            }
+        }
     }
 }
