@@ -69,6 +69,10 @@
     <string name="title_setting_mqtt_username">Username (Optional)</string>
     <string name="title_setting_mqtt_password">Password (Optional)</string>
     <string name="title_setting_mqtt_sensorfrequency">Publish Frequency (in seconds)</string>
+    <string name="title_setting_mqtt_home_assistant_discovery">Enable Discovery in Home Assistant</string>
+    <string name="title_setting_mqtt_home_assistant_topic">Discovery Base Topic</string>
+    <string name="title_setting_mqtt_home_assistant_name">Device Display Name</string>
+    <string name="default_setting_mqtt_home_assistant_name">My Wall Panel</string>
     <string name="title_setting_android_startonboot">Open On Device Boot</string>
     <string name="title_setting_android_browsertype">Specify Browser Engine</string>
     <string name="default_setting_android_browsertype">Auto</string>
@@ -237,6 +241,17 @@
 
     <string name="preference_summary_image_rotation">Time in minutes between image refresh. Currently %1$s.</string>
     <string name="preference_title_image_rotation">Image Rotation Interval</string>
+    <string name="mqtt_sensor_battery_level">Battery Level</string>
+    <string name="mqtt_sensor_usb_plugged">USB Plugged</string>
+    <string name="mqtt_sensor_ac_plugged">AC Plugged</string>
+    <string name="mqtt_sensor_charging">Charging</string>
+    <string name="mqtt_sensor_temperature">Temperature</string>
+    <string name="mqtt_sensor_light">Light</string>
+    <string name="mqtt_sensor_magnetic_field">Magnetic Field</string>
+    <string name="mqtt_sensor_pressure">Pressure</string>
+    <string name="mqtt_sensor_humidity">Humidity</string>
+    <string name="mqtt_sensor_face_detected">Face Detected</string>
+    <string name="mqtt_sensor_motion_detected">Motion Detected</string>
 
 
     <string-array name="flip_directions">

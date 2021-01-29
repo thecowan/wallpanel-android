@@ -19,6 +19,7 @@ package com.thanksmister.iot.wallpanel.network
 import android.R.id.message
 import android.content.Context
 import android.text.TextUtils
+import com.thanksmister.iot.wallpanel.BuildConfig
 import com.thanksmister.iot.wallpanel.R
 import com.thanksmister.iot.wallpanel.utils.MqttUtils
 import com.thanksmister.iot.wallpanel.utils.StringUtils
@@ -70,7 +71,15 @@ class MQTTService(private var context: Context, options: MQTTOptions,
     @Throws(MqttException::class)
     override fun close() {
         Timber.d("close")
+
         mqttClient?.let {
+
+            mqttOptions?.let {
+                val offlineMessage = MqttMessage(OFFLINE.toByteArray())
+                offlineMessage.isRetained = true
+                sendMessage("${it.getBaseTopic()}${CONNECTION}", offlineMessage)
+            }
+
             it.setCallback(null)
             if (it.isConnected) {
                 it.disconnect(0)
@@ -82,7 +91,7 @@ class MQTTService(private var context: Context, options: MQTTOptions,
         mReady.set(false)
     }
 
-    override fun publish(command: String, payload: String) {
+    override fun publish(topic: String, payload: String, retain: Boolean) {
         try {
             if (isReady) {
                 mqttClient?.let {
@@ -109,14 +118,13 @@ class MQTTService(private var context: Context, options: MQTTOptions,
                 val mqttMessage = MqttMessage()
                 mqttMessage.payload = payload.toByteArray()
                 mqttOptions?.let {
-                    mqttMessage.isRetained = SHOULD_RETAIN
-                    sendMessage(mqttOptions?.getBaseTopic() + command, mqttMessage)
+                    mqttMessage.isRetained = retain
+                    sendMessage(topic, mqttMessage)
                 }
             }
         } catch (e: MqttException) {
-            listener?.handleMqttException("Exception while publishing command $command and it's payload to the MQTT broker.")
+            listener?.handleMqttException("Exception while publishing command $topic and it's payload to the MQTT broker.")
         }
-
     }
 
     /**
@@ -164,6 +172,10 @@ class MQTTService(private var context: Context, options: MQTTOptions,
                     override fun connectComplete(reconnect: Boolean, serverURI: String?) {
                         Timber.d("connect to broker completed, reconnected: $reconnect")
                         subscribeToTopics(mqttOptions.getStateTopics())
+
+                        val onlineMessage = MqttMessage(ONLINE.toByteArray())
+                        onlineMessage.isRetained = true
+                        sendMessage("${mqttOptions.getBaseTopic()}${CONNECTION}", onlineMessage)
                     }
                     override fun connectionLost(cause: Throwable?) {}
                     override fun messageArrived(topic: String?, message: MqttMessage?) { }
@@ -173,6 +185,7 @@ class MQTTService(private var context: Context, options: MQTTOptions,
                 val options = MqttConnectOptions()
                 options.isAutomaticReconnect = true
                 options.isCleanSession = false
+                options.setWill("${mqttOptions.getBaseTopic()}${CONNECTION}", OFFLINE.toByteArray(), 0, true)
                 if (!TextUtils.isEmpty(mqttOptions.getUsername()) && !TextUtils.isEmpty(mqttOptions.getPassword())) {
                     options.userName = mqttOptions.getUsername()
                     options.password = mqttOptions.getPassword().toCharArray()
@@ -199,14 +212,14 @@ class MQTTService(private var context: Context, options: MQTTOptions,
                                     Timber.e(e.message)
                                 }
                             }
-                            listener?.handleMqttConnected()
                             mReady.set(true)
+                            listener?.handleMqttConnected()
                         }
                         override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
                             if(exception is MqttException) {
                                 if(exception.reasonCode == 32100 || exception.reasonCode == 32110) {
-                                    listener?.handleMqttConnected()
                                     mReady.set(true)
+                                    listener?.handleMqttConnected()
                                     return // we have a connection established or is establishing
                                 }
                             }
@@ -275,5 +288,8 @@ class MQTTService(private var context: Context, options: MQTTOptions,
     companion object {
         private val SHOULD_RETAIN = false
         private val MQTT_QOS = 0
+        private val ONLINE = "online"
+        private val OFFLINE = "offline"
+        private val CONNECTION = "connection"
     }
 }

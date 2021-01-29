@@ -187,6 +187,15 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
         get() = getStringPref(R.string.key_setting_mqtt_sensorfrequency,
                 R.string.default_setting_mqtt_sensorfrequency).trim().toInt()
 
+    val mqttDiscovery: Boolean
+        get() = getBoolPref(R.string.key_setting_mqtt_home_assistant_discovery,  R.string.default_setting_mqtt_home_assistant_discovery)
+
+    val mqttDiscoveryTopic: String
+        get() = getStringPref(R.string.key_setting_mqtt_home_assistant_topic, R.string.default_setting_mqtt_home_assistant_topic)
+
+    val mqttDiscoveryDeviceName: String
+        get() = getStringPref(R.string.key_setting_mqtt_home_assistant_name, R.string.default_setting_mqtt_home_assistant_name)
+
     val androidStartOnBoot: Boolean
         get() = getBoolPref(R.string.key_setting_android_startonboot,
                 R.string.default_setting_android_startonboot)

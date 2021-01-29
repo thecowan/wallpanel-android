@@ -26,11 +26,14 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.BatteryManager
 import android.os.Handler
+import com.thanksmister.iot.wallpanel.R
 import org.json.JSONException
 import org.json.JSONObject
 import timber.log.Timber
 import java.util.*
 import javax.inject.Inject
+
+data class SensorInfo(val sensorType: String?, val unit: String?, val deviceClass: String?, val displayName: String?)
 
 class SensorReader @Inject
 constructor(private val context: Context){
@@ -63,6 +66,10 @@ constructor(private val context: Context){
         }
     }
 
+    fun getSensors(): List<SensorInfo> {
+        return mSensorList.map { s -> SensorInfo(getSensorName(s.type), getSensorUnit(s.type), getSensorDeviceClass(s.type), getSensorDisplayName(s.type)) }
+    }
+
     fun startReadings(freqSeconds: Int, callback: SensorCallback) {
         Timber.d("startReadings")
         this.callback = callback
@@ -71,6 +78,12 @@ constructor(private val context: Context){
             batteryHandler.postDelayed(batteryHandlerRunnable, updateFrequencyMilliSeconds.toLong())
             startSensorReadings()
         }
+    }
+
+    fun refreshSensors() {
+        batteryHandler.post(batteryHandlerRunnable)
+        stopSensorReading()
+        startSensorReadings()
     }
 
     fun stopReadings() {
@@ -98,6 +111,17 @@ constructor(private val context: Context){
         return null
     }
 
+    private fun getSensorDisplayName(sensorType: Int): String? {
+        when (sensorType) {
+            Sensor.TYPE_AMBIENT_TEMPERATURE -> return context.getString(R.string.mqtt_sensor_temperature)
+            Sensor.TYPE_LIGHT -> return context.getString(R.string.mqtt_sensor_light)
+            Sensor.TYPE_MAGNETIC_FIELD -> return context.getString(R.string.mqtt_sensor_magnetic_field)
+            Sensor.TYPE_PRESSURE -> return context.getString(R.string.mqtt_sensor_pressure)
+            Sensor.TYPE_RELATIVE_HUMIDITY -> return context.getString(R.string.mqtt_sensor_humidity)
+        }
+        return null
+    }
+
     private fun getSensorUnit(sensorType: Int): String? {
         when (sensorType) {
             Sensor.TYPE_AMBIENT_TEMPERATURE -> return UNIT_C
@@ -105,6 +129,19 @@ constructor(private val context: Context){
             Sensor.TYPE_MAGNETIC_FIELD -> return UNIT_UT
             Sensor.TYPE_PRESSURE -> return UNIT_HPA
             Sensor.TYPE_RELATIVE_HUMIDITY -> return UNIT_PERCENTAGE
+        }
+        return null
+    }
+
+    /**
+     * Map to Home Assistant device class for sensors
+     */
+    private fun getSensorDeviceClass(sensorType: Int): String? {
+        when(sensorType) {
+            Sensor.TYPE_AMBIENT_TEMPERATURE -> return "temperature"
+            Sensor.TYPE_LIGHT -> return "illuminance"
+            Sensor.TYPE_PRESSURE -> return "pressure"
+            Sensor.TYPE_RELATIVE_HUMIDITY -> return "humidity"
         }
         return null
     }
@@ -180,6 +217,7 @@ constructor(private val context: Context){
 
         publishSensorData(BATTERY, data)
     }
+
 
     companion object {
         const val BATTERY: String = "battery"
