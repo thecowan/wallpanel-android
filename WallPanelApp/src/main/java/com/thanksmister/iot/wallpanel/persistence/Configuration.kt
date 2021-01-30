@@ -116,9 +116,9 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
 
 
     var cameraFaceSize: Int
-        get() = sharedPreferences.getInt(context.getString(R.string.key_setting_camera_facesize), context.getString(R.string.default_setting_camera_facesize).toInt())
+        get() = sharedPreferences.getInt(PREF_CAMERA_FACE_SIZE, 0)
         set(value) {
-            sharedPreferences.edit().putInt(context.getString(R.string.key_setting_camera_facesize), value).apply()
+            sharedPreferences.edit().putInt(PREF_CAMERA_FACE_SIZE, value).apply()
         }
 
     val cameraFaceRotation: Boolean
@@ -319,5 +319,6 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
         const val PREF_SCREENSAVER_DIM_VALUE = "pref_screensaver_dim_value"
         private val ROTATE_TIME_IN_MINUTES = 15
         const val PREF_IMAGE_ROTATION = "pref_image_rotation"
+        private val PREF_CAMERA_FACE_SIZE = "pref_camera_face_size"
     }
 }

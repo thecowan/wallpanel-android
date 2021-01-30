@@ -254,13 +254,14 @@
     <string name="mqtt_sensor_motion_detected">Motion Detected</string>
 
     <string name="preference_title_camera_facesize">Minimum Face Size</string>
-    <string name="preference_summary_camera_facesize">A face will be detected only if it takes more than %1$s\%% of the image. 0% detects faces very far, 100% detects faces very near.</string>
+    <string name="preference_summary_camera_facesize">A face will be detected only if it takes more than %1$s\%% of the image. 0 percent detects far faces.</string>
 
     <string name="preference_title_camera_facerotation">Check Face Rotation</string>
     <string name="preference_summary_camera_facerotation">A face will be detected only if it looks straight to the camera.</string>
     <string name="pref_category_mqtt_discovery">MQTT Discovery</string>
     <string name="pref_description_mqtt_discovery">MQTT Discovery will publish device sensor data on the MQTT channel that can be discovered automatically by your home automation platform. Note that you must allow enable sensor data in the Sensors settings.</string>
     <string name="tost_error_face_size">Please enter a number value between 0 and 100.</string>
+    <string name="toast_error_bad_decimal">Please enter a number value and use only a single decimal (.) point.</string>
 
     <string-array name="flip_directions">
         <item>None</item>

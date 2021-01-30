@@ -48,10 +48,10 @@ class DialogUtils(base: Context?) : ContextWrapper(base), LifecycleObserver {
         hideScreenSaverDialog()
     }
 
-    fun hideScreenSaverDialog() : Boolean {
+    fun hideScreenSaverDialog(): Boolean {
         if (screenSaverDialog != null && screenSaverDialog!!.isShowing) {
             screenSaverDialog?.dismiss()
-            screenSaverDialog?.window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON )
+            screenSaverDialog?.window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
             screenSaverDialog = null
             return true
         }
@@ -115,6 +115,20 @@ class DialogUtils(base: Context?) : ContextWrapper(base), LifecycleObserver {
                 .show()
     }
 
+    fun showAlertDialog(context: Context, title: String,
+                        message: String,
+                        continueLabel: String,
+                        onPositive: DialogInterface.OnClickListener,
+                        onNegative: DialogInterface.OnClickListener) {
+        hideAlertDialog()
+        alertDialog = AlertDialog.Builder(context)
+                .setTitle(title)
+                .setMessage(message)
+                .setPositiveButton(continueLabel, onPositive)
+                .setNegativeButton(android.R.string.cancel, onNegative)
+                .show()
+    }
+
     fun showAlertDialogCancel(context: Context, message: String, onClickListener: DialogInterface.OnClickListener) {
         hideAlertDialog()
         Timber.d("showAlertDialog")
@@ -144,8 +158,8 @@ class DialogUtils(base: Context?) : ContextWrapper(base), LifecycleObserver {
         screenSaverView.setOnClickListener(onClickListener)
         screenSaverView.init(hasWallpaper, hasClock, rotationInterval)
         screenSaverDialog = buildImmersiveDialog(activity, true, screenSaverView, true)
-        if (screenSaverDialog != null && preventSleep){
-            screenSaverDialog?.window?.addFlags( WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON )
+        if (screenSaverDialog != null && preventSleep) {
+            screenSaverDialog?.window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         }
     }
 

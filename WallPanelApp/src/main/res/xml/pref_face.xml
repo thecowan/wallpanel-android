@@ -33,7 +33,7 @@
 
         <EditTextPreference
             android:inputType="number"
-            android:key="@string/key_setting_camera_facesize"
+            android:key="@string/key_setting_camera_face_size"
             android:selectAllOnFocus="true"
             android:singleLine="true"
             android:title="@string/preference_title_camera_facesize"/>

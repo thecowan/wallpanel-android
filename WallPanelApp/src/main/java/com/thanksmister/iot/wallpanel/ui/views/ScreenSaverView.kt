@@ -130,7 +130,7 @@ class ScreenSaverView : RelativeLayout {
     }
 
     private fun setScreenSaverView() {
-        Glide.with(this.context)
+        Glide.with(this.context.applicationContext)
                 .load(String.format(UNSPLASH_IT_URL, screenSaverView.width, screenSaverView.height))
                 .diskCacheStrategy(DiskCacheStrategy.NONE)
                 .centerCrop()

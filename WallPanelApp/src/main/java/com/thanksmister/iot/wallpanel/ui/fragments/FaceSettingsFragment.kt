@@ -80,19 +80,21 @@ class FaceSettingsFragment : BaseSettingsFragment() {
 
         faceDetectionPreference = findPreference<SwitchPreference>(getString(R.string.key_setting_camera_faceenabled)) as SwitchPreference
         faceWakePreference = findPreference<SwitchPreference>(getString(R.string.key_setting_camera_facewake)) as SwitchPreference
-        faceSizePreference = findPreference<EditTextPreference>(getString(R.string.key_setting_camera_facesize)) as EditTextPreference
+        faceSizePreference = findPreference<EditTextPreference>(getString(R.string.key_setting_camera_face_size)) as EditTextPreference
         faceRotationPreference = findPreference<SwitchPreference>(getString(R.string.key_setting_camera_facerotation)) as SwitchPreference
 
         bindPreferenceSummaryToValue(faceDetectionPreference!!)
         bindPreferenceSummaryToValue(faceWakePreference!!)
         bindPreferenceSummaryToValue(faceRotationPreference!!)
 
-        faceSizePreference?.summary = getString(R.string.preference_summary_camera_facesize, configuration.cameraFaceSize.toString())
+        val faceSize = configuration.cameraFaceSize
+        faceSizePreference?.summary = getString(R.string.preference_summary_camera_facesize, faceSize.toString())
+        faceSizePreference?.setDefaultValue(faceSize)
     }
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
         when (key) {
-            getString(R.string.key_setting_camera_facesize)-> {
+            getString(R.string.key_setting_camera_face_size)-> {
                 faceSizePreference?.text?.let {
                     val faceSize = it.toIntOrNull()
                     if(faceSize != null && faceSize >= 0 && faceSize <= 100) {

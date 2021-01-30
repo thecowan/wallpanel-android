@@ -70,7 +70,7 @@ class SettingsFragment : BaseSettingsFragment() {
     private var listener: OnSettingsFragmentListener? = null
     private var browserRefreshPreference: SwitchPreference? = null
     private var clockSaverPreference: SwitchPreference? = null
-    private var walllpaperSaverPreference: SwitchPreference? = null
+    private var wallpaperSaverPreference: SwitchPreference? = null
     private var inactivityPreference: ListPreference? = null
     private var screenBrightness: SwitchPreference? = null
     private var dimPreference: ListPreference? = null
@@ -98,11 +98,9 @@ class SettingsFragment : BaseSettingsFragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        if ((activity as SettingsActivity).supportActionBar != null) {
-            (activity as SettingsActivity).supportActionBar!!.setDisplayHomeAsUpEnabled(false)
-            (activity as SettingsActivity).supportActionBar!!.setDisplayShowHomeEnabled(false)
-            (activity as SettingsActivity).supportActionBar!!.title = (getString(R.string.title_settings))
-        }
+        (activity as SettingsActivity).supportActionBar?.setDisplayHomeAsUpEnabled(false)
+        (activity as SettingsActivity).supportActionBar?.setDisplayShowHomeEnabled(false)
+        (activity as SettingsActivity).supportActionBar?.title = (getString(R.string.title_settings))
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, intent: Intent?) {
@@ -157,7 +155,7 @@ class SettingsFragment : BaseSettingsFragment() {
         hadwareAcceleration = findPreference<SwitchPreference>(getString(R.string.key_hadware_accelerated_enabled)) as SwitchPreference
         browserRefreshPreference = findPreference<SwitchPreference>(getString(R.string.key_pref_browser_refresh)) as SwitchPreference
         clockSaverPreference = findPreference<SwitchPreference>(getString(R.string.key_screensaver)) as SwitchPreference
-        walllpaperSaverPreference = findPreference<SwitchPreference>(getString(R.string.key_screensaver_wallpaper)) as SwitchPreference
+        wallpaperSaverPreference = findPreference<SwitchPreference>(getString(R.string.key_screensaver_wallpaper)) as SwitchPreference
         inactivityPreference = findPreference<ListPreference>(PREF_SCREEN_INACTIVITY_TIME) as ListPreference
         dimPreference = findPreference<ListPreference>(PREF_SCREENSAVER_DIM_VALUE) as ListPreference
         screenBrightness = findPreference<SwitchPreference>(PREF_SCREEN_BRIGHTNESS) as SwitchPreference
@@ -170,7 +168,7 @@ class SettingsFragment : BaseSettingsFragment() {
         bindPreferenceSummaryToValue(hadwareAcceleration!!)
         bindPreferenceSummaryToValue(browserHeaderPreference!!)
         bindPreferenceSummaryToValue(clockSaverPreference!!)
-        bindPreferenceSummaryToValue(walllpaperSaverPreference!!)
+        bindPreferenceSummaryToValue(wallpaperSaverPreference!!)
         bindPreferenceSummaryToValue(ignoreSSLErrorsPreference!!)
 
         inactivityPreference?.setDefaultValue(configuration.inactivityTime)
@@ -237,41 +235,52 @@ class SettingsFragment : BaseSettingsFragment() {
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
         when (key) {
             PREF_SCREEN_BRIGHTNESS -> {
-                val useBright = screenBrightness!!.isChecked
-                configuration.useScreenBrightness = useBright
-                if(useBright) {
-                    checkWriteSettings()
-                } else {
-                    screenUtils.restoreDeviceBrightnessControl()
+                val useBright = screenBrightness?.isChecked
+                if(useBright != null) {
+                    configuration.useScreenBrightness = useBright
+                    if (useBright) {
+                        checkWriteSettings()
+                    } else {
+                        screenUtils.restoreDeviceBrightnessControl()
+                    }
                 }
             }
             PREF_SCREEN_INACTIVITY_TIME -> {
-                val inactivity = inactivityPreference?.value!!.toLong()
-                configuration.inactivityTime = inactivity
-                if (inactivity < SECONDS_VALUE) {
-                    inactivityPreference?.summary = getString(R.string.preference_summary_inactivity_seconds, DateUtils.convertInactivityTime(inactivity))
-                } else {
-                    inactivityPreference?.summary = getString(R.string.preference_summary_inactivity_minutes, DateUtils.convertInactivityTime(inactivity))
+                val inactivity = inactivityPreference?.value?.toLongOrNull()
+                if(inactivity != null) {
+                    configuration.inactivityTime = inactivity
+                    if (inactivity < SECONDS_VALUE) {
+                        inactivityPreference?.summary = getString(R.string.preference_summary_inactivity_seconds, DateUtils.convertInactivityTime(inactivity))
+                    } else {
+                        inactivityPreference?.summary = getString(R.string.preference_summary_inactivity_minutes, DateUtils.convertInactivityTime(inactivity))
+                    }
                 }
             }
             PREF_SCREENSAVER_DIM_VALUE -> {
-                val dim = dimPreference?.value!!.toInt()
-                configuration.screenSaverDimValue = dim
-                screenUtils.setScreenBrightnessLevels()
-                dimPreference?.summary = getString(R.string.preference_summary_dim_screensaver, dim.toString())
+                val dim = dimPreference?.value?.toIntOrNull()
+                if(dim != null) {
+                    configuration.screenSaverDimValue = dim
+                    screenUtils.setScreenBrightnessLevels()
+                    dimPreference?.summary = getString(R.string.preference_summary_dim_screensaver, dim.toString())
+                } else {
+                    Toast.makeText(requireContext(), getString(R.string.tost_error_face_size), Toast.LENGTH_SHORT).show()
+                }
             }
             "pref_settings_image_rotation"-> {
                 rotationPreference?.text?.let {
-                    val rotation = Integer.valueOf(it)
-                    configuration.imageRotation = rotation
-                    rotationPreference?.summary = getString(R.string.preference_summary_image_rotation, rotation.toString())
+                    val rotation = it.toIntOrNull()
+                    if(rotation != null) {
+                        configuration.imageRotation = rotation
+                        rotationPreference?.summary = getString(R.string.preference_summary_image_rotation, rotation.toString())
+                    } else {
+                        Toast.makeText(requireContext(), getString(R.string.toast_error_bad_decimal), Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
         }
     }
 
     private fun checkWriteSettings() {
-        Timber.d("checkWriteSettings")
         if (!configuration.writeScreenPermissionsShown && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (Settings.System.canWrite(requireActivity().applicationContext)) {
                 screenUtils.setScreenBrightnessLevels()

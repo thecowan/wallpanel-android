@@ -147,8 +147,8 @@
     <string name="key_setting_screensaver_brightness">setting_screensaver_brightness</string>
     <string name="default_setting_screensaver_brightness">15</string>
 
-    <string name="key_setting_camera_facesize">setting_camera_facesize</string>
-    <string name="default_setting_camera_facesize">0</string>
+    <string name="key_setting_camera_face_size">setting_camera_face_size</string>
+    <string name="default_setting_camera_face_size">0</string>
 
     <string name="key_setting_camera_facerotation">setting_camera_facerotation</string>
     <string name="default_setting_camera_facerotation">false</string>
