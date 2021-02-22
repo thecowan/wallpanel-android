@@ -4,9 +4,8 @@ WallPanel is an Android application for Web Based Dashboards and Home Automation
 If you use WallPanel, please use my [community page](https://community.thanksmister.com/) to post some screenshots of your setup, I would love to see them.  Also, if you want to sponser this project or any of my other open source projects, please become a Sponser using the button at the tope of this page, thanks!
 
 ## Screenshots
-![wall1](https://user-images.githubusercontent.com/142340/85577620-c9862d80-b60f-11ea-9c8e-8d0ab878c96e.png)
-![wall2](https://user-images.githubusercontent.com/142340/85577633-cbe88780-b60f-11ea-98c5-e50f4f124def.png)
 ![wall3](https://user-images.githubusercontent.com/142340/85577640-cd19b480-b60f-11ea-8c04-14fdde2ba053.png)
+![wall2](https://user-images.githubusercontent.com/142340/85577633-cbe88780-b60f-11ea-98c5-e50f4f124def.png)
 
 ## Support
 For issues, feature requests, use the [Github issues tracker](https://github.com/thanksmister/wallpanel-android/issues). Join the [ThanksMister Discord](https://community.thanksmister.com/) to ask questions or share any helpful information about this project. 
