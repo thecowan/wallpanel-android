@@ -35,13 +35,10 @@ internal abstract class AndroidBindingModule {
     abstract fun cameraViewModel(viewModel: DetectionViewModel): ViewModel
 
     @ContributesAndroidInjector
-    internal abstract fun welcomeActivity(): WelcomeActivity
-
-    @ContributesAndroidInjector
     internal abstract fun settingsActivity(): SettingsActivity
 
     @ContributesAndroidInjector
-    internal abstract fun browserActivity(): BrowserActivity
+    internal abstract fun browserActivity(): BaseBrowserActivity
 
     @ContributesAndroidInjector
     internal abstract fun browserActivityNative(): BrowserActivityNative

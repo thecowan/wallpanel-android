@@ -263,6 +263,19 @@
     <string name="tost_error_face_size">Please enter a number value between 0 and 100.</string>
     <string name="toast_error_bad_decimal">Please enter a number value and use only a single decimal (.) point.</string>
 
+    <string name="toast_code_match">Code matches current code, enter a different code.</string>
+    <string name="toast_code_alarm_set">Code has been set!</string>
+    <string name="toast_code_unchanged">Code unchanged!</string>
+    <string name="toast_code_changed">Code changed successfully!</string>
+    <string name="toast_code_not_match">Code does not match, try again.</string>
+    <string name="toast_code_invalid">Code is invalid, please try again.</string>
+
+    <string name="preference_summary_security_code">Set the code to access the settings (default is 1234).</string>
+    <string name="preference_title_security_code">Security Code</string>
+    <string name="title_enter_code">Enter Code</string>
+    <string name="text_confirm_code">Please confirm the new code.</string>
+    <string name="text_enter_new_code">Please enter the new code.</string>
+
     <string-array name="flip_directions">
         <item>None</item>
         <item>Rotate Left</item>
@@ -290,6 +303,20 @@
         <item>300000</item>
         <item>600000</item>
         <item>1800000</item>
+    </string-array>
+
+    <string-array name="settings_location_labels">
+        <item>Bottom right</item>
+        <item>Bottom left</item>
+        <item>Top right</item>
+        <item>Top left</item>
+    </string-array>
+
+    <string-array name="settings_location_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
     </string-array>
 
 

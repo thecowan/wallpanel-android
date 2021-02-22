@@ -18,32 +18,28 @@ package com.thanksmister.iot.wallpanel.ui.activities
 
 
 import android.Manifest
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.provider.Settings
-import androidx.annotation.RequiresApi
+import android.view.MenuItem
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.appcompat.app.AlertDialog
-import android.view.KeyEvent
-import android.widget.Toast
 import com.thanksmister.iot.wallpanel.R
 import com.thanksmister.iot.wallpanel.network.WallPanelService
 import com.thanksmister.iot.wallpanel.persistence.Configuration
-import com.thanksmister.iot.wallpanel.ui.fragments.SettingsFragment
 import com.thanksmister.iot.wallpanel.utils.DialogUtils
-import com.thanksmister.iot.wallpanel.utils.ScreenUtils
 import dagger.android.support.DaggerAppCompatActivity
-import timber.log.Timber
 import javax.inject.Inject
 
-class SettingsActivity : DaggerAppCompatActivity(), SettingsFragment.OnSettingsFragmentListener {
+class SettingsActivity : DaggerAppCompatActivity() {
 
     @Inject
     lateinit var configuration: Configuration
+
     @Inject
     lateinit var dialogUtils: DialogUtils
 
@@ -56,21 +52,26 @@ class SettingsActivity : DaggerAppCompatActivity(), SettingsFragment.OnSettingsF
         val wallPanelService = Intent(this, WallPanelService::class.java)
         stopService(wallPanelService)
 
-        lifecycle.addObserver(dialogUtils)
-    }
+        supportActionBar?.show()
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setDisplayShowHomeEnabled(true)
+        supportActionBar?.title = (getString(R.string.title_settings))
 
-    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        Timber.d("onKeyDown")
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
-            this.finish()
-            return true;
-        }
-        return super.onKeyDown(keyCode, event)
+        lifecycle.addObserver(dialogUtils)
     }
 
     public override fun onResume() {
         super.onResume()
         requestCameraPermissions()
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        val id = item.itemId
+        if (id == android.R.id.home) {
+            onBackPressed()
+            return true
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     private fun requestCameraPermissions() {
@@ -100,19 +101,11 @@ class SettingsActivity : DaggerAppCompatActivity(), SettingsFragment.OnSettingsF
         }
     }
 
-    override fun onFinish() {
-        this.finish()
-    }
-
-    override fun onBrowserButton() {
-        val intent = Intent(this@SettingsActivity, BrowserActivityNative::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
-        startActivity(intent)
-        finish()
-    }
-
     companion object {
         const val PERMISSIONS_REQUEST_WRITE_SETTINGS = 200
         const val PERMISSIONS_REQUEST_CAMERA = 201
+        fun createStartIntent(context: Context): Intent {
+            return Intent(context, SettingsActivity::class.java)
+        }
     }
 }

@@ -89,7 +89,7 @@ open class BaseSettingsFragment : PreferenceFragmentCompat(), SharedPreferences.
         try {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(AboutFragment.SUPPORT_URL)))
         } catch (e: ActivityNotFoundException) {
-            dialogUtils.showAlertDialog(activity!!, getString(R.string.error_no_web_browser))
+            dialogUtils.showAlertDialog(requireContext(), getString(R.string.error_no_web_browser))
         }
     }
 

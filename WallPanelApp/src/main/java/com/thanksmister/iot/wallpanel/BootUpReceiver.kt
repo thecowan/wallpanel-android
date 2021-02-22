@@ -20,7 +20,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import androidx.preference.PreferenceManager
-import com.thanksmister.iot.wallpanel.ui.activities.WelcomeActivity
+import com.thanksmister.iot.wallpanel.ui.activities.BrowserActivityNative
 
 class BootUpReceiver : BroadcastReceiver() {
 
@@ -29,7 +29,7 @@ class BootUpReceiver : BroadcastReceiver() {
             val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context.applicationContext)
             val startOnBoot = sharedPreferences.getBoolean(context.getString(R.string.key_setting_android_startonboot), false)
             if (startOnBoot) {
-                val i = Intent(context, WelcomeActivity::class.java)
+                val i = Intent(context, BrowserActivityNative::class.java)
                 i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 context.startActivity(i)
             }

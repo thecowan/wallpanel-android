@@ -17,6 +17,7 @@
 package com.thanksmister.iot.wallpanel.ui.fragments
 
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.SharedPreferences
 import android.net.Uri
@@ -30,6 +31,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.navigation.Navigation
 import androidx.preference.EditTextPreference
 import androidx.preference.ListPreference
@@ -38,9 +40,8 @@ import androidx.preference.SwitchPreference
 import com.thanksmister.iot.wallpanel.R
 import com.thanksmister.iot.wallpanel.persistence.Configuration.Companion.PREF_SCREENSAVER_DIM_VALUE
 import com.thanksmister.iot.wallpanel.persistence.Configuration.Companion.PREF_SCREEN_BRIGHTNESS
-import com.thanksmister.iot.wallpanel.persistence.Configuration.Companion.PREF_SCREEN_INACTIVITY_TIME
-import com.thanksmister.iot.wallpanel.ui.activities.SettingsActivity
 import com.thanksmister.iot.wallpanel.ui.activities.SettingsActivity.Companion.PERMISSIONS_REQUEST_WRITE_SETTINGS
+import com.thanksmister.iot.wallpanel.ui.views.SettingsCodeView
 import com.thanksmister.iot.wallpanel.utils.DateUtils
 import com.thanksmister.iot.wallpanel.utils.DateUtils.SECONDS_VALUE
 import com.thanksmister.iot.wallpanel.utils.ScreenUtils
@@ -52,6 +53,10 @@ class SettingsFragment : BaseSettingsFragment() {
 
     @Inject
     lateinit var screenUtils: ScreenUtils
+
+    private var defaultCode: Int = 0
+    private var tempCode: Int = 0
+    private var confirmCode = false
 
     private var openOnBootPreference: SwitchPreference? = null
     private var hadwareAcceleration: SwitchPreference? = null
@@ -67,7 +72,6 @@ class SettingsFragment : BaseSettingsFragment() {
     private var sensorsPreference: Preference? = null
     private var aboutPreference: Preference? = null
     private var brightnessPreference: Preference? = null
-    private var listener: OnSettingsFragmentListener? = null
     private var browserRefreshPreference: SwitchPreference? = null
     private var clockSaverPreference: SwitchPreference? = null
     private var wallpaperSaverPreference: SwitchPreference? = null
@@ -76,9 +80,24 @@ class SettingsFragment : BaseSettingsFragment() {
     private var dimPreference: ListPreference? = null
     private var rotationPreference: EditTextPreference? = null
 
-    interface OnSettingsFragmentListener {
-        fun onFinish()
-        fun onBrowserButton()
+    private val fullScreenPreference: SwitchPreference by lazy {
+        findPreference<SwitchPreference>(PREF_SETTINGS_FULL_SCREEN) as SwitchPreference
+    }
+
+    private val settingsTransparentPreference: SwitchPreference by lazy {
+        findPreference<SwitchPreference>(PREF_SETTINGS_BUTTON_TRANSPARENT) as SwitchPreference
+    }
+
+    private val settingsLocationPreference: ListPreference by lazy {
+        findPreference<ListPreference>(PREF_SETTINGS_BUTTON_LOCATION) as ListPreference
+    }
+
+    private val useDarkThemeSettings: SwitchPreference by lazy {
+        findPreference<SwitchPreference>(PREF_SETTINGS_THEME) as SwitchPreference
+    }
+
+    private val codePreference: Preference by lazy {
+        findPreference<Preference>("button_alarm_code") as Preference
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -88,19 +107,7 @@ class SettingsFragment : BaseSettingsFragment() {
 
     override fun onAttach(context: Context) {
         AndroidSupportInjection.inject(this)
-        if (context is OnSettingsFragmentListener) {
-            listener = context
-        } else {
-            throw RuntimeException(context.toString() + " must implement OnSettingsFragmentListener")
-        }
         super.onAttach(context)
-    }
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        (activity as SettingsActivity).supportActionBar?.setDisplayHomeAsUpEnabled(false)
-        (activity as SettingsActivity).supportActionBar?.setDisplayShowHomeEnabled(false)
-        (activity as SettingsActivity).supportActionBar?.title = (getString(R.string.title_settings))
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, intent: Intent?) {
@@ -129,10 +136,7 @@ class SettingsFragment : BaseSettingsFragment() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         val id = item.itemId
-        if (id == R.id.action_settings) {
-            listener!!.onBrowserButton()
-            return true
-        } else if (id == R.id.action_help) {
+        if (id == R.id.action_help) {
             showSupport()
             return true
         }
@@ -161,6 +165,16 @@ class SettingsFragment : BaseSettingsFragment() {
         screenBrightness = findPreference<SwitchPreference>(PREF_SCREEN_BRIGHTNESS) as SwitchPreference
         ignoreSSLErrorsPreference = findPreference<SwitchPreference>(getString(R.string.key_setting_ignore_ssl_errors)) as SwitchPreference
 
+        fullScreenPreference.isChecked = configuration.fullScreen
+        settingsTransparentPreference.isChecked = configuration.settingsTransparent
+        useDarkThemeSettings.isChecked = configuration.useDarkTheme
+
+        val code = configuration.settingsCode.toString()
+        if (code.isNotEmpty()) {
+            codePreference.summary = toStars(code)
+        }
+
+        // TODO deprecate this
         bindPreferenceSummaryToValue(dashboardPreference!!)
         bindPreferenceSummaryToValue(preventSleepPreference!!)
         bindPreferenceSummaryToValue(browserActivityPreference!!)
@@ -182,6 +196,10 @@ class SettingsFragment : BaseSettingsFragment() {
                     DateUtils.convertInactivityTime(configuration.inactivityTime))
         }
 
+        settingsLocationPreference.setDefaultValue(configuration.settingsLocation)
+        settingsLocationPreference.value = configuration.settingsLocation.toString()
+        settingsLocationPreference.summary = settingsLocationPreference.entry
+
         dimPreference?.setDefaultValue(configuration.screenSaverDimValue)
         dimPreference?.value = configuration.screenSaverDimValue.toString()
         dimPreference?.summary = getString(R.string.preference_summary_dim_screensaver, configuration.screenSaverDimValue.toString())
@@ -197,7 +215,6 @@ class SettingsFragment : BaseSettingsFragment() {
         rotationPreference?.text = configuration.imageRotation.toString()
         rotationPreference?.summary = getString(R.string.preference_summary_image_rotation, configuration.imageRotation.toString())
         rotationPreference?.setDefaultValue(configuration.imageRotation.toString())
-
 
         try {
             cameraPreference!!.onPreferenceClickListener = Preference.OnPreferenceClickListener { preference ->
@@ -216,7 +233,10 @@ class SettingsFragment : BaseSettingsFragment() {
                 view.let { Navigation.findNavController(it).navigate(R.id.sensors_action) }
                 false
             }
-
+            codePreference.onPreferenceClickListener = Preference.OnPreferenceClickListener {
+                showCodeDialog()
+                true
+            }
             aboutPreference!!.onPreferenceClickListener = Preference.OnPreferenceClickListener { preference ->
                 view.let { Navigation.findNavController(it).navigate(R.id.about_action) }
                 false
@@ -266,6 +286,27 @@ class SettingsFragment : BaseSettingsFragment() {
                     Toast.makeText(requireContext(), getString(R.string.tost_error_face_size), Toast.LENGTH_SHORT).show()
                 }
             }
+            PREF_SETTINGS_FULL_SCREEN -> {
+                configuration.fullScreen = fullScreenPreference.isChecked
+            }
+            PREF_SETTINGS_BUTTON_TRANSPARENT -> {
+                configuration.settingsTransparent = settingsTransparentPreference.isChecked
+            }
+            PREF_SETTINGS_THEME -> {
+                configuration.useDarkTheme = useDarkThemeSettings.isChecked
+                if (configuration.useDarkTheme) {
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                } else {
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                }
+            }
+            PREF_SETTINGS_BUTTON_LOCATION -> {
+                val value = settingsLocationPreference.value?.toIntOrNull()
+                if(value != null) {
+                    configuration.settingsLocation = value
+                    settingsLocationPreference.summary = settingsLocationPreference.entry
+                }
+            }
             "pref_settings_image_rotation"-> {
                 rotationPreference?.text?.let {
                     val rotation = it.toIntOrNull()
@@ -308,5 +349,67 @@ class SettingsFragment : BaseSettingsFragment() {
     private fun launchWriteSettings() {
         val intent = Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS, Uri.parse("package:${requireActivity().applicationContext.packageName}"))
         startActivityForResult(intent, 200)
+    }
+
+    private fun showCodeDialog() {
+        defaultCode = configuration.settingsCode
+        if (activity != null && isAdded) {
+            dialogUtils.showCodeDialog(requireActivity(), confirmCode, object : SettingsCodeView.ViewListener {
+                override fun onComplete(code: Int) {
+                    if (code == defaultCode) {
+                        confirmCode = false
+                        dialogUtils.clearDialogs()
+                        Toast.makeText(activity, R.string.toast_code_match, Toast.LENGTH_LONG).show()
+                    } else if (!confirmCode) {
+                        tempCode = code
+                        confirmCode = true
+                        dialogUtils.clearDialogs()
+                        if (activity != null && isAdded) {
+                            showCodeDialog()
+                        }
+                    } else if (code == tempCode) {
+                        configuration.isFirstTime = false;
+                        configuration.settingsCode = tempCode
+                        tempCode = 0
+                        confirmCode = false
+                        dialogUtils.clearDialogs()
+                        Toast.makeText(activity, R.string.toast_code_changed, Toast.LENGTH_LONG).show()
+                    } else {
+                        tempCode = 0
+                        confirmCode = false
+                        dialogUtils.clearDialogs()
+                        Toast.makeText(activity, R.string.toast_code_not_match, Toast.LENGTH_LONG).show()
+                    }
+                }
+
+                override fun onError() {}
+                override fun onCancel() {
+                    confirmCode = false
+                    dialogUtils.clearDialogs()
+                    Toast.makeText(activity, R.string.toast_code_unchanged, Toast.LENGTH_SHORT).show()
+                }
+            }, DialogInterface.OnCancelListener {
+                confirmCode = false
+                Toast.makeText(activity, R.string.toast_code_unchanged, Toast.LENGTH_SHORT).show()
+            })
+        }
+    }
+
+    private fun toStars(textToStars: String?): String {
+        var text = textToStars
+        val sb = StringBuilder()
+        for (i in text.orEmpty().indices) {
+            sb.append('*')
+        }
+        text = sb.toString()
+        return text
+    }
+
+    companion object {
+        const val PREF_SCREEN_INACTIVITY_TIME = "pref_screensaver_inactivity_time"
+        const val PREF_SETTINGS_FULL_SCREEN = "pref_settings_fullscreen"
+        const val PREF_SETTINGS_BUTTON_TRANSPARENT = "pref_settings_button_transparent"
+        const val PREF_SETTINGS_BUTTON_LOCATION = "pref_settings_button_location"
+        const val PREF_SETTINGS_THEME = "pref_settings_theme"
     }
 }

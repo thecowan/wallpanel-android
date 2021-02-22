@@ -17,32 +17,38 @@
 package com.thanksmister.iot.wallpanel.ui.activities
 
 import android.annotation.SuppressLint
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.content.DialogInterface
+import android.content.Intent
 import android.net.http.SslError
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.text.TextUtils
-import android.view.MotionEvent
-import android.view.View
-import android.view.ViewTreeObserver
+import android.view.*
 import android.webkit.*
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.content.ContextCompat
 import com.google.android.material.snackbar.Snackbar
+import com.thanksmister.iot.wallpanel.AppExceptionHandler
 import com.thanksmister.iot.wallpanel.R
+import com.thanksmister.iot.wallpanel.ui.fragments.CodeBottomSheetFragment
 import kotlinx.android.synthetic.main.activity_browser.*
 import timber.log.Timber
 import java.util.*
 import java.util.concurrent.TimeUnit
 
 
-class BrowserActivityNative : BrowserActivity() {
+class BrowserActivityNative : BaseBrowserActivity() {
 
     private var mWebView: WebView? = null
     private var certPermissionsShown = false
     private var playlistHandler: Handler? = null
-
+    private var codeBottomSheet: CodeBottomSheetFragment? = null
     val calendar: Calendar = Calendar.getInstance()
 
     // To save current index
@@ -77,19 +83,18 @@ class BrowserActivityNative : BrowserActivity() {
             return
         }
 
-        if (configuration.browserRefresh) {
-            swipeContainer.setOnRefreshListener {
-                clearCache()
-                loadUrl(configuration.appLaunchUrl)
+        launchSettingsFab.setOnClickListener {
+            if (configuration.isFirstTime) {
+                val intent = SettingsActivity.createStartIntent(this)
+                startActivity(intent)
+            } else {
+                showCodeBottomSheet()
             }
-            mOnScrollChangedListener = ViewTreeObserver.OnScrollChangedListener { swipeContainer?.isEnabled = mWebView?.scrollY == 0 }
-        } else {
-            swipeContainer.isEnabled = false
         }
 
         mWebView = findViewById<View>(R.id.activity_browser_webview_native) as WebView
         mWebView?.visibility = View.VISIBLE
-        mWebView?.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+        mWebView?.setLayerType(View.LAYER_TYPE_SOFTWARE, null)
 
         // Force links and redirects to open in the WebView instead of in a browser
         mWebView?.webChromeClient = object : WebChromeClient() {
@@ -131,12 +136,29 @@ class BrowserActivityNative : BrowserActivity() {
 
         mWebView?.webViewClient = object : WebViewClient() {
             private var isRedirect = false
-
-            //If you will not use this method url links are open in new browser not in webview
             override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
                 isRedirect = true
-                view.loadUrl(url)
-                return true
+                // open intent urls with native application
+                if (url.startsWith("intent:")) {
+                    val separated = url.split(";").toTypedArray()
+                    separated[0] // this will contain "intent:#Intent"
+                    separated[1] // this will contain "launch flag"
+                    separated[2] // this will contain "component"
+                    separated[3] // this will contain "end"
+                    val component = separated[2].removePrefix("component=")
+                    val classname = component.split("/").toTypedArray()
+                    val pkgName = classname[0] // this will set the packageName:
+                    val clsName = classname[1] // this will set the className:
+                    val intent = Intent()
+                    intent.action = Intent.ACTION_VIEW
+                    intent.setClassName(pkgName, clsName)
+                    startActivity(intent)
+                    return true
+                } else {
+                    isRedirect = true
+                    view.loadUrl(url)
+                    return true
+                }
             }
 
             override fun onReceivedError(view: WebView, errorCode: Int, description: String, failingUrl: String) {
@@ -189,6 +211,24 @@ class BrowserActivityNative : BrowserActivity() {
             }
             false
         }
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        codeBottomSheet?.dismiss()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        if (configuration.useDarkTheme) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+        } else {
+            setLightTheme()
+        }
 
         if (configuration.hardwareAccelerated && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             // chromium, enable hardware acceleration
@@ -200,23 +240,18 @@ class BrowserActivityNative : BrowserActivity() {
 
         configureWebSettings(configuration.browserUserAgent)
 
-        if (1.equals(configuration.appLaunchUrl.lines().size)) {
+        if (configuration.appLaunchUrl.lines().size == 1) {
             loadUrl(configuration.appLaunchUrl)
         } else {
             startPlaylist()
         }
-    }
 
-    override fun onStart() {
-        super.onStart()
-        if (swipeContainer != null && mOnScrollChangedListener != null && configuration.browserRefresh) {
-            swipeContainer.viewTreeObserver.addOnScrollChangedListener(mOnScrollChangedListener)
-        }
+        setupSettingsButton()
     }
 
     override fun onStop() {
         super.onStop()
-        if (swipeContainer != null && mOnScrollChangedListener != null && configuration.browserRefresh) {
+        if (mOnScrollChangedListener != null && configuration.browserRefresh) {
             swipeContainer.viewTreeObserver.removeOnScrollChangedListener(mOnScrollChangedListener)
         }
     }
@@ -249,12 +284,9 @@ class BrowserActivityNative : BrowserActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             webSettings?.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
         }
-
-        Timber.d(webSettings?.userAgentString)
     }
 
     override fun loadUrl(url: String) {
-        Timber.d("loadUrl $url")
         if (zoomLevel != 0.0f) {
             val zoomPercent = (zoomLevel * 100).toInt()
             mWebView?.setInitialScale(zoomPercent)
@@ -283,4 +315,99 @@ class BrowserActivityNative : BrowserActivity() {
         playlistHandler = Handler()
         playlistHandler?.postDelayed(playlistRunnable, 10)
     }
+
+    private fun showCodeBottomSheet() {
+        codeBottomSheet = CodeBottomSheetFragment.newInstance(configuration.settingsCode.toString(),
+                object : CodeBottomSheetFragment.OnAlarmCodeFragmentListener {
+                    override fun onComplete(code: String) {
+                        codeBottomSheet?.dismiss()
+                        val intent = SettingsActivity.createStartIntent(this@BrowserActivityNative)
+                        startActivity(intent)
+                    }
+
+                    override fun onCodeError() {
+                        Toast.makeText(this@BrowserActivityNative, R.string.toast_code_invalid, Toast.LENGTH_SHORT).show()
+                    }
+
+                    override fun onCancel() {
+                        codeBottomSheet?.dismiss()
+                    }
+                })
+        codeBottomSheet?.show(supportFragmentManager, codeBottomSheet?.tag)
+    }
+
+    private fun setupSettingsButton() {
+        // Set the location and transparency of the fab button
+        val params: CoordinatorLayout.LayoutParams = CoordinatorLayout.LayoutParams(CoordinatorLayout.LayoutParams.WRAP_CONTENT, CoordinatorLayout.LayoutParams.WRAP_CONTENT)
+        params.topMargin = 16
+        params.leftMargin = 16
+        params.rightMargin = 16
+        params.bottomMargin = 16
+        when (configuration.settingsLocation) {
+            0 -> {
+                params.gravity = Gravity.BOTTOM or Gravity.END
+            }
+            1 -> {
+                params.gravity = Gravity.BOTTOM or Gravity.START
+            }
+            2 -> {
+                params.gravity = Gravity.TOP or Gravity.END
+            }
+            3 -> {
+                params.gravity = Gravity.TOP or Gravity.START
+            }
+        }
+        launchSettingsFab.layoutParams = params
+        if (configuration.settingsTransparent) {
+            launchSettingsFab.backgroundTintList = ContextCompat.getColorStateList(this, R.color.transparent)
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                launchSettingsFab.compatElevation = 0f
+            }
+            launchSettingsFab.imageAlpha = 0
+        } else {
+            launchSettingsFab.backgroundTintList = ContextCompat.getColorStateList(this, R.color.colorAccent)
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                launchSettingsFab.compatElevation = 4f
+            }
+            launchSettingsFab.imageAlpha = 180
+        }
+
+        if (configuration.browserRefresh) {
+            swipeContainer.setOnRefreshListener {
+                clearCache()
+                loadUrl(configuration.appLaunchUrl)
+            }
+            mOnScrollChangedListener = ViewTreeObserver.OnScrollChangedListener { swipeContainer?.isEnabled = mWebView?.scrollY == 0 }
+            swipeContainer.viewTreeObserver.addOnScrollChangedListener(mOnScrollChangedListener)
+        } else {
+            swipeContainer.isEnabled = false
+        }
+    }
+
+    private fun setKioskMode() {
+
+        val pm = packageManager
+
+        //pm.setComponentEnabledSetting(ComponentName(this, BrowserActivityNative::class.java), PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP)
+
+        //pm.setComponentEnabledSetting(ComponentName(packageName, packageName + "." + "WallPanelKiosk"), PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP)
+
+       //hideNavigationBar()
+    }
+
+    /*private fun hideNavigationBar() {
+        try {
+            val process = Runtime.getRuntime().exec("su")
+            val os = DataOutputStream(process.outputStream)
+            os.writeBytes("pm disable com.android.systemui\n")
+            os.flush()
+            os.writeBytes("exit\n")
+            os.flush()
+            process.waitFor()
+        } catch (e: InterruptedException) {
+            e.printStackTrace()
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+    }*/
 }

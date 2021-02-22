@@ -24,6 +24,14 @@
             android:key="@string/key_setting_app_launchurl"
             android:title="@string/title_setting_app_launchurl" />
 
+        <Preference
+            android:key="button_alarm_code"
+            android:negativeButtonText="@android:string/cancel"
+            android:positiveButtonText="@android:string/ok"
+            android:icon="@drawable/ic_baseline_lock_open"
+            android:summary="@string/preference_summary_security_code"
+            android:title="@string/preference_title_security_code" />
+
         <SwitchPreference
             android:defaultValue="@string/default_setting_android_startonboot"
             android:key="@string/key_setting_android_startonboot"
@@ -37,7 +45,7 @@
             android:title="@string/title_setting_app_showactivity"/>
 
         <SwitchPreference
-            android:defaultValue="@string/default_browser_refresh"
+            android:defaultValue="false"
             android:key="@string/key_pref_browser_refresh"
             android:summary="@string/pref_browser_refresh_summary"
             android:title="@string/pref_browser_refresh_title"/>
@@ -67,6 +75,29 @@
             android:key="@string/key_setting_ignore_ssl_errors"
             android:title="@string/title_setting_ignore_ssl_errors"
             android:summary="@string/pref_ignore_ssl_errors_summary"/>
+
+        <SwitchPreference
+            android:key="pref_settings_theme"
+            android:summary="Use dark theme"
+            android:title="Theme" />
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:title="Fullscreen"
+            android:summary="Show the dashboard screen in fullscreen mode."
+            android:key="pref_settings_fullscreen"/>
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:title="Settings Transparent"
+            android:summary="Make the settings button transparent."
+            android:key="pref_settings_button_transparent" />
+
+        <ListPreference
+            android:key="pref_settings_button_location"
+            android:title="Settings Button Location"
+            android:entries="@array/settings_location_labels"
+            android:entryValues="@array/settings_location_values"/>
 
     </PreferenceCategory>
 

@@ -23,6 +23,7 @@ import android.content.DialogInterface
 import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
@@ -30,6 +31,7 @@ import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
 import com.thanksmister.iot.wallpanel.R
 import com.thanksmister.iot.wallpanel.ui.views.ScreenSaverView
+import com.thanksmister.iot.wallpanel.ui.views.SettingsCodeView
 import timber.log.Timber
 
 /**
@@ -137,6 +139,24 @@ class DialogUtils(base: Context?) : ContextWrapper(base), LifecycleObserver {
                 .setPositiveButton(android.R.string.ok, onClickListener)
                 .setNegativeButton(android.R.string.cancel, null)
                 .show()
+    }
+
+    fun showCodeDialog(context: Context, confirmCode: Boolean, listener: SettingsCodeView.ViewListener, onCancelListener: DialogInterface.OnCancelListener) {
+        clearDialogs()
+        val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        val view = inflater.inflate(R.layout.dialog_code_set, null, false)
+        val alarmCodeView = view.findViewById<SettingsCodeView>(R.id.alarmCodeView)
+        val titleTextView = alarmCodeView.findViewById<TextView>(R.id.codeTitle)
+        if (confirmCode) {
+            titleTextView.text = getString(R.string.text_confirm_code)
+        } else {
+            titleTextView.text = getString(R.string.text_enter_new_code)
+        }
+        alarmCodeView.setListener(listener)
+        dialog = Dialog(context, R.style.CustomAlertDialog)
+        dialog?.setContentView(view)
+        dialog?.setOnCancelListener(onCancelListener)
+        dialog?.show()
     }
 
     /**

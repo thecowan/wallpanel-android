@@ -26,12 +26,29 @@ class Configuration @Inject
 constructor(private val context: Context, private val sharedPreferences: SharedPreferences) {
 
     // APP
-    val isFirstTime: Boolean
-        get() = sharedPreferences.getBoolean(PREF_FIRST_TIME, true)
+    var isFirstTime: Boolean
+        get() = this.sharedPreferences.getBoolean(PREF_FIRST_TIME, true)
+        set(value) = this.sharedPreferences.edit().putBoolean(PREF_FIRST_TIME, value).apply()
 
     val appPreventSleep: Boolean
         get() = getBoolPref(R.string.key_setting_app_preventsleep,
                 R.string.default_setting_app_preventsleep)
+
+    var settingsCode: Int
+        get() = this.sharedPreferences.getInt(PREF_SETTINGS_CODE, 1234)
+        set(value) = this.sharedPreferences.edit().putInt(PREF_SETTINGS_CODE, value).apply()
+
+    var fullScreen: Boolean
+        get() = this.sharedPreferences.getBoolean(PREF_FULL_SCREEN, true)
+        set(value) = this.sharedPreferences.edit().putBoolean(PREF_FULL_SCREEN, value).apply()
+
+    var useDarkTheme: Boolean
+        get() = this.sharedPreferences.getBoolean(PREF_DARK_THEME, false)
+        set(value) = this.sharedPreferences.edit().putBoolean(PREF_DARK_THEME, value).apply()
+
+    var settingsTransparent: Boolean
+        get() = this.sharedPreferences.getBoolean(PREF_SETTINGS_TRANSPARENT, false)
+        set(value) = this.sharedPreferences.edit().putBoolean(PREF_SETTINGS_TRANSPARENT, value).apply()
 
     var writeScreenPermissionsShown: Boolean
         get() = sharedPreferences.getBoolean(PREF_WRITE_SCREEN_PERMISSIONS, false)
@@ -60,12 +77,6 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
         get() = getBoolPref(R.string.key_setting_app_showactivity,
                 R.string.default_setting_app_showactivity)
 
-    var useGeckoBrowser: Boolean
-        get() = getBoolPref(R.string.key_setting_use_gecko, R.string.default_gecko_enabled)
-        set(value) {
-            sharedPreferences.edit().putBoolean(context.getString(R.string.key_setting_use_gecko), value).apply()
-        }
-
     var cameraEnabled: Boolean
         get() = getBoolPref(R.string.key_setting_camera_enabled, R.string.default_setting_camera_enabled)
         set(value) {
@@ -91,9 +102,6 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
     val cameraMotionMinLuma: Int
         get() = Integer.valueOf(getStringPref(R.string.key_setting_camera_motionminluma, R.string.default_setting_camera_motionminluma).trim().toInt())
 
-    val cameraMotionOnTime: Int
-        get() = getStringPref(R.string.key_setting_camera_motionontime,
-                R.string.default_setting_camera_motionontime).trim().toInt()
 
     val cameraMotionWake: Boolean
         get() = getBoolPref(R.string.key_setting_camera_motionwake,
@@ -113,7 +121,6 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
     val cameraFaceWake: Boolean
         get() = getBoolPref(R.string.key_setting_camera_facewake,
                 R.string.default_setting_camera_facewake)
-
 
     var cameraFaceSize: Int
         get() = sharedPreferences.getInt(PREF_CAMERA_FACE_SIZE, 0)
@@ -168,10 +175,6 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
     val mqttTlsEnabled: Boolean
         get() = getBoolPref(R.string.key_setting_mqtt_tls_enabled, R.string.default_setting_mqtt_tts_enabled)
 
-    val mqttUrl: String
-        @SuppressLint("DefaultLocale")
-        get() = String.format("tcp://%s:%d", mqttBroker, mqttServerPort)
-
     val mqttBroker: String
         get() = getStringPref(R.string.key_setting_mqtt_servername, R.string.default_setting_mqtt_servername)
 
@@ -207,14 +210,6 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
     val mqttDiscoveryDeviceName: String
         get() = getStringPref(R.string.key_setting_mqtt_discovery_name, R.string.default_setting_mqtt_home_assistant_name)
 
-    val androidStartOnBoot: Boolean
-        get() = getBoolPref(R.string.key_setting_android_startonboot,
-                R.string.default_setting_android_startonboot)
-
-    val ttsEnabled: Boolean
-        get() = getBoolPref(R.string.key_pref_tts_notification,
-                R.string.default_tts_notification)
-
     val sensorsEnabled: Boolean
         get() = getBoolPref(R.string.key_setting_sensors_enabled,
                 R.string.default_setting_sensors_value)
@@ -228,7 +223,7 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
                 R.string.default_browser_user_agent)
 
     var browserRefresh: Boolean
-        get() = getBoolPref(R.string.key_pref_browser_refresh, R.string.default_browser_refresh)
+        get() = this.sharedPreferences.getBoolean(context.getString(R.string.key_pref_browser_refresh), true)
         set(value) {
             sharedPreferences.edit().putBoolean(context.getString(R.string.key_pref_browser_refresh), value).apply()
         }
@@ -253,6 +248,12 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
         get() = sharedPreferences.getInt(context.getString(R.string.key_screensaver_dim_value), 25)
         set(value) {
             sharedPreferences.edit().putInt(context.getString(R.string.key_screensaver_dim_value), value).apply()
+        }
+
+    var settingsLocation: Int
+        get() = sharedPreferences.getInt(PREF_SETTINGS_LOCATION, 0)
+        set(value) {
+            sharedPreferences.edit().putInt(PREF_SETTINGS_LOCATION, value).apply()
         }
 
     var imageRotation: Int
@@ -305,17 +306,17 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
         )
     }
 
-    fun setFirstTime(value: Boolean?) {
-        sharedPreferences.edit().putBoolean(PREF_FIRST_TIME, value!!).apply()
-    }
-
     companion object {
+        private const val PREF_DARK_THEME = "pref_dark_theme"
+        private const val PREF_FULL_SCREEN = "pref_full_screen"
+        private const val PREF_SETTINGS_CODE = "pref_settings_code"
+        private const val PREF_SETTINGS_TRANSPARENT = "pref_settings_transparent"
+        private const val PREF_SETTINGS_LOCATION = "pref_settings_location"
         const val PREF_FIRST_TIME = "pref_first_time"
         const val PREF_WRITE_SCREEN_PERMISSIONS = "pref_write_screen_permissions"
         const val PREF_CAMERA_PERMISSIONS = "pref_camera_permissions"
         const val PREF_CAMERA_ROTATE = "pref_camera_rotate"
         const val PREF_SCREEN_BRIGHTNESS = "pref_use_screen_brightness"
-        const val PREF_SCREEN_INACTIVITY_TIME = "pref_screensaver_inactivity_time"
         const val PREF_SCREENSAVER_DIM_VALUE = "pref_screensaver_dim_value"
         private val ROTATE_TIME_IN_MINUTES = 15
         const val PREF_IMAGE_ROTATION = "pref_image_rotation"

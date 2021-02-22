@@ -43,6 +43,7 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
         ndk.abiFilters 'armeabi-v7a','arm64-v8a','x86','x86_64'
+        vectorDrawables.useSupportLibrary = true
     }
     buildTypes {
         release {
@@ -136,11 +137,7 @@ dependencies {
 
     // Firebase
     implementation 'com.google.firebase:firebase-core:18.0.0'
-
-    // Add the Firebase Crashlytics SDK.
     implementation 'com.google.firebase:firebase-crashlytics:17.3.0'
-
-    // Recommended: Add the Google Analytics SDK.
     implementation 'com.google.firebase:firebase-analytics:18.0.0'
 
     // Picasso image loading

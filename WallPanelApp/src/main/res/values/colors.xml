@@ -17,9 +17,14 @@
 
 <resources>
 
-    <color name="colorPrimary">#35b9f1</color>
-    <color name="colorPrimaryDark">#17b1f2</color>
-    <color name="colorAccent">#35b9f1</color>
+    <color name="colorPrimary">#F4F4F4</color>
+    <color name="colorPrimaryDark">#0EABEE</color>
+    <color name="colorAccent">#68c5ed</color>
+    <color name="dialogBackgroundColor">#ffffff</color>
+    <color name="dialogBackgroundText">#36B6ED</color>
+
+    <color name="dark_gray_color">#ff707070</color>
+    <color name="stroke_gray">#d8d8d8</color>
 
     <color name="black_overlay">#66000000</color>
 
@@ -27,6 +32,7 @@
     <color name="body_text_1">#616161</color>
     <color name="body_text_2">#424242</color>
     <color name="body_text_1_inverse">#FFFFFF</color>
+    <color name="body_text_3">#979797</color>
 
     <color name="transparent">#00000000</color>
 
@@ -55,7 +61,5 @@
     <color name="gray_up">#e5e5e5</color>
     <color name="gray_pressed">#c2c2c2</color>
 
-    <color name="dark_gray_color">#ff707070</color>
-    <color name="stroke_gray">#d8d8d8</color>
     <color name="text">#7e7e7c</color>
 </resources>
