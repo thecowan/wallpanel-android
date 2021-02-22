@@ -5,6 +5,7 @@ If you use WallPanel, please use my [community page](https://community.thanksmis
 
 ## Screenshots
 <img src="img/dashboard2.png" width="640" />
+<img src="img/dashboard3.png" width="640" />
 <img src="img/dashboard1.png" width="640" />
 
 ## Support
