@@ -227,6 +227,17 @@ volume | data | ```{"volume": 100}``` | Changes the audio volume, value 0-100 (i
   * Publish a JSON payload to this topic (be mindfula of quotes in JSON should be single quotes not double)
 
 
+### Launch extnral application
+
+Using the url command `{"url": "http://<url>"}`, you can load other applications using the `intent: scheme URL` for that application. For exxample, to launch the Ring app, you would use this as the url schema: 
+
+```
+intent:#Intent;launchFlags=0x10000000;component=com.ringapp/.ui.activities.LoginActivity;end
+```
+
+For a list of more intent schema urls, vist https://support.actiontiles.com/en/communities/12/topics/1255-open-android-app-or-app-activity-via-url-formatted-shortcut.
+
+
 ### Google Text-To-Speach Command
 You can send a command using either HTTP or MQTT to have the device speak a message using Google's Text-To-Speach. Note that the device must be running Android Lollipop or above. 
 
