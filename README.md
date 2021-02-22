@@ -12,6 +12,7 @@ For issues, feature requests, use the [Github issues tracker](https://github.com
 
 ## Features
 - Web Based Dashboards and Home Automation Platforms support.
+- Set application as Android Home screen (optional)
 - Camera support for streaming video, motion detection, face detection, and QR Code reading.
 - Google Text-to-Speech support to speak notification messages using MQTT or HTTP.
 - MQTT or HTTP commands to remotely control device and application (url, brightness, wake, etc.).
@@ -19,6 +20,7 @@ For issues, feature requests, use the [Github issues tracker](https://github.com
 - Streaming MJPEG server support using the device camera.
 - Screensaver feature that can be dismissed with motion or face detection.
 - Support for Android 4.4 (API level 19) and greater devices.
+- Support for launching external applications using intent URL
 
 ## Hardware & Software 
 
@@ -33,13 +35,18 @@ You can either side load the application to your device from the [release sectio
 To build the application locally, checkout the code from Github and load the project into Android Studio with Android API 27 or higher.  You will need to remove the Firebase dependency in the build.gradle file, this is not required.  Remove the following dependencies:
 
 ```
-implementation 'com.google.firebase:firebase-core:17.2.0'
-implementation 'com.google.firebase:firebase-analytics:17.2.0'
+apply plugin: 'com.google.firebase.crashlytics'
+
+implementation 'com.google.firebase:firebase-core:18.0.0'
+implementation 'com.google.firebase:firebase-crashlytics:17.3.0'
+implementation 'com.google.firebase:firebase-analytics:18.0.0'
 ```
 Remove this if you are building the application for devices that do not support Google Services.
 
 ```
 apply plugin: 'com.google.gms.google-services'
+
+implementation 'com.google.android.gms:play-services-vision:20.1.3'
 ```
 
 The project should compile normally.
