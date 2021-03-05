@@ -17,15 +17,12 @@
 package com.thanksmister.iot.wallpanel.ui.activities
 
 import android.annotation.SuppressLint
-import android.app.AlarmManager
-import android.app.PendingIntent
 import android.content.DialogInterface
 import android.content.Intent
 import android.net.http.SslError
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
-import android.text.TextUtils
 import android.view.*
 import android.webkit.*
 import android.widget.Toast
@@ -34,7 +31,6 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
 import com.google.android.material.snackbar.Snackbar
-import com.thanksmister.iot.wallpanel.AppExceptionHandler
 import com.thanksmister.iot.wallpanel.R
 import com.thanksmister.iot.wallpanel.ui.fragments.CodeBottomSheetFragment
 import kotlinx.android.synthetic.main.activity_browser.*
@@ -42,14 +38,17 @@ import timber.log.Timber
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-
 class BrowserActivityNative : BaseBrowserActivity() {
 
-    private var mWebView: WebView? = null
+    private val mWebView: WebView by lazy {
+        findViewById<View>(R.id.activity_browser_webview_native) as WebView
+    }
+
     private var certPermissionsShown = false
     private var playlistHandler: Handler? = null
     private var codeBottomSheet: CodeBottomSheetFragment? = null
-    val calendar: Calendar = Calendar.getInstance()
+    private var webSettings: WebSettings? = null
+    private val calendar: Calendar = Calendar.getInstance()
 
     // To save current index
     private var playlistIndex = 0
@@ -70,6 +69,7 @@ class BrowserActivityNative : BaseBrowserActivity() {
 
     @SuppressLint("SetJavaScriptEnabled", "ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
 
         try {
@@ -92,18 +92,13 @@ class BrowserActivityNative : BaseBrowserActivity() {
             }
         }
 
-        mWebView = findViewById<View>(R.id.activity_browser_webview_native) as WebView
-        mWebView?.visibility = View.VISIBLE
-        mWebView?.setLayerType(View.LAYER_TYPE_SOFTWARE, null)
-
+        mWebView.setLayerType(View.LAYER_TYPE_SOFTWARE, null)
         // Force links and redirects to open in the WebView instead of in a browser
-        mWebView?.webChromeClient = object : WebChromeClient() {
+        mWebView.webChromeClient = object : WebChromeClient() {
             var snackbar: Snackbar? = null
             override fun onProgressChanged(view: WebView, newProgress: Int) {
                 if (newProgress == 100) {
-                    if (snackbar != null) {
-                        snackbar!!.dismiss()
-                    }
+                    snackbar?.dismiss()
                     if (view.url != null) {
                         pageLoadComplete(view.url)
                     } else {
@@ -117,9 +112,9 @@ class BrowserActivityNative : BaseBrowserActivity() {
                     if (snackbar == null) {
                         snackbar = Snackbar.make(view, text, Snackbar.LENGTH_INDEFINITE)
                     } else {
-                        snackbar!!.setText(text)
+                        snackbar?.setText(text)
                     }
-                    snackbar!!.show()
+                    snackbar?.show()
                 }
             }
 
@@ -133,12 +128,11 @@ class BrowserActivityNative : BaseBrowserActivity() {
                 return true
             }
         }
-
-        mWebView?.webViewClient = object : WebViewClient() {
+        mWebView.webViewClient = object : WebViewClient() {
             private var isRedirect = false
             override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
-                isRedirect = true
                 // open intent urls with native application
+                isRedirect = true
                 if (url.startsWith("intent:")) {
                     val separated = url.split(";").toTypedArray()
                     separated[0] // this will contain "intent:#Intent"
@@ -155,7 +149,6 @@ class BrowserActivityNative : BaseBrowserActivity() {
                     startActivity(intent)
                     return true
                 } else {
-                    isRedirect = true
                     view.loadUrl(url)
                     return true
                 }
@@ -196,8 +189,7 @@ class BrowserActivityNative : BaseBrowserActivity() {
                 }
             }
         }
-
-        mWebView?.setOnTouchListener { v, event ->
+        mWebView.setOnTouchListener { v, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
                     resetScreen()
@@ -211,10 +203,8 @@ class BrowserActivityNative : BaseBrowserActivity() {
             }
             false
         }
-    }
 
-    override fun onBackPressed() {
-        super.onBackPressed()
+        initWebPageLoad()
     }
 
     override fun onDestroy() {
@@ -232,21 +222,17 @@ class BrowserActivityNative : BaseBrowserActivity() {
 
         if (configuration.hardwareAccelerated && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             // chromium, enable hardware acceleration
-            mWebView?.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+            mWebView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
         } else {
             // older android version, disable hardware acceleration
-            mWebView?.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
-        }
-
-        configureWebSettings(configuration.browserUserAgent)
-
-        if (configuration.appLaunchUrl.lines().size == 1) {
-            loadUrl(configuration.appLaunchUrl)
-        } else {
-            startPlaylist()
+            mWebView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
         }
 
         setupSettingsButton()
+
+        if(configuration.hasSettingsUpdates()) {
+            initWebPageLoad()
+        }
     }
 
     override fun onStop() {
@@ -264,7 +250,9 @@ class BrowserActivityNative : BaseBrowserActivity() {
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun configureWebSettings(userAgent: String) {
-        val webSettings = mWebView?.settings
+        if(webSettings == null) {
+            webSettings = mWebView.settings
+        }
         webSettings?.javaScriptEnabled = true
         webSettings?.domStorageEnabled = true
         webSettings?.databaseEnabled = true
@@ -274,10 +262,10 @@ class BrowserActivityNative : BaseBrowserActivity() {
         webSettings?.allowFileAccessFromFileURLs = true
         webSettings?.allowContentAccess = true
         webSettings?.setSupportZoom(true)
-        webSettings?.loadWithOverviewMode = true;
-        webSettings?.useWideViewPort = true;
+        webSettings?.loadWithOverviewMode = true
+        webSettings?.useWideViewPort = true
 
-        if (!TextUtils.isEmpty(userAgent)) {
+        if (userAgent.isNotEmpty()) {
             webSettings?.userAgentString = userAgent
         }
 
@@ -286,29 +274,41 @@ class BrowserActivityNative : BaseBrowserActivity() {
         }
     }
 
+    private fun initWebPageLoad() {
+        progressView.visibility = View.GONE
+        mWebView.visibility = View.VISIBLE
+        configureWebSettings(configuration.browserUserAgent)
+        if (configuration.appLaunchUrl.lines().size == 1) {
+            loadUrl(configuration.appLaunchUrl)
+        } else {
+            startPlaylist()
+        }
+    }
+
     override fun loadUrl(url: String) {
+        Timber.d("loadUrl $url")
         if (zoomLevel != 0.0f) {
             val zoomPercent = (zoomLevel * 100).toInt()
-            mWebView?.setInitialScale(zoomPercent)
+            mWebView.setInitialScale(zoomPercent)
         }
-        mWebView?.loadUrl(url)
+        mWebView.loadUrl(url)
     }
 
     override fun evaluateJavascript(js: String) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            mWebView?.evaluateJavascript(js, null)
+            mWebView.evaluateJavascript(js, null)
         }
     }
 
     override fun clearCache() {
-        mWebView?.clearCache(true)
+        mWebView.clearCache(true)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             CookieManager.getInstance().removeAllCookies(null)
         }
     }
 
     override fun reload() {
-        mWebView?.reload()
+        mWebView.reload()
     }
 
     private fun startPlaylist() {
@@ -360,7 +360,7 @@ class BrowserActivityNative : BaseBrowserActivity() {
         launchSettingsFab.layoutParams = params
         if (configuration.settingsTransparent) {
             launchSettingsFab.backgroundTintList = ContextCompat.getColorStateList(this, R.color.transparent)
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 launchSettingsFab.compatElevation = 0f
             }
             launchSettingsFab.imageAlpha = 0
@@ -371,29 +371,8 @@ class BrowserActivityNative : BaseBrowserActivity() {
             }
             launchSettingsFab.imageAlpha = 180
         }
-
-        if (configuration.browserRefresh) {
-            swipeContainer.setOnRefreshListener {
-                clearCache()
-                loadUrl(configuration.appLaunchUrl)
-            }
-            mOnScrollChangedListener = ViewTreeObserver.OnScrollChangedListener { swipeContainer?.isEnabled = mWebView?.scrollY == 0 }
-            swipeContainer.viewTreeObserver.addOnScrollChangedListener(mOnScrollChangedListener)
-        } else {
-            swipeContainer.isEnabled = false
-        }
     }
 
-    private fun setKioskMode() {
-
-        val pm = packageManager
-
-        //pm.setComponentEnabledSetting(ComponentName(this, BrowserActivityNative::class.java), PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP)
-
-        //pm.setComponentEnabledSetting(ComponentName(packageName, packageName + "." + "WallPanelKiosk"), PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP)
-
-       //hideNavigationBar()
-    }
 
     /*private fun hideNavigationBar() {
         try {

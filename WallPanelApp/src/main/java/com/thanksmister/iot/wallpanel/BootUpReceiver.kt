@@ -25,7 +25,7 @@ import com.thanksmister.iot.wallpanel.ui.activities.BrowserActivityNative
 class BootUpReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action == Intent.ACTION_BOOT_COMPLETED) {
+        if (Intent.ACTION_BOOT_COMPLETED.equals(intent.action)) {
             val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context.applicationContext)
             val startOnBoot = sharedPreferences.getBoolean(context.getString(R.string.key_setting_android_startonboot), false)
             if (startOnBoot) {

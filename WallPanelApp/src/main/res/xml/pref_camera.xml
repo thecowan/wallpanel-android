@@ -20,21 +20,21 @@
 
         <SwitchPreference
             android:defaultValue="@string/default_setting_camera_enabled"
-            android:key="@string/key_setting_camera_enabled"
+            android:key="pref_setting_camera_enabled"
             android:title="@string/title_setting_camera_enabled" />
 
         <ListPreference
             android:defaultValue="@string/default_setting_camera_cameraid"
             android:key="@string/key_setting_camera_cameraid"
             android:title="@string/title_setting_camera_cameraid"
-            android:dependency="@string/key_setting_camera_enabled"/>
+            android:dependency="pref_setting_camera_enabled"/>
 
         <EditTextPreference
             android:defaultValue="@string/default_camera_fps"
             android:key="@string/key_setting_camera_fps"
             android:summary="15"
             android:title="@string/pref_camera_fps_title"
-            android:dependency="@string/key_setting_camera_enabled"/>
+            android:dependency="pref_setting_camera_enabled"/>
 
         <EditTextPreference
             android:textColor="@color/light_gray"
@@ -54,26 +54,26 @@
             android:icon="@drawable/ic_directions_run"
             android:key="button_key_motion_detection"
             android:title="@string/pref_button_motion_detection"
-            android:dependency="@string/key_setting_camera_enabled"/>
+            android:dependency="pref_setting_camera_enabled"/>
 
         <Preference
             android:icon="@drawable/ic_face"
             android:key="button_key_face_detection"
             android:title="@string/pref_button_face_detection"
-            android:dependency="@string/key_setting_camera_enabled"/>
+            android:dependency="pref_setting_camera_enabled"/>
 
         <Preference
             android:icon="@drawable/ic_qr_code"
             android:key="button_key_qr_code"
             android:title="@string/pref_button_qrcode_reader"
-            android:dependency="@string/key_setting_camera_enabled"/>
+            android:dependency="pref_setting_camera_enabled"/>
 
         <Preference
             android:icon="@drawable/ic_photo_camera"
             android:key="button_key_camera_test"
             android:title="@string/pref_camera_test_button_title"
             android:summary="@string/pref_button_camera_test"
-            android:dependency="@string/key_setting_camera_enabled"/>
+            android:dependency="pref_setting_camera_enabled"/>
 
     </PreferenceCategory>
 

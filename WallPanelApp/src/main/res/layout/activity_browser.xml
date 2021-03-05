@@ -24,7 +24,6 @@
         android:id="@+id/swipeContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         android:scrollbars="none">
 
@@ -37,8 +36,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:id="@+id/activity_browser_webview_native"
-                android:scrollbars="none"
-                android:visibility="gone" />
+                android:scrollbars="none" />
+
+            <ProgressBar
+                android:id="@+id/progressView"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:indeterminate="true"
+                android:layout_centerInParent="true"/>
 
         </RelativeLayout>
 
@@ -54,7 +59,6 @@
         app:fabSize="mini"
         app:backgroundTint="@color/colorAccent"
         app:pressedTranslationZ="0dp"
-        android:contentDescription="Settings"
         android:layout_margin="16dp" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

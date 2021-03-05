@@ -88,7 +88,7 @@
     <string name="default_gecko_enabled">false</string>
     <string name="setting_camera_cameraid">setting_camera_camera_id_value</string>
     <string name="key_setting_camera_cameraid">key_setting_camera_cameraid</string>
-    <string name="default_setting_app_showactivity">true</string>
+    <string name="default_setting_app_showactivity">false</string>
     <string name="key_setting_camera_enabled">setting_camera_enabled</string>
     <string name="key_setting_app_showactivity">setting_app_showactivity</string>
     <string name="key_setting_use_gecko">setting_use_gecko</string>

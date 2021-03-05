@@ -19,6 +19,7 @@ package com.thanksmister.iot.wallpanel.ui.fragments
 import android.Manifest
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -32,12 +33,15 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.content.ContextCompat
 import androidx.navigation.Navigation
 import com.thanksmister.iot.wallpanel.R
 import com.thanksmister.iot.wallpanel.persistence.Configuration
 import com.thanksmister.iot.wallpanel.ui.activities.LiveCameraActivity
 import com.thanksmister.iot.wallpanel.ui.activities.SettingsActivity
 import com.thanksmister.iot.wallpanel.utils.CameraUtils
+import com.thanksmister.iot.wallpanel.utils.DateUtils
 import dagger.android.support.AndroidSupportInjection
 import timber.log.Timber
 
@@ -102,7 +106,7 @@ class CameraSettingsFragment : BaseSettingsFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         fpsPreference = findPreference<EditTextPreference>(getString(R.string.key_setting_camera_fps)) as EditTextPreference
-        cameraPreference = findPreference<SwitchPreference>(getString(R.string.key_setting_camera_enabled)) as SwitchPreference
+        cameraPreference = findPreference<SwitchPreference>(PREF_CAMERA_ENABLED) as SwitchPreference
 
         rotatePreference = findPreference<ListPreference>(Configuration.PREF_CAMERA_ROTATE) as ListPreference
         rotatePreference!!.setDefaultValue(configuration.cameraRotate)
@@ -150,7 +154,8 @@ class CameraSettingsFragment : BaseSettingsFragment() {
             createCameraList()
         }
 
-        bindPreferenceSummaryToValue(cameraPreference!!)
+        cameraPreference?.isChecked = configuration.cameraEnabled
+        //bindPreferenceSummaryToValue(cameraPreference!!)
         bindPreferenceSummaryToValue(fpsPreference!!)
 
         motionDetectionPreference = findPreference("button_key_motion_detection")
@@ -159,12 +164,9 @@ class CameraSettingsFragment : BaseSettingsFragment() {
         cameraTestPreference = findPreference("button_key_camera_test")
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && activity != null) {
-            if (ActivityCompat.checkSelfPermission(requireActivity(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.checkSelfPermission(requireActivity(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED && configuration.cameraEnabled) {
                 configuration.cameraEnabled = false
-                if(activity != null) {
-                    dialogUtils.showAlertDialog(requireActivity(), getString(R.string.dialog_no_camera_permissions))
-                }
-                return
+                dialogUtils.showAlertDialog(requireActivity(), getString(R.string.dialog_no_camera_permissions))
             }
         }
 
@@ -193,6 +195,37 @@ class CameraSettingsFragment : BaseSettingsFragment() {
         cameraStreaming?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
             view.let { Navigation.findNavController(it).navigate(R.id.action_camera_fragment_to_http_fragment) }
             false
+        }
+    }
+
+    private fun requestCameraPermissions() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !configuration.cameraPermissionsShown) {
+            if (PackageManager.PERMISSION_DENIED == ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.CAMERA)
+                    || PackageManager.PERMISSION_DENIED == ContextCompat.checkSelfPermission(requireActivity(), android.Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                configuration.cameraPermissionsShown = true
+                ActivityCompat.requestPermissions(requireActivity(),
+                        arrayOf(Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE),
+                        PERMISSIONS_REQUEST_CAMERA)
+            }
+        } else {
+            configuration.cameraPermissionsShown = true
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+        when (requestCode) {
+            PERMISSIONS_REQUEST_CAMERA -> {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED && configuration.cameraPermissionsShown) {
+                    Toast.makeText(requireContext(), R.string.toast_camera_permission_granted, Toast.LENGTH_LONG).show()
+                    configuration.cameraEnabled = true
+                    cameraPreference?.isChecked = true
+                } else {
+                    Toast.makeText(requireContext(), R.string.toast_camera_permission_denied, Toast.LENGTH_LONG).show()
+                    configuration.cameraEnabled = false
+                    cameraPreference?.isChecked = false
+                }
+            }
         }
     }
 
@@ -225,5 +258,24 @@ class CameraSettingsFragment : BaseSettingsFragment() {
 
     private fun startCameraTest(c: Context) {
         startActivity(Intent(c, LiveCameraActivity::class.java))
+    }
+
+    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
+        when (key) {
+            PREF_CAMERA_ENABLED -> {
+                val cameraEnabled = cameraPreference?.isChecked
+                cameraEnabled?.let {
+                    if(it) {
+                        requestCameraPermissions()
+                        configuration.cameraEnabled = cameraEnabled
+                    }
+                }
+            }
+        }
+    }
+
+    companion object {
+        const val PERMISSIONS_REQUEST_CAMERA = 201
+        const val PREF_CAMERA_ENABLED = "pref_setting_camera_enabled"
     }
 }

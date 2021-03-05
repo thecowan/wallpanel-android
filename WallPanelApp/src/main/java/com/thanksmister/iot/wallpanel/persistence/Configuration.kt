@@ -63,7 +63,7 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
         }
 
     var cameraRotate: Float
-        get() = this.sharedPreferences.getString(PREF_CAMERA_ROTATE, "0f").toFloat()
+        get() = this.sharedPreferences.getString(PREF_CAMERA_ROTATE, "0f")!!.toFloat()
         set(value) = this.sharedPreferences.edit().putString(PREF_CAMERA_ROTATE, value.toString()).apply()
 
     var appLaunchUrl: String
@@ -71,6 +71,7 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
                 R.string.default_setting_app_launchurl)
         set(launchUrl) {
             sharedPreferences.edit().putString(context.getString(R.string.key_setting_app_launchurl), launchUrl).apply()
+            settingsUpdated()
         }
 
     val appShowActivity: Boolean
@@ -218,9 +219,13 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
         get() = getBoolPref(R.string.key_hadware_accelerated_enabled,
                 R.string.default_hardware_accelerated_value)
 
-    val browserUserAgent: String
+    var browserUserAgent: String
         get() = getStringPref(R.string.key_setting_browser_user_agent,
                 R.string.default_browser_user_agent)
+        set(value) {
+            sharedPreferences.edit().putString(context.getString(R.string.key_setting_browser_user_agent), value).apply()
+            settingsUpdated()
+        }
 
     var browserRefresh: Boolean
         get() = this.sharedPreferences.getBoolean(context.getString(R.string.key_pref_browser_refresh), true)
@@ -304,6 +309,16 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
                 context.getString(resId),
                 java.lang.Boolean.valueOf(context.getString(defId))
         )
+    }
+
+    fun hasSettingsUpdates() : Boolean {
+        val updates = sharedPreferences.getBoolean(PREF_CAMERA_PERMISSIONS, false)
+        sharedPreferences.edit().putBoolean(PREF_CAMERA_PERMISSIONS, false).apply()
+        return updates
+    }
+
+    private fun settingsUpdated() {
+        sharedPreferences.edit().putBoolean(PREF_CAMERA_PERMISSIONS, true).apply()
     }
 
     companion object {

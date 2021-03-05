@@ -23,8 +23,8 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
 import android.os.Bundle
-import android.os.CountDownTimer
 import android.os.Handler
+import android.view.KeyEvent
 import android.view.View
 import android.view.ViewTreeObserver
 import android.view.WindowManager
@@ -32,13 +32,13 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.thanksmister.iot.wallpanel.AppExceptionHandler
-import com.thanksmister.iot.wallpanel.BuildConfig
 import com.thanksmister.iot.wallpanel.network.WallPanelService
 import com.thanksmister.iot.wallpanel.network.WallPanelService.Companion.BROADCAST_ALERT_MESSAGE
 import com.thanksmister.iot.wallpanel.network.WallPanelService.Companion.BROADCAST_CLEAR_ALERT_MESSAGE
 import com.thanksmister.iot.wallpanel.network.WallPanelService.Companion.BROADCAST_EVENT_SCREEN_TOUCH
 import com.thanksmister.iot.wallpanel.network.WallPanelService.Companion.BROADCAST_SCREEN_BRIGHTNESS_CHANGE
 import com.thanksmister.iot.wallpanel.network.WallPanelService.Companion.BROADCAST_SCREEN_WAKE
+import com.thanksmister.iot.wallpanel.network.WallPanelService.Companion.BROADCAST_SERVICE_STARTED
 import com.thanksmister.iot.wallpanel.network.WallPanelService.Companion.BROADCAST_TOAST_MESSAGE
 import com.thanksmister.iot.wallpanel.persistence.Configuration
 import com.thanksmister.iot.wallpanel.utils.DialogUtils
@@ -49,9 +49,12 @@ import javax.inject.Inject
 
 abstract class BaseBrowserActivity : DaggerAppCompatActivity() {
 
-    @Inject lateinit var dialogUtils: DialogUtils
-    @Inject lateinit var configuration: Configuration
-    @Inject lateinit var screenUtils: ScreenUtils
+    @Inject
+    lateinit var dialogUtils: DialogUtils
+    @Inject
+    lateinit var configuration: Configuration
+    @Inject
+    lateinit var screenUtils: ScreenUtils
 
     var mOnScrollChangedListener: ViewTreeObserver.OnScrollChangedListener? = null
     private var wallPanelService: Intent? = null
@@ -97,6 +100,8 @@ abstract class BaseBrowserActivity : DaggerAppCompatActivity() {
                 stopDisconnectTimer()
             } else if (BROADCAST_ACTION_RELOAD_PAGE == intent.action && !isFinishing) {
                 hideScreenSaver()
+            } else if (BROADCAST_SERVICE_STARTED == intent.action && !isFinishing) {
+                //firstLoadUrl() // load the url after service started
             }
         }
     }
@@ -118,6 +123,8 @@ abstract class BaseBrowserActivity : DaggerAppCompatActivity() {
         lifecycle.addObserver(dialogUtils)
 
         onUserInteraction()
+
+        Thread.setDefaultUncaughtExceptionHandler(AppExceptionHandler(this))
     }
 
     override fun onResume() {
@@ -132,6 +139,7 @@ abstract class BaseBrowserActivity : DaggerAppCompatActivity() {
         filter.addAction(BROADCAST_ALERT_MESSAGE)
         filter.addAction(BROADCAST_TOAST_MESSAGE)
         filter.addAction(BROADCAST_SCREEN_WAKE)
+        filter.addAction(BROADCAST_SERVICE_STARTED)
         val bm = LocalBroadcastManager.getInstance(this)
         bm.registerReceiver(mBroadcastReceiver, filter)
         resetInactivityTimer()
@@ -162,7 +170,6 @@ abstract class BaseBrowserActivity : DaggerAppCompatActivity() {
             startService(wallPanelService)
         }
         resetScreenBrightness(false)
-        Thread.setDefaultUncaughtExceptionHandler(AppExceptionHandler(this))
     }
 
     override fun onDestroy() {
@@ -175,7 +182,7 @@ abstract class BaseBrowserActivity : DaggerAppCompatActivity() {
     override fun onUserInteraction() {
         onWindowFocusChanged(true)
         Timber.d("onUserInteraction")
-        if(!userPresent) {
+        if (!userPresent) {
             userPresent = true
             resetScreenBrightness(false)
             val intent = Intent(BROADCAST_EVENT_SCREEN_TOUCH)
@@ -186,23 +193,16 @@ abstract class BaseBrowserActivity : DaggerAppCompatActivity() {
         resetInactivityTimer()
     }
 
-    /**
-     * Test app crash and restart feature.
-     */
-    open fun crashAppTest() {
-        throw NullPointerException()
-    }
-
     fun setDarkTheme() {
         val nightMode = AppCompatDelegate.getDefaultNightMode()
-        if(nightMode == AppCompatDelegate.MODE_NIGHT_NO || nightMode == AppCompatDelegate.MODE_NIGHT_UNSPECIFIED) {
+        if (nightMode == AppCompatDelegate.MODE_NIGHT_NO || nightMode == AppCompatDelegate.MODE_NIGHT_UNSPECIFIED) {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
         }
     }
 
     fun setLightTheme() {
         val nightMode = AppCompatDelegate.getDefaultNightMode()
-        if(nightMode == AppCompatDelegate.MODE_NIGHT_YES || nightMode == AppCompatDelegate.MODE_NIGHT_UNSPECIFIED) {
+        if (nightMode == AppCompatDelegate.MODE_NIGHT_YES || nightMode == AppCompatDelegate.MODE_NIGHT_UNSPECIFIED) {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         }
     }
@@ -242,8 +242,19 @@ abstract class BaseBrowserActivity : DaggerAppCompatActivity() {
         }
     }
 
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        if (event.keyCode == KeyEvent.KEYCODE_BACK) {
+            Timber.d("dispatchKeyEvent")
+            window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+            startActivity(Intent(this, SettingsActivity::class.java))
+            finish()
+            return true
+        } else {
+            return super.dispatchKeyEvent(event)
+        }
+    }
+
     internal fun resetScreen() {
-        Timber.d("resetScreen Called")
         val intent = Intent(WallPanelService.BROADCAST_EVENT_SCREEN_TOUCH)
         intent.putExtra(WallPanelService.BROADCAST_EVENT_SCREEN_TOUCH, true)
         val bm = LocalBroadcastManager.getInstance(applicationContext)
@@ -251,7 +262,6 @@ abstract class BaseBrowserActivity : DaggerAppCompatActivity() {
     }
 
     internal fun pageLoadComplete(url: String) {
-        Timber.d("pageLoadComplete currentUrl $url")
         val intent = Intent(WallPanelService.BROADCAST_EVENT_URL_CHANGE)
         intent.putExtra(WallPanelService.BROADCAST_EVENT_URL_CHANGE, url)
         val bm = LocalBroadcastManager.getInstance(applicationContext)
@@ -267,7 +277,7 @@ abstract class BaseBrowserActivity : DaggerAppCompatActivity() {
 
     fun stopDisconnectTimer() {
         Timber.d("stopDisconnectTimer")
-        if(!userPresent) {
+        if (!userPresent) {
             userPresent = true
             resetScreenBrightness(false)
         }
@@ -278,7 +288,7 @@ abstract class BaseBrowserActivity : DaggerAppCompatActivity() {
         Timber.d("hideScreenSaver")
         val isScreenSaver = dialogUtils.hideScreenSaverDialog()
         window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        if(isScreenSaver) {
+        if (isScreenSaver) {
             resetScreenBrightness(false)
         }
     }
@@ -303,7 +313,6 @@ abstract class BaseBrowserActivity : DaggerAppCompatActivity() {
             }
             resetScreenBrightness(true)
         }
-
     }
 
     open fun resetScreenBrightness(screenSaver: Boolean = false) {

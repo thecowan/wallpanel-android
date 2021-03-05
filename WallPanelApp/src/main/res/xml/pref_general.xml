@@ -21,7 +21,7 @@
         <EditTextPreference
             android:defaultValue="@string/default_setting_app_launchurl"
             android:summary="@string/pref_launchurl_summary"
-            android:key="@string/key_setting_app_launchurl"
+            android:key="pref_settings_dashboard_url"
             android:title="@string/title_setting_app_launchurl" />
 
         <Preference
@@ -39,7 +39,7 @@
             android:summary="@string/pref_start_boot_summary"/>
 
         <SwitchPreference
-            android:defaultValue="@string/default_setting_app_showactivity"
+            android:defaultValue="false"
             android:key="@string/key_setting_app_showactivity"
             android:summary="@string/pref_show_browser_activity_summary"
             android:title="@string/title_setting_app_showactivity"/>
@@ -53,7 +53,7 @@
         <EditTextPreference
             android:defaultValue="@string/default_browser_user_agent"
             android:summary="@string/pref_user_agent_summary"
-            android:key="@string/key_setting_browser_user_agent"
+            android:key="pref_settings_user_agent"
             android:title="@string/pref_user_agent_title"/>
 
         <ListPreference
@@ -95,9 +95,14 @@
 
         <ListPreference
             android:key="pref_settings_button_location"
-            android:title="Settings Button Location"
+            android:title="Settings Location"
             android:entries="@array/settings_location_labels"
             android:entryValues="@array/settings_location_values"/>
+
+        <Preference
+            android:title="Clear Home Screen"
+            android:summary="Removes the app as the default Home screen."
+            android:key="button_reset_home_app"/>
 
     </PreferenceCategory>
 

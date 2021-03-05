@@ -241,6 +241,8 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
                 handleNetworkDisconnect()
             }
         })
+
+        sendServiceStarted()
     }
 
     private fun handleNetworkConnect() {
@@ -941,6 +943,13 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         bm.sendBroadcast(intent)
     }
 
+    private fun sendServiceStarted() {
+        Timber.d("clearAlertMessage")
+        val intent = Intent(BROADCAST_SERVICE_STARTED)
+        val bm = LocalBroadcastManager.getInstance(applicationContext)
+        bm.sendBroadcast(intent)
+    }
+
     // TODO don't change the user settings when receiving command
     private val mBroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
@@ -1014,6 +1023,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         const val BROADCAST_ALERT_MESSAGE = "BROADCAST_ALERT_MESSAGE"
         const val BROADCAST_CLEAR_ALERT_MESSAGE = "BROADCAST_CLEAR_ALERT_MESSAGE"
         const val BROADCAST_TOAST_MESSAGE = "BROADCAST_TOAST_MESSAGE"
+        const val BROADCAST_SERVICE_STARTED = "BROADCAST_SERVICE_STARTED"
         const val BROADCAST_SCREEN_WAKE = "BROADCAST_SCREEN_WAKE"
         const val BROADCAST_SCREEN_BRIGHTNESS_CHANGE = "BROADCAST_SCREEN_BRIGHTNESS_CHANGE"
     }

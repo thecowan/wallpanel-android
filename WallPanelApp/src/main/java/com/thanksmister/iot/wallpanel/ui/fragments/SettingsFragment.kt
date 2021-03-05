@@ -20,6 +20,7 @@ import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -49,6 +50,7 @@ import dagger.android.support.AndroidSupportInjection
 import timber.log.Timber
 import javax.inject.Inject
 
+
 class SettingsFragment : BaseSettingsFragment() {
 
     @Inject
@@ -59,11 +61,10 @@ class SettingsFragment : BaseSettingsFragment() {
     private var confirmCode = false
 
     private var openOnBootPreference: SwitchPreference? = null
-    private var hadwareAcceleration: SwitchPreference? = null
+    private var hardwareAcceleration: SwitchPreference? = null
     private var preventSleepPreference: SwitchPreference? = null
     private var browserActivityPreference: SwitchPreference? = null
     private var ignoreSSLErrorsPreference: SwitchPreference? = null
-
     private var browserHeaderPreference: EditTextPreference? = null
     private var dashboardPreference: EditTextPreference? = null
     private var cameraPreference: Preference? = null
@@ -100,6 +101,14 @@ class SettingsFragment : BaseSettingsFragment() {
         findPreference<Preference>("button_alarm_code") as Preference
     }
 
+    private val resetHomeApp: Preference by lazy {
+        findPreference<Preference>("button_reset_home_app") as Preference
+    }
+
+    private val userAgentPreference: EditTextPreference by lazy {
+        findPreference<EditTextPreference>(PREF_SETTINGS_USER_AGENT) as EditTextPreference
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
@@ -115,7 +124,6 @@ class SettingsFragment : BaseSettingsFragment() {
         if (requestCode == PERMISSIONS_REQUEST_WRITE_SETTINGS) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (Settings.System.canWrite(requireActivity().applicationContext)) {
-                    //Toast.makeText(requireActivity(), getString(R.string.toast_write_permissions_granted), Toast.LENGTH_LONG).show()
                     screenBrightness?.isChecked = true
                     configuration.useScreenBrightness = true
                     Toast.makeText(requireContext(), getString(R.string.toast_screen_brightness_captured), Toast.LENGTH_SHORT).show()
@@ -151,12 +159,12 @@ class SettingsFragment : BaseSettingsFragment() {
 
         super.onViewCreated(view, savedInstanceState)
 
-        dashboardPreference = findPreference<EditTextPreference>(getString(R.string.key_setting_app_launchurl)) as EditTextPreference
-        browserHeaderPreference = findPreference<EditTextPreference>(getString(R.string.key_setting_browser_user_agent)) as EditTextPreference
+        dashboardPreference = findPreference<EditTextPreference>(PREF_SETTINGS_DASHBOARD_URL) as EditTextPreference
+        browserHeaderPreference = findPreference<EditTextPreference>(PREF_SETTINGS_USER_AGENT) as EditTextPreference
         preventSleepPreference = findPreference<SwitchPreference>(getString(R.string.key_setting_app_preventsleep)) as SwitchPreference
         browserActivityPreference = findPreference<SwitchPreference>(getString(R.string.key_setting_app_showactivity)) as SwitchPreference
         openOnBootPreference = findPreference<SwitchPreference>(getString(R.string.key_setting_android_startonboot)) as SwitchPreference
-        hadwareAcceleration = findPreference<SwitchPreference>(getString(R.string.key_hadware_accelerated_enabled)) as SwitchPreference
+        hardwareAcceleration = findPreference<SwitchPreference>(getString(R.string.key_hadware_accelerated_enabled)) as SwitchPreference
         browserRefreshPreference = findPreference<SwitchPreference>(getString(R.string.key_pref_browser_refresh)) as SwitchPreference
         clockSaverPreference = findPreference<SwitchPreference>(getString(R.string.key_screensaver)) as SwitchPreference
         wallpaperSaverPreference = findPreference<SwitchPreference>(getString(R.string.key_screensaver_wallpaper)) as SwitchPreference
@@ -168,6 +176,11 @@ class SettingsFragment : BaseSettingsFragment() {
         fullScreenPreference.isChecked = configuration.fullScreen
         settingsTransparentPreference.isChecked = configuration.settingsTransparent
         useDarkThemeSettings.isChecked = configuration.useDarkTheme
+        userAgentPreference.text = configuration.browserUserAgent
+        dashboardPreference?.text = configuration.appLaunchUrl
+        if(configuration.appLaunchUrl.isNotEmpty()) {
+            dashboardPreference?.summary = configuration.appLaunchUrl
+        }
 
         val code = configuration.settingsCode.toString()
         if (code.isNotEmpty()) {
@@ -175,11 +188,10 @@ class SettingsFragment : BaseSettingsFragment() {
         }
 
         // TODO deprecate this
-        bindPreferenceSummaryToValue(dashboardPreference!!)
         bindPreferenceSummaryToValue(preventSleepPreference!!)
         bindPreferenceSummaryToValue(browserActivityPreference!!)
         bindPreferenceSummaryToValue(openOnBootPreference!!)
-        bindPreferenceSummaryToValue(hadwareAcceleration!!)
+        bindPreferenceSummaryToValue(hardwareAcceleration!!)
         bindPreferenceSummaryToValue(browserHeaderPreference!!)
         bindPreferenceSummaryToValue(clockSaverPreference!!)
         bindPreferenceSummaryToValue(wallpaperSaverPreference!!)
@@ -217,19 +229,19 @@ class SettingsFragment : BaseSettingsFragment() {
         rotationPreference?.setDefaultValue(configuration.imageRotation.toString())
 
         try {
-            cameraPreference!!.onPreferenceClickListener = Preference.OnPreferenceClickListener { preference ->
+            cameraPreference?.onPreferenceClickListener = Preference.OnPreferenceClickListener { preference ->
                 view.let { Navigation.findNavController(it).navigate(R.id.camera_action) }
                 false
             }
-            mqttPreference!!.onPreferenceClickListener = Preference.OnPreferenceClickListener { preference ->
+            mqttPreference?.onPreferenceClickListener = Preference.OnPreferenceClickListener { preference ->
                 view.let { Navigation.findNavController(it).navigate(R.id.mqtt_action) }
                 false
             }
-            httpPreference!!.onPreferenceClickListener = Preference.OnPreferenceClickListener { preference ->
+            httpPreference?.onPreferenceClickListener = Preference.OnPreferenceClickListener { preference ->
                 view.let { Navigation.findNavController(it).navigate(R.id.http_action) }
                 false
             }
-            sensorsPreference!!.onPreferenceClickListener = Preference.OnPreferenceClickListener { preference ->
+            sensorsPreference?.onPreferenceClickListener = Preference.OnPreferenceClickListener { preference ->
                 view.let { Navigation.findNavController(it).navigate(R.id.sensors_action) }
                 false
             }
@@ -237,12 +249,16 @@ class SettingsFragment : BaseSettingsFragment() {
                 showCodeDialog()
                 true
             }
-            aboutPreference!!.onPreferenceClickListener = Preference.OnPreferenceClickListener { preference ->
+            resetHomeApp.onPreferenceClickListener = Preference.OnPreferenceClickListener {
+                resetHomeApp()
+                true
+            }
+            aboutPreference?.onPreferenceClickListener = Preference.OnPreferenceClickListener { preference ->
                 view.let { Navigation.findNavController(it).navigate(R.id.about_action) }
                 false
             }
 
-            brightnessPreference!!.onPreferenceClickListener = Preference.OnPreferenceClickListener { preference ->
+            brightnessPreference?.onPreferenceClickListener = Preference.OnPreferenceClickListener { preference ->
                 screenUtils.setScreenBrightnessLevels()
                 Toast.makeText(requireContext(), getString(R.string.toast_screen_brightness_captured), Toast.LENGTH_SHORT).show()
                 false
@@ -256,7 +272,7 @@ class SettingsFragment : BaseSettingsFragment() {
         when (key) {
             PREF_SCREEN_BRIGHTNESS -> {
                 val useBright = screenBrightness?.isChecked
-                if(useBright != null) {
+                if (useBright != null) {
                     configuration.useScreenBrightness = useBright
                     if (useBright) {
                         checkWriteSettings()
@@ -267,7 +283,7 @@ class SettingsFragment : BaseSettingsFragment() {
             }
             PREF_SCREEN_INACTIVITY_TIME -> {
                 val inactivity = inactivityPreference?.value?.toLongOrNull()
-                if(inactivity != null) {
+                if (inactivity != null) {
                     configuration.inactivityTime = inactivity
                     if (inactivity < SECONDS_VALUE) {
                         inactivityPreference?.summary = getString(R.string.preference_summary_inactivity_seconds, DateUtils.convertInactivityTime(inactivity))
@@ -278,7 +294,7 @@ class SettingsFragment : BaseSettingsFragment() {
             }
             PREF_SCREENSAVER_DIM_VALUE -> {
                 val dim = dimPreference?.value?.toIntOrNull()
-                if(dim != null) {
+                if (dim != null) {
                     configuration.screenSaverDimValue = dim
                     screenUtils.setScreenBrightnessLevels()
                     dimPreference?.summary = getString(R.string.preference_summary_dim_screensaver, dim.toString())
@@ -302,15 +318,29 @@ class SettingsFragment : BaseSettingsFragment() {
             }
             PREF_SETTINGS_BUTTON_LOCATION -> {
                 val value = settingsLocationPreference.value?.toIntOrNull()
-                if(value != null) {
+                if (value != null) {
                     configuration.settingsLocation = value
                     settingsLocationPreference.summary = settingsLocationPreference.entry
                 }
             }
-            "pref_settings_image_rotation"-> {
+            PREF_SETTINGS_DASHBOARD_URL -> {
+                val value = dashboardPreference?.text.orEmpty()
+                if (value.isNotEmpty()) {
+                    configuration.appLaunchUrl = value
+                    dashboardPreference?.summary = value
+                }
+            }
+            PREF_SETTINGS_USER_AGENT -> {
+                val value = userAgentPreference.text.orEmpty()
+                if (value.isNotEmpty()) {
+                    configuration.browserUserAgent = value
+                    userAgentPreference.summary = value
+                }
+            }
+            "pref_settings_image_rotation" -> {
                 rotationPreference?.text?.let {
                     val rotation = it.toIntOrNull()
-                    if(rotation != null) {
+                    if (rotation != null) {
                         configuration.imageRotation = rotation
                         rotationPreference?.summary = getString(R.string.preference_summary_image_rotation, rotation.toString())
                     } else {
@@ -405,11 +435,19 @@ class SettingsFragment : BaseSettingsFragment() {
         return text
     }
 
+    private fun resetHomeApp() {
+        val pm: PackageManager = requireActivity().packageManager
+        pm.clearPackagePreferredActivities(requireActivity().packageName)
+        requireActivity().recreate()
+    }
+
     companion object {
         const val PREF_SCREEN_INACTIVITY_TIME = "pref_screensaver_inactivity_time"
         const val PREF_SETTINGS_FULL_SCREEN = "pref_settings_fullscreen"
         const val PREF_SETTINGS_BUTTON_TRANSPARENT = "pref_settings_button_transparent"
         const val PREF_SETTINGS_BUTTON_LOCATION = "pref_settings_button_location"
         const val PREF_SETTINGS_THEME = "pref_settings_theme"
+        const val PREF_SETTINGS_DASHBOARD_URL = "pref_settings_dashboard_url"
+        const val PREF_SETTINGS_USER_AGENT = "pref_settings_user_agent"
     }
 }

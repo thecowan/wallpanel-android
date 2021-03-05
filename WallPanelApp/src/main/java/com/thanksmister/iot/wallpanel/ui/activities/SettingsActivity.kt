@@ -62,7 +62,7 @@ class SettingsActivity : DaggerAppCompatActivity() {
 
     public override fun onResume() {
         super.onResume()
-        requestCameraPermissions()
+
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -74,36 +74,9 @@ class SettingsActivity : DaggerAppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
-    private fun requestCameraPermissions() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !configuration.cameraPermissionsShown) {
-            if (PackageManager.PERMISSION_DENIED == ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA)
-                    || PackageManager.PERMISSION_DENIED == ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE)) {
-                configuration.cameraPermissionsShown = true
-                ActivityCompat.requestPermissions(this,
-                        arrayOf(Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE),
-                        PERMISSIONS_REQUEST_CAMERA)
-            }
-        } else {
-            configuration.cameraPermissionsShown = true
-        }
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
-        when (requestCode) {
-            PERMISSIONS_REQUEST_CAMERA -> {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(this, R.string.toast_camera_permission_granted, Toast.LENGTH_LONG).show()
-                } else {
-                    Toast.makeText(this, R.string.toast_camera_permission_denied, Toast.LENGTH_LONG).show()
-                }
-            }
-        }
-    }
-
     companion object {
         const val PERMISSIONS_REQUEST_WRITE_SETTINGS = 200
-        const val PERMISSIONS_REQUEST_CAMERA = 201
+
         fun createStartIntent(context: Context): Intent {
             return Intent(context, SettingsActivity::class.java)
         }
