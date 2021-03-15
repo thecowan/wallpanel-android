@@ -242,19 +242,8 @@ abstract class BaseBrowserActivity : DaggerAppCompatActivity() {
         }
     }
 
-    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
-        if (event.keyCode == KeyEvent.KEYCODE_BACK) {
-            Timber.d("dispatchKeyEvent")
-            window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-            startActivity(Intent(this, SettingsActivity::class.java))
-            finish()
-            return true
-        } else {
-            return super.dispatchKeyEvent(event)
-        }
-    }
-
     internal fun resetScreen() {
+        Timber.d("resetScreen Called")
         val intent = Intent(WallPanelService.BROADCAST_EVENT_SCREEN_TOUCH)
         intent.putExtra(WallPanelService.BROADCAST_EVENT_SCREEN_TOUCH, true)
         val bm = LocalBroadcastManager.getInstance(applicationContext)
@@ -262,6 +251,7 @@ abstract class BaseBrowserActivity : DaggerAppCompatActivity() {
     }
 
     internal fun pageLoadComplete(url: String) {
+        Timber.d("pageLoadComplete currentUrl $url")
         val intent = Intent(WallPanelService.BROADCAST_EVENT_URL_CHANGE)
         intent.putExtra(WallPanelService.BROADCAST_EVENT_URL_CHANGE, url)
         val bm = LocalBroadcastManager.getInstance(applicationContext)

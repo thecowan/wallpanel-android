@@ -228,6 +228,17 @@ class BrowserActivityNative : BaseBrowserActivity() {
             mWebView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
         }
 
+        if (configuration.browserRefresh) {
+            swipeContainer.setOnRefreshListener {
+                clearCache()
+                initWebPageLoad()
+            }
+            mOnScrollChangedListener = ViewTreeObserver.OnScrollChangedListener { swipeContainer?.isEnabled = mWebView.scrollY == 0 }
+            swipeContainer.viewTreeObserver.addOnScrollChangedListener(mOnScrollChangedListener)
+        } else {
+            swipeContainer.isEnabled = false
+        }
+
         setupSettingsButton()
 
         if(configuration.hasSettingsUpdates()) {

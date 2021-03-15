@@ -71,21 +71,6 @@
             </intent-filter>
         </activity>
 
-        <activity-alias
-            android:name=".WallPanelKiosk"
-            android:label="WallPanel Kiosk"
-            android:hardwareAccelerated="true"
-            android:enabled="false"
-            android:exported="true"
-            android:targetActivity="com.thanksmister.iot.wallpanel.ui.activities.BrowserActivityNative">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-                <category android:name="android.intent.category.HOME" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity-alias>
-
         <activity
             android:name="com.thanksmister.iot.wallpanel.ui.activities.LiveCameraActivity"
             android:label="@string/title_camera_test" />
