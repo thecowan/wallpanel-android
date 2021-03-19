@@ -53,12 +53,7 @@
 
         <EditTextPreference
             android:defaultValue="@string/default_setting_camera_motionleniency"
-            android:hint="Cookies"
-            android:inputType="number"
-            android:key="@string/key_setting_camera_motionleniency"
-            android:selectAllOnFocus="true"
-            android:singleLine="true"
-            android:contentDescription="Kittens"
+            android:key="pref_setting_camera_latency"
             android:title="@string/title_setting_camera_motionleniency"
             android:dependency="@string/key_setting_camera_motionenabled"/>
 

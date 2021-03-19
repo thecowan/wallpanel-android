@@ -17,6 +17,7 @@
 package com.thanksmister.iot.wallpanel.ui.fragments
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.preference.SwitchPreference
 import androidx.preference.EditTextPreference
@@ -24,6 +25,7 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
 import androidx.navigation.Navigation
 import com.thanksmister.iot.wallpanel.R
 import com.thanksmister.iot.wallpanel.ui.activities.SettingsActivity
@@ -79,14 +81,38 @@ class MotionSettingsFragment : BaseSettingsFragment() {
 
         motionDetectionPreference = findPreference<SwitchPreference>(getString(R.string.key_setting_camera_motionenabled)) as SwitchPreference
         motionWakePreference = findPreference<SwitchPreference>(getString(R.string.key_setting_camera_motionwake)) as SwitchPreference
-        motionLeniencyPreference = findPreference<EditTextPreference>(getString(R.string.key_setting_camera_motionleniency)) as EditTextPreference
+        motionLeniencyPreference = findPreference<EditTextPreference>(PREF_CAMERA_LATENCY) as EditTextPreference
         motionLumaPreference = findPreference<EditTextPreference>(getString(R.string.key_setting_camera_motionminluma)) as EditTextPreference
         motionClearPreference = findPreference<EditTextPreference>(getString(R.string.key_setting_motion_clear)) as EditTextPreference
 
+        val latency = motionLeniencyPreference?.text?.toIntOrNull()
+        latency?.let {
+            motionLeniencyPreference?.text = it.toString()
+            motionLeniencyPreference?.summary = it.toString()
+        }
+
+        // TODO deprecate this hot mess
         bindPreferenceSummaryToValue(motionDetectionPreference!!)
         bindPreferenceSummaryToValue(motionWakePreference!!)
-        bindPreferenceSummaryToValue(motionLeniencyPreference!!)
+        //bindPreferenceSummaryToValue(motionLeniencyPreference!!)
         bindPreferenceSummaryToValue(motionLumaPreference!!)
         bindPreferenceSummaryToValue(motionClearPreference!!)
+    }
+
+    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
+        when (key) {
+            PREF_CAMERA_LATENCY -> {
+                val latency = motionLeniencyPreference?.text?.toIntOrNull()
+                if(latency != null) {
+                    configuration.cameraMotionLeniency = latency
+                } else {
+                    Toast.makeText(requireContext(), getString(R.string.toast_error_motion_latency), Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    companion object {
+        const val PREF_CAMERA_LATENCY = "pref_setting_camera_latency"
     }
 }

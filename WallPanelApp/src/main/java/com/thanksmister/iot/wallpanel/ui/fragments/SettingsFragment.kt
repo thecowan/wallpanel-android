@@ -299,7 +299,7 @@ class SettingsFragment : BaseSettingsFragment() {
                     screenUtils.setScreenBrightnessLevels()
                     dimPreference?.summary = getString(R.string.preference_summary_dim_screensaver, dim.toString())
                 } else {
-                    Toast.makeText(requireContext(), getString(R.string.tost_error_face_size), Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), getString(R.string.toast_error_face_size), Toast.LENGTH_SHORT).show()
                 }
             }
             PREF_SETTINGS_FULL_SCREEN -> {

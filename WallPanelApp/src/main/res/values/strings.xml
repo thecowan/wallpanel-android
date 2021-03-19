@@ -260,7 +260,8 @@
     <string name="preference_summary_camera_facerotation">A face will be detected only if it looks straight to the camera.</string>
     <string name="pref_category_mqtt_discovery">MQTT Discovery</string>
     <string name="pref_description_mqtt_discovery">MQTT Discovery will publish device sensor data on the MQTT channel that can be discovered automatically by your home automation platform. Note that you must allow enable sensor data in the Sensors settings.</string>
-    <string name="tost_error_face_size">Please enter a number value between 0 and 100.</string>
+    <string name="toast_error_face_size">Please enter a number value between 0 and 100.</string>
+    <string name="toast_error_motion_latency">Please enter a number value between 0 and 20.</string>
     <string name="toast_error_bad_decimal">Please enter a number value and use only a single decimal (.) point.</string>
 
     <string name="toast_code_match">Code matches current code, enter a different code.</string>

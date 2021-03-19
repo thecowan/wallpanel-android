@@ -82,5 +82,6 @@
             android:key="button_key_camera_streaming"
             android:title="@string/title_setting_camera_streaming"/>
     </PreferenceCategory>
+
 </PreferenceScreen>
 

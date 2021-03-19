@@ -107,7 +107,6 @@ class CameraSettingsFragment : BaseSettingsFragment() {
 
         fpsPreference = findPreference<EditTextPreference>(getString(R.string.key_setting_camera_fps)) as EditTextPreference
         cameraPreference = findPreference<SwitchPreference>(PREF_CAMERA_ENABLED) as SwitchPreference
-
         rotatePreference = findPreference<ListPreference>(Configuration.PREF_CAMERA_ROTATE) as ListPreference
         rotatePreference!!.setDefaultValue(configuration.cameraRotate)
         rotatePreference!!.value = configuration.cameraRotate.toString()

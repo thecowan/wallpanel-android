@@ -101,7 +101,7 @@ class FaceSettingsFragment : BaseSettingsFragment() {
                         faceSizePreference?.summary = getString(R.string.preference_summary_camera_facesize, faceSize.toString())
                         configuration.cameraFaceSize = faceSize
                     } else {
-                        Toast.makeText(requireContext(), getString(R.string.tost_error_face_size), Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), getString(R.string.toast_error_face_size), Toast.LENGTH_SHORT).show()
                     }
                 }
             }

@@ -16,7 +16,6 @@
 
 package com.thanksmister.iot.wallpanel.persistence
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import com.thanksmister.iot.wallpanel.R
@@ -85,7 +84,7 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
         }
 
     var cameraId: Int
-        get() = this.sharedPreferences.getInt(context.getString(R.string.setting_camera_cameraid),0)
+        get() = this.sharedPreferences.getInt(context.getString(R.string.setting_camera_cameraid), 0)
         set(value) {
             this.sharedPreferences.edit().putInt(context.getString(R.string.setting_camera_cameraid), value).apply()
         }
@@ -96,9 +95,14 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
             sharedPreferences.edit().putBoolean(context.getString(R.string.key_setting_camera_motionenabled), value).apply()
         }
 
-    val cameraMotionLeniency: Int
-        get() = getStringPref(R.string.key_setting_camera_motionleniency,
-                R.string.default_setting_camera_motionleniency).trim().toInt()
+    var cameraMotionLeniency: Int
+        get() {
+            val value = getStringPref(R.string.key_setting_camera_motionleniency, R.string.default_setting_camera_motionleniency).trim().toIntOrNull()
+            return value ?: 20
+        }
+        set(value) {
+            sharedPreferences.edit().putInt(context.getString(R.string.key_setting_camera_motionleniency), value).apply()
+        }
 
     val cameraMotionMinLuma: Int
         get() = Integer.valueOf(getStringPref(R.string.key_setting_camera_motionminluma, R.string.default_setting_camera_motionminluma).trim().toInt())
@@ -203,7 +207,7 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
                 R.string.default_setting_mqtt_sensorfrequency).trim().toInt()
 
     val mqttDiscovery: Boolean
-        get() = getBoolPref(R.string.key_setting_mqtt_discovery,  R.string.default_setting_mqtt_home_assistant_discovery)
+        get() = getBoolPref(R.string.key_setting_mqtt_discovery, R.string.default_setting_mqtt_home_assistant_discovery)
 
     val mqttDiscoveryTopic: String
         get() = getStringPref(R.string.key_setting_mqtt_discovery_topic, R.string.default_setting_mqtt_discovery_topic)
@@ -294,7 +298,7 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
         get() = getBoolPref(R.string.key_setting_ignore_ssl_errors,
                 R.string.default_setting_ignore_ssl_errors)
 
-    fun hasCameraDetections() : Boolean {
+    fun hasCameraDetections(): Boolean {
         return cameraEnabled && (cameraMotionEnabled || cameraQRCodeEnabled || cameraFaceEnabled || httpMJPEGEnabled)
     }
 
@@ -311,7 +315,7 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
         )
     }
 
-    fun hasSettingsUpdates() : Boolean {
+    fun hasSettingsUpdates(): Boolean {
         val updates = sharedPreferences.getBoolean(PREF_CAMERA_PERMISSIONS, false)
         sharedPreferences.edit().putBoolean(PREF_CAMERA_PERMISSIONS, false).apply()
         return updates
