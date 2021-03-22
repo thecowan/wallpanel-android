@@ -79,7 +79,7 @@
     <string name="default_setting_camera_motionleniency">20</string>
     <string name="key_setting_camera_motionminluma">setting_camera_motionminluma</string>
     <string name="default_setting_camera_processinginterval">500</string>
-    <string name="key_setting_camera_motionleniency">setting_camera_motionleniency</string>
+    <string name="key_setting_camera_motionleniency">key_setting_camera_motionleniency</string>
     <string name="default_setting_camera_motionenabled">false</string>
     <string name="key_setting_camera_processinginterval">setting_camera_processinginterval</string>
     <string name="default_setting_camera_cameraid">0</string>

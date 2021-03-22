@@ -433,7 +433,7 @@ constructor(private val context: Context) {
                     rotate -= 270
                 }
                 Surface.ROTATION_0 -> {
-                    TODO()
+                    // na-da
                 }
             }
 

@@ -37,7 +37,7 @@ import com.thanksmister.iot.wallpanel.ui.activities.BrowserActivityNative;
 
 public class NotificationUtils extends ContextWrapper {
 
-    private static int NOTIFICATION_ID = 1138;
+    private static final int NOTIFICATION_ID = 1138;
     public static final String ANDROID_CHANNEL_ID = "com.thanksmister.iot.wallpanel.ANDROID";
     public static String ANDROID_CHANNEL_NAME;
     private NotificationManager notificationManager;
@@ -100,7 +100,7 @@ public class NotificationUtils extends ContextWrapper {
                 .setOngoing(true)
                 .setLocalOnly(true)
                 .setLargeIcon(BitmapFactory.decodeResource(resources, R.mipmap.ic_launcher))
-                .setSmallIcon(R.drawable.ic_dashboard_white)
+                .setSmallIcon(R.drawable.ic_stat_name)
                 .setAutoCancel(false);
 
         builder.setContentIntent(pendingIntent);
@@ -110,7 +110,7 @@ public class NotificationUtils extends ContextWrapper {
     public NotificationCompat.Builder getAndroidNotification(String title, String body) {
         final int color = ContextCompat.getColor(getApplicationContext(), R.color.colorPrimary);
         return new NotificationCompat.Builder(getApplicationContext())
-                .setSmallIcon(R.drawable.ic_dashboard_white)
+                .setSmallIcon(R.drawable.ic_stat_name)
                 .setLargeIcon(BitmapFactory.decodeResource(resources, R.mipmap.ic_launcher))
                 .setContentTitle(title)
                 .setContentText(body)
