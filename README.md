@@ -227,7 +227,7 @@ volume | data | ```{"volume": 100}``` | Changes the audio volume, value 0-100 (i
   * Publish a JSON payload to this topic (be mindfula of quotes in JSON should be single quotes not double)
 
 
-### Launch extnral application
+### Launch external application
 
 Using the url command `{"url": "http://<url>"}`, you can load other applications using the `intent: scheme URL` for that application. For exxample, to launch the Ring app, you would use this as the url schema: 
 
