@@ -61,4 +61,4 @@ Setting WallPanel as the default Home application will always load this applicat
 
 ## Contribution
 
-WallPanel (Formerly HomeDash) is a fork from the [original WallPanel project](https://github.com/WallPanel-Project/wallpanel-android) developed by [quadportnick](https://github.com/quadportnick). All are welcome to propose a feature request, report or bug, or contribute to the project by updating examples or with a PR for new features.  Thanks to all the [contributes[(https://github.com/thanksmister/wallpanel-android/graphs/contributors) who have contributed to the project!
+WallPanel (Formerly HomeDash) is a fork from the [original WallPanel project](https://github.com/WallPanel-Project/wallpanel-android) developed by [quadportnick](https://github.com/quadportnick). All are welcome to propose a feature request, report or bug, or contribute to the project by updating examples or with a PR for new features.  Thanks to all the [contributes](https://github.com/thanksmister/wallpanel-android/graphs/contributors) who have contributed to the project!
