@@ -276,6 +276,7 @@
     <string name="title_enter_code">Enter Code</string>
     <string name="text_confirm_code">Please confirm the new code.</string>
     <string name="text_enter_new_code">Please enter the new code.</string>
+    <string name="dialog_enter_code">Enter code</string>
 
     <string-array name="flip_directions">
         <item>None</item>

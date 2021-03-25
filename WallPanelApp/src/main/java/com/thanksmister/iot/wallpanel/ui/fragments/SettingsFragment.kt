@@ -56,8 +56,8 @@ class SettingsFragment : BaseSettingsFragment() {
     @Inject
     lateinit var screenUtils: ScreenUtils
 
-    private var defaultCode: Int = 0
-    private var tempCode: Int = 0
+    private var defaultCode: String = ""
+    private var tempCode: String = ""
     private var confirmCode = false
 
     private var openOnBootPreference: SwitchPreference? = null
@@ -385,7 +385,7 @@ class SettingsFragment : BaseSettingsFragment() {
         defaultCode = configuration.settingsCode
         if (activity != null && isAdded) {
             dialogUtils.showCodeDialog(requireActivity(), confirmCode, object : SettingsCodeView.ViewListener {
-                override fun onComplete(code: Int) {
+                override fun onComplete(code: String) {
                     if (code == defaultCode) {
                         confirmCode = false
                         dialogUtils.clearDialogs()
@@ -400,18 +400,17 @@ class SettingsFragment : BaseSettingsFragment() {
                     } else if (code == tempCode) {
                         configuration.isFirstTime = false;
                         configuration.settingsCode = tempCode
-                        tempCode = 0
+                        tempCode = ""
                         confirmCode = false
                         dialogUtils.clearDialogs()
                         Toast.makeText(activity, R.string.toast_code_changed, Toast.LENGTH_LONG).show()
                     } else {
-                        tempCode = 0
+                        tempCode = ""
                         confirmCode = false
                         dialogUtils.clearDialogs()
                         Toast.makeText(activity, R.string.toast_code_not_match, Toast.LENGTH_LONG).show()
                     }
                 }
-
                 override fun onError() {}
                 override fun onCancel() {
                     confirmCode = false

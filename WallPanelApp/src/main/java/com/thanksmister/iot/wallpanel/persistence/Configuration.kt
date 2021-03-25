@@ -33,9 +33,21 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
         get() = getBoolPref(R.string.key_setting_app_preventsleep,
                 R.string.default_setting_app_preventsleep)
 
-    var settingsCode: Int
-        get() = this.sharedPreferences.getInt(PREF_SETTINGS_CODE, 1234)
-        set(value) = this.sharedPreferences.edit().putInt(PREF_SETTINGS_CODE, value).apply()
+    // TODO we have to migrate this due to an error when entering codes with leading 0 value
+    var settingsCode: String
+        get() {
+            val prev = this.sharedPreferences.getInt(PREF_SETTINGS_CODE, 0)
+            val cur = this.sharedPreferences.getString(PREF_SETTINGS_CODE_STRING, "").orEmpty()
+            return if(prev > 0) {
+                val preStr = String.format("%04d", prev) // pad to 4 with 0's leading
+                this.sharedPreferences.edit().putInt(PREF_SETTINGS_CODE, 0).apply()
+                this.sharedPreferences.edit().putString(PREF_SETTINGS_CODE_STRING, preStr).apply()
+                prev.toString()
+            } else {
+                cur
+            }
+        }
+        set(value) = this.sharedPreferences.edit().putString(PREF_SETTINGS_CODE_STRING, value).apply()
 
     var fullScreen: Boolean
         get() = this.sharedPreferences.getBoolean(PREF_FULL_SCREEN, true)
@@ -96,12 +108,9 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
         }
 
     var cameraMotionLeniency: Int
-        get() {
-            val value = getStringPref(R.string.key_setting_camera_motionleniency, R.string.default_setting_camera_motionleniency).trim().toIntOrNull()
-            return value ?: 20
-        }
+        get() = sharedPreferences.getInt(PREF_CAMERA_MOTION_LATENCY, 20)
         set(value) {
-            sharedPreferences.edit().putInt(context.getString(R.string.key_setting_camera_motionleniency), value).apply()
+            sharedPreferences.edit().putInt(PREF_CAMERA_MOTION_LATENCY, value).apply()
         }
 
     val cameraMotionMinLuma: Int
@@ -305,7 +314,7 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
     private fun getStringPref(resId: Int, defId: Int): String {
         val def = context.getString(defId)
         val pref = sharedPreferences.getString(context.getString(resId), "")
-        return if (pref!!.isEmpty()) def else pref
+        return pref ?: def
     }
 
     private fun getBoolPref(resId: Int, defId: Int): Boolean {
@@ -329,6 +338,7 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
         private const val PREF_DARK_THEME = "pref_dark_theme"
         private const val PREF_FULL_SCREEN = "pref_full_screen"
         private const val PREF_SETTINGS_CODE = "pref_settings_code"
+        private const val PREF_SETTINGS_CODE_STRING = "pref_settings_code_string"
         private const val PREF_SETTINGS_TRANSPARENT = "pref_settings_transparent"
         private const val PREF_SETTINGS_LOCATION = "pref_settings_location"
         const val PREF_FIRST_TIME = "pref_first_time"
@@ -340,5 +350,6 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
         private val ROTATE_TIME_IN_MINUTES = 15
         const val PREF_IMAGE_ROTATION = "pref_image_rotation"
         private val PREF_CAMERA_FACE_SIZE = "pref_camera_face_size"
+        private val PREF_CAMERA_MOTION_LATENCY = "pref_camera_motion_latency"
     }
 }

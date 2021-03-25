@@ -19,6 +19,7 @@ package com.thanksmister.iot.wallpanel.ui.views
 import android.content.Context
 import android.text.TextUtils
 import android.util.AttributeSet
+import com.thanksmister.iot.wallpanel.R
 import kotlinx.android.synthetic.main.dialog_code_set.view.*
 
 class SettingsCodeView : BaseView {
@@ -31,13 +32,13 @@ class SettingsCodeView : BaseView {
                 handler.removeCallbacks(this)
             }
             if (alarmListener != null) {
-                alarmListener!!.onComplete(Integer.parseInt(enteredCode))
+                alarmListener?.onComplete(enteredCode)
             }
         }
     }
 
     interface ViewListener {
-        fun onComplete(code: Int)
+        fun onComplete(code: String)
         fun onError()
         fun onCancel()
     }
@@ -52,7 +53,7 @@ class SettingsCodeView : BaseView {
 
     override fun onFinishInflate() {
         super.onFinishInflate()
-        codeTitle.text = "Enter code"
+        codeTitle.text = context.getString(R.string.dialog_enter_code)
     }
 
     override fun onCancel() {
