@@ -224,10 +224,10 @@ volume | data | ```{"volume": 100}``` | Changes the audio volume, value 0-100 (i
 * For MQTT
   * WallPanel subscribes to topic ```wallpanel/[baseTopic]/command```
     * Default Topic: ```wallpanel/mywallpanel/command```
-  * Publish a JSON payload to this topic (be mindfula of quotes in JSON should be single quotes not double)
+  * Publish a JSON payload to this topic (be mindful of quotes in JSON should be single quotes not double)
 
 
-### Launch extnral application
+### Launch external application
 
 Using the url command `{"url": "http://<url>"}`, you can load other applications using the `intent: scheme URL` for that application. For exxample, to launch the Ring app, you would use this as the url schema: 
 
@@ -264,4 +264,3 @@ Using the screen brightness option requires some extra permissions.  This is bec
 ## Credits
 
 WallPanel (Formerly HomeDash) is a fork from the [original WallPanel project](https://github.com/WallPanel-Project/wallpanel-android) developed by [quadportnick](https://github.com/quadportnick). Thanks to [allofmex](https://github.com/allofmex) for his contributions to the project. 
-
