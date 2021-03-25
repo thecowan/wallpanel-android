@@ -37,7 +37,7 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
     var settingsCode: String
         get() {
             val prev = this.sharedPreferences.getInt(PREF_SETTINGS_CODE, 0)
-            val cur = this.sharedPreferences.getString(PREF_SETTINGS_CODE_STRING, "").orEmpty()
+            val cur = this.sharedPreferences.getString(PREF_SETTINGS_CODE_STRING, "1234").orEmpty()
             return if(prev > 0) {
                 val preStr = String.format("%04d", prev) // pad to 4 with 0's leading
                 this.sharedPreferences.edit().putInt(PREF_SETTINGS_CODE, 0).apply()
@@ -254,7 +254,10 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
         }
 
     val testZoomLevel: Float
-        get() = getStringPref(R.string.key_setting_test_zoomlevel, R.string.default_setting_test_zoomlevel).trim().toFloat()
+        get() {
+            val value = sharedPreferences.getString(context.getString(R.string.key_setting_test_zoomlevel), "1.0")
+            return value?.toFloatOrNull()?: 1.0F
+        }
 
     var inactivityTime: Long
         get() = sharedPreferences.getLong(context.getString(R.string.key_screensaver_inactivity_time), 30000)
@@ -314,7 +317,7 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
     private fun getStringPref(resId: Int, defId: Int): String {
         val def = context.getString(defId)
         val pref = sharedPreferences.getString(context.getString(resId), "")
-        return pref ?: def
+        return if (pref!!.isEmpty()) def else pref
     }
 
     private fun getBoolPref(resId: Int, defId: Int): Boolean {
