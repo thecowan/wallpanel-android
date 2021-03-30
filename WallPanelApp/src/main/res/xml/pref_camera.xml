@@ -50,6 +50,10 @@
             android:entries="@array/flip_directions"
             android:entryValues="@array/flip_values"/>
 
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Advanced Camera Features">
+
         <Preference
             android:icon="@drawable/ic_directions_run"
             android:key="button_key_motion_detection"
@@ -69,18 +73,18 @@
             android:dependency="pref_setting_camera_enabled"/>
 
         <Preference
+            android:icon="@drawable/ic_baseline_videocam"
+            android:key="button_key_camera_streaming"
+            android:title="@string/title_setting_camera_streaming"
+            android:dependency="pref_setting_camera_enabled"/>
+
+        <Preference
             android:icon="@drawable/ic_photo_camera"
             android:key="button_key_camera_test"
             android:title="@string/pref_camera_test_button_title"
             android:summary="@string/pref_button_camera_test"
             android:dependency="pref_setting_camera_enabled"/>
 
-    </PreferenceCategory>
-
-    <PreferenceCategory android:title="@string/pref_camera_streaming_title">
-        <Preference
-            android:key="button_key_camera_streaming"
-            android:title="@string/title_setting_camera_streaming"/>
     </PreferenceCategory>
 
 </PreferenceScreen>

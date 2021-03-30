@@ -28,9 +28,7 @@ class ScreenUtils @Inject
 constructor(context: Context, private val configuration: Configuration): ContextWrapper(context) {
 
     fun resetScreenBrightness(screenSaver: Boolean = true) {
-        Timber.d("resetScreenBrightness useScreenBrightness ${configuration.useScreenBrightness}")
         if(configuration.useScreenBrightness) {
-            Timber.d("resetScreenBrightness")
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && canWriteScreenSetting()) {
                 setDeviceBrightnessControl(screenSaver)
             } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !canWriteScreenSetting()) {
@@ -39,7 +37,6 @@ constructor(context: Context, private val configuration: Configuration): Context
                 setDeviceBrightnessControl(screenSaver)
             }
         } else {
-            Timber.d("resetScreenBrightness ignored")
             restoreDeviceBrightnessControl()
         }
     }
@@ -53,16 +50,13 @@ constructor(context: Context, private val configuration: Configuration): Context
     }
 
     private fun setDeviceBrightnessControl(screenSaver: Boolean) {
-        Timber.d("setDeviceBrightnessControl screenSaver $screenSaver")
         if(canWriteScreenSetting()) {
             setDeviceBrightnessMode(false)
             try {
                 if (configuration.screenBrightness in 1..255 && !screenSaver) {
-                    Timber.d("calculated brightness ${configuration.screenBrightness}")
                     Settings.System.putInt(contentResolver, Settings.System.SCREEN_BRIGHTNESS, configuration.screenBrightness)
                 } else if (configuration.screenScreenSaverBrightness in 1..255 && screenSaver) {
                     Settings.System.putInt(contentResolver, Settings.System.SCREEN_BRIGHTNESS, configuration.screenScreenSaverBrightness)
-                    Timber.d("calculated screensaver brightness ${configuration.screenScreenSaverBrightness}")
                 }
             } catch (e: SecurityException) {
                 Timber.e(e.message)
@@ -81,22 +75,17 @@ constructor(context: Context, private val configuration: Configuration): Context
     }
 
     fun updateScreenBrightness(brightness: Int) {
-        Timber.d("setScreenBrightness $brightness")
         if(canWriteScreenSetting()) {
             try {
                 if (brightness in 1..255) {
                     Settings.System.putInt(contentResolver, Settings.System.SCREEN_BRIGHTNESS, brightness)
                     configuration.screenBrightness = brightness
-                    Timber.d("screenBrightness $brightness")
-                    Timber.d("screenSaverDimValue ${configuration.screenSaverDimValue}")
                     if(configuration.screenSaverDimValue > 0) {
                         val dimAmount = brightness - (brightness * configuration.screenSaverDimValue/100)
-                        Timber.d("dimAmount $dimAmount")
                         configuration.screenScreenSaverBrightness = dimAmount
                     } else {
                         configuration.screenScreenSaverBrightness = brightness
                     }
-                    Timber.d("screenScreenSaverBrightness ${configuration.screenScreenSaverBrightness}")
                 }
             } catch (e: SecurityException) {
                 Timber.e(e.message)
@@ -109,7 +98,6 @@ constructor(context: Context, private val configuration: Configuration): Context
     // we also want to stop using screen brightness
     fun restoreDeviceBrightnessControl() {
         if(canWriteScreenSetting()) {
-            Timber.d("restoreDeviceBrightnessControl")
             configuration.useScreenBrightness = false
             Settings.System.putInt(contentResolver, Settings.System.SCREEN_BRIGHTNESS, getCurrentScreenBrightness())
             configuration.screenBrightness = getCurrentScreenBrightness()
@@ -152,9 +140,7 @@ constructor(context: Context, private val configuration: Configuration): Context
     }
 
     private fun canWriteScreenSetting(): Boolean {
-        Timber.d("canWriteScreenSetting")
         var hasPermission = true
-        // Check for permisions if >= Android 6
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             hasPermission = Settings.System.canWrite(applicationContext)
         }

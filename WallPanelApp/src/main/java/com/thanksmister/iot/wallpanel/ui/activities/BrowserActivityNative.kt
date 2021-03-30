@@ -18,7 +18,6 @@ package com.thanksmister.iot.wallpanel.ui.activities
 
 import android.annotation.SuppressLint
 import android.content.DialogInterface
-import android.content.Intent
 import android.net.http.SslError
 import android.os.Build
 import android.os.Bundle
@@ -26,7 +25,6 @@ import android.os.Handler
 import android.view.*
 import android.webkit.*
 import android.widget.Toast
-import androidx.annotation.VisibleForTesting
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -63,7 +61,7 @@ class BrowserActivityNative : BaseBrowserActivity() {
             // Avoid IndexOutOfBound
             playlistIndex = (playlistIndex + 1) % urls.size
             if (urls.isNotEmpty() && urls.size >= playlistIndex) {
-                loadUrl(urls[playlistIndex])
+                loadWebViewUrl(urls[playlistIndex])
                 playlistHandler?.postDelayed(this, TimeUnit.SECONDS.toMillis(offset))
             }
         }
@@ -133,19 +131,9 @@ class BrowserActivityNative : BaseBrowserActivity() {
         mWebView.webViewClient = object : WebViewClient() {
             private var isRedirect = false
             override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
-                // open intent urls with native application
                 isRedirect = true
-                if (url.startsWith("intent:")) {
-                    val intent = BrowserUtils().parseIntent(url)
-                    intent?.let {
-                        startActivity(intent)
-                    }
-
-                    return true
-                } else {
-                    view.loadUrl(url)
-                    return true
-                }
+                view.loadUrl(url)
+                return true
             }
 
             override fun onReceivedError(view: WebView, errorCode: Int, description: String, failingUrl: String) {
@@ -282,20 +270,23 @@ class BrowserActivityNative : BaseBrowserActivity() {
     private fun initWebPageLoad() {
         progressView.visibility = View.GONE
         mWebView.visibility = View.VISIBLE
+        // set user agent
         configureWebSettings(configuration.browserUserAgent)
+        // set zoom level
+        if (zoomLevel != 0.0f) {
+            val zoomPercent = (zoomLevel * 100).toInt()
+            mWebView.setInitialScale(zoomPercent)
+        }
+        // check if we are using playlist
         if (configuration.appLaunchUrl.lines().size == 1) {
-            loadUrl(configuration.appLaunchUrl)
+            loadWebViewUrl(configuration.appLaunchUrl)
         } else {
             startPlaylist()
         }
     }
 
-    override fun loadUrl(url: String) {
+    override fun loadWebViewUrl(url: String) {
         Timber.d("loadUrl $url")
-        if (zoomLevel != 0.0f) {
-            val zoomPercent = (zoomLevel * 100).toInt()
-            mWebView.setInitialScale(zoomPercent)
-        }
         mWebView.loadUrl(url)
     }
 

@@ -24,7 +24,6 @@ import android.content.IntentFilter
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
-import android.view.KeyEvent
 import android.view.View
 import android.view.ViewTreeObserver
 import android.view.WindowManager
@@ -41,6 +40,7 @@ import com.thanksmister.iot.wallpanel.network.WallPanelService.Companion.BROADCA
 import com.thanksmister.iot.wallpanel.network.WallPanelService.Companion.BROADCAST_SERVICE_STARTED
 import com.thanksmister.iot.wallpanel.network.WallPanelService.Companion.BROADCAST_TOAST_MESSAGE
 import com.thanksmister.iot.wallpanel.persistence.Configuration
+import com.thanksmister.iot.wallpanel.utils.BrowserUtils
 import com.thanksmister.iot.wallpanel.utils.DialogUtils
 import com.thanksmister.iot.wallpanel.utils.ScreenUtils
 import dagger.android.support.DaggerAppCompatActivity
@@ -51,8 +51,10 @@ abstract class BaseBrowserActivity : DaggerAppCompatActivity() {
 
     @Inject
     lateinit var dialogUtils: DialogUtils
+
     @Inject
     lateinit var configuration: Configuration
+
     @Inject
     lateinit var screenUtils: ScreenUtils
 
@@ -70,8 +72,15 @@ abstract class BaseBrowserActivity : DaggerAppCompatActivity() {
             if (BROADCAST_ACTION_LOAD_URL == intent.action) {
                 val url = intent.getStringExtra(BROADCAST_ACTION_LOAD_URL)
                 url?.let {
-                    loadUrl(url)
-                    stopDisconnectTimer()
+                    if (url.startsWith("intent:")) {
+                        val launchIntent = BrowserUtils().parseIntent(url)
+                        launchIntent?.let {
+                            startActivity(launchIntent)
+                        }
+                    } else {
+                        loadWebViewUrl(url)
+                        stopDisconnectTimer()
+                    }
                 }
             } else if (BROADCAST_ACTION_JS_EXEC == intent.action) {
                 val js = intent.getStringExtra(BROADCAST_ACTION_JS_EXEC)
@@ -157,7 +166,7 @@ abstract class BaseBrowserActivity : DaggerAppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        if(configuration.hardwareAccelerated && Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) {
+        if (configuration.hardwareAccelerated && Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) {
             window.setFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED, WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED)
         }
         if (configuration.appPreventSleep) {
@@ -314,7 +323,7 @@ abstract class BaseBrowserActivity : DaggerAppCompatActivity() {
     }
 
     protected abstract fun configureWebSettings(userAgent: String)
-    protected abstract fun loadUrl(url: String)
+    protected abstract fun loadWebViewUrl(url: String)
     protected abstract fun evaluateJavascript(js: String)
     protected abstract fun clearCache()
     protected abstract fun reload()

@@ -38,10 +38,10 @@ class BrowserActivityNativeTest : TestCase() {
     @Test
     fun testParseIntentMethod() {
         val browserUtils =  BrowserUtils()
-        var intent = browserUtils.parseIntent("intent:#Intent;launchFlags=0x10000000;component=com.ringapp/.ui.activities.LoginActivity;end")
+        var intent = browserUtils.parseIntent("intent:#Intent;launchFlags=0x10000000;component=com.google.android.apps.maps/com.google.android.maps.MapsActivity;end")
         assertNotNull(intent)
-        assertEquals(".ui.activities.LoginActivity", intent?.component?.className)
-        assertEquals("com.ringapp", intent?.component?.packageName)
+        assertEquals("com.google.android.maps.MapsActivity", intent?.component?.className)
+        assertEquals("com.google.android.apps.maps", intent?.component?.packageName)
         assertEquals("android.intent.action.VIEW", intent?.action)
 
         intent = browserUtils.parseIntent("intent:#Intent;launchFlags=0x10000000;component=com.amazon.avod/.client.activity.HomeScreenActivity;end")
