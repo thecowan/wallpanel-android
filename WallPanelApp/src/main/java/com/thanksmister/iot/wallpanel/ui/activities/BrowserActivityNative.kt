@@ -26,6 +26,7 @@ import android.os.Handler
 import android.view.*
 import android.webkit.*
 import android.widget.Toast
+import androidx.annotation.VisibleForTesting
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -33,6 +34,7 @@ import androidx.core.content.ContextCompat
 import com.google.android.material.snackbar.Snackbar
 import com.thanksmister.iot.wallpanel.R
 import com.thanksmister.iot.wallpanel.ui.fragments.CodeBottomSheetFragment
+import com.thanksmister.iot.wallpanel.utils.BrowserUtils
 import kotlinx.android.synthetic.main.activity_browser.*
 import timber.log.Timber
 import java.util.*
@@ -100,7 +102,7 @@ class BrowserActivityNative : BaseBrowserActivity() {
                 if (newProgress == 100) {
                     snackbar?.dismiss()
                     if (view.url != null) {
-                        pageLoadComplete(view.url)
+                        pageLoadComplete(view.url.toString())
                     } else {
                         Toast.makeText(this@BrowserActivityNative, getString(R.string.toast_empty_url), Toast.LENGTH_SHORT).show()
                         complete()
@@ -134,19 +136,11 @@ class BrowserActivityNative : BaseBrowserActivity() {
                 // open intent urls with native application
                 isRedirect = true
                 if (url.startsWith("intent:")) {
-                    val separated = url.split(";").toTypedArray()
-                    separated[0] // this will contain "intent:#Intent"
-                    separated[1] // this will contain "launch flag"
-                    separated[2] // this will contain "component"
-                    separated[3] // this will contain "end"
-                    val component = separated[2].removePrefix("component=")
-                    val classname = component.split("/").toTypedArray()
-                    val pkgName = classname[0] // this will set the packageName:
-                    val clsName = classname[1] // this will set the className:
-                    val intent = Intent()
-                    intent.action = Intent.ACTION_VIEW
-                    intent.setClassName(pkgName, clsName)
-                    startActivity(intent)
+                    val intent = BrowserUtils().parseIntent(url)
+                    intent?.let {
+                        startActivity(intent)
+                    }
+
                     return true
                 } else {
                     view.loadUrl(url)
@@ -377,7 +371,7 @@ class BrowserActivityNative : BaseBrowserActivity() {
             launchSettingsFab.imageAlpha = 0
         } else {
             launchSettingsFab.backgroundTintList = ContextCompat.getColorStateList(this, R.color.colorAccent)
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 launchSettingsFab.compatElevation = 4f
             }
             launchSettingsFab.imageAlpha = 180

@@ -69,14 +69,16 @@ abstract class BaseBrowserActivity : DaggerAppCompatActivity() {
         override fun onReceive(context: Context, intent: Intent) {
             if (BROADCAST_ACTION_LOAD_URL == intent.action) {
                 val url = intent.getStringExtra(BROADCAST_ACTION_LOAD_URL)
-                Timber.d("Browsing to $url")
-                loadUrl(url)
-                stopDisconnectTimer()
+                url?.let {
+                    loadUrl(url)
+                    stopDisconnectTimer()
+                }
             } else if (BROADCAST_ACTION_JS_EXEC == intent.action) {
                 val js = intent.getStringExtra(BROADCAST_ACTION_JS_EXEC)
-                Timber.d("Executing javascript in current browser: $js")
-                stopDisconnectTimer()
-                evaluateJavascript(js)
+                js?.let {
+                    stopDisconnectTimer()
+                    evaluateJavascript(js)
+                }
             } else if (BROADCAST_ACTION_CLEAR_BROWSER_CACHE == intent.action) {
                 Timber.d("Clearing browser cache")
                 clearCache()
@@ -91,7 +93,9 @@ abstract class BaseBrowserActivity : DaggerAppCompatActivity() {
             } else if (BROADCAST_ALERT_MESSAGE == intent.action && !isFinishing) {
                 val message = intent.getStringExtra(BROADCAST_ALERT_MESSAGE)
                 stopDisconnectTimer()
-                dialogUtils.showAlertDialog(this@BaseBrowserActivity, message)
+                message?.let {
+                    dialogUtils.showAlertDialog(this@BaseBrowserActivity, message)
+                }
             } else if (BROADCAST_CLEAR_ALERT_MESSAGE == intent.action && !isFinishing) {
                 dialogUtils.clearDialogs()
                 resetInactivityTimer()
