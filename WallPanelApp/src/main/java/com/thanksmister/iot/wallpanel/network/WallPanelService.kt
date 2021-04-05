@@ -27,6 +27,7 @@ import android.media.MediaPlayer
 import android.net.wifi.WifiManager
 import android.os.*
 import androidx.core.content.ContextCompat
+import androidx.core.os.postDelayed
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.Observer
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
@@ -218,6 +219,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
             try {
                 state.put(MqttUtils.STATE_CURRENT_URL, appLaunchUrl)
                 state.put(MqttUtils.STATE_SCREEN_ON, isScreenOn)
+                state.put(MqttUtils.STATE_CAMERA, configuration.cameraEnabled)
                 state.put(MqttUtils.STATE_BRIGHTNESS, screenUtils.getCurrentScreenBrightness())
             } catch (e: JSONException) {
                 e.printStackTrace()
@@ -324,7 +326,6 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         if (configuration.sensorsEnabled) {
             sensorReader.refreshSensors()
         }
-
         if (configuration.mqttDiscovery) {
             publishDiscovery()
         }
@@ -370,18 +371,21 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
     }
 
     private fun configureCamera() {
-        if (configuration.cameraEnabled && cameraReader == null) {
-            cameraReader = CameraReader(this.applicationContext)
+        val cameraEnabled = configuration.cameraEnabled
+        if (cameraEnabled && cameraReader == null) {
+            cameraReader = CameraReader(applicationContext)
             cameraReader?.startCamera(cameraDetectorCallback, configuration)
-        } else {
-            cameraReader?.stopCamera()
+        } else if (cameraEnabled) {
+            cameraReader?.startCamera(cameraDetectorCallback, configuration)
         }
     }
 
     private fun configureTextToSpeech() {
         if (textToSpeechModule == null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            textToSpeechModule = TextToSpeechModule(this.applicationContext)
-            lifecycle.addObserver(textToSpeechModule!!)
+            textToSpeechModule = TextToSpeechModule(applicationContext)
+            textToSpeechModule?.let {
+                lifecycle.addObserver(it)
+            }
         }
     }
 
@@ -495,27 +499,37 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
 
     // Attempt to restart camera and any optional camera options such as motion and streaming
     private fun restartCamera() {
-        configuration.cameraEnabled = true
-        configureCamera()
-        startHttp()
-        publishDiscovery()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && configuration.cameraPermissionsShown) {
+            configuration.cameraEnabled = true
+            configureCamera()
+            startHttp()
+            publishDiscovery()
+            publishApplicationState()
+        } else {
+            configuration.cameraEnabled = true
+            configureCamera()
+            startHttp()
+            publishDiscovery()
+            publishApplicationState()
+        }
     }
 
     // Attempt to stop camera and any optional camera options such as motion and streaming
     private fun stopCamera() {
         Timber.d("stopCamera")
+        configuration.cameraEnabled = false
         stopMJPEG()
         stopHttp()
         cameraReader?.stopCamera()
-        configuration.cameraEnabled = false
         publishDiscovery()
+        publishApplicationState()
     }
 
     // TODO we stop entire camera not just streaming
     private fun stopMJPEG() {
         Timber.d("stopMJPEG Called")
-        cameraReader?.getJpeg()?.removeObservers(this)
         mJpegSockets.clear()
+        //cameraReader?.getJpeg()?.removeObservers(this)
         httpServer?.removeAction("GET", "/camera/stream")
     }
 
@@ -542,10 +556,10 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         Timber.d("processCommand $commandJson")
         try {
             if (commandJson.has(COMMAND_CAMERA)) {
-                val disableCamera = commandJson.getBoolean(COMMAND_CAMERA)
-                if (disableCamera && configuration.cameraEnabled) {
+                val enableCamera = commandJson.getBoolean(COMMAND_CAMERA)
+                if (!enableCamera) {
                     stopCamera()
-                } else if (disableCamera.not() && configuration.cameraEnabled.not()) {
+                } else if (enableCamera) {
                     restartCamera()
                 }
             }
@@ -700,7 +714,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         if (!motionDetected) {
             val data = JSONObject()
             try {
-                data.put(MqttUtils.VALUE, true)
+                data.put(VALUE, true)
             } catch (ex: JSONException) {
                 ex.printStackTrace()
             }
@@ -767,7 +781,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
     }
 
     private fun getBinarySensorDiscoveryDef(displayName: String, stateTopic: String, fieldName: String, deviceClass: String, sensorId: String): JSONObject {
-        var discoveryDef = JSONObject()
+        val discoveryDef = JSONObject()
         discoveryDef.put("name", "${configuration.mqttDiscoveryDeviceName} ${displayName}")
         discoveryDef.put("state_topic", "${configuration.mqttBaseTopic}${stateTopic}")
         discoveryDef.put("payload_on", true)

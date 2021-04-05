@@ -29,7 +29,20 @@
             android:key="@string/key_setting_mqtt_servername"
             android:selectAllOnFocus="true"
             android:singleLine="true"
+            android:summary="192.168.1.1"
             android:title="@string/title_setting_mqtt_servername" />
+
+        <EditTextPreference
+            android:paddingTop="0dp"
+            android:selectable="false"
+            android:summary="@string/preference_summary_broker"
+            android:textColor="@color/light_gray"
+            android:textSize="12sp"/>
+
+        <SwitchPreference
+            android:key="pref_tls_connection"
+            android:summary="@string/preference_summary_tls_connection"
+            android:title="@string/preference_tls_connection" />
 
         <EditTextPreference
             android:defaultValue="@string/default_setting_mqtt_serverport"
@@ -38,7 +51,8 @@
             android:key="@string/key_setting_mqtt_serverport"
             android:selectAllOnFocus="true"
             android:singleLine="true"
-            android:title="@string/title_setting_mqtt_serverport" />
+            android:title="@string/title_setting_mqtt_serverport"
+            android:summary="@string/preference_summary_port"/>
 
         <EditTextPreference
             android:defaultValue="@string/default_setting_mqtt_basetopic"
@@ -49,19 +63,12 @@
             android:title="@string/title_setting_mqtt_basetopic" />
 
         <EditTextPreference
-            android:defaultValue="@string/default_setting_mqtt_clientid"
-            android:dependency="@string/key_setting_mqtt_enabled"
-            android:key="@string/key_setting_mqtt_clientid"
-            android:selectAllOnFocus="true"
-            android:singleLine="true"
-            android:title="@string/title_setting_mqtt_clientid" />
-
-        <EditTextPreference
             android:defaultValue="@string/default_setting_mqtt_username"
             android:dependency="@string/key_setting_mqtt_enabled"
             android:key="@string/key_setting_mqtt_username"
             android:selectAllOnFocus="true"
             android:singleLine="true"
+            android:summary="@string/preference_summary_username"
             android:title="@string/title_setting_mqtt_username" />
 
         <EditTextPreference
@@ -70,7 +77,17 @@
             android:key="@string/key_setting_mqtt_password"
             android:selectAllOnFocus="true"
             android:singleLine="true"
+            android:summary="@string/preference_summary_password"
             android:title="@string/title_setting_mqtt_password" />
+
+        <EditTextPreference
+            android:defaultValue="@string/default_setting_mqtt_clientid"
+            android:dependency="@string/key_setting_mqtt_enabled"
+            android:key="@string/key_setting_mqtt_clientid"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:summary="@string/preference_summary_client_id"
+            android:title="@string/title_setting_mqtt_clientid" />
 
     </PreferenceCategory>
 

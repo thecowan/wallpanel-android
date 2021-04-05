@@ -107,7 +107,7 @@ class CameraSettingsFragment : BaseSettingsFragment() {
 
         fpsPreference = findPreference<EditTextPreference>(getString(R.string.key_setting_camera_fps)) as EditTextPreference
         cameraPreference = findPreference<SwitchPreference>(PREF_CAMERA_ENABLED) as SwitchPreference
-        rotatePreference = findPreference<ListPreference>(Configuration.PREF_CAMERA_ROTATE) as ListPreference
+        rotatePreference = findPreference<ListPreference>(PREF_CAMERA_ROTATE) as ListPreference
         rotatePreference!!.setDefaultValue(configuration.cameraRotate)
         rotatePreference!!.value = configuration.cameraRotate.toString()
         if(configuration.cameraRotate == 0f) {
@@ -154,7 +154,6 @@ class CameraSettingsFragment : BaseSettingsFragment() {
         }
 
         cameraPreference?.isChecked = configuration.cameraEnabled
-        //bindPreferenceSummaryToValue(cameraPreference!!)
         bindPreferenceSummaryToValue(fpsPreference!!)
 
         motionDetectionPreference = findPreference("button_key_motion_detection")
@@ -266,8 +265,8 @@ class CameraSettingsFragment : BaseSettingsFragment() {
                 cameraEnabled?.let {
                     if(it) {
                         requestCameraPermissions()
-                        configuration.cameraEnabled = cameraEnabled
                     }
+                    configuration.cameraEnabled = cameraEnabled
                 }
             }
         }
@@ -275,6 +274,7 @@ class CameraSettingsFragment : BaseSettingsFragment() {
 
     companion object {
         const val PERMISSIONS_REQUEST_CAMERA = 201
+        const val PREF_CAMERA_ROTATE = "pref_setting_camera_rotate"
         const val PREF_CAMERA_ENABLED = "pref_setting_camera_enabled"
     }
 }

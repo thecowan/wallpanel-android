@@ -25,7 +25,7 @@ apply plugin: 'com.google.firebase.crashlytics'
 def versionMajor = 0
 def versionMinor = 9
 def versionPatch = 4
-def versionBuild = 3 // bump for dog food builds, public betas, etc.
+def versionBuild = 5 // bump for dog food builds, public betas, etc.
 
 android {
     kapt {

@@ -42,6 +42,8 @@ class MqttUtils {
         const val COMMAND_SENSOR_MOTION = "sensor/motion"
         const val STATE_CURRENT_URL = "currentUrl"
         const val STATE_SCREEN_ON = "screenOn"
+        const val STATE_CAMERA = "camera"
+        const val STATE_MOTION = "motion"
         const val STATE_BRIGHTNESS = "brightness"
         const val COMMAND_SENSOR = "sensor/"
         const val COMMAND_URL = "url"

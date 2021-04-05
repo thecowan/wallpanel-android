@@ -90,6 +90,10 @@ constructor(private val configuration: Configuration) {
         return configuration.mqttTlsEnabled
     }
 
+    fun setTlsConnection(value: Boolean) {
+        configuration.mqttTlsEnabled = value
+    }
+
     companion object {
         const val SSL_BROKER_URL_FORMAT = "ssl://%s:%d"
         const val TCP_BROKER_URL_FORMAT = "tcp://%s:%d"

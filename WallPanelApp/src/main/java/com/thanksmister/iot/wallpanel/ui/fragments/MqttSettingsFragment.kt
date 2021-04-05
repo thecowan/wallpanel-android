@@ -17,6 +17,7 @@
 package com.thanksmister.iot.wallpanel.ui.fragments
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.text.InputType
 import android.view.*
@@ -24,10 +25,16 @@ import androidx.preference.SwitchPreference
 import androidx.preference.EditTextPreference
 import androidx.navigation.Navigation
 import com.thanksmister.iot.wallpanel.R
+import com.thanksmister.iot.wallpanel.network.MQTTOptions
+import com.thanksmister.iot.wallpanel.persistence.Configuration
 import com.thanksmister.iot.wallpanel.ui.activities.SettingsActivity
 import dagger.android.support.AndroidSupportInjection
+import javax.inject.Inject
 
-class MqttSettingsFragment : BaseSettingsFragment() {
+class MqttSettingsFragment : BaseSettingsFragment(), SharedPreferences.OnSharedPreferenceChangeListener  {
+
+    @Inject
+    lateinit var mqttOptions: MQTTOptions
 
     private var mqttPreference: SwitchPreference? = null
     private var mqttBrokerAddress: EditTextPreference? = null
@@ -39,6 +46,10 @@ class MqttSettingsFragment : BaseSettingsFragment() {
     private var mqttDiscovery: SwitchPreference? = null
     private var mqttDiscoveryTopic: EditTextPreference? = null
     private var mqttDiscoveryDeviceName: EditTextPreference? = null
+
+    private val sslPreference: SwitchPreference by lazy {
+        findPreference<SwitchPreference>(PREF_TLS_CONNECTION) as SwitchPreference
+    }
 
     override fun onAttach(context: Context) {
         AndroidSupportInjection.inject(this)
@@ -106,5 +117,18 @@ class MqttSettingsFragment : BaseSettingsFragment() {
         bindPreferenceSummaryToValue(mqttDiscovery!!)
         bindPreferenceSummaryToValue(mqttDiscoveryTopic!!)
         bindPreferenceSummaryToValue(mqttDiscoveryDeviceName!!)
+    }
+
+    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
+        when (key) {
+            PREF_TLS_CONNECTION -> {
+                val checked = sslPreference.isChecked
+                mqttOptions.setTlsConnection(checked)
+            }
+        }
+    }
+
+    companion object {
+        const val PREF_TLS_CONNECTION = "pref_tls_connection"
     }
 }

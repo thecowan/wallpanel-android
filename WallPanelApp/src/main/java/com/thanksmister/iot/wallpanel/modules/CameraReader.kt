@@ -76,7 +76,11 @@ constructor(private val context: Context) {
     }
 
     fun stopCamera() {
+        cameraCallback = null
 
+        cameraPreview?.stop()
+        cameraPreview = null
+        
         bitmapCompleteHandler.removeCallbacks(bitcoinCompleteRunnable)
 
         byteArrayCreateTask?.cancel(true)
@@ -153,7 +157,7 @@ constructor(private val context: Context) {
             buildDetectors(configuration)
             if (multiDetector != null) {
                 cameraSource = initCamera(configuration.cameraId, configuration.cameraFPS)
-                cameraPreview!!.start(cameraSource, object : CameraSourcePreview.OnCameraPreviewListener {
+                cameraPreview?.start(cameraSource, object : CameraSourcePreview.OnCameraPreviewListener {
                     override fun onCameraError() {
                         Timber.e("Camera Preview Error")
                         cameraSource = if (configuration.cameraId == CAMERA_FACING_FRONT) {
@@ -163,17 +167,17 @@ constructor(private val context: Context) {
                         }
                         if (cameraPreview != null) {
                             try {
-                                cameraPreview!!.start(cameraSource, object : CameraSourcePreview.OnCameraPreviewListener {
+                                cameraPreview?.start(cameraSource, object : CameraSourcePreview.OnCameraPreviewListener {
                                     override fun onCameraError() {
                                         Timber.e("Camera Preview Error")
-                                        cameraCallback!!.onCameraError()
+                                        cameraCallback?.onCameraError()
                                     }
                                 })
                             } catch (e: Exception) {
                                 Timber.e(e.message)
-                                cameraPreview!!.stop()
-                                cameraSource!!.stop()
-                                cameraCallback!!.onCameraError()
+                                cameraPreview?.stop()
+                                cameraSource?.stop()
+                                cameraCallback?.onCameraError()
                             }
                         }
                     }
@@ -192,7 +196,7 @@ constructor(private val context: Context) {
             buildCameraDetector(configuration)
             if (multiDetector != null) {
                 cameraSource = initCamera(configuration.cameraId, configuration.cameraFPS)
-                cameraPreview!!.start(cameraSource, object : CameraSourcePreview.OnCameraPreviewListener {
+                cameraPreview?.start(cameraSource, object : CameraSourcePreview.OnCameraPreviewListener {
                     override fun onCameraError() {
                         Timber.e("Camera Preview Error")
                         cameraSource = if (configuration.cameraId == CAMERA_FACING_FRONT) {
@@ -202,17 +206,17 @@ constructor(private val context: Context) {
                         }
                         if (cameraPreview != null) {
                             try {
-                                cameraPreview!!.start(cameraSource, object : CameraSourcePreview.OnCameraPreviewListener {
+                                cameraPreview?.start(cameraSource, object : CameraSourcePreview.OnCameraPreviewListener {
                                     override fun onCameraError() {
                                         Timber.e("Camera Preview Error")
-                                        cameraCallback!!.onCameraError()
+                                        cameraCallback?.onCameraError()
                                     }
                                 })
                             } catch (e: Exception) {
                                 Timber.e(e.message)
-                                cameraPreview!!.stop()
-                                cameraSource!!.stop()
-                                cameraCallback!!.onCameraError()
+                                cameraPreview?.stop()
+                                cameraSource?.stop()
+                                cameraCallback?.onCameraError()
                             }
                         }
                     }
@@ -227,7 +231,7 @@ constructor(private val context: Context) {
             Camera.getCameraInfo(configuration.cameraId, info)
         } catch (e: RuntimeException) {
             Timber.e(e.message)
-            cameraCallback!!.onCameraError()
+            cameraCallback?.onCameraError()
             return
         }
         cameraOrientation = info.orientation
@@ -256,7 +260,7 @@ constructor(private val context: Context) {
             Camera.getCameraInfo(configuration.cameraId, info)
         } catch (e: RuntimeException) {
             Timber.e(e.message)
-            cameraCallback!!.onCameraError()
+            cameraCallback?.onCameraError()
             return
         }
         cameraOrientation = info.orientation
@@ -315,7 +319,7 @@ constructor(private val context: Context) {
                         super.onUpdate(p0, motion)
                         if (cameraCallback != null && configuration.cameraMotionEnabled) {
                             if (Motion.MOTION_TOO_DARK == motion.type) {
-                                cameraCallback?.onTooDark()
+                                 cameraCallback?.onTooDark()
                             } else if (Motion.MOTION_DETECTED == motion.type) {
                                 cameraCallback?.onMotionDetected()
                             }
@@ -346,7 +350,7 @@ constructor(private val context: Context) {
                         if (detections.detectedItems.size() > 0 && faceSize && faceRotation) {
                             if (cameraCallback != null && configuration.cameraFaceEnabled) {
                                 Timber.d("faceDetected")
-                                cameraCallback!!.onFaceDetected()
+                                cameraCallback?.onFaceDetected()
                             }
                         }
                     }
@@ -369,7 +373,7 @@ constructor(private val context: Context) {
                         super.onUpdate(p0, p1)
                         if (cameraCallback != null && configuration.cameraQRCodeEnabled) {
                             Timber.d("Barcode: " + p1.displayValue)
-                            cameraCallback!!.onQRCode(p1.displayValue)
+                            cameraCallback?.onQRCode(p1.displayValue)
                         }
                     }
                 }
