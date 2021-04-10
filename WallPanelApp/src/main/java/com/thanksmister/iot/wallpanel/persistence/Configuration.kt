@@ -286,6 +286,9 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
     val hasBlankScreenSaver: Boolean
         get() = getBoolPref(R.string.key_screensaver_blank, R.string.default_screensaver_blank)
 
+    val hasDimScreenSaver: Boolean
+        get() = getBoolPref(R.string.key_screensaver_dim, R.string.default_screensaver_dim);
+
     val hasClockScreenSaver: Boolean
         get() = getBoolPref(R.string.key_screensaver, R.string.default_screensaver)
 

@@ -218,6 +218,8 @@
     <string name="preference_title_screen_saver_wallpaper">Wallpaper Screen Saver</string>
     <string name="preference_summary_screen_saver_settings_blank">When active, the screensaver displays a blank screen</string>
     <string name="preference_title_screen_saver_blank">Blank Screen Saver</string>
+    <string name="preference_summary_screen_saver_settings_dim">When active, the screensaver only dims the screen</string>
+    <string name="preference_title_screen_saver_dim">Dim Screen Saver</string>
 
     <string name="preference_title_inactivity">Start screensaver after…</string>
     <string name="preference_title_screensaver_dim">Dim screen…</string>
