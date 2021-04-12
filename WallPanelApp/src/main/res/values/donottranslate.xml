@@ -141,6 +141,9 @@
     <string name="key_screensaver_blank">settings_screensaver_blank</string>
     <string name="default_screensaver_blank">false</string>
 
+    <string name="key_screensaver_dim">settings_screensaver_dim</string>
+    <string name="default_screensaver_dim">false</string>
+
     <string name="key_setting_screen_brightness">setting_screen_brightness</string>
     <string name="default_setting_screen_brightness">150</string>
 

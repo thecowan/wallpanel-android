@@ -133,6 +133,12 @@
             android:key="@string/key_screensaver_blank"/>
 
         <SwitchPreference
+            android:defaultValue="@string/default_screensaver_dim"
+            android:title="@string/preference_title_screen_saver_dim"
+            android:summary="@string/preference_summary_screen_saver_settings_dim"
+            android:key="@string/key_screensaver_dim"/>
+
+        <SwitchPreference
             android:defaultValue="@string/default_screensaver"
             android:title="@string/preference_title_screen_saver"
             android:summary="@string/preference_summary_screen_saver_settings"
