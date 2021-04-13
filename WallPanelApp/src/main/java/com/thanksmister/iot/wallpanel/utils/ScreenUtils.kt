@@ -28,10 +28,12 @@ class ScreenUtils @Inject
 constructor(context: Context, private val configuration: Configuration): ContextWrapper(context) {
 
     fun resetScreenBrightness(screenSaver: Boolean = true) {
-        if(configuration.useScreenBrightness) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && canWriteScreenSetting()) {
+        val useScreenBrightness = configuration.useScreenBrightness
+        val canWriteSettings = canWriteScreenSetting()
+        if(useScreenBrightness) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && canWriteSettings) {
                 setDeviceBrightnessControl(screenSaver)
-            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !canWriteScreenSetting()) {
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && canWriteSettings.not()) {
                 restoreDeviceBrightnessControl()
             } else {
                 setDeviceBrightnessControl(screenSaver)
@@ -49,21 +51,6 @@ constructor(context: Context, private val configuration: Configuration): Context
         }
     }
 
-    private fun setDeviceBrightnessControl(screenSaver: Boolean) {
-        if(canWriteScreenSetting()) {
-            setDeviceBrightnessMode(false)
-            try {
-                if (configuration.screenBrightness in 1..255 && !screenSaver) {
-                    Settings.System.putInt(contentResolver, Settings.System.SCREEN_BRIGHTNESS, configuration.screenBrightness)
-                } else if (configuration.screenScreenSaverBrightness in 1..255 && screenSaver) {
-                    Settings.System.putInt(contentResolver, Settings.System.SCREEN_BRIGHTNESS, configuration.screenScreenSaverBrightness)
-                }
-            } catch (e: SecurityException) {
-                Timber.e(e.message)
-            }
-        }
-    }
-
     fun setScreenBrightnessLevels() {
         Timber.d("setScreenBrightnessLevels")
         try {
@@ -73,6 +60,25 @@ constructor(context: Context, private val configuration: Configuration): Context
             e.printStackTrace()
         }
     }
+
+    private fun setDeviceBrightnessControl(screenSaver: Boolean) {
+        val canWriteScreenSetting = canWriteScreenSetting()
+        if(canWriteScreenSetting) {
+            setDeviceBrightnessMode(false)
+            val screenBrightness = configuration.screenBrightness
+            val screenScreenBrightness = configuration.screenScreenSaverBrightness
+            try {
+                if (screenBrightness in 1..255 && !screenSaver) {
+                    Settings.System.putInt(contentResolver, Settings.System.SCREEN_BRIGHTNESS, screenBrightness)
+                } else if (screenScreenBrightness in 1..255 && screenSaver) {
+                    Settings.System.putInt(contentResolver, Settings.System.SCREEN_BRIGHTNESS, screenScreenBrightness)
+                }
+            } catch (e: SecurityException) {
+                Timber.e(e.message)
+            }
+        }
+    }
+
 
     fun updateScreenBrightness(brightness: Int) {
         if(canWriteScreenSetting()) {

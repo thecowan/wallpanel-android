@@ -299,7 +299,7 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
         }
 
     var screenScreenSaverBrightness: Int
-        get() = sharedPreferences.getInt(context.getString(R.string.key_setting_screensaver_brightness), 0)
+        get() = sharedPreferences.getInt(context.getString(R.string.key_setting_screensaver_brightness), (255*.25).toInt())
         set(value) {
             sharedPreferences.edit().putInt(context.getString(R.string.key_setting_screensaver_brightness), value).apply()
         }
