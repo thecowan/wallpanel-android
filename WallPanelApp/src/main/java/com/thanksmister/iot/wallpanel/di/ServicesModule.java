@@ -16,22 +16,14 @@
 
 package com.thanksmister.iot.wallpanel.di;
 
-import android.app.Service;
-
 import com.thanksmister.iot.wallpanel.network.WallPanelService;
 
-import dagger.Binds;
 import dagger.Module;
-import dagger.android.AndroidInjector;
-import dagger.android.ServiceKey;
-import dagger.multibindings.IntoMap;
+import dagger.android.ContributesAndroidInjector;
 
-@Module(subcomponents = {
-        ServiceSubcomponent.class
-})
-public abstract class ServicesModule {
-    @Binds
-    @IntoMap
-    @ServiceKey(WallPanelService.class)
-    abstract AndroidInjector.Factory<? extends Service> syncServiceInjectorFactory(ServiceSubcomponent.Builder builder);
+@Module
+abstract class ServicesModule {
+
+    @ContributesAndroidInjector
+    abstract WallPanelService contributeMyService();
 }

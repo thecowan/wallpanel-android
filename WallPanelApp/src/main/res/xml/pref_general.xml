@@ -21,6 +21,7 @@
         <EditTextPreference
             android:defaultValue="@string/default_setting_app_launchurl"
             android:summary="@string/pref_launchurl_summary"
+            android:icon="@drawable/ic_dashboard"
             android:key="pref_settings_dashboard_url"
             android:title="@string/title_setting_app_launchurl" />
 
@@ -28,7 +29,7 @@
             android:key="button_alarm_code"
             android:negativeButtonText="@android:string/cancel"
             android:positiveButtonText="@android:string/ok"
-            android:icon="@drawable/ic_baseline_lock_open"
+            android:icon="@drawable/ic_baseline_lock"
             android:summary="@string/preference_summary_security_code"
             android:title="@string/preference_title_security_code" />
 
@@ -87,10 +88,25 @@
             android:summary="Show the dashboard screen in fullscreen mode."
             android:key="pref_settings_fullscreen"/>
 
+        <Preference
+            android:title="Clear Home Screen"
+            android:summary="Removes the app as the default Home screen (Important!! use this is you want to reset your device home app)."
+            android:key="button_reset_home_app"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Settings Button">
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:title="Settings Disabled"
+            android:summary="Disable and removes the settings button from screen. (Warning!! settings can only be opened with MQTT command 'settings')"
+            android:key="pref_settings_button_disable" />
+
         <SwitchPreference
             android:defaultValue="false"
             android:title="Settings Transparent"
-            android:summary="Make the settings button transparent."
+            android:summary="Make the settings button transparent but still clickable."
             android:key="pref_settings_button_transparent" />
 
         <ListPreference
@@ -98,11 +114,6 @@
             android:title="Settings Location"
             android:entries="@array/settings_location_labels"
             android:entryValues="@array/settings_location_values"/>
-
-        <Preference
-            android:title="Clear Home Screen"
-            android:summary="Removes the app as the default Home screen."
-            android:key="button_reset_home_app"/>
 
     </PreferenceCategory>
 

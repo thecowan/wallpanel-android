@@ -27,7 +27,6 @@ import android.media.MediaPlayer
 import android.net.wifi.WifiManager
 import android.os.*
 import androidx.core.content.ContextCompat
-import androidx.core.os.postDelayed
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.Observer
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
@@ -43,6 +42,7 @@ import com.thanksmister.iot.wallpanel.persistence.Configuration
 import com.thanksmister.iot.wallpanel.ui.activities.BaseBrowserActivity.Companion.BROADCAST_ACTION_CLEAR_BROWSER_CACHE
 import com.thanksmister.iot.wallpanel.ui.activities.BaseBrowserActivity.Companion.BROADCAST_ACTION_JS_EXEC
 import com.thanksmister.iot.wallpanel.ui.activities.BaseBrowserActivity.Companion.BROADCAST_ACTION_LOAD_URL
+import com.thanksmister.iot.wallpanel.ui.activities.BaseBrowserActivity.Companion.BROADCAST_ACTION_OPEN_SETTINGS
 import com.thanksmister.iot.wallpanel.ui.activities.BaseBrowserActivity.Companion.BROADCAST_ACTION_RELOAD_PAGE
 import com.thanksmister.iot.wallpanel.utils.MqttUtils
 import com.thanksmister.iot.wallpanel.utils.MqttUtils.Companion.COMMAND_AUDIO
@@ -56,6 +56,7 @@ import com.thanksmister.iot.wallpanel.utils.MqttUtils.Companion.COMMAND_SENSOR
 import com.thanksmister.iot.wallpanel.utils.MqttUtils.Companion.COMMAND_SENSOR_FACE
 import com.thanksmister.iot.wallpanel.utils.MqttUtils.Companion.COMMAND_SENSOR_MOTION
 import com.thanksmister.iot.wallpanel.utils.MqttUtils.Companion.COMMAND_SENSOR_QR_CODE
+import com.thanksmister.iot.wallpanel.utils.MqttUtils.Companion.COMMAND_SETTINGS
 import com.thanksmister.iot.wallpanel.utils.MqttUtils.Companion.COMMAND_SPEAK
 import com.thanksmister.iot.wallpanel.utils.MqttUtils.Companion.COMMAND_STATE
 import com.thanksmister.iot.wallpanel.utils.MqttUtils.Companion.COMMAND_URL
@@ -75,6 +76,7 @@ import java.util.*
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 
+// TODO move this to internal class within application, no longer run as service
 class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
 
     @Inject
@@ -103,6 +105,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
     private val appStateClearHandler = Handler()
     private val qrCodeClearHandler = Handler()
     private val faceClearHandler = Handler()
+    private val wakeScreenHandler = Handler()
     private var textToSpeechModule: TextToSpeechModule? = null
     private var mqttModule: MQTTModule? = null
     private var connectionLiveData: ConnectionLiveData? = null
@@ -183,7 +186,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         filter.addAction(Intent.ACTION_SCREEN_OFF)
         filter.addAction(Intent.ACTION_USER_PRESENT)
         localBroadCastManager = LocalBroadcastManager.getInstance(this)
-        localBroadCastManager!!.registerReceiver(mBroadcastReceiver, filter)
+        localBroadCastManager?.registerReceiver(mBroadcastReceiver, filter)
     }
 
     override fun onDestroy() {
@@ -572,14 +575,11 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
                 }
             }
             if (commandJson.has(COMMAND_WAKE)) {
-                if (commandJson.getBoolean(COMMAND_WAKE)) {
+                if (commandJson.getBoolean(COMMAND_WAKE).or(false)) {
                     val wakeTime = commandJson.optLong(COMMAND_WAKETIME, SCREEN_WAKE_TIME / 1000) * 1000
-                    switchScreenOn(wakeTime)
+                    wakeScreenOn(wakeTime)
                 } else {
-                    if (partialWakeLock != null && partialWakeLock!!.isHeld) {
-                        Timber.d("Release wakelock")
-                        partialWakeLock!!.release()
-                    }
+                    wakeScreenOff()
                 }
             }
             if (commandJson.has(COMMAND_BRIGHTNESS)) {
@@ -605,6 +605,9 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
             }
             if (commandJson.has(COMMAND_SPEAK)) {
                 speakMessage(commandJson.getString(COMMAND_SPEAK))
+            }
+            if (commandJson.has(COMMAND_SETTINGS)) {
+                openSettings()
             }
             if (commandJson.has(COMMAND_VOLUME)) {
                 setVolume((commandJson.getInt(COMMAND_VOLUME).toFloat() / 100))
@@ -668,19 +671,30 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         }
     }
 
-    private fun switchScreenOn() {
-        switchScreenOn(SCREEN_WAKE_TIME)
+    // TODO temporarily wake screen
+    private fun switchScreen() {
+        val intent = Intent(BROADCAST_SCREEN_WAKE)
+        val bm = LocalBroadcastManager.getInstance(applicationContext)
+        bm.sendBroadcast(intent)
     }
 
     @SuppressLint("WakelockTimeout")
-    private fun switchScreenOn(wakeTime: Long) {
+    private fun wakeScreenOn(wakeTime: Long) {
         if (partialWakeLock != null && !partialWakeLock!!.isHeld) {
-            partialWakeLock!!.acquire(wakeTime)
-        } else if (partialWakeLock != null && partialWakeLock!!.isHeld) {
-            partialWakeLock!!.release()
-            partialWakeLock!!.acquire(wakeTime)
+            partialWakeLock?.acquire(wakeTime)
+            wakeScreenHandler.postDelayed({
+                wakeScreenOff()
+            }, wakeTime)
+            sendWakeScreenOn()
         }
-        sendWakeScreen()
+    }
+
+    @SuppressLint("WakelockTimeout")
+    private fun wakeScreenOff() {
+        if (partialWakeLock != null && partialWakeLock!!.isHeld) {
+            partialWakeLock?.release()
+            sendWakeScreenOff()
+        }
     }
 
     private fun changeScreenBrightness(brightness: Int) {
@@ -699,6 +713,12 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
 
     private fun reloadPage() {
         val intent = Intent(BROADCAST_ACTION_RELOAD_PAGE)
+        val bm = LocalBroadcastManager.getInstance(applicationContext)
+        bm.sendBroadcast(intent)
+    }
+
+    private fun openSettings() {
+        val intent = Intent(BROADCAST_ACTION_OPEN_SETTINGS)
         val bm = LocalBroadcastManager.getInstance(applicationContext)
         bm.sendBroadcast(intent)
     }
@@ -916,9 +936,16 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         bm.sendBroadcast(intent)
     }
 
-    private fun sendWakeScreen() {
+    private fun sendWakeScreenOn() {
         Timber.d("sendWakeScreen")
-        val intent = Intent(BROADCAST_SCREEN_WAKE)
+        val intent = Intent(BROADCAST_SCREEN_WAKE_ON)
+        val bm = LocalBroadcastManager.getInstance(applicationContext)
+        bm.sendBroadcast(intent)
+    }
+
+    private fun sendWakeScreenOff() {
+        Timber.d("sendWakeScreenOff")
+        val intent = Intent(BROADCAST_SCREEN_WAKE_OFF)
         val bm = LocalBroadcastManager.getInstance(applicationContext)
         bm.sendBroadcast(intent)
     }
@@ -975,7 +1002,9 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
 
     private val cameraDetectorCallback = object : CameraCallback {
         override fun onDetectorError() {
-            sendToastMessage(getString(R.string.error_missing_vision_lib))
+            if (configuration.cameraFaceEnabled || configuration.cameraQRCodeEnabled) {
+                sendToastMessage(getString(R.string.error_missing_vision_lib))
+            }
         }
 
         override fun onCameraError() {
@@ -985,7 +1014,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         override fun onMotionDetected() {
             Timber.i("Motion detected")
             if (configuration.cameraMotionWake) {
-                switchScreenOn()
+                switchScreen()
             }
             publishMotionDetected()
         }
@@ -999,7 +1028,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
             Timber.d("configuration.cameraMotionBright ${configuration.cameraMotionBright}")
             if (configuration.cameraFaceWake) {
                 configurePowerOptions()
-                switchScreenOn()
+                switchScreen() // temp turn on screen
             }
             publishFaceDetected()
         }
@@ -1020,6 +1049,8 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         const val BROADCAST_TOAST_MESSAGE = "BROADCAST_TOAST_MESSAGE"
         const val BROADCAST_SERVICE_STARTED = "BROADCAST_SERVICE_STARTED"
         const val BROADCAST_SCREEN_WAKE = "BROADCAST_SCREEN_WAKE"
+        const val BROADCAST_SCREEN_WAKE_ON = "BROADCAST_SCREEN_WAKE_ON"
+        const val BROADCAST_SCREEN_WAKE_OFF = "BROADCAST_SCREEN_WAKE_OFF"
         const val BROADCAST_SCREEN_BRIGHTNESS_CHANGE = "BROADCAST_SCREEN_BRIGHTNESS_CHANGE"
     }
 }

@@ -18,6 +18,7 @@ package com.thanksmister.iot.wallpanel.ui.activities
 
 import android.annotation.SuppressLint
 import android.content.DialogInterface
+import android.content.Intent
 import android.net.http.SslError
 import android.os.Build
 import android.os.Bundle
@@ -31,6 +32,7 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
 import com.google.android.material.snackbar.Snackbar
 import com.thanksmister.iot.wallpanel.R
+import com.thanksmister.iot.wallpanel.network.WallPanelService
 import com.thanksmister.iot.wallpanel.ui.fragments.CodeBottomSheetFragment
 import com.thanksmister.iot.wallpanel.utils.BrowserUtils
 import kotlinx.android.synthetic.main.activity_browser.*
@@ -85,8 +87,7 @@ class BrowserActivityNative : BaseBrowserActivity() {
 
         launchSettingsFab.setOnClickListener {
             if (configuration.isFirstTime) {
-                val intent = SettingsActivity.createStartIntent(this)
-                startActivity(intent)
+                openSettings()
             } else {
                 showCodeBottomSheet()
             }
@@ -241,6 +242,15 @@ class BrowserActivityNative : BaseBrowserActivity() {
         }
     }
 
+    override fun openSettings() {
+        hideScreenSaver()
+        // Stop our service for performance reasons and to pick up changes
+        val wallPanelService = Intent(this, WallPanelService::class.java)
+        stopService(wallPanelService)
+        val intent = SettingsActivity.createStartIntent(this)
+        startActivity(intent)
+    }
+
     @SuppressLint("SetJavaScriptEnabled")
     override fun configureWebSettings(userAgent: String) {
         if(webSettings == null) {
@@ -317,8 +327,7 @@ class BrowserActivityNative : BaseBrowserActivity() {
                 object : CodeBottomSheetFragment.OnAlarmCodeFragmentListener {
                     override fun onComplete(code: String) {
                         codeBottomSheet?.dismiss()
-                        val intent = SettingsActivity.createStartIntent(this@BrowserActivityNative)
-                        startActivity(intent)
+                        openSettings()
                     }
 
                     override fun onCodeError() {
@@ -354,21 +363,28 @@ class BrowserActivityNative : BaseBrowserActivity() {
             }
         }
         launchSettingsFab.layoutParams = params
-        if (configuration.settingsTransparent) {
-            launchSettingsFab.backgroundTintList = ContextCompat.getColorStateList(this, R.color.transparent)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                launchSettingsFab.compatElevation = 0f
+        when {
+            configuration.settingsDisabled -> {
+                launchSettingsFab.visibility = View.GONE
             }
-            launchSettingsFab.imageAlpha = 0
-        } else {
-            launchSettingsFab.backgroundTintList = ContextCompat.getColorStateList(this, R.color.colorAccent)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                launchSettingsFab.compatElevation = 4f
+            configuration.settingsTransparent -> {
+                launchSettingsFab.visibility = View.VISIBLE
+                launchSettingsFab.backgroundTintList = ContextCompat.getColorStateList(this, R.color.transparent)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    launchSettingsFab.compatElevation = 0f
+                }
+                launchSettingsFab.imageAlpha = 0
             }
-            launchSettingsFab.imageAlpha = 180
+            else -> {
+                launchSettingsFab.visibility = View.VISIBLE
+                launchSettingsFab.backgroundTintList = ContextCompat.getColorStateList(this, R.color.colorAccent)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    launchSettingsFab.compatElevation = 4f
+                }
+                launchSettingsFab.imageAlpha = 180
+            }
         }
     }
-
 
     /*private fun hideNavigationBar() {
         try {

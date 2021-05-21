@@ -61,6 +61,10 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
         get() = this.sharedPreferences.getBoolean(PREF_SETTINGS_TRANSPARENT, false)
         set(value) = this.sharedPreferences.edit().putBoolean(PREF_SETTINGS_TRANSPARENT, value).apply()
 
+    var settingsDisabled: Boolean
+        get() = this.sharedPreferences.getBoolean(PREF_SETTINGS_DISABLE, false)
+        set(value) = this.sharedPreferences.edit().putBoolean(PREF_SETTINGS_DISABLE, value).apply()
+
     var writeScreenPermissionsShown: Boolean
         get() = sharedPreferences.getBoolean(PREF_WRITE_SCREEN_PERMISSIONS, false)
         set(value) {
@@ -348,6 +352,7 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
         private const val PREF_SETTINGS_CODE = "pref_settings_code"
         private const val PREF_SETTINGS_CODE_STRING = "pref_settings_code_string"
         private const val PREF_SETTINGS_TRANSPARENT = "pref_settings_transparent"
+        private const val PREF_SETTINGS_DISABLE = "pref_settings_disable"
         private const val PREF_SETTINGS_LOCATION = "pref_settings_location"
         const val PREF_FIRST_TIME = "pref_first_time"
         const val PREF_WRITE_SCREEN_PERMISSIONS = "pref_write_screen_permissions"

@@ -89,6 +89,10 @@ class SettingsFragment : BaseSettingsFragment() {
         findPreference<SwitchPreference>(PREF_SETTINGS_BUTTON_TRANSPARENT) as SwitchPreference
     }
 
+    private val settingsDisablePreference: SwitchPreference by lazy {
+        findPreference<SwitchPreference>(PREF_SETTINGS_BUTTON_DISABLE) as SwitchPreference
+    }
+
     private val settingsLocationPreference: ListPreference by lazy {
         findPreference<ListPreference>(PREF_SETTINGS_BUTTON_LOCATION) as ListPreference
     }
@@ -175,6 +179,7 @@ class SettingsFragment : BaseSettingsFragment() {
 
         fullScreenPreference.isChecked = configuration.fullScreen
         settingsTransparentPreference.isChecked = configuration.settingsTransparent
+        settingsDisablePreference.isChecked = configuration.settingsDisabled
         useDarkThemeSettings.isChecked = configuration.useDarkTheme
         userAgentPreference.text = configuration.browserUserAgent
         dashboardPreference?.text = configuration.appLaunchUrl
@@ -308,12 +313,17 @@ class SettingsFragment : BaseSettingsFragment() {
             PREF_SETTINGS_BUTTON_TRANSPARENT -> {
                 configuration.settingsTransparent = settingsTransparentPreference.isChecked
             }
+            PREF_SETTINGS_BUTTON_DISABLE -> {
+                configuration.settingsDisabled = settingsDisablePreference.isChecked
+            }
             PREF_SETTINGS_THEME -> {
                 configuration.useDarkTheme = useDarkThemeSettings.isChecked
                 if (configuration.useDarkTheme) {
                     AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                    requireActivity().recreate()
                 } else {
                     AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                    requireActivity().recreate()
                 }
             }
             PREF_SETTINGS_BUTTON_LOCATION -> {
@@ -444,6 +454,7 @@ class SettingsFragment : BaseSettingsFragment() {
         const val PREF_SCREEN_INACTIVITY_TIME = "pref_screensaver_inactivity_time"
         const val PREF_SETTINGS_FULL_SCREEN = "pref_settings_fullscreen"
         const val PREF_SETTINGS_BUTTON_TRANSPARENT = "pref_settings_button_transparent"
+        const val PREF_SETTINGS_BUTTON_DISABLE = "pref_settings_button_disable"
         const val PREF_SETTINGS_BUTTON_LOCATION = "pref_settings_button_location"
         const val PREF_SETTINGS_THEME = "pref_settings_theme"
         const val PREF_SETTINGS_DASHBOARD_URL = "pref_settings_dashboard_url"

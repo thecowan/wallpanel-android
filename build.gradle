@@ -17,19 +17,18 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-    ext.kotlin_version = '1.3.50'
+    ext.kotlin_version = '1.4.32'
     repositories {
         google()
         jcenter()
         maven { url "https://repo.eclipse.org/content/repositories/paho-snapshots/" }
-        maven { url 'https://maven.fabric.io/public' }
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.2'
+        classpath 'com.android.tools.build:gradle:4.1.3'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath 'com.google.gms:google-services:4.3.4'
-        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.4.1'
+        classpath 'com.google.gms:google-services:4.3.8'
+        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.6.1'
     }
 }
 
@@ -50,12 +49,12 @@ ext.deps = [:]
 def versions = [:]
 versions.lifecycle = "2.1.0"
 versions.support = "28.0.0"
-versions.kotlin = "1.2.20"
+versions.kotlin = "1.4.32"
 versions.navigation = "1.0.0"
 versions.constraint_layout = "1.1.0"
 versions.retrofit = "2.2.0"
 versions.stetho = "1.3.1"
-versions.dagger = "2.16"
+versions.dagger = "2.35.1"
 versions.archVersion = '1.1.1'
 versions.archRoomVersion = '1.1.0'
 ext.versions = versions

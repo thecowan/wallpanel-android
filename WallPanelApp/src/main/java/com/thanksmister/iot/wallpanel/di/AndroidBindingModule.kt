@@ -18,6 +18,7 @@ package com.thanksmister.iot.wallpanel.di
 
 import androidx.lifecycle.ViewModel
 import com.thanksmister.iot.wallpanel.BootUpReceiver
+import com.thanksmister.iot.wallpanel.network.WallPanelService
 import com.thanksmister.iot.wallpanel.ui.*
 import com.thanksmister.iot.wallpanel.ui.activities.*
 import com.thanksmister.iot.wallpanel.ui.fragments.*
@@ -33,6 +34,9 @@ internal abstract class AndroidBindingModule {
     @IntoMap
     @ViewModelKey(DetectionViewModel::class)
     abstract fun cameraViewModel(viewModel: DetectionViewModel): ViewModel
+
+    @ContributesAndroidInjector
+    internal abstract fun alarmService(): WallPanelService
 
     @ContributesAndroidInjector
     internal abstract fun settingsActivity(): SettingsActivity

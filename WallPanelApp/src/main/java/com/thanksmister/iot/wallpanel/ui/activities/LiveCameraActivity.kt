@@ -166,7 +166,9 @@ class LiveCameraActivity : DaggerAppCompatActivity() {
 
     private val cameraCallback = object : CameraCallback {
         override fun onDetectorError() {
-            Toast.makeText(this@LiveCameraActivity,getString(R.string.error_missing_vision_lib), Toast.LENGTH_LONG).show()
+            if(configuration.cameraFaceEnabled || configuration.cameraQRCodeEnabled) {
+                Toast.makeText(this@LiveCameraActivity,getString(R.string.error_missing_vision_lib), Toast.LENGTH_LONG).show()
+            }
         }
         override fun onCameraError() {
             Toast.makeText(this@LiveCameraActivity, getString(R.string.toast_camera_source_error), Toast.LENGTH_LONG).show()

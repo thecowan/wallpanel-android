@@ -37,6 +37,8 @@ import com.thanksmister.iot.wallpanel.network.WallPanelService.Companion.BROADCA
 import com.thanksmister.iot.wallpanel.network.WallPanelService.Companion.BROADCAST_EVENT_SCREEN_TOUCH
 import com.thanksmister.iot.wallpanel.network.WallPanelService.Companion.BROADCAST_SCREEN_BRIGHTNESS_CHANGE
 import com.thanksmister.iot.wallpanel.network.WallPanelService.Companion.BROADCAST_SCREEN_WAKE
+import com.thanksmister.iot.wallpanel.network.WallPanelService.Companion.BROADCAST_SCREEN_WAKE_OFF
+import com.thanksmister.iot.wallpanel.network.WallPanelService.Companion.BROADCAST_SCREEN_WAKE_ON
 import com.thanksmister.iot.wallpanel.network.WallPanelService.Companion.BROADCAST_SERVICE_STARTED
 import com.thanksmister.iot.wallpanel.network.WallPanelService.Companion.BROADCAST_TOAST_MESSAGE
 import com.thanksmister.iot.wallpanel.persistence.Configuration
@@ -95,6 +97,9 @@ abstract class BaseBrowserActivity : DaggerAppCompatActivity() {
                 Timber.d("Browser page reloading.")
                 stopDisconnectTimer()
                 reload()
+            } else if (BROADCAST_ACTION_OPEN_SETTINGS == intent.action) {
+                Timber.d("Browser open settings.")
+                openSettings()
             } else if (BROADCAST_TOAST_MESSAGE == intent.action && !isFinishing) {
                 val message = intent.getStringExtra(BROADCAST_TOAST_MESSAGE)
                 stopDisconnectTimer()
@@ -111,6 +116,12 @@ abstract class BaseBrowserActivity : DaggerAppCompatActivity() {
                 resetScreenBrightness(false)
             } else if (BROADCAST_SCREEN_WAKE == intent.action && !isFinishing) {
                 stopDisconnectTimer()
+            } else if (BROADCAST_SCREEN_WAKE_ON == intent.action && !isFinishing) {
+                userPresent = true
+                resetScreenBrightness(false)
+                clearInactivityTimer()
+            } else if (BROADCAST_SCREEN_WAKE_OFF == intent.action && !isFinishing) {
+                resetInactivityTimer()
             } else if (BROADCAST_ACTION_RELOAD_PAGE == intent.action && !isFinishing) {
                 hideScreenSaver()
             } else if (BROADCAST_SERVICE_STARTED == intent.action && !isFinishing) {
@@ -147,11 +158,14 @@ abstract class BaseBrowserActivity : DaggerAppCompatActivity() {
         filter.addAction(BROADCAST_ACTION_JS_EXEC)
         filter.addAction(BROADCAST_ACTION_CLEAR_BROWSER_CACHE)
         filter.addAction(BROADCAST_ACTION_RELOAD_PAGE)
+        filter.addAction(BROADCAST_ACTION_OPEN_SETTINGS)
         filter.addAction(BROADCAST_SCREEN_BRIGHTNESS_CHANGE)
         filter.addAction(BROADCAST_CLEAR_ALERT_MESSAGE)
         filter.addAction(BROADCAST_ALERT_MESSAGE)
         filter.addAction(BROADCAST_TOAST_MESSAGE)
         filter.addAction(BROADCAST_SCREEN_WAKE)
+        filter.addAction(BROADCAST_SCREEN_WAKE_ON)
+        filter.addAction(BROADCAST_SCREEN_WAKE_OFF)
         filter.addAction(BROADCAST_SERVICE_STARTED)
         val bm = LocalBroadcastManager.getInstance(this)
         bm.registerReceiver(mBroadcastReceiver, filter)
@@ -278,9 +292,14 @@ abstract class BaseBrowserActivity : DaggerAppCompatActivity() {
         inactivityHandler.postDelayed(inactivityCallback, configuration.inactivityTime)
     }
 
+    private fun clearInactivityTimer() {
+        hideScreenSaver()
+        inactivityHandler.removeCallbacks(inactivityCallback)
+    }
+
     fun stopDisconnectTimer() {
         Timber.d("stopDisconnectTimer")
-        if (!userPresent) {
+        if (userPresent.not()) {
             userPresent = true
             resetScreenBrightness(false)
         }
@@ -330,11 +349,13 @@ abstract class BaseBrowserActivity : DaggerAppCompatActivity() {
     protected abstract fun clearCache()
     protected abstract fun reload()
     protected abstract fun complete()
+    protected abstract fun openSettings()
 
     companion object {
         const val BROADCAST_ACTION_LOAD_URL = "BROADCAST_ACTION_LOAD_URL"
         const val BROADCAST_ACTION_JS_EXEC = "BROADCAST_ACTION_JS_EXEC"
         const val BROADCAST_ACTION_CLEAR_BROWSER_CACHE = "BROADCAST_ACTION_CLEAR_BROWSER_CACHE"
         const val BROADCAST_ACTION_RELOAD_PAGE = "BROADCAST_ACTION_RELOAD_PAGE"
+        const val BROADCAST_ACTION_OPEN_SETTINGS = "BROADCAST_ACTION_OPEN_SETTINGS"
     }
 }

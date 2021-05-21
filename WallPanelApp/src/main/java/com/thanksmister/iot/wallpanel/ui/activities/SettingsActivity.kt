@@ -48,21 +48,12 @@ class SettingsActivity : DaggerAppCompatActivity() {
 
         setContentView(R.layout.activity_settings)
 
-        // Stop our service for performance reasons and to pick up changes
-        val wallPanelService = Intent(this, WallPanelService::class.java)
-        stopService(wallPanelService)
-
         supportActionBar?.show()
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setDisplayShowHomeEnabled(true)
         supportActionBar?.title = (getString(R.string.title_settings))
 
         lifecycle.addObserver(dialogUtils)
-    }
-
-    public override fun onResume() {
-        super.onResume()
-
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -76,7 +67,6 @@ class SettingsActivity : DaggerAppCompatActivity() {
 
     companion object {
         const val PERMISSIONS_REQUEST_WRITE_SETTINGS = 200
-
         fun createStartIntent(context: Context): Intent {
             return Intent(context, SettingsActivity::class.java)
         }

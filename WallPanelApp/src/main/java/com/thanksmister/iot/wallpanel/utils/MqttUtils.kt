@@ -48,6 +48,7 @@ class MqttUtils {
         const val COMMAND_SENSOR = "sensor/"
         const val COMMAND_URL = "url"
         const val COMMAND_CAMERA = "camera"
+        const val COMMAND_SETTINGS = "settings"
         const val COMMAND_RELAUNCH = "relaunch"
         const val COMMAND_WAKE = "wake"
         const val COMMAND_WAKETIME = "wakeTime"

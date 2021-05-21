@@ -28,7 +28,6 @@ import dagger.android.support.AndroidSupportInjectionModule;
 @Component(modules = {
         AndroidSupportInjectionModule.class,
         ApplicationModule.class,
-        ServicesModule.class,
         ActivityModule.class,
         AndroidBindingModule.class,
         DaggerViewModelInjectionModule.class
