@@ -25,7 +25,37 @@ apply plugin: 'com.google.firebase.crashlytics'
 def versionMajor = 0
 def versionMinor = 9
 def versionPatch = 4
-def versionBuild = 7 // bump for dog food builds, public betas, etc.
+def versionBuild = 9 // bump for dog food builds, public betas, etc.
+
+def CODE() {
+    Properties properties = new Properties()
+    properties.load(project.rootProject.file('local.properties').newDataInputStream())
+    return properties.getProperty("code");
+}
+
+def HASS_URL() {
+    Properties properties = new Properties()
+    properties.load(project.rootProject.file('local.properties').newDataInputStream())
+    return properties.getProperty("hassUrl");
+}
+
+def BROKER() {
+    Properties properties = new Properties()
+    properties.load(project.rootProject.file('local.properties').newDataInputStream())
+    return properties.getProperty("broker");
+}
+
+def BROKER_PASS() {
+    Properties properties = new Properties()
+    properties.load(project.rootProject.file('local.properties').newDataInputStream())
+    return properties.getProperty("brokerPass");
+}
+
+def BROKER_USERNAME() {
+    Properties properties = new Properties()
+    properties.load(project.rootProject.file('local.properties').newDataInputStream())
+    return properties.getProperty("brokerUsername");
+}
 
 android {
     kapt {
@@ -61,6 +91,11 @@ android {
             buildConfigField "String", BASE_ENVIRONMENT, '"DEV_ENVIRONMENT"'
             applicationId "com.thanksmister.iot.wallpanel"
             versionName "${versionMajor}.${versionMinor}.${versionPatch} Build ${versionBuild}-DEV"
+            buildConfigField 'Integer', 'CODE', CODE()
+            buildConfigField 'String', 'HASS_URL', "\"" + HASS_URL() +"\""
+            buildConfigField 'String', 'BROKER', "\"" + BROKER() +"\""
+            buildConfigField 'String', 'BROKER_PASS', "\"" + BROKER_PASS() +"\""
+            buildConfigField 'String', 'BROKER_USERNAME', "\"" + BROKER_USERNAME() +"\""
         }
         qa {
             dimension "default"
@@ -73,6 +108,11 @@ android {
             buildConfigField "String", BASE_ENVIRONMENT, '"PROD_ENVIRONMENT"'
             applicationId "com.thanksmister.iot.wallpanel"
             versionName "${versionMajor}.${versionMinor}.${versionPatch} Build ${versionBuild}"
+            buildConfigField 'Integer', 'CODE', '1234'
+            buildConfigField 'String', 'HASS_URL', '""'
+            buildConfigField 'String', 'BROKER', '""'
+            buildConfigField 'String', 'BROKER_USERNAME', '""'
+            buildConfigField 'String', 'BROKER_PASS', '""'
         }
     }
 

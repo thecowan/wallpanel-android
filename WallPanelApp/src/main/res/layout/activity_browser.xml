@@ -61,4 +61,18 @@
         app:pressedTranslationZ="0dp"
         android:layout_margin="16dp" />
 
+    <!--<Button
+        android:id="@+id/refreshButton"
+        style="@style/ButtonGreen.Small"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingEnd="16dp"
+        app:srcCompat="@drawable/ic_baseline_refresh"
+        android:drawableStart="@drawable/ic_baseline_refresh"
+        android:drawablePadding="8dp"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="24dp"
+        android:visibility="gone"
+        android:text="Refresh"/>
+-->
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

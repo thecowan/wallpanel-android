@@ -230,7 +230,7 @@
     <string name="preference_camera_flip_title">Rotate Camera</string>
     <string name="preference_camera_flip_summary">Depending on your camera, you may need to rotate or flip the camera. Currently %1$s.</string>
     <string name="error_no_web_browser">You have no application to support opening web links.</string>
-    <string name="toast_connect_retry">Retrying to connect…</string>
+    <string name="toast_connect_retry">Trying to reconnect…</string>
 
     <string name="shortcut_settings_disabled_message">Shortcut disabled. You can enable in App settings</string>
     <string name="shortcut_settings_shortlabel">Settings</string>

@@ -36,6 +36,7 @@ import com.koushikdutta.async.http.body.JSONObjectBody
 import com.koushikdutta.async.http.body.StringBody
 import com.koushikdutta.async.http.server.AsyncHttpServer
 import com.koushikdutta.async.http.server.AsyncHttpServerResponse
+import com.koushikdutta.async.util.Charsets
 import com.thanksmister.iot.wallpanel.R
 import com.thanksmister.iot.wallpanel.modules.*
 import com.thanksmister.iot.wallpanel.persistence.Configuration
@@ -71,6 +72,9 @@ import org.json.JSONException
 import org.json.JSONObject
 import timber.log.Timber
 import java.io.IOException
+import java.net.URLDecoder
+import java.net.URLEncoder
+import java.net.URLEncoder.encode
 import java.nio.ByteBuffer
 import java.util.*
 import java.util.concurrent.atomic.AtomicBoolean
@@ -127,7 +131,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         mqttAlertMessageShown = false
         mqttConnecting = false
         if (!mqttConnected) {
-            sendToastMessage(getString(R.string.toast_connect_retry))
+            //sendToastMessage(getString(R.string.toast_connect_retry))
             mqttModule?.restart()
         }
     }
@@ -414,10 +418,18 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         }
     }
 
+    // TODO text to speech requies content type 'Content-Type': 'application/json; charset=UTF-8'
     private fun startHttp() {
         if (httpServer == null && configuration.httpEnabled) {
             Timber.d("startHttp")
+
+            // TODO this is a hack to get utf-8 working, we need to switch http server libraries
+            val charsetsClass = Charsets::class.java
+            val us_ascii = charsetsClass.getDeclaredField("US_ASCII")
+            us_ascii.isAccessible = true
+            us_ascii.set(Charsets::class.java, Charsets.UTF_8)
             httpServer = AsyncHttpServer()
+
             httpServer?.addAction("*", "*") { request, response ->
                 Timber.i("Unhandled Request Arrived")
                 response.code(404)
@@ -432,7 +444,8 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
                 var result = false
                 if (request.body is JSONObjectBody) {
                     Timber.i("POST Json Arrived (command)")
-                    result = processCommand((request.body as JSONObjectBody).get())
+                    val body = (request.body as JSONObjectBody).get()
+                    result = processCommand(body)
                 } else if (request.body is StringBody) {
                     Timber.i("POST String Arrived (command)")
                     result = processCommand((request.body as StringBody).get())
@@ -576,8 +589,12 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
             }
             if (commandJson.has(COMMAND_WAKE)) {
                 if (commandJson.getBoolean(COMMAND_WAKE).or(false)) {
-                    val wakeTime = commandJson.optLong(COMMAND_WAKETIME, SCREEN_WAKE_TIME / 1000) * 1000
-                    wakeScreenOn(wakeTime)
+                    val wakeTime = commandJson.optLong(COMMAND_WAKETIME, 0) * 1000
+                    if(wakeTime > 0) {
+                        wakeScreenOn(wakeTime)
+                    } else {
+                        wakeScreen()
+                    }
                 } else {
                     wakeScreenOff()
                 }
@@ -663,16 +680,17 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         audioPlayer?.setVolume(vol, vol)
     }
 
+    // TODO we need to url decode incoming strings to support other languages
     private fun speakMessage(message: String) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            if (textToSpeechModule != null) {
-                textToSpeechModule!!.speakText(message)
-            }
+            textToSpeechModule?.speakText(message)
+        } else {
+            sendAlertMessage("Text to Speech is not supported on this device's version of Android")
         }
     }
 
     // TODO temporarily wake screen
-    private fun switchScreen() {
+    private fun wakeScreen() {
         val intent = Intent(BROADCAST_SCREEN_WAKE)
         val bm = LocalBroadcastManager.getInstance(applicationContext)
         bm.sendBroadcast(intent)
@@ -682,19 +700,21 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
     private fun wakeScreenOn(wakeTime: Long) {
         if (partialWakeLock != null && !partialWakeLock!!.isHeld) {
             partialWakeLock?.acquire(wakeTime)
-            wakeScreenHandler.postDelayed({
-                wakeScreenOff()
-            }, wakeTime)
+            wakeScreenHandler.postDelayed(clearWakeScreenRunnable, wakeTime)
             sendWakeScreenOn()
         }
     }
 
-    @SuppressLint("WakelockTimeout")
+    private val clearWakeScreenRunnable = Runnable {
+        wakeScreenOff()
+    }
+
     private fun wakeScreenOff() {
+        wakeScreenHandler.removeCallbacks(clearWakeScreenRunnable)
         if (partialWakeLock != null && partialWakeLock!!.isHeld) {
-            partialWakeLock?.release()
-            sendWakeScreenOff()
+            partialWakeLock!!.release()
         }
+        sendWakeScreenOff()
     }
 
     private fun changeScreenBrightness(brightness: Int) {
@@ -1014,7 +1034,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         override fun onMotionDetected() {
             Timber.i("Motion detected")
             if (configuration.cameraMotionWake) {
-                switchScreen()
+                wakeScreen()
             }
             publishMotionDetected()
         }
@@ -1028,7 +1048,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
             Timber.d("configuration.cameraMotionBright ${configuration.cameraMotionBright}")
             if (configuration.cameraFaceWake) {
                 configurePowerOptions()
-                switchScreen() // temp turn on screen
+                wakeScreen() // temp turn on screen
             }
             publishFaceDetected()
         }
@@ -1052,5 +1072,6 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         const val BROADCAST_SCREEN_WAKE_ON = "BROADCAST_SCREEN_WAKE_ON"
         const val BROADCAST_SCREEN_WAKE_OFF = "BROADCAST_SCREEN_WAKE_OFF"
         const val BROADCAST_SCREEN_BRIGHTNESS_CHANGE = "BROADCAST_SCREEN_BRIGHTNESS_CHANGE"
+        const val BROADCAST_CONNTED = "BROADCAST_SCREEN_BRIGHTNESS_CHANGE"
     }
 }

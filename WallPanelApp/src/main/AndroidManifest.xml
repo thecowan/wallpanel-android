@@ -26,11 +26,24 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
+    <!-- Permission to record video -->
     <uses-permission android:name="android.permission.CAMERA" />
 
+    <!-- Permissions to record audio from web page -->
+    <uses-permission android:name="android.permission.MICROPHONE" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+
+    <!-- Permission to change the screen brightness -->
     <uses-permission
         android:name="android.permission.WRITE_SETTINGS"
         tools:ignore="ProtectedPermissions" />
+
+    <!-- Features supported -->
+    <uses-feature android:name="android.hardware.audio.low_latency" />
+    <uses-feature android:name="android.hardware.audio.pro" />
+    <uses-feature android:name="android.hardware.microphone" />
 
     <uses-feature
         android:name="android.hardware.camera"
@@ -58,13 +71,14 @@
         <activity
             android:name="com.thanksmister.iot.wallpanel.ui.activities.BrowserActivityNative"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
-            android:hardwareAccelerated="true"
             android:enabled="true"
             android:exported="true"
+            android:hardwareAccelerated="true"
             android:label="@string/app_name"
             android:theme="@style/AppThemeFullScreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.HOME" />
                 <category android:name="android.intent.category.LAUNCHER" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -91,10 +105,11 @@
             android:enabled="true"
             android:exported="true">
             <intent-filter>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <action android:name="android.intent.action.BOOT_COMPLETED"/>
-                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED"/>
-                <action android:name="android.intent.action.QUICKBOOT_POWERON"/>
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
             </intent-filter>
         </receiver>
 

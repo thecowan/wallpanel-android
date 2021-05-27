@@ -195,8 +195,10 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
         set(value) =
             sharedPreferences.edit().putBoolean(context.getString(R.string.key_setting_mqtt_tls_enabled), value).apply()
 
-    val mqttBroker: String
+    var mqttBroker: String
         get() = getStringPref(R.string.key_setting_mqtt_servername, R.string.default_setting_mqtt_servername)
+        set(value) =
+            sharedPreferences.edit().putString(context.getString(R.string.key_setting_mqtt_servername), value).apply()
 
     val mqttServerPort: Int
         get() = getStringPref(R.string.key_setting_mqtt_serverport, R.string.default_setting_mqtt_serverport).trim().toInt()
@@ -209,13 +211,17 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
         get() = getStringPref(R.string.key_setting_mqtt_clientid,
                 R.string.default_setting_mqtt_clientid)
 
-    val mqttUsername: String
+    var mqttUsername: String
         get() = getStringPref(R.string.key_setting_mqtt_username,
                 R.string.default_setting_mqtt_username)
+        set(value) =
+            sharedPreferences.edit().putString(context.getString(R.string.key_setting_mqtt_username), value).apply()
 
-    val mqttPassword: String
+    var mqttPassword: String
         get() = getStringPref(R.string.key_setting_mqtt_password,
                 R.string.default_setting_mqtt_password)
+        set(value) =
+            sharedPreferences.edit().putString(context.getString(R.string.key_setting_mqtt_password), value).apply()
 
     val mqttSensorFrequency: Int
         get() = getStringPref(R.string.key_setting_mqtt_sensorfrequency,
@@ -293,8 +299,10 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
     val hasDimScreenSaver: Boolean
         get() = getBoolPref(R.string.key_screensaver_dim, R.string.default_screensaver_dim);
 
-    val hasClockScreenSaver: Boolean
+    var hasClockScreenSaver: Boolean
         get() = getBoolPref(R.string.key_screensaver, R.string.default_screensaver)
+        set(value) =
+            sharedPreferences.edit().putBoolean(context.getString(R.string.key_screensaver), value).apply()
 
     val hasScreenSaverWallpaper: Boolean
         get() = getBoolPref(R.string.key_screensaver_wallpaper, R.string.default_screensaver_wallpaper)

@@ -31,6 +31,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.thanksmister.iot.wallpanel.AppExceptionHandler
+import com.thanksmister.iot.wallpanel.network.MQTTOptions
 import com.thanksmister.iot.wallpanel.network.WallPanelService
 import com.thanksmister.iot.wallpanel.network.WallPanelService.Companion.BROADCAST_ALERT_MESSAGE
 import com.thanksmister.iot.wallpanel.network.WallPanelService.Companion.BROADCAST_CLEAR_ALERT_MESSAGE
@@ -56,6 +57,9 @@ abstract class BaseBrowserActivity : DaggerAppCompatActivity() {
 
     @Inject
     lateinit var configuration: Configuration
+
+    @Inject
+    lateinit var mqttOptions: MQTTOptions
 
     @Inject
     lateinit var screenUtils: ScreenUtils
@@ -120,8 +124,10 @@ abstract class BaseBrowserActivity : DaggerAppCompatActivity() {
                 userPresent = true
                 resetScreenBrightness(false)
                 clearInactivityTimer()
+                window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
             } else if (BROADCAST_SCREEN_WAKE_OFF == intent.action && !isFinishing) {
                 resetInactivityTimer()
+                window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
             } else if (BROADCAST_ACTION_RELOAD_PAGE == intent.action && !isFinishing) {
                 hideScreenSaver()
             } else if (BROADCAST_SERVICE_STARTED == intent.action && !isFinishing) {
@@ -357,5 +363,7 @@ abstract class BaseBrowserActivity : DaggerAppCompatActivity() {
         const val BROADCAST_ACTION_CLEAR_BROWSER_CACHE = "BROADCAST_ACTION_CLEAR_BROWSER_CACHE"
         const val BROADCAST_ACTION_RELOAD_PAGE = "BROADCAST_ACTION_RELOAD_PAGE"
         const val BROADCAST_ACTION_OPEN_SETTINGS = "BROADCAST_ACTION_OPEN_SETTINGS"
+        const val REQUEST_CODE_PERMISSION_AUDIO = 12
+        const val REQUEST_CODE_PERMISSION_CAMERA = 13
     }
 }

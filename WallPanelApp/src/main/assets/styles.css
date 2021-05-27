@@ -1,0 +1,62 @@
+html { box-sizing: border-box; }
+
+*,
+*::before,
+*::after { box-sizing: inherit; }
+
+body * {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font: normal 100%/1.15 "Merriweather", serif;
+  background-color: #ffffff;
+  color: #fff;
+}
+
+.wrapper {
+  position: relative;
+  max-width: 1298px;
+  height: auto;
+  margin: 1em auto 0 auto;
+}
+
+/* https://www.flaticon.com/authors/vectors-market */
+/* https://www.flaticon.com/authors/icomoon */
+.box {
+  max-width: 70%;
+  min-height: auto;
+  margin: 0 auto;
+  padding: 2em 0em;
+  text-align: center;
+}
+
+h1, p:not(:last-of-type) { }
+
+h1 {
+  margin: 0 0 1rem 0;
+  font-size: 2em;
+  color: #216f79;
+}
+
+p {
+margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  font-size: 1.5em;
+  text-align: center;
+  color: #216f79;
+}
+
+p:first-of-type { margin-top: 0em; }
+
+p > a {
+  border-bottom: 1px dashed #216f79;
+  font-style: italic;
+  text-decoration: none;
+  color: #216f79;
+}
+
+p > a:hover { text-shadow: 0 0 6px #216f79; }
+
+p img { vertical-align: bottom; }

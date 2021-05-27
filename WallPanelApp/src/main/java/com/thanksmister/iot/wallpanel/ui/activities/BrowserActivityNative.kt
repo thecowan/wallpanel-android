@@ -16,9 +16,10 @@
 
 package com.thanksmister.iot.wallpanel.ui.activities
 
+import android.Manifest
 import android.annotation.SuppressLint
-import android.content.DialogInterface
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.http.SslError
 import android.os.Build
 import android.os.Bundle
@@ -26,21 +27,26 @@ import android.os.Handler
 import android.view.*
 import android.webkit.*
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.LifecycleObserver
 import com.google.android.material.snackbar.Snackbar
+import com.thanksmister.iot.wallpanel.BuildConfig
 import com.thanksmister.iot.wallpanel.R
+import com.thanksmister.iot.wallpanel.network.ConnectionLiveData
 import com.thanksmister.iot.wallpanel.network.WallPanelService
 import com.thanksmister.iot.wallpanel.ui.fragments.CodeBottomSheetFragment
-import com.thanksmister.iot.wallpanel.utils.BrowserUtils
 import kotlinx.android.synthetic.main.activity_browser.*
 import timber.log.Timber
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-class BrowserActivityNative : BaseBrowserActivity() {
+
+class BrowserActivityNative : BaseBrowserActivity(), LifecycleObserver {
 
     private val mWebView: WebView by lazy {
         findViewById<View>(R.id.activity_browser_webview_native) as WebView
@@ -51,6 +57,10 @@ class BrowserActivityNative : BaseBrowserActivity() {
     private var codeBottomSheet: CodeBottomSheetFragment? = null
     private var webSettings: WebSettings? = null
     private val calendar: Calendar = Calendar.getInstance()
+    private val reconnectionHandler = Handler()
+    private var connectionLiveData: ConnectionLiveData? = null
+    private var isConnected = false
+    private var webkitPermissionRequest: PermissionRequest? = null
 
     // To save current index
     private var playlistIndex = 0
@@ -74,6 +84,16 @@ class BrowserActivityNative : BaseBrowserActivity() {
 
         super.onCreate(savedInstanceState)
 
+        if (BuildConfig.DEBUG) {
+            configuration.mqttBroker = BuildConfig.BROKER
+            configuration.mqttUsername = BuildConfig.BROKER_USERNAME
+            configuration.mqttPassword = BuildConfig.BROKER_PASS
+            configuration.appLaunchUrl = BuildConfig.HASS_URL
+            configuration.isFirstTime = false
+            configuration.settingsCode = BuildConfig.CODE.toString()
+            configuration.hasClockScreenSaver = true
+        }
+
         try {
             setContentView(R.layout.activity_browser)
         } catch (e: Exception) {
@@ -93,7 +113,18 @@ class BrowserActivityNative : BaseBrowserActivity() {
             }
         }
 
+        connectionLiveData = ConnectionLiveData(this)
+        connectionLiveData?.observe(this, androidx.lifecycle.Observer { connected ->
+            if (connected!! && isConnected.not()) {
+                isConnected = true
+                initWebPageLoad()
+            } else {
+                isConnected = false
+            }
+        })
+
         mWebView.setLayerType(View.LAYER_TYPE_SOFTWARE, null)
+
         // Force links and redirects to open in the WebView instead of in a browser
         mWebView.webChromeClient = object : WebChromeClient() {
             var snackbar: Snackbar? = null
@@ -119,6 +150,22 @@ class BrowserActivityNative : BaseBrowserActivity() {
                 }
             }
 
+            @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+            override fun onPermissionRequest(request: PermissionRequest?) {
+                super.onPermissionRequest(request)
+                webkitPermissionRequest = request
+                request?.resources?.forEach {
+                    when(it){
+                        PermissionRequest.RESOURCE_AUDIO_CAPTURE -> {
+                            askForWebkitPermission(it, REQUEST_CODE_PERMISSION_AUDIO)
+                        }
+                        PermissionRequest.RESOURCE_VIDEO_CAPTURE -> {
+                            askForWebkitPermission(it, REQUEST_CODE_PERMISSION_CAMERA)
+                        }
+                    }
+                }
+            }
+
             override fun onJsAlert(view: WebView, url: String, message: String, result: JsResult): Boolean {
                 if (view.context != null && !isFinishing) {
                     AlertDialog.Builder(this@BrowserActivityNative)
@@ -129,6 +176,7 @@ class BrowserActivityNative : BaseBrowserActivity() {
                 return true
             }
         }
+
         mWebView.webViewClient = object : WebViewClient() {
             private var isRedirect = false
             override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
@@ -137,9 +185,13 @@ class BrowserActivityNative : BaseBrowserActivity() {
                 return true
             }
 
+            // TODO load a special file here on disconnect and then reload page on timer
             override fun onReceivedError(view: WebView, errorCode: Int, description: String, failingUrl: String) {
                 if (!isFinishing) {
-                    Toast.makeText(this@BrowserActivityNative, description, Toast.LENGTH_SHORT).show()
+                    view.loadUrl("about:blank")
+                    view.loadUrl("file:///android_asset/error_page.html");
+                    isConnected = false
+                    startReloadDelay()
                 }
             }
 
@@ -157,8 +209,8 @@ class BrowserActivityNative : BaseBrowserActivity() {
                             getString(R.string.dialog_title_ssl_error),
                             getString(R.string.dialog_message_ssl_continue),
                             getString(R.string.button_continue),
-                            DialogInterface.OnClickListener { _, which -> handler?.proceed() },
-                            DialogInterface.OnClickListener { _, which -> handler?.proceed() }
+                            { _, which -> handler?.proceed() },
+                            { _, which -> handler?.proceed() }
                     )
                 } else {
                     handler?.proceed()
@@ -166,12 +218,16 @@ class BrowserActivityNative : BaseBrowserActivity() {
             }
 
             override fun onPageFinished(view: WebView?, url: String?) {
+                if(isConnected) {
+                    stopReloadDelay()
+                }
                 if (isRedirect) {
                     isRedirect = false
                     return
                 }
             }
         }
+
         mWebView.setOnTouchListener { v, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
@@ -252,6 +308,7 @@ class BrowserActivityNative : BaseBrowserActivity() {
     }
 
     @SuppressLint("SetJavaScriptEnabled")
+    // TODO handle deprecated web settings
     override fun configureWebSettings(userAgent: String) {
         if(webSettings == null) {
             webSettings = mWebView.settings
@@ -259,6 +316,7 @@ class BrowserActivityNative : BaseBrowserActivity() {
         webSettings?.javaScriptEnabled = true
         webSettings?.domStorageEnabled = true
         webSettings?.databaseEnabled = true
+        webSettings?.saveFormData = true
         webSettings?.javaScriptCanOpenWindowsAutomatically = true
         webSettings?.setAppCacheEnabled(true)
         webSettings?.allowFileAccess = true
@@ -267,6 +325,7 @@ class BrowserActivityNative : BaseBrowserActivity() {
         webSettings?.setSupportZoom(true)
         webSettings?.loadWithOverviewMode = true
         webSettings?.useWideViewPort = true
+        webSettings?.pluginState = WebSettings.PluginState.ON
 
         if (userAgent.isNotEmpty()) {
             webSettings?.userAgentString = userAgent
@@ -317,9 +376,39 @@ class BrowserActivityNative : BaseBrowserActivity() {
         mWebView.reload()
     }
 
+    private val reloadPageRunnable = Runnable {
+        initWebPageLoad()
+    }
+
+    private fun startReloadDelay() {
+        playlistHandler?.removeCallbacksAndMessages(null)
+        reconnectionHandler.postDelayed(reloadPageRunnable, 30000)
+    }
+
+    private fun stopReloadDelay() {
+        reconnectionHandler.removeCallbacks(reloadPageRunnable)
+    }
+
     private fun startPlaylist() {
         playlistHandler = Handler()
         playlistHandler?.postDelayed(playlistRunnable, 10)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    fun askForWebkitPermission(permission: String, requestCode: Int) {
+        if (ContextCompat.checkSelfPermission(applicationContext, permission) != PackageManager.PERMISSION_GRANTED) {
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, permission)) {
+                // Show an expanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+            } else {
+                // No explanation needed, we can request the permission.
+                ActivityCompat.requestPermissions(this, arrayOf(permission), requestCode)
+            }
+        } else {
+            webkitPermissionRequest?.grant(webkitPermissionRequest?.resources)
+        }
     }
 
     private fun showCodeBottomSheet() {
@@ -386,19 +475,4 @@ class BrowserActivityNative : BaseBrowserActivity() {
         }
     }
 
-    /*private fun hideNavigationBar() {
-        try {
-            val process = Runtime.getRuntime().exec("su")
-            val os = DataOutputStream(process.outputStream)
-            os.writeBytes("pm disable com.android.systemui\n")
-            os.flush()
-            os.writeBytes("exit\n")
-            os.flush()
-            process.waitFor()
-        } catch (e: InterruptedException) {
-            e.printStackTrace()
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
-    }*/
 }
