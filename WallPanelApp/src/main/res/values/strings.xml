@@ -293,6 +293,10 @@
     <string name="preference_summary_password">Set the service password (if needed).</string>
     <string name="preference_client_id">Client Id</string>
     <string name="preference_summary_client_id">Set the client Id if required by service.</string>
+    <string name="pref_web_saver_title">Web Screensaver</string>
+    <string name="pref_web_saver_description">Use a web page as a screensaver.</string>
+    <string name="pref_web_screen_url_title">Web Screensaver Url</string>
+    <string name="pref_web_screen_url_description">Enter the url to use as a web screensaver.</string>
 
 
     <string-array name="flip_directions">

@@ -164,6 +164,8 @@ class DialogUtils(base: Context?) : ContextWrapper(base), LifecycleObserver {
      * with the alarm disabled because the disable time will be longer than this.
      */
     fun showScreenSaver(activity: AppCompatActivity, onClickListener: View.OnClickListener,
+                        hasWeb: Boolean,
+                        webUrl: String,
                         hasWallpaper: Boolean,
                         hasClock: Boolean,
                         rotationInterval: Long,
@@ -176,7 +178,7 @@ class DialogUtils(base: Context?) : ContextWrapper(base), LifecycleObserver {
         val view = inflater.inflate(R.layout.dialog_screen_saver, null, false)
         val screenSaverView = view.findViewById<ScreenSaverView>(R.id.screenSaverView)
         screenSaverView.setOnClickListener(onClickListener)
-        screenSaverView.init(hasWallpaper, hasClock, rotationInterval)
+        screenSaverView.init(hasWeb, webUrl, hasWallpaper, hasClock, rotationInterval)
         screenSaverDialog = buildImmersiveDialog(activity, true, screenSaverView, true)
         if (screenSaverDialog != null && preventSleep) {
             screenSaverDialog?.window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)

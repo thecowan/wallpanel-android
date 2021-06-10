@@ -24,8 +24,8 @@ apply plugin: 'com.google.firebase.crashlytics'
 
 def versionMajor = 0
 def versionMinor = 9
-def versionPatch = 4
-def versionBuild = 9 // bump for dog food builds, public betas, etc.
+def versionPatch = 5
+def versionBuild = 3 // bump for dog food builds, public betas, etc.
 
 def CODE() {
     Properties properties = new Properties()
@@ -181,7 +181,7 @@ dependencies {
 
     // Firebase
     implementation 'com.google.firebase:firebase-core:19.0.0'
-    implementation 'com.google.firebase:firebase-crashlytics:18.0.0'
+    implementation 'com.google.firebase:firebase-crashlytics:18.0.1'
     implementation 'com.google.firebase:firebase-analytics:19.0.0'
 
     // Picasso image loading

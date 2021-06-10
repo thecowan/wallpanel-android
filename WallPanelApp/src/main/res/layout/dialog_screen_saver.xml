@@ -46,4 +46,18 @@
 
     </LinearLayout>
 
+    <RelativeLayout
+        android:id="@+id/screenSaverWebViewLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <WebView
+            android:id="@+id/screenSaverWebView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+    </RelativeLayout>
+
 </com.thanksmister.iot.wallpanel.ui.views.ScreenSaverView>

@@ -113,6 +113,22 @@ class SettingsFragment : BaseSettingsFragment() {
         findPreference<EditTextPreference>(PREF_SETTINGS_USER_AGENT) as EditTextPreference
     }
 
+    private val dimScreensaver: SwitchPreference by lazy {
+        findPreference<SwitchPreference>(PREF_SETTINGS_SCREENSAVER_DIM) as SwitchPreference
+    }
+
+    /*private val blankScreensaver: SwitchPreference by lazy {
+        findPreference<SwitchPreference>(PREF_SETTINGS_SCREENSAVER_BLANK) as SwitchPreference
+    }*/
+
+    private val webScreenSaver: SwitchPreference by lazy {
+        findPreference<SwitchPreference>(PREF_SETTINGS_WEB_SCREENSAVER) as SwitchPreference
+    }
+
+    private val webScreenSaverUrl: EditTextPreference by lazy {
+        findPreference<EditTextPreference>(PREF_SETTINGS_WEB_SCREENSAVER_URL) as EditTextPreference
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
@@ -183,6 +199,7 @@ class SettingsFragment : BaseSettingsFragment() {
         useDarkThemeSettings.isChecked = configuration.useDarkTheme
         userAgentPreference.text = configuration.browserUserAgent
         dashboardPreference?.text = configuration.appLaunchUrl
+
         if(configuration.appLaunchUrl.isNotEmpty()) {
             dashboardPreference?.summary = configuration.appLaunchUrl
         }
@@ -232,6 +249,15 @@ class SettingsFragment : BaseSettingsFragment() {
         rotationPreference?.text = configuration.imageRotation.toString()
         rotationPreference?.summary = getString(R.string.preference_summary_image_rotation, configuration.imageRotation.toString())
         rotationPreference?.setDefaultValue(configuration.imageRotation.toString())
+
+        // Setup additional screensaver options
+        webScreenSaver.isChecked = configuration.webScreenSaver
+        dimScreensaver.isChecked = configuration.hasDimScreenSaver
+        //blankScreensaver.isChecked = configuration.hasBlankScreenSaver
+        val webScreensaverUrlValue = configuration.webScreenSaverUrl
+        if(webScreensaverUrlValue.isNotEmpty()) {
+            webScreenSaverUrl.text = webScreensaverUrlValue
+        }
 
         try {
             cameraPreference?.onPreferenceClickListener = Preference.OnPreferenceClickListener { preference ->
@@ -347,6 +373,25 @@ class SettingsFragment : BaseSettingsFragment() {
                     userAgentPreference.summary = value
                 }
             }
+            PREF_SETTINGS_WEB_SCREENSAVER_URL -> {
+                val value = webScreenSaverUrl.text.orEmpty()
+                if (value.isNotEmpty()) {
+                    configuration.webScreenSaverUrl = value
+                    webScreenSaverUrl.summary = value
+                }
+            }
+            PREF_SETTINGS_WEB_SCREENSAVER -> {
+                val value = webScreenSaver.isChecked
+                configuration.webScreenSaver = value
+            }
+            PREF_SETTINGS_SCREENSAVER_DIM -> {
+                val value = dimScreensaver.isChecked
+                configuration.hasDimScreenSaver = value
+            }
+            /*PREF_SETTINGS_SCREENSAVER_BLANK -> {
+                val value = blankScreensaver.isChecked
+                configuration.hasBlankScreenSaver = value
+            }*/
             "pref_settings_image_rotation" -> {
                 rotationPreference?.text?.let {
                     val rotation = it.toIntOrNull()
@@ -360,6 +405,22 @@ class SettingsFragment : BaseSettingsFragment() {
             }
         }
     }
+
+  /*  private fun setDimScreensaver(value: Boolean) {
+        webScreenSaver.isChecked = value
+        configuration.webScreenSaver = value
+        if(value) {
+            configuration.hasClockScreenSaver = false
+            configuration.hasBlankScreenSaver = false
+            configuration.hasScreenSaverWallpaper = false
+            configuration.hasDimScreenSaver = false
+            clockSaverPreference?.isChecked = false
+            wallpaperSaverPreference?.isChecked = false
+            dimScreensaver.isChecked = false
+            blankScreensaver.isChecked = false
+        }
+    }
+    */
 
     private fun checkWriteSettings() {
         if (!configuration.writeScreenPermissionsShown && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -459,5 +520,9 @@ class SettingsFragment : BaseSettingsFragment() {
         const val PREF_SETTINGS_THEME = "pref_settings_theme"
         const val PREF_SETTINGS_DASHBOARD_URL = "pref_settings_dashboard_url"
         const val PREF_SETTINGS_USER_AGENT = "pref_settings_user_agent"
+        const val PREF_SETTINGS_SCREENSAVER_DIM = "settings_screensaver_dim"
+        const val PREF_SETTINGS_SCREENSAVER_BLANK = "settings_screensaver_blank"
+        const val PREF_SETTINGS_WEB_SCREENSAVER = "settings_screensaver_web"
+        const val PREF_SETTINGS_WEB_SCREENSAVER_URL = "settings_screensaver_web_url"
     }
 }

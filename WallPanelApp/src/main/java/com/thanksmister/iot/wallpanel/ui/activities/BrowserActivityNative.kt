@@ -38,7 +38,6 @@ import com.google.android.material.snackbar.Snackbar
 import com.thanksmister.iot.wallpanel.BuildConfig
 import com.thanksmister.iot.wallpanel.R
 import com.thanksmister.iot.wallpanel.network.ConnectionLiveData
-import com.thanksmister.iot.wallpanel.network.WallPanelService
 import com.thanksmister.iot.wallpanel.ui.fragments.CodeBottomSheetFragment
 import kotlinx.android.synthetic.main.activity_browser.*
 import timber.log.Timber
@@ -301,7 +300,6 @@ class BrowserActivityNative : BaseBrowserActivity(), LifecycleObserver {
     override fun openSettings() {
         hideScreenSaver()
         // Stop our service for performance reasons and to pick up changes
-        val wallPanelService = Intent(this, WallPanelService::class.java)
         stopService(wallPanelService)
         val intent = SettingsActivity.createStartIntent(this)
         startActivity(intent)
@@ -326,6 +324,8 @@ class BrowserActivityNative : BaseBrowserActivity(), LifecycleObserver {
         webSettings?.loadWithOverviewMode = true
         webSettings?.useWideViewPort = true
         webSettings?.pluginState = WebSettings.PluginState.ON
+        webSettings?.setRenderPriority(WebSettings.RenderPriority.HIGH);
+       // webSettings?.cacheMode = WebSettings.LOAD_NO_CACHE;
 
         if (userAgent.isNotEmpty()) {
             webSettings?.userAgentString = userAgent

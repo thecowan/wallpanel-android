@@ -65,10 +65,11 @@ abstract class BaseBrowserActivity : DaggerAppCompatActivity() {
     lateinit var screenUtils: ScreenUtils
 
     var mOnScrollChangedListener: ViewTreeObserver.OnScrollChangedListener? = null
-    private var wallPanelService: Intent? = null
+    var wallPanelService: Intent? = null
     private var decorView: View? = null
     private val inactivityHandler: Handler = Handler()
     private var userPresent: Boolean = false
+    private var hasWakeScreen = false
     var displayProgress = true
     var zoomLevel = 1.0f
 
@@ -116,16 +117,19 @@ abstract class BaseBrowserActivity : DaggerAppCompatActivity() {
                 }
             } else if (BROADCAST_CLEAR_ALERT_MESSAGE == intent.action && !isFinishing) {
                 dialogUtils.clearDialogs()
-                resetInactivityTimer()
-                resetScreenBrightness(false)
+                if (hasWakeScreen.not()) {
+                    resetInactivityTimer()
+                    resetScreenBrightness(false)
+                }
             } else if (BROADCAST_SCREEN_WAKE == intent.action && !isFinishing) {
                 stopDisconnectTimer()
             } else if (BROADCAST_SCREEN_WAKE_ON == intent.action && !isFinishing) {
-                userPresent = true
+                hasWakeScreen = true
                 resetScreenBrightness(false)
                 clearInactivityTimer()
                 window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
             } else if (BROADCAST_SCREEN_WAKE_OFF == intent.action && !isFinishing) {
+                hasWakeScreen = false
                 resetInactivityTimer()
                 window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
             } else if (BROADCAST_ACTION_RELOAD_PAGE == intent.action && !isFinishing) {
@@ -223,7 +227,9 @@ abstract class BaseBrowserActivity : DaggerAppCompatActivity() {
             val bm = LocalBroadcastManager.getInstance(applicationContext)
             bm.sendBroadcast(intent)
         }
-        resetInactivityTimer()
+        if (hasWakeScreen.not()) {
+            resetInactivityTimer()
+        }
     }
 
     fun setDarkTheme() {
@@ -309,7 +315,9 @@ abstract class BaseBrowserActivity : DaggerAppCompatActivity() {
             userPresent = true
             resetScreenBrightness(false)
         }
-        resetInactivityTimer()
+        if (hasWakeScreen.not()) {
+            resetInactivityTimer()
+        }
     }
 
     open fun hideScreenSaver() {
@@ -326,21 +334,27 @@ abstract class BaseBrowserActivity : DaggerAppCompatActivity() {
      * with the alarm disabled because the disable time will be longer than this.
      */
     open fun showScreenSaver() {
-        if ((configuration.hasBlankScreenSaver || configuration.hasClockScreenSaver || configuration.hasScreenSaverWallpaper || configuration.hasDimScreenSaver) && !isFinishing) {
+        if (configuration.hasDimScreenSaver) {
             inactivityHandler.removeCallbacks(inactivityCallback)
-            if (!configuration.hasDimScreenSaver) {
-                try {
-                    dialogUtils.showScreenSaver(this@BaseBrowserActivity,
-                            View.OnClickListener {
-                                dialogUtils.hideScreenSaverDialog()
-                                resetScreenBrightness(false)
-                                resetInactivityTimer()
-                            },
-                            configuration.hasScreenSaverWallpaper, configuration.hasClockScreenSaver, configuration.imageRotation.toLong(), configuration.appPreventSleep)
-                } catch (e: Exception) {
-                    Timber.e(e.message)
-                }
-            }
+            resetScreenBrightness(true)
+        } else if ((configuration.hasClockScreenSaver
+                        || configuration.webScreenSaver
+                        || configuration.hasScreenSaverWallpaper
+                        || configuration.hasDimScreenSaver)
+                && !isFinishing) {
+            inactivityHandler.removeCallbacks(inactivityCallback)
+            dialogUtils.showScreenSaver(this@BaseBrowserActivity,
+                    {
+                        dialogUtils.hideScreenSaverDialog()
+                        resetScreenBrightness(false)
+                        resetInactivityTimer()
+                    },
+                    configuration.webScreenSaver,
+                    configuration.webScreenSaverUrl,
+                    configuration.hasScreenSaverWallpaper,
+                    configuration.hasClockScreenSaver,
+                    configuration.imageRotation.toLong(),
+                    configuration.appPreventSleep)
             resetScreenBrightness(true)
         }
     }

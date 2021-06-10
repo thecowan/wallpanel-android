@@ -293,19 +293,33 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
         get() = sharedPreferences.getInt(PREF_IMAGE_ROTATION, ROTATE_TIME_IN_MINUTES)
         set(value) = this.sharedPreferences.edit().putInt(PREF_IMAGE_ROTATION, value).apply()
 
-    val hasBlankScreenSaver: Boolean
+    var hasBlankScreenSaver: Boolean
         get() = getBoolPref(R.string.key_screensaver_blank, R.string.default_screensaver_blank)
+        set(value) =
+            sharedPreferences.edit().putBoolean(context.getString(R.string.key_screensaver_blank), value).apply()
 
-    val hasDimScreenSaver: Boolean
-        get() = getBoolPref(R.string.key_screensaver_dim, R.string.default_screensaver_dim);
+    var hasDimScreenSaver: Boolean
+        get() = getBoolPref(R.string.key_screensaver_dim, R.string.default_screensaver_dim)
+        set(value) =
+            sharedPreferences.edit().putBoolean(context.getString(R.string.key_screensaver_dim), value).apply()
 
     var hasClockScreenSaver: Boolean
         get() = getBoolPref(R.string.key_screensaver, R.string.default_screensaver)
         set(value) =
             sharedPreferences.edit().putBoolean(context.getString(R.string.key_screensaver), value).apply()
 
-    val hasScreenSaverWallpaper: Boolean
+    var hasScreenSaverWallpaper: Boolean
         get() = getBoolPref(R.string.key_screensaver_wallpaper, R.string.default_screensaver_wallpaper)
+        set(value) =
+            sharedPreferences.edit().putBoolean(context.getString(R.string.key_screensaver_wallpaper), value).apply()
+
+    var webScreenSaver: Boolean
+        get() = this.sharedPreferences.getBoolean(PREF_WEB_SCREENSAVER, false)
+        set(value) = this.sharedPreferences.edit().putBoolean(PREF_WEB_SCREENSAVER, value).apply()
+
+    var webScreenSaverUrl: String
+        get() = sharedPreferences.getString(PREF_WEB_SCREENSAVER_URL, WEB_SCREEN_SAVER).orEmpty()
+        set(value) = this.sharedPreferences.edit().putString(PREF_WEB_SCREENSAVER_URL, value).apply()
 
     var screenBrightness: Int
         get() = sharedPreferences.getInt(context.getString(R.string.key_setting_screen_brightness), 150)
@@ -372,5 +386,8 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
         const val PREF_IMAGE_ROTATION = "pref_image_rotation"
         private val PREF_CAMERA_FACE_SIZE = "pref_camera_face_size"
         private val PREF_CAMERA_MOTION_LATENCY = "pref_camera_motion_latency"
+        private val PREF_WEB_SCREENSAVER_URL = "pref_web_screensaver_url"
+        private val PREF_WEB_SCREENSAVER = "pref_web_screensaver"
+        const val WEB_SCREEN_SAVER = "https://thanksmister.com/mqtt_alarm_panel/gif_background.html"
     }
 }
