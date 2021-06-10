@@ -124,13 +124,17 @@ class ScreenSaverView : RelativeLayout {
         showWallpaper = hasWallpaper
         showClock = hasClock
 
+        // always allow the clock screensaver to be displayed
         if(showClock) {
             setClockViews()
             timeHandler = Handler()
             timeHandler?.postDelayed(timeRunnable, 10)
             screenSaverImageLayout.visibility  = View.INVISIBLE
             screenSaverWebViewLayout.visibility = View.GONE
-        } else if (showWallpaper) {
+        }
+
+        // show optional screensaver layers
+        if (showWallpaper) {
             wallPaperHandler = Handler()
             wallPaperHandler?.postDelayed(wallPaperRunnable, 10)
             screenSaverClockLayout.visibility = View.INVISIBLE

@@ -25,7 +25,7 @@ apply plugin: 'com.google.firebase.crashlytics'
 def versionMajor = 0
 def versionMinor = 9
 def versionPatch = 5
-def versionBuild = 3 // bump for dog food builds, public betas, etc.
+def versionBuild = 4 // bump for dog food builds, public betas, etc.
 
 def CODE() {
     Properties properties = new Properties()

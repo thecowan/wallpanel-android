@@ -75,7 +75,6 @@ class SettingsFragment : BaseSettingsFragment() {
     private var brightnessPreference: Preference? = null
     private var browserRefreshPreference: SwitchPreference? = null
     private var clockSaverPreference: SwitchPreference? = null
-    private var wallpaperSaverPreference: SwitchPreference? = null
     private var inactivityPreference: ListPreference? = null
     private var screenBrightness: SwitchPreference? = null
     private var dimPreference: ListPreference? = null
@@ -117,9 +116,9 @@ class SettingsFragment : BaseSettingsFragment() {
         findPreference<SwitchPreference>(PREF_SETTINGS_SCREENSAVER_DIM) as SwitchPreference
     }
 
-    /*private val blankScreensaver: SwitchPreference by lazy {
-        findPreference<SwitchPreference>(PREF_SETTINGS_SCREENSAVER_BLANK) as SwitchPreference
-    }*/
+    private val wallpaperSaverPreference: SwitchPreference by lazy {
+        findPreference<SwitchPreference>("settings_wallpaper_screensaver") as SwitchPreference
+    }
 
     private val webScreenSaver: SwitchPreference by lazy {
         findPreference<SwitchPreference>(PREF_SETTINGS_WEB_SCREENSAVER) as SwitchPreference
@@ -187,7 +186,6 @@ class SettingsFragment : BaseSettingsFragment() {
         hardwareAcceleration = findPreference<SwitchPreference>(getString(R.string.key_hadware_accelerated_enabled)) as SwitchPreference
         browserRefreshPreference = findPreference<SwitchPreference>(getString(R.string.key_pref_browser_refresh)) as SwitchPreference
         clockSaverPreference = findPreference<SwitchPreference>(getString(R.string.key_screensaver)) as SwitchPreference
-        wallpaperSaverPreference = findPreference<SwitchPreference>(getString(R.string.key_screensaver_wallpaper)) as SwitchPreference
         inactivityPreference = findPreference<ListPreference>(PREF_SCREEN_INACTIVITY_TIME) as ListPreference
         dimPreference = findPreference<ListPreference>(PREF_SCREENSAVER_DIM_VALUE) as ListPreference
         screenBrightness = findPreference<SwitchPreference>(PREF_SCREEN_BRIGHTNESS) as SwitchPreference
@@ -216,7 +214,6 @@ class SettingsFragment : BaseSettingsFragment() {
         bindPreferenceSummaryToValue(hardwareAcceleration!!)
         bindPreferenceSummaryToValue(browserHeaderPreference!!)
         bindPreferenceSummaryToValue(clockSaverPreference!!)
-        bindPreferenceSummaryToValue(wallpaperSaverPreference!!)
         bindPreferenceSummaryToValue(ignoreSSLErrorsPreference!!)
 
         inactivityPreference?.setDefaultValue(configuration.inactivityTime)
@@ -253,7 +250,14 @@ class SettingsFragment : BaseSettingsFragment() {
         // Setup additional screensaver options
         webScreenSaver.isChecked = configuration.webScreenSaver
         dimScreensaver.isChecked = configuration.hasDimScreenSaver
-        //blankScreensaver.isChecked = configuration.hasBlankScreenSaver
+        wallpaperSaverPreference.isChecked = configuration.hasScreenSaverWallpaper
+
+        if( wallpaperSaverPreference.isChecked) {
+            setWallPaperScreensaver(true)
+        } else if (webScreenSaver.isChecked) {
+            setWebScreensaver(true)
+        }
+
         val webScreensaverUrlValue = configuration.webScreenSaverUrl
         if(webScreensaverUrlValue.isNotEmpty()) {
             webScreenSaverUrl.text = webScreensaverUrlValue
@@ -380,18 +384,25 @@ class SettingsFragment : BaseSettingsFragment() {
                     webScreenSaverUrl.summary = value
                 }
             }
+            "settings_wallpaper_screensaver" -> {
+                val value = wallpaperSaverPreference.isChecked
+                configuration.hasScreenSaverWallpaper = value
+                setWallPaperScreensaver(value)
+            }
             PREF_SETTINGS_WEB_SCREENSAVER -> {
                 val value = webScreenSaver.isChecked
                 configuration.webScreenSaver = value
+                setWebScreensaver(value)
             }
             PREF_SETTINGS_SCREENSAVER_DIM -> {
                 val value = dimScreensaver.isChecked
                 configuration.hasDimScreenSaver = value
+                if(value) {
+                    setWallPaperScreensaver(false)
+                    setWebScreensaver(false)
+                }
             }
-            /*PREF_SETTINGS_SCREENSAVER_BLANK -> {
-                val value = blankScreensaver.isChecked
-                configuration.hasBlankScreenSaver = value
-            }*/
+
             "pref_settings_image_rotation" -> {
                 rotationPreference?.text?.let {
                     val rotation = it.toIntOrNull()
@@ -406,21 +417,31 @@ class SettingsFragment : BaseSettingsFragment() {
         }
     }
 
-  /*  private fun setDimScreensaver(value: Boolean) {
-        webScreenSaver.isChecked = value
+    private fun setWebScreensaver(value: Boolean) {
         configuration.webScreenSaver = value
+        webScreenSaver.isChecked = value
         if(value) {
-            configuration.hasClockScreenSaver = false
-            configuration.hasBlankScreenSaver = false
             configuration.hasScreenSaverWallpaper = false
-            configuration.hasDimScreenSaver = false
-            clockSaverPreference?.isChecked = false
-            wallpaperSaverPreference?.isChecked = false
-            dimScreensaver.isChecked = false
-            blankScreensaver.isChecked = false
+            wallpaperSaverPreference.isChecked = false
+            setDimScreensaver(false)
         }
     }
-    */
+
+    private fun setWallPaperScreensaver(value: Boolean) {
+        configuration.hasScreenSaverWallpaper = value
+        wallpaperSaverPreference.isChecked = value
+        if(value) {
+            configuration.webScreenSaver = false
+            webScreenSaver.isChecked = false
+            setDimScreensaver(false)
+        }
+    }
+
+    private fun setDimScreensaver(value: Boolean) {
+        configuration.hasDimScreenSaver = value
+        dimScreensaver.isChecked = value
+    }
+
 
     private fun checkWriteSettings() {
         if (!configuration.writeScreenPermissionsShown && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {

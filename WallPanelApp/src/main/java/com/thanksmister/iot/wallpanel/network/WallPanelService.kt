@@ -589,7 +589,8 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
             }
             if (commandJson.has(COMMAND_WAKE)) {
                 if (commandJson.getBoolean(COMMAND_WAKE).or(false)) {
-                    val wakeTime = commandJson.optLong(COMMAND_WAKETIME, 0) * 1000
+                    val fallback = configuration.inactivityTime/1000 // if no wake time, use inactivity time, convert to seconds
+                    val wakeTime = commandJson.optLong(COMMAND_WAKETIME, fallback) * 1000 // convert to milliseconds
                     if(wakeTime > 0) {
                         wakeScreenOn(wakeTime)
                     } else {
