@@ -1035,6 +1035,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         override fun onMotionDetected() {
             Timber.i("Motion detected")
             if (configuration.cameraMotionWake) {
+                configurePowerOptions()
                 wakeScreen()
             }
             publishMotionDetected()
