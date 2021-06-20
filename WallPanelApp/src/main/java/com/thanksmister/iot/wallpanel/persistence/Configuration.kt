@@ -252,6 +252,12 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
             settingsUpdated()
         }
 
+    var browserRefreshDisconnect: Boolean
+        get() = this.sharedPreferences.getBoolean(PREF_BROWSER_REFRESH_DISCONNECT, true)
+        set(value) {
+            sharedPreferences.edit().putBoolean(PREF_BROWSER_REFRESH_DISCONNECT, value).apply()
+        }
+
     var browserRefresh: Boolean
         get() = this.sharedPreferences.getBoolean(context.getString(R.string.key_pref_browser_refresh), true)
         set(value) {
@@ -380,6 +386,7 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
         const val PREF_WRITE_SCREEN_PERMISSIONS = "pref_write_screen_permissions"
         const val PREF_CAMERA_PERMISSIONS = "pref_camera_permissions"
         const val PREF_CAMERA_ROTATE = "pref_camera_rotate"
+        const val PREF_BROWSER_REFRESH_DISCONNECT = "pref_browser_refresh_disconnect"
         const val PREF_SCREEN_BRIGHTNESS = "pref_use_screen_brightness"
         const val PREF_SCREENSAVER_DIM_VALUE = "pref_screensaver_dim_value"
         private val ROTATE_TIME_IN_MINUTES = 15

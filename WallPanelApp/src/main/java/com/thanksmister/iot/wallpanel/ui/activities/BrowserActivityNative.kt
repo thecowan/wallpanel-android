@@ -58,8 +58,9 @@ class BrowserActivityNative : BaseBrowserActivity(), LifecycleObserver {
     private val calendar: Calendar = Calendar.getInstance()
     private val reconnectionHandler = Handler()
     private var connectionLiveData: ConnectionLiveData? = null
-    private var isConnected = false
+    private var isConnected = true
     private var webkitPermissionRequest: PermissionRequest? = null
+    private var awaitingReconnect = false
 
     // To save current index
     private var playlistIndex = 0
@@ -113,11 +114,16 @@ class BrowserActivityNative : BaseBrowserActivity(), LifecycleObserver {
         }
 
         connectionLiveData = ConnectionLiveData(this)
-        connectionLiveData?.observe(this, androidx.lifecycle.Observer { connected ->
-            if (connected!! && isConnected.not()) {
+        connectionLiveData?.observe(this, { connected ->
+            if (connected && isConnected.not()) {
                 isConnected = true
-                initWebPageLoad()
-            } else {
+                if(awaitingReconnect) { // reload the page if there was error initially loading page due to network disconnect
+                    stopReloadDelay()
+                    initWebPageLoad()
+                } else if(configuration.browserRefreshDisconnect) { // reload page on network reconnect
+                    initWebPageLoad()
+                }
+            } else if (connected.not()) {
                 isConnected = false
             }
         })
@@ -188,7 +194,7 @@ class BrowserActivityNative : BaseBrowserActivity(), LifecycleObserver {
             override fun onReceivedError(view: WebView, errorCode: Int, description: String, failingUrl: String) {
                 if (!isFinishing) {
                     view.loadUrl("about:blank")
-                    view.loadUrl("file:///android_asset/error_page.html");
+                    view.loadUrl("file:///android_asset/error_page.html")
                     isConnected = false
                     startReloadDelay()
                 }
@@ -381,11 +387,13 @@ class BrowserActivityNative : BaseBrowserActivity(), LifecycleObserver {
     }
 
     private fun startReloadDelay() {
+        awaitingReconnect = true
         playlistHandler?.removeCallbacksAndMessages(null)
         reconnectionHandler.postDelayed(reloadPageRunnable, 30000)
     }
 
     private fun stopReloadDelay() {
+        awaitingReconnect = false
         reconnectionHandler.removeCallbacks(reloadPageRunnable)
     }
 

@@ -51,6 +51,12 @@
             android:summary="@string/pref_browser_refresh_summary"
             android:title="@string/pref_browser_refresh_title"/>
 
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="pref_settings_refresh_on_disconnect"
+            android:summary="Refreshes the dashboard on network disconnect."
+            android:title="Network Disconnect" />
+
         <EditTextPreference
             android:defaultValue="@string/default_browser_user_agent"
             android:summary="@string/pref_user_agent_summary"

@@ -74,6 +74,7 @@ class SettingsFragment : BaseSettingsFragment() {
     private var aboutPreference: Preference? = null
     private var brightnessPreference: Preference? = null
     private var browserRefreshPreference: SwitchPreference? = null
+
     private var clockSaverPreference: SwitchPreference? = null
     private var inactivityPreference: ListPreference? = null
     private var screenBrightness: SwitchPreference? = null
@@ -86,6 +87,10 @@ class SettingsFragment : BaseSettingsFragment() {
 
     private val settingsTransparentPreference: SwitchPreference by lazy {
         findPreference<SwitchPreference>(PREF_SETTINGS_BUTTON_TRANSPARENT) as SwitchPreference
+    }
+
+    private val browserRefreshOnDisconnect: SwitchPreference by lazy {
+        findPreference<SwitchPreference>(PREF_SETTINGS_REFRESH_ON_DISCONNECT) as SwitchPreference
     }
 
     private val settingsDisablePreference: SwitchPreference by lazy {
@@ -191,6 +196,7 @@ class SettingsFragment : BaseSettingsFragment() {
         screenBrightness = findPreference<SwitchPreference>(PREF_SCREEN_BRIGHTNESS) as SwitchPreference
         ignoreSSLErrorsPreference = findPreference<SwitchPreference>(getString(R.string.key_setting_ignore_ssl_errors)) as SwitchPreference
 
+        browserRefreshOnDisconnect.isChecked = configuration.browserRefreshDisconnect
         fullScreenPreference.isChecked = configuration.fullScreen
         settingsTransparentPreference.isChecked = configuration.settingsTransparent
         settingsDisablePreference.isChecked = configuration.settingsDisabled
@@ -389,6 +395,10 @@ class SettingsFragment : BaseSettingsFragment() {
                 configuration.hasScreenSaverWallpaper = value
                 setWallPaperScreensaver(value)
             }
+            PREF_SETTINGS_REFRESH_ON_DISCONNECT -> {
+                val value = browserRefreshOnDisconnect.isChecked
+                configuration.browserRefreshDisconnect = value
+            }
             PREF_SETTINGS_WEB_SCREENSAVER -> {
                 val value = webScreenSaver.isChecked
                 configuration.webScreenSaver = value
@@ -536,13 +546,13 @@ class SettingsFragment : BaseSettingsFragment() {
         const val PREF_SCREEN_INACTIVITY_TIME = "pref_screensaver_inactivity_time"
         const val PREF_SETTINGS_FULL_SCREEN = "pref_settings_fullscreen"
         const val PREF_SETTINGS_BUTTON_TRANSPARENT = "pref_settings_button_transparent"
+        const val PREF_SETTINGS_REFRESH_ON_DISCONNECT = "pref_settings_refresh_on_disconnect"
         const val PREF_SETTINGS_BUTTON_DISABLE = "pref_settings_button_disable"
         const val PREF_SETTINGS_BUTTON_LOCATION = "pref_settings_button_location"
         const val PREF_SETTINGS_THEME = "pref_settings_theme"
         const val PREF_SETTINGS_DASHBOARD_URL = "pref_settings_dashboard_url"
         const val PREF_SETTINGS_USER_AGENT = "pref_settings_user_agent"
         const val PREF_SETTINGS_SCREENSAVER_DIM = "settings_screensaver_dim"
-        const val PREF_SETTINGS_SCREENSAVER_BLANK = "settings_screensaver_blank"
         const val PREF_SETTINGS_WEB_SCREENSAVER = "settings_screensaver_web"
         const val PREF_SETTINGS_WEB_SCREENSAVER_URL = "settings_screensaver_web_url"
     }
