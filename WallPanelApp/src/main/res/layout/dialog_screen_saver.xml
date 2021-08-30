@@ -16,6 +16,20 @@
         android:layout_gravity="center"
         tools:ignore="HardcodedText" />
 
+    <RelativeLayout
+        android:id="@+id/screenSaverWebViewLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <WebView
+            android:id="@+id/screenSaverWebView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+    </RelativeLayout>
+
     <LinearLayout
         android:id="@+id/screenSaverClockLayout"
         android:layout_width="wrap_content"
@@ -45,19 +59,5 @@
             tools:text="Monday 1st November 2019" />
 
     </LinearLayout>
-
-    <RelativeLayout
-        android:id="@+id/screenSaverWebViewLayout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="gone"
-        tools:visibility="visible">
-
-        <WebView
-            android:id="@+id/screenSaverWebView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
-
-    </RelativeLayout>
 
 </com.thanksmister.iot.wallpanel.ui.views.ScreenSaverView>

@@ -129,19 +129,21 @@ class ScreenSaverView : RelativeLayout {
             setClockViews()
             timeHandler = Handler()
             timeHandler?.postDelayed(timeRunnable, 10)
-            screenSaverImageLayout.visibility  = View.INVISIBLE
-            screenSaverWebViewLayout.visibility = View.GONE
+            screenSaverClockLayout.visibility = View.VISIBLE
+            //screenSaverWebViewLayout.visibility = View.GONE
+        } else {
+            screenSaverClockLayout.visibility = View.GONE
         }
 
         // show optional screensaver layers
         if (showWallpaper) {
             wallPaperHandler = Handler()
             wallPaperHandler?.postDelayed(wallPaperRunnable, 10)
-            screenSaverClockLayout.visibility = View.INVISIBLE
+            screenSaverImageLayout.visibility  = View.VISIBLE
             screenSaverWebViewLayout.visibility = View.GONE
         } else if (showWebPage) {
-            screenSaverClockLayout.visibility = View.INVISIBLE
-            screenSaverImageLayout.visibility  = View.INVISIBLE
+            //c
+            screenSaverImageLayout.visibility  = View.GONE
             screenSaverWebViewLayout.visibility = View.VISIBLE
             startWebScreenSaver(webUrl)
         }

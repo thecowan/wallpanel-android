@@ -378,10 +378,8 @@ class SettingsFragment : BaseSettingsFragment() {
             }
             PREF_SETTINGS_USER_AGENT -> {
                 val value = userAgentPreference.text.orEmpty()
-                if (value.isNotEmpty()) {
-                    configuration.browserUserAgent = value
-                    userAgentPreference.summary = value
-                }
+                configuration.browserUserAgent = value
+                userAgentPreference.summary = value
             }
             PREF_SETTINGS_WEB_SCREENSAVER_URL -> {
                 val value = webScreenSaverUrl.text.orEmpty()

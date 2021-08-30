@@ -1,23 +1,7 @@
-<?xml version="1.0" encoding="utf-8"?><!--
-  ~ Copyright (c) 2019 ThanksMister LLC
-  ~
-  ~ Licensed under the Apache License, Version 2.0 (the "License");
-  ~ you may not use this file except in compliance with the License.
-  ~ You may obtain a copy of the License at
-  ~
-  ~ http://www.apache.org/licenses/LICENSE-2.0
-  ~
-  ~ Unless required by applicable law or agreed to in writing, software distributed
-  ~ under the License is distributed on an "AS IS" BASIS,
-  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  ~ See the License for the specific language governing permissions and
-  ~ limitations under the License.
-  -->
-
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.thanksmister.iot.wallpanel">
-
     <!-- Permissions the Application Requires -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
@@ -25,22 +9,14 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-
-    <!-- Permission to record video -->
-    <uses-permission android:name="android.permission.CAMERA" />
-
-    <!-- Permissions to record audio from web page -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" /> <!-- Permission to record video -->
+    <uses-permission android:name="android.permission.CAMERA" /> <!-- Permissions to record audio from web page -->
     <uses-permission android:name="android.permission.MICROPHONE" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
-    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
-
-    <!-- Permission to change the screen brightness -->
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" /> <!-- Permission to change the screen brightness -->
     <uses-permission
         android:name="android.permission.WRITE_SETTINGS"
-        tools:ignore="ProtectedPermissions" />
-
-    <!-- Optional supported features -->
+        tools:ignore="ProtectedPermissions" /> <!-- Optional supported features -->
     <uses-feature
         android:name="android.hardware.audio.low_latency"
         android:required="false" />
@@ -61,7 +37,7 @@
         android:required="false" />
 
     <application
-        android:name="com.thanksmister.iot.wallpanel.WallPanel"
+        android:name=".WallPanel"
         android:allowBackup="true"
         android:fullBackupContent="true"
         android:icon="@mipmap/ic_launcher"
@@ -72,9 +48,15 @@
         android:usesCleartextTraffic="true"
         tools:ignore="GoogleAppIndexingWarning"
         tools:targetApi="m">
+        <!--<activity android:name=".ui.activities.TestActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>-->
         <activity
-            android:name="com.thanksmister.iot.wallpanel.ui.activities.BrowserActivityNative"
+            android:name=".ui.activities.BrowserActivityNative"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
             android:enabled="true"
             android:exported="true"
@@ -89,24 +71,22 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
         <activity
-            android:name="com.thanksmister.iot.wallpanel.ui.activities.LiveCameraActivity"
+            android:name=".ui.activities.LiveCameraActivity"
             android:label="@string/title_camera_test" />
-
         <activity
-            android:name="com.thanksmister.iot.wallpanel.ui.activities.SettingsActivity"
+            android:name=".ui.activities.SettingsActivity"
             android:label="@string/title_settings" />
 
         <service android:name="org.eclipse.paho.android.service.MqttService" />
         <service
-            android:name="com.thanksmister.iot.wallpanel.network.WallPanelService"
+            android:name=".network.WallPanelService"
             android:enabled="true"
             android:exported="false"
             android:stopWithTask="true" />
 
         <receiver
-            android:name="com.thanksmister.iot.wallpanel.BootUpReceiver"
+            android:name=".BootUpReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
@@ -121,15 +101,9 @@
         <meta-data
             android:name="com.google.android.gms.vision.DEPENDENCIES"
             android:value="face,barcode" />
-
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
-
-        <meta-data
-            android:name="io.fabric.ApiKey"
-            android:value="d328872540a331f2245f3d7b842d06bbb7ac1c60" />
-
     </application>
 
 </manifest>

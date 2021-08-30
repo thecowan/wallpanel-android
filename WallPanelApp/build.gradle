@@ -25,7 +25,7 @@ apply plugin: 'com.google.firebase.crashlytics'
 def versionMajor = 0
 def versionMinor = 9
 def versionPatch = 5
-def versionBuild = 6 // bump for dog food builds, public betas, etc.
+def versionBuild = 9 // bump for dog food builds, public betas, etc.
 
 def CODE() {
     Properties properties = new Properties()
@@ -148,6 +148,7 @@ dependencies {
 
     // LiveData + ViewModel
     implementation "androidx.lifecycle:lifecycle-extensions:$versions.lifecycle"
+    implementation 'com.google.firebase:firebase-analytics:17.2.2'
     annotationProcessor "androidx.lifecycle:lifecycle-compiler:$versions.lifecycle"
     implementation "androidx.lifecycle:lifecycle-reactivestreams:$versions.lifecycle"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$versions.lifecycle"
@@ -179,10 +180,16 @@ dependencies {
     // Logging
     implementation 'com.jakewharton.timber:timber:4.5.1'
 
+    // Import the BoM for the Firebase platform
+    implementation platform('com.google.firebase:firebase-bom:28.4.0')
+
+    // Declare the dependencies for the Crashlytics and Analytics libraries
+    // When using the BoM, you don't specify versions in Firebase library dependencies
+    implementation 'com.google.firebase:firebase-analytics-ktx'
+    implementation 'com.google.firebase:firebase-crashlytics-ktx'
+
     // Firebase
-    implementation 'com.google.firebase:firebase-core:19.0.0'
-    implementation 'com.google.firebase:firebase-crashlytics:18.0.1'
-    implementation 'com.google.firebase:firebase-analytics:19.0.0'
+    implementation 'com.google.firebase:firebase-core:19.0.1'
 
     // Picasso image loading
     implementation 'com.squareup.picasso:picasso:2.71828'
