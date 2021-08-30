@@ -365,16 +365,17 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
     }
 
     fun hasSettingsUpdates(): Boolean {
-        val updates = sharedPreferences.getBoolean(PREF_CAMERA_PERMISSIONS, false)
-        sharedPreferences.edit().putBoolean(PREF_CAMERA_PERMISSIONS, false).apply()
+        val updates = sharedPreferences.getBoolean(PREF_BROWSER_SETTINGS_UPDATED, false)
+        sharedPreferences.edit().putBoolean(PREF_BROWSER_SETTINGS_UPDATED, false).apply()
         return updates
     }
 
     private fun settingsUpdated() {
-        sharedPreferences.edit().putBoolean(PREF_CAMERA_PERMISSIONS, true).apply()
+        sharedPreferences.edit().putBoolean(PREF_BROWSER_SETTINGS_UPDATED, true).apply()
     }
 
     companion object {
+        private const val PREF_BROWSER_SETTINGS_UPDATED = "pref_browser_settings_updated"
         private const val PREF_DARK_THEME = "pref_dark_theme"
         private const val PREF_FULL_SCREEN = "pref_full_screen"
         private const val PREF_SETTINGS_CODE = "pref_settings_code"
