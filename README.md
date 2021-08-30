@@ -11,6 +11,14 @@ WallPanel is an Android application for Web Based Dashboards and Home Automation
 ## Support
 For issues, feature requests, use the [Github issues tracker](https://github.com/thanksmister/wallpanel-android/issues). For examples and to learn how to use each feature, vist the new [WallPanel Wiki](https://github.com/thanksmister/wallpanel-android/wiki).
 
+
+### Common Issues
+
+Rendering issues with the webpage you are trying to view.  Android applications use a component to render webpages, it's called the WebView component.   WebView is not the same as Google Chrome app, it does not render the pages the same.  The biggest issue is that your version of WebView is not capable of rendering the webpage you are trying to view.   The only way possible to fix this issue is to update the WebView component (from Google Play Store), use a different webpage, or update your device OS. 
+
+Android applications depend upon the [Android Paho](https://github.com/eclipse/paho.mqtt.android)project from Github.  This open source project seems to be out of date and those running Android 9 or higher may experience crashes or disconnectivity.  There is no other library compatible with Android to manage MQTT connections at this time.  In encourage you to help update this project if possible since it provides a valuable way for Android applications to communicate with MQTT servers.
+
+
 ## Features
 - Web Based Dashboards and Home Automation Platforms support.
 - Set application as Android Home screen (optional)
