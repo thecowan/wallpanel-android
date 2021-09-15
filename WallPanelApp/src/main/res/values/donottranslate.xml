@@ -187,6 +187,26 @@
         <item>"180%"</item>
         <item>"190%"</item>
         <item>"200%"</item>
+        <item>"210%"</item>
+        <item>"220%"</item>
+        <item>"230%"</item>
+        <item>"240%"</item>
+        <item>"250%"</item>
+        <item>"260%"</item>
+        <item>"270%"</item>
+        <item>"280%"</item>
+        <item>"290%"</item>
+        <item>"300%"</item>
+        <item>"310%"</item>
+        <item>"320%"</item>
+        <item>"330%"</item>
+        <item>"340%"</item>
+        <item>"350%"</item>
+        <item>"360%"</item>
+        <item>"370%"</item>
+        <item>"380%"</item>
+        <item>"390%"</item>
+        <item>"400%"</item>
     </string-array>
 
     <string-array name="zoom_level_values">
@@ -211,6 +231,26 @@
         <item>1.8</item>
         <item>1.9</item>
         <item>2.0</item>
+        <item>2.1</item>
+        <item>2.2</item>
+        <item>2.3</item>
+        <item>2.4</item>
+        <item>2.5</item>
+        <item>2.6</item>
+        <item>2.7</item>
+        <item>2.8</item>
+        <item>2.9</item>
+        <item>3.0</item>
+        <item>3.1</item>
+        <item>3.2</item>
+        <item>3.3</item>
+        <item>3.4</item>
+        <item>3.5</item>
+        <item>3.6</item>
+        <item>3.7</item>
+        <item>3.8</item>
+        <item>3.9</item>
+        <item>4.0</item>      
     </string-array>
 
     <string-array name="flip_values">
