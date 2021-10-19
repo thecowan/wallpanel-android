@@ -1,7 +1,7 @@
 # WallPanel
 
 
-WallPanel is an Android application for Web Based Dashboards and Home Automation Platforms. You can either side load the application to your Android device from the [release section](https://github.com/thanksmister/wallpanel-android/releases), install the application from  [Google Play](https://play.google.com/store/apps/details?id=com.thanksmister.iot.wallpanel) or get WallPanel from the [Amazon Appstore](https://www.amazon.com/dp/B08S8XZ7LN/). 
+WallPanel is an Android application for Web Based Dashboards and Home Automation Platforms. You can either side load the application to your Android device from the [release section](https://github.com/thecowan/wallpanel-android/releases), install the application from  [Google Play](https://play.google.com/store/apps/details?id=com.thanksmister.iot.wallpanel) or get WallPanel from the [Amazon Appstore](https://www.amazon.com/dp/B08S8XZ7LN/). 
 
 <a href='https://play.google.com/store/apps/details?id=com.thanksmister.iot.wallpanel&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png' width='240'/></a>
 
@@ -11,7 +11,7 @@ WallPanel is an Android application for Web Based Dashboards and Home Automation
 <img src="img/dashboard1.png" width="640" />
 
 ## Support
-For issues, feature requests, use the [Github issues tracker](https://github.com/thanksmister/wallpanel-android/issues). For examples and to learn how to use each feature, vist the new [WallPanel Wiki](https://github.com/thanksmister/wallpanel-android/wiki).
+For issues, feature requests, use the [Github issues tracker](https://github.com/thecowan/wallpanel-android/issues). For examples and to learn how to use each feature, vist the new [WallPanel Wiki](https://github.com/thecowan/wallpanel-android/wiki).
 
 
 ### Common Issues
@@ -41,7 +41,7 @@ Android applications depend upon the [Android Paho](https://github.com/eclipse/p
 *** If you have need support for older Android 4.0 devices (those below Android 4.4), you want to use the [legacy](https://github.com/thanksmister/wallpanel-android-legacy) version of the application. Alternatively you can download an APK from the release section prior to release v0.8.8-beta.6 *** 
 
 ## Quick Start
-You can either side load the application to your device from the [release section](https://github.com/thanksmister/wallpanel-android/releases)  or install the application from [Google Play](https://play.google.com/store/apps/details?id=com.thanksmister.iot.wallpanel). The application will open to the welcome page with a link to update the settings. Open the settings by clicking the dashboard floating icon. In the settings, set your web page or home automation platform url. Also set the code for accessing the settings, the default is 1234.
+You can either side load the application to your device from the [release section](https://github.com/thecowan/wallpanel-android/releases)  or install the application from [Google Play](https://play.google.com/store/apps/details?id=com.thanksmister.iot.wallpanel). The application will open to the welcome page with a link to update the settings. Open the settings by clicking the dashboard floating icon. In the settings, set your web page or home automation platform url. Also set the code for accessing the settings, the default is 1234.
 
 ## Building the Application 
 To build the application locally, checkout the code from Github and load the project into Android Studio with Android API 27 or higher.  You will need to remove the Firebase dependency in the build.gradle file, this is not required.  Remove the following dependencies:
@@ -73,4 +73,4 @@ Setting WallPanel as the default Home application will always load this applicat
 
 ## Contribution
 
-WallPanel (Formerly HomeDash) is a fork from the [original WallPanel project](https://github.com/WallPanel-Project/wallpanel-android) developed by [quadportnick](https://github.com/quadportnick). All are welcome to propose a feature request, report or bug, or contribute to the project by updating examples or with a PR for new features.  Thanks to all the [contributes](https://github.com/thanksmister/wallpanel-android/graphs/contributors) who have contributed to the project!
+WallPanel (Formerly HomeDash) is a fork from the [original WallPanel project](https://github.com/WallPanel-Project/wallpanel-android) developed by [quadportnick](https://github.com/quadportnick). All are welcome to propose a feature request, report or bug, or contribute to the project by updating examples or with a PR for new features.  Thanks to all the [contributes](https://github.com/thecowan/wallpanel-android/graphs/contributors) who have contributed to the project!
