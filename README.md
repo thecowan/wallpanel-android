@@ -1,7 +1,5 @@
 # WallPanel
 
-***I am looking for an individual or individuals to take over this project. The maintainer(s) would need to create their own Google Play and Amazon accounts to republish the applications due to signing certificates.***
-
 
 WallPanel is an Android application for Web Based Dashboards and Home Automation Platforms. You can either side load the application to your Android device from the [release section](https://github.com/thanksmister/wallpanel-android/releases), install the application from  [Google Play](https://play.google.com/store/apps/details?id=com.thanksmister.iot.wallpanel) or get WallPanel from the [Amazon Appstore](https://www.amazon.com/dp/B08S8XZ7LN/). 
 
